@@ -655,16 +655,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password } = req.body;
       const adminPassword = process.env.ADMIN_PASSWORD;
       
+      console.log('[ADMIN] Verify request received');
+      console.log('[ADMIN] Password configured:', !!adminPassword);
+      
       if (!adminPassword) {
+        console.error('[ADMIN] ERROR: Admin password not configured in environment!');
         return res.status(500).json({ error: 'Admin password not configured' });
       }
       
       if (password === adminPassword) {
+        console.log('[ADMIN] ✅ Login successful');
         res.json({ success: true, isAdmin: true });
       } else {
+        console.log('[ADMIN] ❌ Invalid password attempt');
         res.status(401).json({ success: false, isAdmin: false, error: 'Invalid password' });
       }
     } catch (error: any) {
+      console.error('[ADMIN] Exception:', error);
       res.status(500).json({ error: error.message });
     }
   });
