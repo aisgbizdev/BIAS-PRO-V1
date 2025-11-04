@@ -144,17 +144,17 @@ export function BiasHeader() {
 
         {/* Right Side: TikTok + ChatGPT + Language */}
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
-          {/* TikTok Follow - Desktop Only */}
+          {/* TikTok Follow - Always Visible */}
           <Button
             onClick={() => window.open('https://www.tiktok.com/@bias23_ai', '_blank', 'noopener,noreferrer')}
             size="sm"
             variant="outline"
             data-testid="button-tiktok"
-            className="hidden lg:flex gap-1.5 h-8 px-3"
+            className="gap-1.5 h-8 px-2 md:px-3"
             title={t('Follow on TikTok', 'Follow di TikTok')}
           >
             <SiTiktok className="w-3.5 h-3.5" />
-            <span className="text-xs font-medium">@bias23_ai</span>
+            <span className="text-xs font-medium hidden lg:inline">@bias23_ai</span>
           </Button>
 
           {/* ChatGPT Button */}
