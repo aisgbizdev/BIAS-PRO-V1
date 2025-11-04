@@ -72,6 +72,20 @@ export function BiasHeader() {
                 <ExternalLink className="w-3 h-3 ml-auto" />
               </Button>
 
+              {/* TikTok Follow in Mobile Menu */}
+              <Button
+                onClick={() => {
+                  window.open('https://www.tiktok.com/@bias23_ai', '_blank', 'noopener,noreferrer');
+                  setMobileMenuOpen(false);
+                }}
+                variant="outline"
+                className="w-full justify-start gap-3 h-12"
+              >
+                <SiTiktok className="w-4 h-4" />
+                <span>{t('Follow on TikTok', 'Follow di TikTok')}</span>
+                <ExternalLink className="w-3 h-3 ml-auto" />
+              </Button>
+
               {/* Language Toggle in Mobile Menu */}
               <Button
                 variant="outline"
@@ -128,8 +142,21 @@ export function BiasHeader() {
           })}
         </div>
 
-        {/* Right Side: ChatGPT + Language */}
+        {/* Right Side: TikTok + ChatGPT + Language */}
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
+          {/* TikTok Follow - Desktop Only */}
+          <Button
+            onClick={() => window.open('https://www.tiktok.com/@bias23_ai', '_blank', 'noopener,noreferrer')}
+            size="sm"
+            variant="outline"
+            data-testid="button-tiktok"
+            className="hidden lg:flex gap-1.5 h-8 px-3"
+            title={t('Follow on TikTok', 'Follow di TikTok')}
+          >
+            <SiTiktok className="w-3.5 h-3.5" />
+            <span className="text-xs font-medium">@bias23_ai</span>
+          </Button>
+
           {/* ChatGPT Button */}
           <Button
             onClick={() => window.open('https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-bias-pro-behavioral-intelligence-audit-system', '_blank', 'noopener,noreferrer')}
