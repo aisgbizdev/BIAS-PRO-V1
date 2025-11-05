@@ -409,6 +409,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete chat history (Clear all messages)
+  app.delete("/api/chats/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      await storage.clearChatsBySession(sessionId);
+      res.json({ success: true, message: 'Chat history cleared' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get analysis history
   app.get("/api/analyses/:sessionId", async (req, res) => {
     try {

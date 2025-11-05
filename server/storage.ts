@@ -22,6 +22,7 @@ export interface IStorage {
   // Chat history
   createChat(chat: InsertChat): Promise<Chat>;
   getChatsBySession(sessionId: string): Promise<Chat[]>;
+  clearChatsBySession(sessionId: string): Promise<void>;
 
   // TikTok account management
   createTiktokAccount(account: InsertTiktokAccount): Promise<TiktokAccount>;
@@ -144,6 +145,14 @@ export class MemStorage implements IStorage {
     return Array.from(this.chats.values())
       .filter(c => c.sessionId === sessionId)
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
+  async clearChatsBySession(sessionId: string): Promise<void> {
+    const chatIds = Array.from(this.chats.entries())
+      .filter(([_, chat]) => chat.sessionId === sessionId)
+      .map(([id, _]) => id);
+    
+    chatIds.forEach(id => this.chats.delete(id));
   }
 
   // TikTok Account methods

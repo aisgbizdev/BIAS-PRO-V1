@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { MessageCircle, X, Send, Loader2, Sparkles } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import type { Chat } from '@shared/schema';
@@ -56,6 +56,24 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
     window.addEventListener('bias:openChat', handleOpenChat);
     return () => window.removeEventListener('bias:openChat', handleOpenChat);
   }, []);
+
+  // Auto-clear chat on page unload (when user leaves app)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (session?.sessionId) {
+        // Clear chat history via API
+        fetch(`/api/chats/${session.sessionId}`, {
+          method: 'DELETE',
+          keepalive: true, // Ensures request completes even as page unloads
+        }).catch(() => {
+          // Silently fail - user is leaving anyway
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [session]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -139,6 +157,30 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
     }
   };
 
+  const handleClearChat = async () => {
+    if (!session) return;
+
+    try {
+      const response = await fetch(`/api/chats/${session.sessionId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setMessages([]);
+        toast({
+          title: t('Chat Cleared', 'Chat Dihapus'),
+          description: t('All messages have been cleared', 'Semua pesan telah dihapus'),
+        });
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to clear chat', 'Gagal menghapus chat'),
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <>
       {/* Floating Button with Label & Tooltip */}
@@ -169,9 +211,9 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
 
       {/* Chat Panel */}
       {isOpen && (
-        <Card className="fixed bottom-4 right-4 w-[calc(100vw-2rem)] sm:w-96 sm:bottom-6 sm:right-6 h-[600px] max-h-[calc(100vh-2rem)] shadow-xl flex flex-col z-50">
+        <Card className="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-96 sm:bottom-6 sm:right-6 h-[600px] max-h-[calc(100vh-2rem)] shadow-xl flex flex-col z-50">
           <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <CardTitle className="text-lg">
                 {t('BIAS Assistant', 'Asisten BIAS')}
               </CardTitle>
@@ -179,19 +221,38 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
                 {t('Press ESC to close', 'Tekan ESC untuk tutup')}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              data-testid="button-chat-close"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-1 ml-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClearChat}
+                    disabled={messages.length === 0}
+                    className="h-8 w-8"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">{t('Clear all messages', 'Hapus semua pesan')}</p>
+                </TooltipContent>
+              </Tooltip>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                data-testid="button-chat-close"
+                className="h-8 w-8"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
             {/* Messages */}
-            <ScrollArea className="flex-1 px-4 overflow-auto">
-              <div className="space-y-4 py-4">
+            <ScrollArea className="flex-1 px-3 sm:px-4 overflow-auto">
+              <div className="space-y-4 py-4 pr-2">
                 {messages.length === 0 && (
                   <div className="space-y-3 py-4">
                     {hasAnalysis ? (
@@ -217,14 +278,15 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} px-1`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words ${
+                      className={`max-w-[80%] sm:max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere ${
                         msg.role === 'user'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted'
                       }`}
+                      style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
                       data-testid={`chat-message-${msg.role}`}
                     >
                       {msg.message}
