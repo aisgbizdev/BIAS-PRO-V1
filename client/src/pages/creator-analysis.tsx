@@ -41,19 +41,21 @@ export default function CreatorAnalysis() {
               <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700">
                 <TabsTrigger 
                   value="upload"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs sm:text-sm"
                   data-testid="tab-input-upload"
                 >
-                  <Zap className="w-4 h-4 mr-2" />
-                  {t('Video Upload', 'Upload Video')}
+                  <Zap className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('Video Upload', 'Upload Video')}</span>
+                  <span className="sm:hidden">{t('Video', 'Video')}</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="form"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs sm:text-sm"
                   data-testid="tab-input-form"
                 >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {t('Text/Link Input', 'Input Teks/Link')}
+                  <FileText className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('Text/Link Input', 'Input Teks/Link')}</span>
+                  <span className="sm:hidden">{t('Text', 'Teks')}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
