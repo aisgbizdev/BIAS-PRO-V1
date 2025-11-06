@@ -758,16 +758,16 @@ export default function Library() {
   }
 
   return (
-    <div className="container max-w-6xl mx-auto p-6 space-y-6">
+    <div className="container max-w-6xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-3">
-          <BookOpen className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold">
+      <div className="space-y-2 sm:space-y-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
             {t('BIAS Library', 'Perpustakaan BIAS')}
           </h1>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
           {t(
             'Complete glossary of BIAS framework and social media platform terminology',
             'Glosarium lengkap framework BIAS dan terminologi platform media sosial'
@@ -789,30 +789,36 @@ export default function Library() {
 
       {/* Tabs */}
       <Tabs defaultValue="bias" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="bias" className="gap-2" data-testid="tab-bias">
-            <TrendingUp className="w-4 h-4" />
-            BIAS ({filteredBias.length})
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
+          <TabsTrigger value="bias" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-bias">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">BIAS ({filteredBias.length})</span>
+            <span className="sm:hidden">BIAS</span>
           </TabsTrigger>
-          <TabsTrigger value="tiktok" className="gap-2" data-testid="tab-tiktok">
-            <SiTiktok className="w-4 h-4" />
-            TikTok ({filteredTikTok.length})
+          <TabsTrigger value="tiktok" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-tiktok">
+            <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">TikTok ({filteredTikTok.length})</span>
+            <span className="sm:hidden">TikTok</span>
           </TabsTrigger>
-          <TabsTrigger value="instagram" className="gap-2" data-testid="tab-instagram">
-            <SiInstagram className="w-4 h-4" />
-            Instagram ({filteredInstagram.length})
+          <TabsTrigger value="instagram" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-instagram">
+            <SiInstagram className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Instagram ({filteredInstagram.length})</span>
+            <span className="sm:hidden">IG</span>
           </TabsTrigger>
-          <TabsTrigger value="youtube" className="gap-2" data-testid="tab-youtube">
-            <SiYoutube className="w-4 h-4" />
-            YouTube ({filteredYouTube.length})
+          <TabsTrigger value="youtube" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-youtube">
+            <SiYoutube className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">YouTube ({filteredYouTube.length})</span>
+            <span className="sm:hidden">YT</span>
           </TabsTrigger>
-          <TabsTrigger value="rules" className="gap-2" data-testid="tab-rules">
-            <Shield className="w-4 h-4" />
-            {t('Rules', 'Aturan')}
+          <TabsTrigger value="rules" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-rules">
+            <Shield className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">{t('Rules', 'Aturan')}</span>
+            <span className="sm:hidden">{t('Rules', 'Aturan')}</span>
           </TabsTrigger>
-          <TabsTrigger value="contribute" className="gap-2" data-testid="tab-contribute">
-            <CheckCircle className="w-4 h-4" />
-            {t('Contribute', 'Kontribusi')}
+          <TabsTrigger value="contribute" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-contribute">
+            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">{t('Contribute', 'Kontribusi')}</span>
+            <span className="sm:hidden">+</span>
           </TabsTrigger>
         </TabsList>
 
@@ -824,7 +830,7 @@ export default function Library() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {filteredBias.map((term, i) => (
                 <TermCard key={i} term={term} />
               ))}
@@ -840,7 +846,7 @@ export default function Library() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {filteredTikTok.map((term, i) => (
                 <TermCard key={i} term={term} />
               ))}
@@ -856,7 +862,7 @@ export default function Library() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {filteredInstagram.map((term, i) => (
                 <TermCard key={i} term={term} />
               ))}
@@ -872,7 +878,7 @@ export default function Library() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {filteredYouTube.map((term, i) => (
                 <TermCard key={i} term={term} />
               ))}
@@ -1407,7 +1413,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
               </CardHeader>
               <CardContent className="space-y-4">
                 {editingId === contrib.id ? (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
                       <Label>{t('Term (Indonesian)', 'Istilah (Indonesia)')}</Label>
                       <Input

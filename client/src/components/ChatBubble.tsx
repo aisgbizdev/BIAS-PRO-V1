@@ -188,13 +188,13 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-12 sm:h-14 rounded-full shadow-lg gap-2 px-4 sm:px-5"
+              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-10 sm:h-12 rounded-full shadow-lg gap-1.5 px-3 sm:px-4 z-50"
               onClick={() => setIsOpen(true)}
               data-testid="button-chat-open"
             >
-              <MessageCircle className="w-5 h-5" />
-              <span className="font-medium text-sm sm:text-base">
-                {t('Chat with BIAS - Discuss results here', 'Chat dengan BIAS - Klik untuk diskusi hasil')}
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="font-medium text-xs sm:text-sm">
+                {t('Chat BIAS', 'Chat BIAS')}
               </span>
             </Button>
           </TooltipTrigger>
