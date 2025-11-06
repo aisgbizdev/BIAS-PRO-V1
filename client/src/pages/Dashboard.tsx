@@ -144,17 +144,17 @@ export default function Dashboard() {
 
         {/* Library Link */}
         <Card className="bg-[#141414] border-gray-800 hover-elevate">
-          <CardContent className="py-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 bg-opacity-10">
-                  <BookOpen className="w-6 h-6 text-yellow-400" />
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                <div className="p-2.5 sm:p-3 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 bg-opacity-10 flex-shrink-0">
+                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-1">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 leading-tight">
                     {t('Platform Rules Library', 'Library Aturan Platform')}
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed">
                     {t(
                       'Browse official community guidelines for TikTok, Instagram & YouTube',
                       'Telusuri panduan komunitas resmi untuk TikTok, Instagram & YouTube'
@@ -162,8 +162,8 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <Link href="/library">
-                <Button variant="outline" className="gap-2" data-testid="button-go-library">
+              <Link href="/library" className="w-full sm:w-auto flex-shrink-0">
+                <Button variant="outline" className="gap-2 w-full sm:w-auto" data-testid="button-go-library">
                   {t('Browse Library', 'Buka Library')}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
