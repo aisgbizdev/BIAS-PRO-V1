@@ -53,18 +53,18 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
-          <div className="flex flex-col items-center text-center space-y-6">
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+        <div className="max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-24">
+          <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
               BiAS²³ Pro
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl">
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl">
               {t(
                 'Behavioral Intelligence Audit System',
                 'Sistem Audit Kecerdasan Perilaku'
               )}
             </p>
-            <p className="text-lg text-gray-400 max-w-2xl">
+            <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-2xl leading-relaxed">
               {t(
                 'AI-powered behavioral analysis using 8-layer framework for communicators & professionals',
                 'Analisis perilaku bertenaga AI menggunakan framework 8-layer untuk komunikator & profesional'
@@ -76,11 +76,11 @@ export default function Dashboard() {
 
       {/* Analysis Types Grid */}
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">
             {t('Choose Your Analysis Type', 'Pilih Tipe Analisis Anda')}
           </h2>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-sm sm:text-base md:text-lg">
             {t(
               'Select the analysis mode that best fits your needs',
               'Pilih mode analisis yang paling sesuai dengan kebutuhan Anda'
@@ -108,10 +108,10 @@ export default function Dashboard() {
                       {type.badge}
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  <CardTitle className="text-xl sm:text-2xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                     {type.title}
                   </CardTitle>
-                  <CardDescription className="text-gray-400 text-base">
+                  <CardDescription className="text-gray-400 text-sm sm:text-base leading-relaxed">
                     {type.description}
                   </CardDescription>
                 </CardHeader>

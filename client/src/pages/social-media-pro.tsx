@@ -168,14 +168,14 @@ export default function SocialMediaPro() {
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-pink-500/10 via-transparent to-cyan-400/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="flex items-center gap-3 mb-4">
-            <Zap className="w-8 h-8 text-pink-500" />
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+            <Zap className="w-6 h-6 md:w-8 md:h-8 text-pink-500 flex-shrink-0" />
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
               {t('Social Media Pro', 'Social Media Pro')}
             </h1>
           </div>
-          <p className="text-gray-400 text-lg max-w-3xl">
+          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
             {t(
               'Deep behavioral analysis for TikTok, Instagram & YouTube creators. Track metrics, identify growth opportunities, and optimize your content strategy.',
               'Analisis behavioral mendalam untuk kreator TikTok, Instagram & YouTube. Lacak metrik, identifikasi peluang pertumbuhan, dan optimalkan strategi konten.'

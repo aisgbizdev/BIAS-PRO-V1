@@ -35,12 +35,12 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 38817
-externalPort = 3001
-
-[[ports]]
 localPort = 39149
 externalPort = 3000
+
+[[ports]]
+localPort = 43873
+externalPort = 3001
 
 [deployment]
 deploymentTarget = "vm"

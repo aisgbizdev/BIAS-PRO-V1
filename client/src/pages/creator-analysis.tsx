@@ -17,14 +17,14 @@ export default function CreatorAnalysis() {
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="flex items-center gap-3 mb-4">
-            <Video className="w-8 h-8 text-purple-500" />
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+            <Video className="w-6 h-6 md:w-8 md:h-8 text-purple-500 flex-shrink-0" />
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
               {t('Communication Analysis', 'Analisis Komunikasi')}
             </h1>
           </div>
-          <p className="text-gray-400 text-lg max-w-3xl">
+          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
             {t(
               'Analyze sales presentations, client pitches, prospecting calls, and marketing videos. Get AI-powered feedback to improve your communication and boost conversions.',
               'Analisis presentasi penjualan, pitch klien, prospek, dan video marketing. Dapatkan feedback AI untuk meningkatkan komunikasi dan konversi Anda.'
