@@ -19,8 +19,6 @@ export function BiasHeader() {
     { href: '/', icon: Home, label: t('Home', 'Beranda') },
     { href: '/social-media-pro', icon: SiTiktok, label: t('Social Pro', 'Social Pro') },
     { href: '/creator', icon: Mic, label: t('Communication', 'Komunikasi') },
-    { href: '/academic', icon: Briefcase, label: t('Academic', 'Akademik') },
-    { href: '/hybrid', icon: Zap, label: t('Hybrid', 'Hybrid') },
     { href: '/library', icon: BookOpen, label: t('Library', 'Library') },
   ];
 

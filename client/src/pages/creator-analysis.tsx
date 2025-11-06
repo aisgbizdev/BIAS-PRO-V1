@@ -21,13 +21,13 @@ export default function CreatorAnalysis() {
           <div className="flex items-center gap-3 mb-4">
             <Video className="w-8 h-8 text-purple-500" />
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-              {t('Creator Mode', 'Mode Kreator')}
+              {t('Communication Analysis', 'Analisis Komunikasi')}
             </h1>
           </div>
           <p className="text-gray-400 text-lg max-w-3xl">
             {t(
-              'Analyze content creators, influencers, and social media personalities. Optimize your TikTok, Instagram & YouTube content.',
-              'Analisis content creator, influencer, dan personalitas media sosial. Optimalkan konten TikTok, Instagram & YouTube Anda.'
+              'Analyze sales presentations, client pitches, prospecting calls, and marketing videos. Get AI-powered feedback to improve your communication and boost conversions.',
+              'Analisis presentasi penjualan, pitch klien, prospek, dan video marketing. Dapatkan feedback AI untuk meningkatkan komunikasi dan konversi Anda.'
             )}
           </p>
         </div>

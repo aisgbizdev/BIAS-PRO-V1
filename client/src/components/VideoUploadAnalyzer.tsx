@@ -266,13 +266,22 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Video className="w-5 h-5 text-pink-500" />
-            {t('Upload & Analyze Videos', 'Upload & Analisis Video')}
+            {mode === 'academic' 
+              ? t('Upload Your Sales & Prospecting Videos', 'Upload Video Jualan & Prospek Anda')
+              : t('Upload & Analyze Videos', 'Upload & Analisis Video')
+            }
           </CardTitle>
           <CardDescription className="text-gray-400">
-            {t(
-              'Upload one or more videos to analyze or compare performance',
-              'Upload satu atau lebih video untuk analisis atau bandingkan performa'
-            )}
+            {mode === 'academic' 
+              ? t(
+                  'Upload your sales presentations, prospecting calls, or client pitches. Get AI-powered feedback on what to improve for better conversions.',
+                  'Upload presentasi jualan, prospek, atau pitch klien Anda. Dapatkan feedback AI tentang apa yang harus diperbaiki untuk konversi lebih baik.'
+                )
+              : t(
+                  'Upload one or more videos to analyze or compare performance',
+                  'Upload satu atau lebih video untuk analisis atau bandingkan performa'
+                )
+            }
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -325,10 +334,16 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             </Tabs>
             {selectedPlatform === 'non-social' && (
               <p className="text-xs text-gray-400 mt-2">
-                {t(
-                  'For presentations, speeches, meetings, talkshows, podcasts, or any professional communication',
-                  'Untuk presentasi, pidato, meeting, talkshow, podcast, atau komunikasi profesional lainnya'
-                )}
+                {mode === 'academic'
+                  ? t(
+                      'Perfect for: Sales pitches, client presentations, prospecting calls, product demos, webinars, or any marketing communication',
+                      'Cocok untuk: Sales pitch, presentasi klien, prospek, demo produk, webinar, atau komunikasi marketing lainnya'
+                    )
+                  : t(
+                      'For presentations, speeches, meetings, talkshows, podcasts, or any professional communication',
+                      'Untuk presentasi, pidato, meeting, talkshow, podcast, atau komunikasi profesional lainnya'
+                    )
+                }
               </p>
             )}
           </div>
