@@ -10,10 +10,7 @@ import { ChatBubble } from "@/components/ChatBubble";
 import Dashboard from "@/pages/Dashboard";
 import Library from "@/pages/Library";
 import SocialMediaPro from "@/pages/social-media-pro";
-import VideoAnalyzer from "@/pages/video-analyzer";
 import CreatorAnalysis from "@/pages/creator-analysis";
-import AcademicAnalysis from "@/pages/academic-analysis";
-import HybridAnalysis from "@/pages/hybrid-analysis";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 
@@ -35,11 +32,8 @@ function Router() {
       <ScrollToTop />
       <Switch>
         <Route path="/" component={Dashboard} />
+        <Route path="/social-pro" component={SocialMediaPro} />
         <Route path="/creator" component={CreatorAnalysis} />
-        <Route path="/academic" component={AcademicAnalysis} />
-        <Route path="/hybrid" component={HybridAnalysis} />
-        <Route path="/social-media-pro" component={SocialMediaPro} />
-        <Route path="/video-analyzer" component={VideoAnalyzer} />
         <Route path="/library" component={Library} />
         <Route component={NotFound} />
       </Switch>

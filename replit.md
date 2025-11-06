@@ -8,6 +8,21 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### November 6, 2025 - SIMPLIFIED NAVIGATION TO 2 MODES ✅
+- **Navigation Simplification**: Reduced from 4 modes to 2 modes for cleaner UX
+  - **Social Pro** (`/social-pro`): Account analytics for TikTok/Instagram/YouTube with platform tabs
+  - **Communication** (`/creator`): Sales & marketing video analysis - NO platform tabs, direct upload
+  - **Removed**: Academic Analysis and Hybrid Analysis modes (consolidated into Communication)
+- **Communication Mode Repositioning**: Sales/marketing focus with updated copywriting
+  - **New Description**: "Analyze sales presentations, prospecting calls, client pitches & marketing videos"
+  - **Features**: Sales pitch analysis, client presentation feedback, conversion optimization tips
+  - **Tab Order**: Video Upload first (left), Text/Link Input second (right) - default to Video Upload
+  - **Platform Tabs**: Hidden in Communication mode (Professional mode only, no social media options)
+  - **Social Pro**: Platform tabs still visible (TikTok/Instagram/YouTube/Professional)
+- **Route Cleanup**: Removed `/academic`, `/hybrid`, `/video-analyzer` routes from App.tsx
+- **File Cleanup**: Deleted unused page components (academic-analysis.tsx, hybrid-analysis.tsx, video-analyzer.tsx)
+- **Dashboard Update**: Homepage now shows only 2 mode cards with sales-focused copywriting for Communication
+
 ### November 4, 2025 - MOBILE RESPONSIVE HEADER + PWA SETUP ✅
 - **Mobile-First Header Redesign**: Fully responsive header with hamburger menu for mobile devices
   - **Logo**: Clickable BiAS²³ Pro logo redirects to home page

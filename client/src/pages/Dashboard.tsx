@@ -13,7 +13,7 @@ export default function Dashboard() {
   const analysisTypes = [
     // FIRST: Social Media Pro (Account Analytics)
     {
-      href: '/social-media-pro',
+      href: '/social-pro',
       icon: SiTiktok,
       title: t('Social Media Pro', 'Social Media Pro'),
       description: t(
@@ -29,59 +29,23 @@ export default function Dashboard() {
       badge: t('Premium', 'Premium'),
       badgeColor: 'bg-gradient-to-r from-pink-500/30 to-cyan-500/30 text-pink-300 border-pink-500/50',
     },
-    // SECOND: Communication Analysis (General Speaking - NOT Social Media)
+    // SECOND: Communication Analysis (Sales & Marketing Focus)
     {
       href: '/creator',
       icon: Mic,
       title: t('Communication Analysis', 'Analisis Komunikasi'),
       description: t(
-        'Evaluate communication style in public speaking, presentations, talk shows, speeches & professional meetings',
-        'Evaluasi gaya komunikasi dalam public speaking, presentasi, talk show, pidato & meeting profesional'
+        'Analyze sales presentations, prospecting calls, client pitches & marketing videos. Get AI-powered feedback to boost conversions.',
+        'Analisis presentasi jualan, prospek, pitch klien & video marketing. Dapatkan feedback AI untuk tingkatkan konversi.'
       ),
       color: 'from-purple-500 to-pink-500',
       features: [
-        { en: 'Speech delivery analysis', id: 'Analisis penyampaian bicara' },
-        { en: 'Presentation impact evaluation', id: 'Evaluasi dampak presentasi' },
-        { en: 'Communication effectiveness', id: 'Efektivitas komunikasi' },
+        { en: 'Sales pitch analysis', id: 'Analisis sales pitch' },
+        { en: 'Client presentation feedback', id: 'Feedback presentasi klien' },
+        { en: 'Conversion optimization tips', id: 'Tips optimasi konversi' },
       ],
       badge: t('General', 'Umum'),
       badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/50',
-    },
-    // THIRD: Academic Analysis (Professional Context)
-    {
-      href: '/academic',
-      icon: Briefcase,
-      title: t('Academic Analysis', 'Analisis Akademik'),
-      description: t(
-        'Evaluate professional communication for leadership, academic contexts, research presentations & formal settings',
-        'Evaluasi komunikasi profesional untuk kepemimpinan, konteks akademik, presentasi riset & setting formal'
-      ),
-      color: 'from-blue-500 to-cyan-500',
-      features: [
-        { en: 'Leadership communication style', id: 'Gaya komunikasi kepemimpinan' },
-        { en: 'Professional presence assessment', id: 'Penilaian kehadiran profesional' },
-        { en: 'Logical argument structure', id: 'Struktur argumen logis' },
-      ],
-      badge: t('Professional', 'Profesional'),
-      badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/50',
-    },
-    // FOURTH: Hybrid Analysis (Combined)
-    {
-      href: '/hybrid',
-      icon: Zap,
-      title: t('Hybrid Analysis', 'Analisis Hybrid'),
-      description: t(
-        'Combined communication + academic analysis for comprehensive behavioral insights across all contexts',
-        'Analisis gabungan komunikasi + akademik untuk wawasan perilaku komprehensif di semua konteks'
-      ),
-      color: 'from-green-500 to-emerald-500',
-      features: [
-        { en: 'Full spectrum analysis', id: 'Analisis spektrum penuh' },
-        { en: 'Cross-context evaluation', id: 'Evaluasi lintas konteks' },
-        { en: 'Multi-audience impact', id: 'Dampak multi-audiens' },
-      ],
-      badge: t('Advanced', 'Lanjutan'),
-      badgeColor: 'bg-green-500/20 text-green-300 border-green-500/50',
     },
   ];
 
