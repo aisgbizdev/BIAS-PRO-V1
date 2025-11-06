@@ -189,24 +189,22 @@ export default function SocialMediaPro() {
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="pt-6">
             <Tabs value={analysisMode} onValueChange={(v) => setAnalysisMode(v as typeof analysisMode)}>
-              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700">
+              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700 gap-1">
                 <TabsTrigger 
                   value="account"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-xs sm:text-sm"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
                   data-testid="tab-mode-account"
                 >
-                  <Users className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('Account Analysis', 'Analisis Akun')}</span>
-                  <span className="sm:hidden">{t('Account', 'Akun')}</span>
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">{t('Account', 'Akun')}</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="video"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs sm:text-sm"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
                   data-testid="tab-mode-video"
                 >
-                  <Upload className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('Video Upload & Compare', 'Upload & Bandingkan Video')}</span>
-                  <span className="sm:hidden">{t('Video', 'Video')}</span>
+                  <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">{t('Video', 'Video')}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -228,29 +226,29 @@ export default function SocialMediaPro() {
             <CardContent className="space-y-6">
             {/* Platform Tabs */}
             <Tabs value={platform} onValueChange={(v) => setPlatform(v as typeof platform)}>
-              <TabsList className="grid grid-cols-3 w-full bg-[#1E1E1E] border border-gray-700 p-1">
+              <TabsList className="grid grid-cols-3 w-full bg-[#1E1E1E] border border-gray-700 p-1 gap-1">
                 <TabsTrigger 
                   value="tiktok" 
-                  className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-1 text-xs sm:text-sm"
+                  className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-1 text-[10px] sm:text-sm px-1 sm:px-3"
                   data-testid="tab-tiktok"
                 >
-                  <SiTiktok className="w-4 h-4 flex-shrink-0" />
+                  <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                   <span className="hidden sm:inline">TikTok</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="instagram"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white gap-1 text-xs sm:text-sm"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white gap-1 text-[10px] sm:text-sm px-1 sm:px-3"
                   data-testid="tab-instagram"
                 >
-                  <SiInstagram className="w-4 h-4 flex-shrink-0" />
+                  <SiInstagram className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                   <span className="hidden sm:inline">Instagram</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="youtube"
-                  className="data-[state=active]:bg-red-600 data-[state=active]:text-white gap-1 text-xs sm:text-sm"
+                  className="data-[state=active]:bg-red-600 data-[state=active]:text-white gap-1 text-[10px] sm:text-sm px-1 sm:px-3"
                   data-testid="tab-youtube"
                 >
-                  <SiYoutube className="w-4 h-4 flex-shrink-0" />
+                  <SiYoutube className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                   <span className="hidden sm:inline">YouTube</span>
                 </TabsTrigger>
               </TabsList>

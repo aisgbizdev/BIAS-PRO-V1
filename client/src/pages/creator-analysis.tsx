@@ -38,24 +38,22 @@ export default function CreatorAnalysis() {
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="pt-6">
             <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as typeof inputMode)}>
-              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700">
+              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700 gap-1">
                 <TabsTrigger 
                   value="upload"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs sm:text-sm"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
                   data-testid="tab-input-upload"
                 >
-                  <Zap className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('Video Upload', 'Upload Video')}</span>
-                  <span className="sm:hidden">{t('Video', 'Video')}</span>
+                  <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">{t('Video', 'Video')}</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="form"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs sm:text-sm"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
                   data-testid="tab-input-form"
                 >
-                  <FileText className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('Text/Link Input', 'Input Teks/Link')}</span>
-                  <span className="sm:hidden">{t('Text', 'Teks')}</span>
+                  <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">{t('Text', 'Teks')}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
