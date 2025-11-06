@@ -10,7 +10,7 @@ import type { BiasAnalysisResult } from '@shared/schema';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
-  const [inputMode, setInputMode] = useState<'form' | 'upload'>('form');
+  const [inputMode, setInputMode] = useState<'form' | 'upload'>('upload');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   return (
@@ -40,20 +40,20 @@ export default function CreatorAnalysis() {
             <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as typeof inputMode)}>
               <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700">
                 <TabsTrigger 
-                  value="form"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
-                  data-testid="tab-input-form"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {t('Text/Link Input', 'Input Teks/Link')}
-                </TabsTrigger>
-                <TabsTrigger 
                   value="upload"
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
                   data-testid="tab-input-upload"
                 >
                   <Zap className="w-4 h-4 mr-2" />
                   {t('Video Upload', 'Upload Video')}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="form"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+                  data-testid="tab-input-form"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  {t('Text/Link Input', 'Input Teks/Link')}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -67,7 +67,7 @@ export default function CreatorAnalysis() {
 
         {/* Analysis Input - Upload Mode */}
         {inputMode === 'upload' && (
-          <VideoUploadAnalyzer onAnalysisComplete={setCurrentAnalysis} mode="creator" />
+          <VideoUploadAnalyzer onAnalysisComplete={setCurrentAnalysis} mode="academic" />
         )}
 
         {/* Analysis Results */}

@@ -285,68 +285,58 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Platform Tabs */}
-          <div>
-            <Label className="text-white mb-2 block">
-              {mode === 'creator' 
-                ? t('Select Social Media Platform', 'Pilih Platform Media Sosial')
-                : t('Select Video Type', 'Pilih Tipe Video')}
-            </Label>
-            <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
-              <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-4">
-                {mode === 'creator' && (
-                  <>
-                    <TabsTrigger 
-                      value="tiktok" 
-                      className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-2"
-                      data-testid="tab-platform-tiktok"
-                    >
-                      <SiTiktok className="w-4 h-4" />
-                      <span className="hidden sm:inline">TikTok</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="instagram"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white gap-2"
-                      data-testid="tab-platform-instagram"
-                    >
-                      <SiInstagram className="w-4 h-4" />
-                      <span className="hidden sm:inline">Instagram</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="youtube"
-                      className="data-[state=active]:bg-red-600 data-[state=active]:text-white gap-2"
-                      data-testid="tab-platform-youtube"
-                    >
-                      <SiYoutube className="w-4 h-4" />
-                      <span className="hidden sm:inline">YouTube</span>
-                    </TabsTrigger>
-                  </>
-                )}
-                <TabsTrigger 
-                  value="non-social"
-                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white gap-2"
-                  data-testid="tab-platform-nonsocial"
-                >
-                  <Presentation className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('Professional', 'Profesional')}</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {selectedPlatform === 'non-social' && (
-              <p className="text-xs text-gray-400 mt-2">
-                {mode === 'academic'
-                  ? t(
-                      'Perfect for: Sales pitches, client presentations, prospecting calls, product demos, webinars, or any marketing communication',
-                      'Cocok untuk: Sales pitch, presentasi klien, prospek, demo produk, webinar, atau komunikasi marketing lainnya'
-                    )
-                  : t(
-                      'For presentations, speeches, meetings, talkshows, podcasts, or any professional communication',
-                      'Untuk presentasi, pidato, meeting, talkshow, podcast, atau komunikasi profesional lainnya'
-                    )
-                }
-              </p>
-            )}
-          </div>
+          {/* Platform Tabs - Only show for Social Pro mode */}
+          {mode === 'creator' && (
+            <div>
+              <Label className="text-white mb-2 block">
+                {t('Select Social Media Platform', 'Pilih Platform Media Sosial')}
+              </Label>
+              <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
+                <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-4">
+                  <TabsTrigger 
+                    value="tiktok" 
+                    className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-2"
+                    data-testid="tab-platform-tiktok"
+                  >
+                    <SiTiktok className="w-4 h-4" />
+                    <span className="hidden sm:inline">TikTok</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="instagram"
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white gap-2"
+                    data-testid="tab-platform-instagram"
+                  >
+                    <SiInstagram className="w-4 h-4" />
+                    <span className="hidden sm:inline">Instagram</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="youtube"
+                    className="data-[state=active]:bg-red-600 data-[state=active]:text-white gap-2"
+                    data-testid="tab-platform-youtube"
+                  >
+                    <SiYoutube className="w-4 h-4" />
+                    <span className="hidden sm:inline">YouTube</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="non-social"
+                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white gap-2"
+                    data-testid="tab-platform-nonsocial"
+                  >
+                    <Presentation className="w-4 h-4" />
+                    <span className="hidden sm:inline">{t('Professional', 'Profesional')}</span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              {selectedPlatform === 'non-social' && (
+                <p className="text-xs text-gray-400 mt-2">
+                  {t(
+                    'For presentations, speeches, meetings, talkshows, podcasts, or any professional communication',
+                    'Untuk presentasi, pidato, meeting, talkshow, podcast, atau komunikasi profesional lainnya'
+                  )}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* File Upload */}
           <div>
