@@ -183,10 +183,10 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
 
   return (
     <>
-      {/* Floating Button - FIXED POSITION (Slightly Right of Center, Never Scrolls) */}
+      {/* Floating Button - FIXED POSITION (Right Side, Safe from Edge) */}
       {!isOpen && (
         <div className="fixed bottom-4 left-0 right-0 sm:bottom-6 z-[9999] pointer-events-none">
-          <div className="max-w-7xl mx-auto px-4 flex justify-center sm:justify-end sm:pr-[20%]">
+          <div className="max-w-7xl mx-auto px-4 flex justify-center sm:justify-end sm:pr-8">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
