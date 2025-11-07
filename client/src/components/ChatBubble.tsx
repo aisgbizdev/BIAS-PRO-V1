@@ -183,12 +183,12 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
 
   return (
     <>
-      {/* Floating Button - Fixed Position (Doesn't Scroll) */}
+      {/* Floating Button - FIXED CENTER BOTTOM (Doesn't Scroll) */}
       {!isOpen && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-10 sm:h-11 rounded-full shadow-lg gap-1.5 px-3.5 sm:px-4 z-50 max-w-fit"
+              className="fixed bottom-4 left-1/2 -translate-x-1/2 sm:bottom-6 h-10 sm:h-11 rounded-full shadow-lg gap-1.5 px-3.5 sm:px-4 z-50 max-w-fit"
               onClick={() => setIsOpen(true)}
               data-testid="button-chat-open"
             >
@@ -198,7 +198,7 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
               </span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left" className="max-w-xs">
+          <TooltipContent side="top" className="max-w-xs mb-2">
             <p className="text-sm">
               {t(
                 'Ask questions about communication, behavioral analysis, and social media strategy. AI-powered with strict BIAS focus.',
