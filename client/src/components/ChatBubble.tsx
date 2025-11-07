@@ -183,17 +183,17 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
 
   return (
     <>
-      {/* Floating Button with Label & Tooltip */}
+      {/* Floating Button - Fixed Position (Doesn't Scroll) */}
       {!isOpen && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-10 sm:h-12 rounded-full shadow-lg gap-1.5 px-3 sm:px-4 z-50"
+              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-10 sm:h-11 rounded-full shadow-lg gap-1.5 px-3.5 sm:px-4 z-50 max-w-fit"
               onClick={() => setIsOpen(true)}
               data-testid="button-chat-open"
             >
-              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="font-medium text-xs sm:text-sm">
+              <MessageCircle className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="font-medium text-xs sm:text-sm whitespace-nowrap">
                 {t('Chat BIAS', 'Chat BIAS')}
               </span>
             </Button>
@@ -209,9 +209,9 @@ export function ChatBubble({ hasAnalysis = false }: ChatBubbleProps) {
         </Tooltip>
       )}
 
-      {/* Chat Panel */}
+      {/* Chat Panel - Fixed Position (Doesn't Scroll) */}
       {isOpen && (
-        <Card className="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-96 sm:bottom-6 sm:right-6 h-[600px] max-h-[calc(100vh-2rem)] shadow-xl flex flex-col z-50">
+        <Card className="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-96 sm:bottom-6 sm:right-6 h-[70vh] sm:h-[600px] max-h-[calc(100vh-2rem)] shadow-xl flex flex-col z-50">
           <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg">
