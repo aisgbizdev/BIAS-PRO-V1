@@ -8,6 +8,7 @@ import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
 import biasLogo from '@assets/bias logo_1762016709581.jpg';
 import { useState } from 'react';
+import { openExternalLink } from '@/lib/external-link-handler';
 
 export function BiasHeader() {
   const { language, toggleLanguage, t } = useLanguage();
@@ -60,7 +61,7 @@ export function BiasHeader() {
               {/* ChatGPT in Mobile Menu */}
               <Button
                 onClick={() => {
-                  window.open('https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-bias-pro-behavioral-intelligence-audit-system', '_blank', 'noopener,noreferrer');
+                  openExternalLink('https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-bias-pro-behavioral-intelligence-audit-system');
                   setMobileMenuOpen(false);
                 }}
                 className="w-full justify-start gap-3 h-12 mt-2 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:from-pink-600 hover:via-purple-600 hover:to-cyan-600 text-white"
@@ -73,7 +74,7 @@ export function BiasHeader() {
               {/* TikTok Follow in Mobile Menu */}
               <Button
                 onClick={() => {
-                  window.open('https://www.tiktok.com/@bias23_ai', '_blank', 'noopener,noreferrer');
+                  openExternalLink('https://www.tiktok.com/@bias23_ai');
                   setMobileMenuOpen(false);
                 }}
                 variant="outline"
@@ -144,7 +145,7 @@ export function BiasHeader() {
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
           {/* TikTok Follow - Always Visible */}
           <Button
-            onClick={() => window.open('https://www.tiktok.com/@bias23_ai', '_blank', 'noopener,noreferrer')}
+            onClick={() => openExternalLink('https://www.tiktok.com/@bias23_ai')}
             size="sm"
             variant="outline"
             data-testid="button-tiktok"
@@ -157,7 +158,7 @@ export function BiasHeader() {
 
           {/* ChatGPT Button */}
           <Button
-            onClick={() => window.open('https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-bias-pro-behavioral-intelligence-audit-system', '_blank', 'noopener,noreferrer')}
+            onClick={() => openExternalLink('https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-bias-pro-behavioral-intelligence-audit-system')}
             size="sm"
             data-testid="button-chatgpt"
             className="gap-1 h-8 px-2 md:px-3 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:from-pink-600 hover:via-purple-600 hover:to-cyan-600 text-white border-0 shadow-md hover:shadow-lg transition-all"
