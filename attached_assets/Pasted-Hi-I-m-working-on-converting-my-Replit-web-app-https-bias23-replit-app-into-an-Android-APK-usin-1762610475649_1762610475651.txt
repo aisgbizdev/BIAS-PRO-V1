@@ -1,0 +1,62 @@
+Hi, I’m working on converting my Replit web app (https://bias23.replit.app) into an Android APK using Cordova via Volt Builder.
+The app itself loads perfectly — internal navigation works fine — but external links (like TikTok and ChatGPT) don’t open at all when clicked inside the WebView.
+
+I already tried full permission setup inside config.xml, like this:
+
+<access origin="*" />
+<allow-navigation href="*" />
+<allow-intent href="*" />
+<plugin name="cordova-plugin-inappbrowser" source="npm" />
+
+
+I also tried adding window.open() interception logic inside index.html, but links like:
+
+https://www.tiktok.com
+
+https://chat.openai.com
+
+still remain blocked or ignored silently in the Android WebView.
+
+⚙️ Goal I want to achieve:
+
+When a user clicks any external link (not under bias23.replit.app), the app should automatically open it via:
+
+cordova.InAppBrowser.open(url, '_system', 'location=yes');
+
+
+Internal links from my web app (still under the same domain) should continue opening normally inside the embedded WebView / iframe.
+
+The behavior should be stable on Android 12+, which uses the new SplashScreen API and stricter WebView sandbox policies.
+
+⚡ Context of my setup:
+
+App is built with Volt Builder (Cordova 12 base).
+
+Main webview loads my site using an <iframe> like this:
+
+<iframe src="https://bias23.replit.app"
+  allow="camera;microphone;fullscreen;clipboard-read;clipboard-write;geolocation"
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+
+
+Everything inside bias23.replit.app works well, but external navigation is blocked (even after allowing popups).
+
+🔍 My understanding:
+This issue might come from Android WebView’s shouldOverrideUrlLoading() policy or from domain-level CSP (X-Frame-Options: SAMEORIGIN) on TikTok/ChatGPT.
+If that’s true, I just need a working JavaScript interceptor or Cordova plugin setup that:
+
+Detects outbound URLs,
+
+Uses InAppBrowser or _system intent to open them externally,
+
+Works in both iframe and main WebView modes.
+
+✅ Please provide:
+
+A working JavaScript snippet to inject (inside deviceready event).
+
+A confirmed example of how to intercept external navigation correctly in Cordova 12+.
+
+If this is blocked permanently by Android’s new WebView security, suggest the recommended approach (e.g., native shouldOverrideUrlLoading in MainActivity or AndroidManifest intent filters).
+
+My goal is simple: I want the app to open TikTok and ChatGPT links externally (in browser or their native app), while keeping my internal Replit app fully functional inside the Cordova WebView.
