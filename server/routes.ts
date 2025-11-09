@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
-import { randomUUID } from "crypto";
+import { randomUUID, timingSafeEqual } from "crypto";
 import { 
   analyzeBehavior, 
   generateChatResponse, 
@@ -719,7 +719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Timing-safe comparison for password
       const passwordMatch = Buffer.from(password).length === Buffer.from(adminPassword).length && 
-                           require('crypto').timingSafeEqual(
+                           timingSafeEqual(
                              Buffer.from(password), 
                              Buffer.from(adminPassword)
                            );
