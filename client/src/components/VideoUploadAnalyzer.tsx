@@ -15,6 +15,7 @@ import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import { apiRequest } from '@/lib/queryClient';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { AnalysisResults } from '@/components/AnalysisResults';
+import { trackFeatureUsage } from '@/lib/analytics';
 
 type Platform = 'tiktok' | 'instagram' | 'youtube' | 'non-social';
 
@@ -234,6 +235,12 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
       }
 
       console.log(`🎉 All ${results.length} videos analyzed successfully!`);
+      
+      // Track analytics for each video
+      for (const videoFile of uploadedFiles) {
+        const platform = videoFile.platform !== 'non-social' ? videoFile.platform : 'professional';
+        trackFeatureUsage('analysis', platform as any, { type: 'video' });
+      }
       
       toast({
         title: t('Analysis complete!', 'Analisis selesai!'),

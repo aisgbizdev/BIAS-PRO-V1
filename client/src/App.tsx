@@ -13,14 +13,14 @@ import SocialMediaPro from "@/pages/social-media-pro";
 import CreatorAnalysis from "@/pages/creator-analysis";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
+import { trackPageView } from "@/lib/analytics";
 
 function ScrollToTop() {
   const [location] = useLocation();
   
   useEffect(() => {
-    // ✅ FIX: Scroll to top (0,0) whenever route changes
-    // Use 'auto' (standards-compliant) instead of 'instant'
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    trackPageView(location);
   }, [location]);
   
   return null;

@@ -13,6 +13,7 @@ import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loade
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
+import { trackFeatureUsage } from '@/lib/analytics';
 
 // Import cartoon illustrations
 import illustrationEngagement from '@assets/stock_images/cartoon_person_shout_fb92982f.jpg';
@@ -122,6 +123,9 @@ export default function SocialMediaPro() {
       // Store account data for display
       setAccountData(data);
       setPhotoLoadError(false); // Reset photo error state on new analysis
+      
+      // Track analytics
+      trackFeatureUsage('analysis', platform, { type: 'account', username });
       
       toast({
         title: t('Analysis Complete!', 'Analisis Selesai!'),

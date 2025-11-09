@@ -10,6 +10,7 @@ import { Loader2, Sparkles, CheckCircle2, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { BiasAnalysisResult } from '@shared/schema';
+import { trackFeatureUsage } from '@/lib/analytics';
 
 interface AnalysisInputProps {
   onAnalysisComplete: (result: BiasAnalysisResult) => void;
@@ -131,6 +132,9 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
       const data = await response.json();
       updateSession(data.session);
       onAnalysisComplete(data.analysis);
+      
+      // Track analytics
+      trackFeatureUsage('analysis', 'professional', { type: 'text', mode });
       
       toast({
         title: t('Analysis Complete!', 'Analisis Selesai!'),
