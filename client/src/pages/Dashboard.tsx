@@ -152,12 +152,12 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 leading-tight">
-                    {t('Platform Rules Library', 'Library Aturan Platform')}
+                    {t('Platform Terms & Free Promotion', 'Istilah Platform & Promosi Gratis')}
                   </h3>
                   <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed">
                     {t(
-                      'Browse official community guidelines for TikTok, Instagram & YouTube',
-                      'Telusuri panduan komunitas resmi untuk TikTok, Instagram & YouTube'
+                      'TikTok, Instagram & YouTube terms you can add yourself. Include your account for FREE promotion!',
+                      'Istilah TikTok, Instagram & YouTube yang bisa kamu tambahkan sendiri. Cantumkan akun kamu untuk promosi GRATIS!'
                     )}
                   </p>
                 </div>
