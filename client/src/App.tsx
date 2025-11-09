@@ -34,7 +34,7 @@ function Router() {
         <Route path="/" component={Dashboard} />
         <Route path="/social-pro" component={SocialMediaPro} />
         <Route path="/creator" component={CreatorAnalysis} />
-        <Route path="/library" component={Library} />
+        <Route path="/admin" component={Library} />
         <Route component={NotFound} />
       </Switch>
     </>
