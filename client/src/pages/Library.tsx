@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -633,18 +634,19 @@ const youtubeTerms: GlossaryTerm[] = [
 
 export default function Library() {
   const { t, language } = useLanguage();
+  const [location] = useLocation();
   const [search, setSearch] = useState('');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [approvedContributions, setApprovedContributions] = useState<any[]>([]);
 
-  // Check for admin mode in URL
+  // Check for admin mode in URL (path /admin or query ?admin=true)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('admin') === 'true') {
+    if (location === '/admin' || params.get('admin') === 'true') {
       setShowAdminPanel(true);
     }
-  }, []);
+  }, [location]);
 
   // Fetch approved contributions
   useEffect(() => {

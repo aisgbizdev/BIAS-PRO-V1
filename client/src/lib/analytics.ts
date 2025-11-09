@@ -15,7 +15,7 @@ export const trackPageView = async (page: string) => {
     const sessionId = getSessionId();
     const language = localStorage.getItem('language') || 'en';
     
-    await fetch('/api/analytics/page-view', {
+    await fetch('/api/analytics/pageview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -38,15 +38,16 @@ export const trackFeatureUsage = async (
     const sessionId = getSessionId();
     const language = localStorage.getItem('language') || 'en';
     
-    await fetch('/api/analytics/feature-usage', {
+    await fetch('/api/analytics/feature', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sessionId,
         featureType,
         platform,
+        mode: metadata?.mode,
+        featureDetails: metadata ? JSON.stringify(metadata) : null,
         language,
-        metadata,
       }),
     });
   } catch (error) {
