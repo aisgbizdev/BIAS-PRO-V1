@@ -1,7 +1,8 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
+import { randomUUID } from "crypto";
 import { 
   analyzeBehavior, 
   generateChatResponse, 
@@ -24,6 +25,26 @@ const upload = multer({
     fileSize: 100 * 1024 * 1024, // 100MB limit
   },
 });
+
+// Admin authentication middleware
+async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const adminSessionId = req.cookies?.bias_admin;
+  
+  if (!adminSessionId) {
+    res.clearCookie('bias_admin');
+    return res.status(401).json({ error: 'Unauthorized - Admin login required' });
+  }
+  
+  const session = await storage.getAdminSession(adminSessionId);
+  if (!session) {
+    res.clearCookie('bias_admin');
+    return res.status(401).json({ error: 'Unauthorized - Invalid or expired session' });
+  }
+  
+  // Session valid - attach to request
+  (req as any).adminUser = session.username;
+  next();
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create or get session
@@ -660,7 +681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Verify Password
+  // Admin - Verify Password (deprecated, use /api/admin/login instead)
   app.post("/api/admin/verify", async (req, res) => {
     try {
       const { password } = req.body;
@@ -675,6 +696,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(401).json({ success: false, isAdmin: false, error: 'Invalid password' });
       }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Secure Login (session-based)
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password required' });
+      }
+      
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      const adminUsername = process.env.ADMIN_USERNAME || 'superadmin';
+      
+      if (!adminPassword) {
+        return res.status(500).json({ error: 'Admin credentials not configured' });
+      }
+      
+      // Timing-safe comparison for password
+      const passwordMatch = Buffer.from(password).length === Buffer.from(adminPassword).length && 
+                           require('crypto').timingSafeEqual(
+                             Buffer.from(password), 
+                             Buffer.from(adminPassword)
+                           );
+      
+      const usernameMatch = username === adminUsername;
+      
+      if (!usernameMatch || !passwordMatch) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Create admin session
+      const sessionId = randomUUID();
+      const session = await storage.createAdminSession(sessionId, adminUsername);
+      
+      // Clean expired sessions
+      await storage.cleanExpiredAdminSessions();
+      
+      // Set secure HttpOnly cookie
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.cookie('bias_admin', sessionId, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      });
+      
+      res.json({ 
+        success: true, 
+        username: adminUsername,
+        expiresAt: session.expiresAt,
+      });
+    } catch (error: any) {
+      console.error('[ADMIN] Login error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Logout
+  app.post("/api/admin/logout", async (req, res) => {
+    try {
+      const sessionId = req.cookies?.bias_admin;
+      
+      if (sessionId) {
+        await storage.deleteAdminSession(sessionId);
+      }
+      
+      res.clearCookie('bias_admin');
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[ADMIN] Logout error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Check Session
+  app.get("/api/admin/me", requireAdmin, async (req, res) => {
+    try {
+      const username = (req as any).adminUser;
+      res.json({ authenticated: true, username });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -948,20 +1052,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics - Get stats (admin only)
-  app.get("/api/analytics/stats", async (req, res) => {
+  // Analytics - Get stats (admin only - requires session auth)
+  app.get("/api/analytics/stats", requireAdmin, async (req, res) => {
     try {
-      const { password, days } = req.query;
-      const adminPassword = process.env.ADMIN_PASSWORD;
-      
-      if (!adminPassword) {
-        return res.status(500).json({ error: 'Admin password not configured' });
-      }
-      
-      if (password !== adminPassword) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      
+      const { days } = req.query;
       const daysNum = days ? parseInt(days as string) : 7;
       
       const [

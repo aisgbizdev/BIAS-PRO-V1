@@ -66,6 +66,12 @@ export interface IStorage {
   getUniqueSessionsCount(days?: number): Promise<number>;
   getTotalPageViews(days?: number): Promise<number>;
   getTotalFeatureUsage(days?: number): Promise<number>;
+
+  // Admin session management
+  createAdminSession(sessionId: string, username: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date }>;
+  getAdminSession(sessionId: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date } | undefined>;
+  deleteAdminSession(sessionId: string): Promise<void>;
+  cleanExpiredAdminSessions(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -79,6 +85,7 @@ export class MemStorage implements IStorage {
   private deletedLibraryItems: Set<string>;
   private pageViews: Map<string, PageView>;
   private featureUsages: Map<string, FeatureUsage>;
+  private adminSessions: Map<string, { sessionId: string; username: string; createdAt: Date; expiresAt: Date }>;
 
   constructor() {
     this.sessions = new Map();
@@ -91,6 +98,7 @@ export class MemStorage implements IStorage {
     this.deletedLibraryItems = new Set();
     this.pageViews = new Map();
     this.featureUsages = new Map();
+    this.adminSessions = new Map();
   }
 
   // Session methods
@@ -461,6 +469,48 @@ export class MemStorage implements IStorage {
     return Array.from(this.featureUsages.values())
       .filter(u => u.createdAt >= cutoff)
       .length;
+  }
+
+  // Admin session methods
+  async createAdminSession(sessionId: string, username: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date }> {
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+    
+    const session = {
+      sessionId,
+      username,
+      createdAt: now,
+      expiresAt,
+    };
+    this.adminSessions.set(sessionId, session);
+    return session;
+  }
+
+  async getAdminSession(sessionId: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date } | undefined> {
+    const session = this.adminSessions.get(sessionId);
+    
+    if (!session) return undefined;
+    
+    // Check if expired
+    if (session.expiresAt < new Date()) {
+      this.adminSessions.delete(sessionId);
+      return undefined;
+    }
+    
+    return session;
+  }
+
+  async deleteAdminSession(sessionId: string): Promise<void> {
+    this.adminSessions.delete(sessionId);
+  }
+
+  async cleanExpiredAdminSessions(): Promise<void> {
+    const now = new Date();
+    for (const [sessionId, session] of this.adminSessions.entries()) {
+      if (session.expiresAt < now) {
+        this.adminSessions.delete(sessionId);
+      }
+    }
   }
 }
 

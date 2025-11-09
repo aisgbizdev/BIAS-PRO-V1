@@ -1,9 +1,13 @@
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// Parse cookies
+app.use(cookieParser());
 
 declare module 'http' {
   interface IncomingMessage {
