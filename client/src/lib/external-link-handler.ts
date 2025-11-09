@@ -48,25 +48,46 @@ export function openExternalLink(
   url: string,
   openInSystemBrowser: boolean = true
 ): void {
-  console.log('[ExternalLink]', { url, isCordova: isCordovaApp() });
+  console.log('[ExternalLink] Opening URL:', url);
+  console.log('[ExternalLink] Cordova detected:', isCordovaApp());
+  console.log('[ExternalLink] InAppBrowser available:', !!window.cordova?.InAppBrowser);
 
   if (isCordovaApp()) {
-    // Running in Cordova WebView - use InAppBrowser or _system
+    // Running in Cordova WebView
+    
+    // PRIORITY 1: Try InAppBrowser plugin (most reliable)
     if (window.cordova?.InAppBrowser) {
-      // Use InAppBrowser plugin
-      const target = openInSystemBrowser ? '_system' : '_blank';
-      const options = 'location=yes,toolbar=yes,hideurlbar=no';
-      
-      console.log('[Cordova] Opening with InAppBrowser:', { url, target, options });
-      window.cordova.InAppBrowser.open(url, target, options);
-    } else {
-      // Fallback: Try _system target (opens in external browser)
-      console.log('[Cordova] Opening with window.open(_system):', url);
-      window.open(url, '_system');
+      try {
+        const target = '_system'; // Always use _system for external browser
+        const options = 'location=yes';
+        
+        console.log('[Cordova] ✅ Opening with InAppBrowser._system');
+        window.cordova.InAppBrowser.open(url, target, options);
+        return;
+      } catch (error) {
+        console.error('[Cordova] ❌ InAppBrowser.open failed:', error);
+      }
     }
+    
+    // PRIORITY 2: Fallback to window.open with _system
+    try {
+      console.log('[Cordova] ⚠️ Fallback: Using window.open(_system)');
+      const openedWindow = window.open(url, '_system');
+      if (!openedWindow) {
+        console.error('[Cordova] ❌ window.open returned null');
+      }
+      return;
+    } catch (error) {
+      console.error('[Cordova] ❌ window.open(_system) failed:', error);
+    }
+    
+    // PRIORITY 3: Last resort - try location.href (will navigate away from app)
+    console.error('[Cordova] ⚠️ ALL METHODS FAILED - This should not happen!');
+    console.log('[Cordova] Check: 1) InAppBrowser plugin installed? 2) config.xml correct? 3) allow-intent set?');
+    
   } else {
     // Running in regular browser - use standard window.open
-    console.log('[Browser] Opening with window.open:', url);
+    console.log('[Browser] Opening with window.open(_blank)');
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 }

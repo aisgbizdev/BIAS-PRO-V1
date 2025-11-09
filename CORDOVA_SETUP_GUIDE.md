@@ -56,6 +56,8 @@ openExternalLink('https://www.tiktok.com/@bias23_ai');
 
 ## 📋 CORDOVA CONFIG.XML REQUIREMENTS
 
+**⚠️ CRITICAL FIX FOR CORDOVA 12**: Do **NOT** use `<allow-navigation href="*" />` - this CAPTURES all intents and BLOCKS external links!
+
 Your `config.xml` should include these plugins and permissions:
 
 ```xml
@@ -64,10 +66,20 @@ Your `config.xml` should include these plugins and permissions:
     <name>BiAS²³ Pro</name>
     <description>Behavioral Intelligence Audit System</description>
     
-    <!-- CRITICAL: Allow all external navigation -->
+    <!-- Network access for resources (images, API calls) -->
     <access origin="*" />
-    <allow-navigation href="*" />
-    <allow-intent href="*" />
+    
+    <!-- ❌ DO NOT USE THIS - Blocks external links! -->
+    <!-- <allow-navigation href="*" /> -->
+    
+    <!-- ✅ ONLY whitelist YOUR DOMAIN for internal navigation -->
+    <allow-navigation href="https://bias23.replit.app/*" />
+    <allow-navigation href="file://*" />
+    <allow-navigation href="http://localhost:*" />
+    
+    <!-- ✅ Allow external intents (opens in system browser) -->
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
     
     <!-- REQUIRED: InAppBrowser Plugin for external links -->
     <plugin name="cordova-plugin-inappbrowser" source="npm" />
