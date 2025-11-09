@@ -58,16 +58,16 @@ export default function Dashboard() {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
               BiAS²³ Pro
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl">
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl font-semibold">
               {t(
-                'Behavioral Intelligence Audit System',
-                'Sistem Audit Kecerdasan Perilaku'
+                'Build Your Influence with AI-Powered Communication',
+                'Bangun Pengaruhmu dengan AI Komunikasi'
               )}
             </p>
             <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-2xl leading-relaxed">
               {t(
-                'AI-powered behavioral analysis using 8-layer framework for communicators & professionals',
-                'Analisis perilaku bertenaga AI menggunakan framework 8-layer untuk komunikator & profesional'
+                'BiAS²³ Pro delivers instant feedback for TikTok videos, sales pitches, and presentations so your engagement and conversions soar.',
+                'BiAS²³ Pro memberi umpan balik instan untuk video TikTok, pitch penjualan, dan presentasi agar engagement & closing melonjak.'
               )}
             </p>
           </div>

@@ -8,6 +8,23 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### November 9, 2025 - STRATEGIC UX IMPROVEMENTS ✅
+- **Chat System Restructure**: Removed unreliable internal Chat BIAS feature, replaced with floating ChatGPT button at bottom-right
+  - **FloatingChatGPT.tsx**: New component with pink→purple→cyan gradient, positioned at bottom-20 (80px from bottom)
+  - **Header Cleanup**: Removed ChatGPT button from BiasHeader (desktop & mobile menu) - no longer needed
+  - **App.tsx**: Replaced ChatBubble with FloatingChatGPT, removed useSession dependency
+  - **Text**: "Chat with BiAS GPT" (bilingual) with Sparkles icon + ExternalLink indicator
+  - **Rationale**: Internal chat produced inaccurate answers, harming user trust; external ChatGPT Custom GPT is reliable and already delivering value
+  - **Archived**: ChatBubble.tsx moved to `archived_features/` for potential future improvements
+- **Homepage Marketing Copy Refresh**: Updated hero section with benefit-driven, action-oriented messaging
+  - **English**: "Build Your Influence with AI-Powered Communication" + "BiAS²³ Pro delivers instant feedback for TikTok videos, sales pitches, and presentations so your engagement and conversions soar."
+  - **Indonesian**: "Bangun Pengaruhmu dengan AI Komunikasi" + "BiAS²³ Pro memberi umpan balik instan untuk video TikTok, pitch penjualan, dan presentasi agar engagement & closing melonjak."
+  - **Improvements**: Replaced technical jargon ("Sistem Audit Kecerdasan Perilaku") with emotional hooks, specific use cases, and clear benefits
+- **External Link Handler**: Enhanced for Cordova WebView compatibility
+  - **external-link-handler.ts**: Smart link handler detects Cordova environment, routes external links via InAppBrowser or _system
+  - **BiasHeader.tsx**: TikTok button now uses openExternalLink for Cordova compatibility
+  - **Cordova Support**: Works seamlessly in both browser (development) and Android APK (production)
+
 ### November 6, 2025 - SIMPLIFIED NAVIGATION TO 2 MODES ✅
 - **Navigation Simplification**: Reduced from 4 modes to 2 modes for cleaner UX
   - **Social Pro** (`/social-pro`): Account analytics for TikTok/Instagram/YouTube with platform tabs
