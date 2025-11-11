@@ -815,7 +815,7 @@ export default function Library() {
           </TabsTrigger>
           <TabsTrigger value="contribute" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-contribute">
             <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('Contribute', 'Kontribusi')}</span>
+            <span className="hidden sm:inline">{t('Promote', 'Promosi')}</span>
             <span className="sm:hidden">+</span>
           </TabsTrigger>
           <TabsTrigger value="rules" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-rules">
@@ -981,22 +981,22 @@ function ContributionForm() {
       <Card className="border-2 border-primary/20">
         <CardHeader>
           <CardTitle className="text-xl">
-            {t('Contribute to Library', 'Kontribusi ke Perpustakaan')}
+            {t('FREE Account Promotion!', 'Promosi Akun GRATIS!')}
           </CardTitle>
           <CardDescription>
             {t(
-              'Help grow our library by adding new terms and definitions',
-              'Bantu kembangkan perpustakaan kami dengan menambahkan istilah dan definisi baru'
+              'Add new terms and get your TikTok, Instagram, or YouTube account listed in our library for FREE exposure! Your username will be displayed on every term you contribute. Example: "@yourname contributed this term" - instant visibility!',
+              'Tambahkan istilah baru dan dapatkan akun TikTok, Instagram, atau YouTube kamu terdaftar di library kami untuk promosi GRATIS! Username kamu akan ditampilkan di setiap istilah yang kamu kontribusi. Contoh: "@namakamu mengontribusi istilah ini" - langsung terlihat!'
             )}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert className="mb-6">
-            <AlertCircle className="h-4 w-4" />
+          <Alert className="mb-6 bg-gradient-to-r from-pink-500/10 to-cyan-500/10 border-primary/30">
+            <AlertCircle className="h-4 w-4 text-primary" />
             <AlertDescription className="text-sm">
               {t(
-                'Submissions will be reviewed and may be edited to maintain consistency and quality without changing the meaning.',
-                'Kontribusi akan direview dan dapat diedit seperlunya untuk menjaga konsistensi dan kualitas tanpa mengurangi arti dan makna.'
+                '🎯 Your contribution = FREE promotion! All approved terms will show "Contributed by @yourusername" at the top of the library. Get your name in front of thousands of users!',
+                '🎯 Kontribusimu = Promosi GRATIS! Semua istilah yang disetujui akan menampilkan "Dikontribusi oleh @usernamekamu" di bagian atas library. Namamu akan terlihat ribuan pengguna!'
               )}
             </AlertDescription>
           </Alert>
@@ -1052,8 +1052,8 @@ function ContributionForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username">
-                {t('Your Username', 'Username Anda')} *
+              <Label htmlFor="username" className="flex items-center gap-2">
+                {t('Your Username (This Gets Promoted!)', 'Username Anda (Ini yang Dipromosikan!)')} *
               </Label>
               <Input
                 id="username"
@@ -1064,22 +1064,22 @@ function ContributionForm() {
                 required
                 minLength={2}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-primary font-medium">
                 {t(
-                  'Your contribution will be credited to this account',
-                  'Kontribusi Anda akan dikreditkan ke akun ini'
+                  '✨ This account will be displayed publicly! Example: "Contributed by @yourname" - Free exposure for your TikTok, Instagram, or YouTube!',
+                  '✨ Akun ini akan ditampilkan secara publik! Contoh: "Dikontribusi oleh @namakamu" - Promosi gratis untuk TikTok, Instagram, atau YouTube kamu!'
                 )}
               </p>
             </div>
 
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 hover:opacity-90" 
               size="lg" 
               disabled={loading}
               data-testid="button-submit-contribution"
             >
-              {loading ? t('Submitting...', 'Mengirim...') : t('Submit Contribution', 'Kirim Kontribusi')}
+              {loading ? t('Submitting...', 'Mengirim...') : t('🚀 Submit & Get FREE Promotion!', '🚀 Kirim & Dapatkan Promosi GRATIS!')}
             </Button>
           </form>
         </CardContent>
