@@ -2,10 +2,10 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
+import { getActiveBrandLogo } from '@/config/brands';
 import { Globe, BookOpen, Home, Mic, ExternalLink, Menu } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
-import biasLogo from '@assets/bias logo_1762016709581.jpg';
 import { useState } from 'react';
 import { openExternalLink } from '@/lib/external-link-handler';
 
@@ -14,6 +14,7 @@ export function BiasHeader() {
   const { brand, getTagline } = useBrand();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const brandLogo = getActiveBrandLogo();
 
   const menuItems = [
     { href: '/', icon: Home, label: t('Home', 'Beranda') },
@@ -97,7 +98,7 @@ export function BiasHeader() {
         <Link href="/">
           <div className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
             <img 
-              src={biasLogo} 
+              src={brandLogo} 
               alt={`${brand.name} Logo`}
               className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
             />
