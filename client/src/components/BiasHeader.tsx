@@ -34,9 +34,14 @@ export function BiasHeader() {
           <SheetContent side="left" className="w-[280px] sm:w-[320px]">
             <SheetHeader>
               <SheetTitle className="text-left">
-                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent font-bold">
-                  BiAS²³ Pro
-                </span>
+                <div className="flex flex-col">
+                  <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent font-bold">
+                    BiAS²³ Pro
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-normal">
+                    Exclusive by <span className="font-semibold text-cyan-400">THI</span>
+                  </span>
+                </div>
               </SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mt-6">
@@ -100,7 +105,7 @@ export function BiasHeader() {
                 BiAS²³ Pro
               </span>
               <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                {t('Bilingual', 'Bilingual')} • {t('Free', 'Gratis')}
+                {t('Exclusive by', 'Eksklusif oleh')} <span className="font-semibold text-cyan-400">THI</span>
               </span>
             </div>
           </div>

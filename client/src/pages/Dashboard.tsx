@@ -58,6 +58,9 @@ export default function Dashboard() {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
               BiAS²³ Pro
             </h1>
+            <p className="text-xs sm:text-sm md:text-base text-gray-500 mb-2">
+              {t('Exclusive by', 'Eksklusif oleh')} <span className="font-bold text-cyan-400">THI</span>
+            </p>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl font-semibold">
               {t(
                 'Build Your Influence with AI-Powered Communication',
