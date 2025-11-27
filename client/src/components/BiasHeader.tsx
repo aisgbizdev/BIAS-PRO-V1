@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useLanguage } from '@/lib/languageContext';
+import { useBrand } from '@/lib/brandContext';
 import { Globe, BookOpen, Home, Mic, ExternalLink, Menu } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
@@ -11,6 +11,7 @@ import { openExternalLink } from '@/lib/external-link-handler';
 
 export function BiasHeader() {
   const { language, toggleLanguage, t } = useLanguage();
+  const { brand, getTagline } = useBrand();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -34,9 +35,14 @@ export function BiasHeader() {
           <SheetContent side="left" className="w-[280px] sm:w-[320px]">
             <SheetHeader>
               <SheetTitle className="text-left">
-                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent font-bold">
-                  BiAS²³ Pro
-                </span>
+                <div className="flex flex-col">
+                  <span className={`bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent font-bold`}>
+                    {brand.name}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-normal">
+                    {getTagline()}
+                  </span>
+                </div>
               </SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mt-6">
@@ -59,7 +65,7 @@ export function BiasHeader() {
               {/* TikTok Follow in Mobile Menu */}
               <Button
                 onClick={() => {
-                  openExternalLink('https://www.tiktok.com/@bias23_ai');
+                  openExternalLink(brand.social.tiktokUrl);
                   setMobileMenuOpen(false);
                 }}
                 variant="outline"
@@ -92,15 +98,15 @@ export function BiasHeader() {
           <div className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
             <img 
               src={biasLogo} 
-              alt="BiAS²³ Pro Logo" 
+              alt={`${brand.name} Logo`}
               className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
             />
             <div className="flex flex-col leading-none">
-              <span className="text-sm md:text-base font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
-                BiAS²³ Pro
+              <span className={`text-sm md:text-base font-bold bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent`}>
+                {brand.name}
               </span>
               <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                {t('Bilingual', 'Bilingual')} • {t('Free', 'Gratis')}
+                {getTagline()}
               </span>
             </div>
           </div>
@@ -130,7 +136,7 @@ export function BiasHeader() {
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
           {/* TikTok Follow - Always Visible */}
           <Button
-            onClick={() => openExternalLink('https://www.tiktok.com/@bias23_ai')}
+            onClick={() => openExternalLink(brand.social.tiktokUrl)}
             size="sm"
             variant="outline"
             data-testid="button-tiktok"
@@ -138,7 +144,7 @@ export function BiasHeader() {
             title={t('Follow on TikTok', 'Follow di TikTok')}
           >
             <SiTiktok className="w-3.5 h-3.5" />
-            <span className="text-xs font-medium hidden lg:inline">@bias23_ai</span>
+            <span className="text-xs font-medium hidden lg:inline">{brand.social.tiktok}</span>
           </Button>
 
           {/* Language Toggle */}

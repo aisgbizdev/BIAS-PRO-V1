@@ -1,4 +1,5 @@
 import { useLanguage } from '@/lib/languageContext';
+import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import biasLogo from '@assets/bias logo_1762016709581.jpg';
 
 export default function Dashboard() {
   const { t, language } = useLanguage();
+  const { brand, getTagline, getSubtitle, getDescription } = useBrand();
 
   const analysisTypes = [
     // FIRST: Social Media Pro (Account Analytics)
@@ -55,20 +57,17 @@ export default function Dashboard() {
       <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 border-b border-gray-800/50">
         <div className="max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-24">
           <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-              BiAS²³ Pro
+            <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r ${brand.colors.secondary} bg-clip-text text-transparent`}>
+              {brand.name}
             </h1>
+            <p className="text-xs sm:text-sm text-gray-500">
+              {getTagline()}
+            </p>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl font-semibold">
-              {t(
-                'Build Your Influence with AI-Powered Communication',
-                'Bangun Pengaruhmu dengan AI Komunikasi'
-              )}
+              {getSubtitle()}
             </p>
             <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-2xl leading-relaxed">
-              {t(
-                'BiAS²³ Pro delivers instant feedback for TikTok videos, sales pitches, and presentations so your engagement and conversions soar.',
-                'BiAS²³ Pro memberi umpan balik instan untuk video TikTok, pitch penjualan, dan presentasi agar engagement & closing melonjak.'
-              )}
+              {getDescription()}
             </p>
           </div>
         </div>

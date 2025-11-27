@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/lib/languageContext";
+import { BrandProvider, useBrand } from "@/lib/brandContext";
 import { SessionProvider } from "@/lib/sessionContext";
 import { BiasHeader } from "@/components/BiasHeader";
 import { FloatingChatGPT } from "@/components/FloatingChatGPT";
@@ -43,6 +44,8 @@ function Router() {
 }
 
 function AppContent() {
+  const { brand } = useBrand();
+  
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <BiasHeader />
@@ -52,7 +55,7 @@ function AppContent() {
       <FloatingChatGPT />
       <footer className="border-t py-4 text-center text-sm text-muted-foreground">
         <p>
-          BiAS<sup className="text-[0.6em]">23</sup> Pro • Behavioral Intelligence Audit System •{' '}
+          {brand.shortName} • Behavioral Intelligence Audit System •{' '}
           <span className="font-medium">
             Powered by 8-Layer Framework
           </span>
@@ -67,10 +70,12 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LanguageProvider>
-          <SessionProvider>
-            <AppContent />
-            <Toaster />
-          </SessionProvider>
+          <BrandProvider>
+            <SessionProvider>
+              <AppContent />
+              <Toaster />
+            </SessionProvider>
+          </BrandProvider>
         </LanguageProvider>
       </TooltipProvider>
     </QueryClientProvider>
