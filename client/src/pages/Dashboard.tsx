@@ -55,11 +55,11 @@ export default function Dashboard() {
       <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 border-b border-gray-800/50">
         <div className="max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-24">
           <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-              BiAS²³ Pro
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+              THI
             </h1>
             <p className="text-xs sm:text-sm md:text-base text-gray-500 mb-2">
-              {t('Exclusive by', 'Eksklusif oleh')} <span className="font-bold text-cyan-400">THI</span>
+              {t('Supported by', 'Didukung oleh')} <span className="font-bold text-pink-400">BiAS²³</span>
             </p>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl font-semibold">
               {t(

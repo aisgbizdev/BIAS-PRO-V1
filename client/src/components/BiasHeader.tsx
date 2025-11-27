@@ -35,11 +35,11 @@ export function BiasHeader() {
             <SheetHeader>
               <SheetTitle className="text-left">
                 <div className="flex flex-col">
-                  <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent font-bold">
-                    BiAS²³ Pro
+                  <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent font-bold">
+                    THI
                   </span>
                   <span className="text-[10px] text-muted-foreground font-normal">
-                    Exclusive by <span className="font-semibold text-cyan-400">THI</span>
+                    Supported by <span className="font-semibold text-pink-400">BiAS²³</span>
                   </span>
                 </div>
               </SheetTitle>
@@ -101,11 +101,11 @@ export function BiasHeader() {
               className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
             />
             <div className="flex flex-col leading-none">
-              <span className="text-sm md:text-base font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
-                BiAS²³ Pro
+              <span className="text-sm md:text-base font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                THI
               </span>
               <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                {t('Exclusive by', 'Eksklusif oleh')} <span className="font-semibold text-cyan-400">THI</span>
+                {t('Supported by', 'Didukung oleh')} <span className="font-semibold text-pink-400">BiAS²³</span>
               </span>
             </div>
           </div>
