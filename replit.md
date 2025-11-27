@@ -23,6 +23,34 @@ The application uses cookieless session tracking with client-generated session I
 ### UI/UX Decisions
 The application features a premium dark theme (#0A0A0A) with pink/cyan gradients and glass-morphism effects. It includes metric cards with gradient text, progress bars, trend indicators, and circular progress components. Dashboards offer comprehensive analytics, including radar chart visualizations. The header is mobile-responsive with a hamburger menu and PWA capabilities are integrated for an installable app experience with custom branding.
 
+### White-Label Branding System
+BiAS²³ Pro supports white-label branding for partners and resellers. The system allows switching branding via environment variables without modifying core files.
+
+**Brand Configuration Files:**
+- Location: `client/src/config/brands/`
+- `bias.json` - Default BiAS²³ Pro branding
+- `thi.json` - THI partner branding (example)
+- `index.ts` - Brand loader and type definitions
+
+**Switching Brands:**
+Set the `VITE_BRAND` environment variable:
+- `VITE_BRAND=bias` (default) - BiAS²³ Pro branding
+- `VITE_BRAND=thi` - THI partner branding
+
+**Adding New Partners:**
+1. Create new config file: `client/src/config/brands/partner.json`
+2. Add logo to logoMap in `index.ts`
+3. Add brand to brands object in `index.ts`
+4. Set `VITE_BRAND=partner` when deploying
+
+**Brand Config Fields:**
+- `name`, `shortName` - Brand names
+- `logo` - Logo identifier (mapped in logoMap)
+- `tagline`, `subtitle`, `description` - Bilingual text (en/id)
+- `colors.primary`, `colors.secondary` - Gradient classes
+- `social.tiktok`, `social.tiktokUrl` - Social media links
+- `meta.title`, `meta.description` - SEO metadata
+
 ### Feature Specifications
 - **Modes**: Two primary modes: Social Media Pro (TikTok, Instagram, YouTube account analytics) and Communication (sales pitches, presentations, marketing videos).
 - **Comprehensive Analyzer**: Provides narrative diagnoses with context, impact, motivational framing, and actionable recommendations.
