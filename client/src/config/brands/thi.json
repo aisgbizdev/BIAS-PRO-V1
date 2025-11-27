@@ -1,0 +1,31 @@
+{
+  "id": "thi",
+  "name": "THI",
+  "shortName": "THI",
+  "tagline": {
+    "en": "Supported by BiAS²³",
+    "id": "Didukung oleh BiAS²³"
+  },
+  "subtitle": {
+    "en": "Build Your Influence with AI-Powered Communication",
+    "id": "Bangun Pengaruhmu dengan AI Komunikasi"
+  },
+  "description": {
+    "en": "THI delivers instant feedback for TikTok videos, sales pitches, and presentations so your engagement and conversions soar.",
+    "id": "THI memberi umpan balik instan untuk video TikTok, pitch penjualan, dan presentasi agar engagement & closing melonjak."
+  },
+  "colors": {
+    "primary": "from-cyan-400 via-blue-500 to-purple-500",
+    "secondary": "from-blue-500 via-cyan-400 to-purple-400",
+    "accent": "cyan-400",
+    "accentHover": "cyan-500"
+  },
+  "social": {
+    "tiktok": "@thi_official",
+    "tiktokUrl": "https://www.tiktok.com/@thi_official"
+  },
+  "meta": {
+    "title": "THI - Supported by BiAS²³ | Behavioral Intelligence",
+    "description": "THI - Supported by BiAS²³. Analyze behavioral communication patterns with AI-powered 8-layer framework."
+  }
+}
