@@ -1,7 +1,7 @@
 {
-  "name": "THI - Supported by BiAS²³",
-  "short_name": "THI",
-  "description": "THI - Supported by BiAS²³. AI-powered behavioral analysis using 8-layer framework for communicators & professionals.",
+  "name": "BiAS²³ Pro - Behavioral Intelligence Audit System",
+  "short_name": "BiAS²³ Pro",
+  "description": "AI-powered behavioral analysis using 8-layer framework for communicators & professionals",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0A0A",
