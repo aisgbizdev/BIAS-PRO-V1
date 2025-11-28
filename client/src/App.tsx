@@ -42,6 +42,17 @@ function Router() {
         <Route path="/library" component={Library} />
         <Route path="/admin" component={Library} />
         
+        {/* Redirect malformed admin URLs like /admin/newsmaker to /newsmaker/admin */}
+        <Route path="/admin/:brand">
+          {(params) => {
+            const reservedPaths = ['social-pro', 'creator', 'library', 'admin', 'api'];
+            if (reservedPaths.includes(params.brand?.toLowerCase() || '')) {
+              return <NotFound />;
+            }
+            return <Redirect to={`/${params.brand}/admin`} />;
+          }}
+        </Route>
+        
         {/* Brand-prefixed routes (e.g., /newsmaker, /newsmaker/social-pro) */}
         <Route path="/:brand" component={Dashboard} />
         <Route path="/:brand/social-pro" component={SocialMediaPro} />

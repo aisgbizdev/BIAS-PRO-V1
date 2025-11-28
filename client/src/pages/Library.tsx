@@ -640,10 +640,13 @@ export default function Library() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [approvedContributions, setApprovedContributions] = useState<any[]>([]);
 
-  // Check for admin mode in URL (path /admin or query ?admin=true)
+  // Check for admin mode in URL (path /admin, /:brand/admin, or query ?admin=true)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (location === '/admin' || params.get('admin') === 'true') {
+    const pathSegments = location.split('/').filter(Boolean);
+    const isAdminPath = location === '/admin' || 
+      (pathSegments.length === 2 && pathSegments[1] === 'admin');
+    if (isAdminPath || params.get('admin') === 'true') {
       setShowAdminPanel(true);
     }
   }, [location]);
