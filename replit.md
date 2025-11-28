@@ -24,32 +24,44 @@ The application uses cookieless session tracking with client-generated session I
 The application features a premium dark theme (#0A0A0A) with pink/cyan gradients and glass-morphism effects. It includes metric cards with gradient text, progress bars, trend indicators, and circular progress components. Dashboards offer comprehensive analytics, including radar chart visualizations. The header is mobile-responsive with a hamburger menu and PWA capabilities are integrated for an installable app experience with custom branding.
 
 ### White-Label Branding System
-BiAS²³ Pro supports white-label branding for partners and resellers. The system allows switching branding via environment variables without modifying core files.
+BiAS²³ Pro supports dynamic white-label branding for partners and resellers using a path-based routing system with database-backed brand management.
 
-**Brand Configuration Files:**
-- Location: `client/src/config/brands/`
-- `bias.json` - Default BiAS²³ Pro branding
-- `thi.json` - THI partner branding (example)
-- `index.ts` - Brand loader and type definitions
+**Architecture:**
+- **Path-based Routing**: Partners access branded versions via URL paths (e.g., `/newsmaker`, `/thi`)
+- **Database-backed**: Brands stored in PostgreSQL `brands` table with full CRUD operations
+- **Dynamic Loading**: BrandContext fetches brand data on route changes via `/api/brands/slug/:slug`
+- **Fallback**: Defaults to BiAS²³ Pro branding when no brand slug detected or brand not found
 
-**Switching Brands:**
-Set the `VITE_BRAND` environment variable:
-- `VITE_BRAND=bias` (default) - BiAS²³ Pro branding
-- `VITE_BRAND=thi` - THI partner branding
+**Key Files:**
+- `shared/schema.ts` - `brands` table schema with Drizzle ORM
+- `server/routes.ts` - Brand CRUD API endpoints (admin-protected)
+- `client/src/lib/brandContext.tsx` - Dynamic brand loading with route change detection
+- `client/src/pages/Library.tsx` - Admin UI for brand management (Brands tab)
 
-**Adding New Partners:**
-1. Create new config file: `client/src/config/brands/partner.json`
-2. Add logo to logoMap in `index.ts`
-3. Add brand to brands object in `index.ts`
-4. Set `VITE_BRAND=partner` when deploying
+**Adding New Partners (Admin UI):**
+1. Navigate to `/admin` and login (superadmin / ADMIN_PASSWORD env)
+2. Go to "Brands" tab
+3. Click "Add Brand" and fill in required fields
+4. Set slug (e.g., `newsmaker`) - this becomes the URL path
+5. Configure bilingual taglines, colors, social links
+6. Activate the brand when ready
+
+**Brand API Endpoints:**
+- `GET /api/brands/slug/:slug` - Get brand by slug (public)
+- `GET /api/brands/active` - List active brands (public)
+- `GET /api/brands` - List all brands (admin)
+- `POST /api/brands` - Create brand (admin)
+- `PUT /api/brands/:id` - Update brand (admin)
+- `DELETE /api/brands/:id` - Delete brand (admin)
 
 **Brand Config Fields:**
+- `slug` - URL path identifier (lowercase, no spaces)
 - `name`, `shortName` - Brand names
-- `logo` - Logo identifier (mapped in logoMap)
-- `tagline`, `subtitle`, `description` - Bilingual text (en/id)
-- `colors.primary`, `colors.secondary` - Gradient classes
-- `social.tiktok`, `social.tiktokUrl` - Social media links
-- `meta.title`, `meta.description` - SEO metadata
+- `taglineEn/Id`, `subtitleEn/Id`, `descriptionEn/Id` - Bilingual text
+- `colorPrimary`, `colorSecondary` - Tailwind gradient classes
+- `logoUrl` - External logo image URL
+- `tiktokHandle/Url`, `instagramHandle/Url` - Social media links
+- `isActive` - Toggle brand visibility
 
 ### Feature Specifications
 - **Modes**: Two primary modes: Social Media Pro (TikTok, Instagram, YouTube account analytics) and Communication (sales pitches, presentations, marketing videos).
