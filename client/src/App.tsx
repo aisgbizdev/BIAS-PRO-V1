@@ -28,15 +28,26 @@ function ScrollToTop() {
 }
 
 function Router() {
+  const { brandSlug } = useBrand();
+  const basePath = brandSlug ? `/${brandSlug}` : '';
+  
   return (
     <>
       <ScrollToTop />
       <Switch>
+        {/* Default routes (no brand prefix) */}
         <Route path="/" component={Dashboard} />
         <Route path="/social-pro" component={SocialMediaPro} />
         <Route path="/creator" component={CreatorAnalysis} />
         <Route path="/library" component={Library} />
         <Route path="/admin" component={Library} />
+        
+        {/* Brand-prefixed routes (e.g., /newsmaker, /newsmaker/social-pro) */}
+        <Route path="/:brand" component={Dashboard} />
+        <Route path="/:brand/social-pro" component={SocialMediaPro} />
+        <Route path="/:brand/creator" component={CreatorAnalysis} />
+        <Route path="/:brand/library" component={Library} />
+        
         <Route component={NotFound} />
       </Switch>
     </>
