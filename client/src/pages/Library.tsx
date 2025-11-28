@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3 } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import { TIKTOK_RULES, INSTAGRAM_RULES, YOUTUBE_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -1392,10 +1392,14 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="library" className="gap-2">
             <BookOpen className="w-4 h-4" />
             {t('Library', 'Perpustakaan')}
+          </TabsTrigger>
+          <TabsTrigger value="brands" className="gap-2">
+            <Palette className="w-4 h-4" />
+            {t('Brands', 'Partner')}
           </TabsTrigger>
           <TabsTrigger value="analytics" className="gap-2">
             <BarChart3 className="w-4 h-4" />
@@ -1617,10 +1621,515 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
         </TabsContent>
 
+        <TabsContent value="brands" className="mt-6">
+          <BrandManagement />
+        </TabsContent>
+
         <TabsContent value="analytics" className="mt-6">
           <AnalyticsDashboard />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+interface Brand {
+  id: string;
+  slug: string;
+  name: string;
+  shortName: string;
+  taglineEn: string;
+  taglineId: string;
+  subtitleEn: string;
+  subtitleId: string;
+  descriptionEn: string | null;
+  descriptionId: string | null;
+  colorPrimary: string;
+  colorSecondary: string;
+  logoUrl: string | null;
+  tiktokHandle: string | null;
+  tiktokUrl: string | null;
+  instagramHandle: string | null;
+  instagramUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+function BrandManagement() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
+  const [formData, setFormData] = useState({
+    slug: '',
+    name: '',
+    shortName: '',
+    taglineEn: '',
+    taglineId: '',
+    subtitleEn: '',
+    subtitleId: '',
+    descriptionEn: '',
+    descriptionId: '',
+    colorPrimary: 'from-pink-500 via-purple-500 to-cyan-500',
+    colorSecondary: 'from-purple-500 via-pink-400 to-cyan-400',
+    logoUrl: '',
+    tiktokHandle: '',
+    tiktokUrl: '',
+    instagramHandle: '',
+    instagramUrl: '',
+  });
+
+  const loadBrands = async () => {
+    try {
+      const res = await fetch('/api/brands', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load brands');
+      const data = await res.json();
+      setBrands(data);
+    } catch (error: any) {
+      toast({
+        title: t('Error', 'Error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBrands();
+  }, []);
+
+  const resetForm = () => {
+    setFormData({
+      slug: '',
+      name: '',
+      shortName: '',
+      taglineEn: '',
+      taglineId: '',
+      subtitleEn: '',
+      subtitleId: '',
+      descriptionEn: '',
+      descriptionId: '',
+      colorPrimary: 'from-pink-500 via-purple-500 to-cyan-500',
+      colorSecondary: 'from-purple-500 via-pink-400 to-cyan-400',
+      logoUrl: '',
+      tiktokHandle: '',
+      tiktokUrl: '',
+      instagramHandle: '',
+      instagramUrl: '',
+    });
+    setEditingBrand(null);
+    setShowForm(false);
+  };
+
+  const handleEdit = (brand: Brand) => {
+    setEditingBrand(brand);
+    setFormData({
+      slug: brand.slug,
+      name: brand.name,
+      shortName: brand.shortName,
+      taglineEn: brand.taglineEn,
+      taglineId: brand.taglineId,
+      subtitleEn: brand.subtitleEn,
+      subtitleId: brand.subtitleId,
+      descriptionEn: brand.descriptionEn || '',
+      descriptionId: brand.descriptionId || '',
+      colorPrimary: brand.colorPrimary,
+      colorSecondary: brand.colorSecondary,
+      logoUrl: brand.logoUrl || '',
+      tiktokHandle: brand.tiktokHandle || '',
+      tiktokUrl: brand.tiktokUrl || '',
+      instagramHandle: brand.instagramHandle || '',
+      instagramUrl: brand.instagramUrl || '',
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.slug || !formData.name || !formData.shortName) {
+      toast({
+        title: t('Missing Fields', 'Field Kosong'),
+        description: t('Please fill in all required fields', 'Mohon isi semua field yang wajib'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const url = editingBrand ? `/api/brands/${editingBrand.id}` : '/api/brands';
+      const method = editingBrand ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to save brand');
+      }
+
+      toast({
+        title: editingBrand ? t('Brand Updated', 'Partner Diupdate') : t('Brand Created', 'Partner Dibuat'),
+        description: editingBrand 
+          ? t('Brand updated successfully', 'Partner berhasil diupdate')
+          : t('Brand created successfully', 'Partner berhasil dibuat'),
+      });
+      
+      resetForm();
+      loadBrands();
+    } catch (error: any) {
+      toast({
+        title: t('Error', 'Error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleToggleActive = async (brand: Brand) => {
+    try {
+      const res = await fetch(`/api/brands/${brand.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...brand, isActive: !brand.isActive }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update brand');
+
+      toast({
+        title: brand.isActive ? t('Brand Deactivated', 'Partner Dinonaktifkan') : t('Brand Activated', 'Partner Diaktifkan'),
+        description: brand.isActive 
+          ? t('Brand is now inactive', 'Partner sekarang tidak aktif')
+          : t('Brand is now active', 'Partner sekarang aktif'),
+      });
+      
+      loadBrands();
+    } catch (error: any) {
+      toast({
+        title: t('Error', 'Error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDelete = async (brand: Brand) => {
+    if (!confirm(t(`Delete brand "${brand.name}"? This cannot be undone.`, `Hapus partner "${brand.name}"? Ini tidak bisa dibatalkan.`))) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/brands/${brand.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!res.ok) throw new Error('Failed to delete brand');
+
+      toast({
+        title: t('Brand Deleted', 'Partner Dihapus'),
+        description: t('Brand deleted successfully', 'Partner berhasil dihapus'),
+      });
+      
+      loadBrands();
+    } catch (error: any) {
+      toast({
+        title: t('Error', 'Error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <p className="text-muted-foreground">{t('Loading brands...', 'Memuat partner...')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">{t('Partner Brands', 'Partner Brands')}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t('Manage white-label partner brands for reselling', 'Kelola partner white-label untuk reselling')}
+          </p>
+        </div>
+        <Button onClick={() => setShowForm(true)} className="gap-2">
+          <Plus className="w-4 h-4" />
+          {t('Add Brand', 'Tambah Partner')}
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card className="border-2 border-pink-500/20">
+          <CardHeader>
+            <CardTitle>
+              {editingBrand ? t('Edit Brand', 'Edit Partner') : t('New Brand', 'Partner Baru')}
+            </CardTitle>
+            <CardDescription>
+              {t('Fill in the brand details. The slug will be used as the URL path (e.g., /newsmaker)', 
+                 'Isi detail partner. Slug akan digunakan sebagai path URL (contoh: /newsmaker)')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('URL Slug *', 'URL Slug *')}</Label>
+                  <Input
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                    placeholder="newsmaker"
+                    disabled={!!editingBrand}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t('Only lowercase letters, numbers, and dashes', 'Hanya huruf kecil, angka, dan strip')}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Brand Name *', 'Nama Partner *')}</Label>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Newsmaker Academy"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Short Name *', 'Nama Singkat *')}</Label>
+                  <Input
+                    value={formData.shortName}
+                    onChange={(e) => setFormData({ ...formData, shortName: e.target.value })}
+                    placeholder="Newsmaker"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Logo URL', 'URL Logo')}</Label>
+                  <Input
+                    value={formData.logoUrl}
+                    onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                    placeholder="https://example.com/logo.png"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('Tagline (English)', 'Tagline (English)')}</Label>
+                  <Input
+                    value={formData.taglineEn}
+                    onChange={(e) => setFormData({ ...formData, taglineEn: e.target.value })}
+                    placeholder="Your Success Partner"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Tagline (Indonesian)', 'Tagline (Indonesia)')}</Label>
+                  <Input
+                    value={formData.taglineId}
+                    onChange={(e) => setFormData({ ...formData, taglineId: e.target.value })}
+                    placeholder="Partner Sukses Anda"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Subtitle (English)', 'Subtitle (English)')}</Label>
+                  <Input
+                    value={formData.subtitleEn}
+                    onChange={(e) => setFormData({ ...formData, subtitleEn: e.target.value })}
+                    placeholder="AI-Powered Analysis"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Subtitle (Indonesian)', 'Subtitle (Indonesia)')}</Label>
+                  <Input
+                    value={formData.subtitleId}
+                    onChange={(e) => setFormData({ ...formData, subtitleId: e.target.value })}
+                    placeholder="Analisis AI"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('Description (English)', 'Deskripsi (English)')}</Label>
+                  <textarea
+                    value={formData.descriptionEn}
+                    onChange={(e) => setFormData({ ...formData, descriptionEn: e.target.value })}
+                    className="w-full min-h-20 px-3 py-2 rounded-md border border-input bg-background resize-y"
+                    placeholder="Full description in English..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Description (Indonesian)', 'Deskripsi (Indonesia)')}</Label>
+                  <textarea
+                    value={formData.descriptionId}
+                    onChange={(e) => setFormData({ ...formData, descriptionId: e.target.value })}
+                    className="w-full min-h-20 px-3 py-2 rounded-md border border-input bg-background resize-y"
+                    placeholder="Deskripsi lengkap dalam Bahasa Indonesia..."
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('Primary Gradient', 'Gradient Primer')}</Label>
+                  <Input
+                    value={formData.colorPrimary}
+                    onChange={(e) => setFormData({ ...formData, colorPrimary: e.target.value })}
+                    placeholder="from-pink-500 via-purple-500 to-cyan-500"
+                  />
+                  <div className={`h-8 rounded-md bg-gradient-to-r ${formData.colorPrimary}`} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Secondary Gradient', 'Gradient Sekunder')}</Label>
+                  <Input
+                    value={formData.colorSecondary}
+                    onChange={(e) => setFormData({ ...formData, colorSecondary: e.target.value })}
+                    placeholder="from-purple-500 via-pink-400 to-cyan-400"
+                  />
+                  <div className={`h-8 rounded-md bg-gradient-to-r ${formData.colorSecondary}`} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('TikTok Handle', 'Handle TikTok')}</Label>
+                  <Input
+                    value={formData.tiktokHandle}
+                    onChange={(e) => setFormData({ ...formData, tiktokHandle: e.target.value })}
+                    placeholder="@newsmaker_id"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('TikTok URL', 'URL TikTok')}</Label>
+                  <Input
+                    value={formData.tiktokUrl}
+                    onChange={(e) => setFormData({ ...formData, tiktokUrl: e.target.value })}
+                    placeholder="https://www.tiktok.com/@newsmaker_id"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Instagram Handle', 'Handle Instagram')}</Label>
+                  <Input
+                    value={formData.instagramHandle}
+                    onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })}
+                    placeholder="@newsmaker_id"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Instagram URL', 'URL Instagram')}</Label>
+                  <Input
+                    value={formData.instagramUrl}
+                    onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
+                    placeholder="https://www.instagram.com/newsmaker_id"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button type="submit" className="gap-2">
+                  {editingBrand ? t('Update Brand', 'Update Partner') : t('Create Brand', 'Buat Partner')}
+                </Button>
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  {t('Cancel', 'Batal')}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {brands.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Palette className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground mb-4">
+              {t('No partner brands yet. Create your first one!', 'Belum ada partner. Buat partner pertama Anda!')}
+            </p>
+            <Button onClick={() => setShowForm(true)} variant="outline" className="gap-2">
+              <Plus className="w-4 h-4" />
+              {t('Add Brand', 'Tambah Partner')}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
+          {brands.map((brand) => (
+            <Card key={brand.id} className={`border-2 ${brand.isActive ? 'border-green-500/20' : 'border-muted/20 opacity-60'}`}>
+              <CardContent className="py-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-lg">{brand.name}</h3>
+                      <Badge variant={brand.isActive ? 'default' : 'secondary'}>
+                        {brand.isActive ? t('Active', 'Aktif') : t('Inactive', 'Tidak Aktif')}
+                      </Badge>
+                      <a 
+                        href={`/${brand.slug}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="font-mono bg-muted px-2 py-0.5 rounded">/{brand.slug}</span>
+                      <span>•</span>
+                      <span>{brand.shortName}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-2">
+                      <div className={`h-4 w-24 rounded bg-gradient-to-r ${brand.colorPrimary}`} />
+                      {brand.tiktokHandle && (
+                        <Badge variant="outline" className="text-xs">
+                          <SiTiktok className="w-3 h-3 mr-1" />
+                          {brand.tiktokHandle}
+                        </Badge>
+                      )}
+                      {brand.instagramHandle && (
+                        <Badge variant="outline" className="text-xs">
+                          <SiInstagram className="w-3 h-3 mr-1" />
+                          {brand.instagramHandle}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => handleToggleActive(brand)}
+                      className="gap-1"
+                    >
+                      {brand.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {brand.isActive ? t('Deactivate', 'Nonaktifkan') : t('Activate', 'Aktifkan')}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(brand)}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(brand)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

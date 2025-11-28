@@ -1,4 +1,5 @@
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { createContext, useContext, ReactNode, useState, useEffect, useRef } from 'react';
+import { useLocation } from 'wouter';
 import { activeBrand, BrandConfig } from '@/config/brands';
 import { useLanguage } from './languageContext';
 
@@ -36,6 +37,8 @@ interface BrandContextType {
 
 const BrandContext = createContext<BrandContextType | undefined>(undefined);
 
+const UNINITIALIZED = Symbol('uninitialized');
+
 function convertDynamicToBrandConfig(dynamic: DynamicBrand): BrandConfig {
   return {
     id: dynamic.slug,
@@ -71,9 +74,8 @@ function convertDynamicToBrandConfig(dynamic: DynamicBrand): BrandConfig {
   };
 }
 
-function extractBrandSlug(): string | null {
-  const path = window.location.pathname;
-  const parts = path.split('/').filter(Boolean);
+function extractBrandSlugFromPath(pathname: string): string | null {
+  const parts = pathname.split('/').filter(Boolean);
   
   if (parts.length === 0) return null;
   
@@ -89,13 +91,22 @@ function extractBrandSlug(): string | null {
 
 export function BrandProvider({ children }: { children: ReactNode }) {
   const { language } = useLanguage();
+  const [location] = useLocation();
   const [dynamicBrand, setDynamicBrand] = useState<DynamicBrand | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [brandSlug, setBrandSlug] = useState<string | null>(null);
+  const lastFetchedSlugRef = useRef<string | null | typeof UNINITIALIZED>(UNINITIALIZED);
   
   useEffect(() => {
-    const slug = extractBrandSlug();
+    const slug = extractBrandSlugFromPath(location);
+    
+    if (slug === lastFetchedSlugRef.current) {
+      return;
+    }
+    
     setBrandSlug(slug);
+    lastFetchedSlugRef.current = slug;
+    setIsLoading(true);
     
     if (slug) {
       fetch(`/api/brands/slug/${slug}`)
@@ -105,16 +116,18 @@ export function BrandProvider({ children }: { children: ReactNode }) {
         })
         .then(data => {
           setDynamicBrand(data);
-          setIsLoading(false);
         })
         .catch(() => {
           setDynamicBrand(null);
+        })
+        .finally(() => {
           setIsLoading(false);
         });
     } else {
+      setDynamicBrand(null);
       setIsLoading(false);
     }
-  }, []);
+  }, [location]);
   
   const currentBrand: BrandConfig = dynamicBrand 
     ? convertDynamicToBrandConfig(dynamicBrand) 
