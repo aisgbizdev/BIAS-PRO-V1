@@ -9,7 +9,9 @@ import {
   type PageView, type InsertPageView,
   type FeatureUsage, type InsertFeatureUsage,
   type AdminSession, type InsertAdminSession,
-  adminSessions
+  type Brand, type InsertBrand,
+  adminSessions,
+  brands
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "../db";
@@ -76,6 +78,15 @@ export interface IStorage {
   getAdminSession(sessionId: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date } | undefined>;
   deleteAdminSession(sessionId: string): Promise<void>;
   cleanExpiredAdminSessions(): Promise<void>;
+
+  // Brand management (white-label partners)
+  createBrand(brand: InsertBrand): Promise<Brand>;
+  getBrand(id: string): Promise<Brand | undefined>;
+  getBrandBySlug(slug: string): Promise<Brand | undefined>;
+  getAllBrands(): Promise<Brand[]>;
+  getActiveBrands(): Promise<Brand[]>;
+  updateBrand(id: string, updates: Partial<Brand>): Promise<Brand | undefined>;
+  deleteBrand(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -90,6 +101,7 @@ export class MemStorage implements IStorage {
   private pageViews: Map<string, PageView>;
   private featureUsages: Map<string, FeatureUsage>;
   private adminSessions: Map<string, { sessionId: string; username: string; createdAt: Date; expiresAt: Date }>;
+  private brandsMap: Map<string, Brand>;
 
   constructor() {
     this.sessions = new Map();
@@ -103,6 +115,7 @@ export class MemStorage implements IStorage {
     this.pageViews = new Map();
     this.featureUsages = new Map();
     this.adminSessions = new Map();
+    this.brandsMap = new Map();
   }
 
   // Session methods
@@ -516,6 +529,71 @@ export class MemStorage implements IStorage {
       }
     });
   }
+
+  // Brand management methods
+  async createBrand(insertBrand: InsertBrand): Promise<Brand> {
+    const id = randomUUID();
+    const now = new Date();
+    const brand: Brand = {
+      id,
+      slug: insertBrand.slug,
+      name: insertBrand.name,
+      shortName: insertBrand.shortName,
+      taglineEn: insertBrand.taglineEn ?? "Powered by BiAS²³",
+      taglineId: insertBrand.taglineId ?? "Didukung BiAS²³",
+      subtitleEn: insertBrand.subtitleEn ?? "Build Your Influence",
+      subtitleId: insertBrand.subtitleId ?? "Bangun Pengaruhmu",
+      descriptionEn: insertBrand.descriptionEn ?? null,
+      descriptionId: insertBrand.descriptionId ?? null,
+      colorPrimary: insertBrand.colorPrimary ?? "from-pink-500 via-purple-500 to-cyan-500",
+      colorSecondary: insertBrand.colorSecondary ?? "from-purple-500 via-pink-400 to-cyan-400",
+      logoUrl: insertBrand.logoUrl ?? null,
+      tiktokHandle: insertBrand.tiktokHandle ?? null,
+      tiktokUrl: insertBrand.tiktokUrl ?? null,
+      instagramHandle: insertBrand.instagramHandle ?? null,
+      instagramUrl: insertBrand.instagramUrl ?? null,
+      metaTitle: insertBrand.metaTitle ?? null,
+      metaDescription: insertBrand.metaDescription ?? null,
+      isActive: insertBrand.isActive ?? true,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.brandsMap.set(id, brand);
+    return brand;
+  }
+
+  async getBrand(id: string): Promise<Brand | undefined> {
+    return this.brandsMap.get(id);
+  }
+
+  async getBrandBySlug(slug: string): Promise<Brand | undefined> {
+    return Array.from(this.brandsMap.values()).find(b => b.slug === slug);
+  }
+
+  async getAllBrands(): Promise<Brand[]> {
+    return Array.from(this.brandsMap.values());
+  }
+
+  async getActiveBrands(): Promise<Brand[]> {
+    return Array.from(this.brandsMap.values()).filter(b => b.isActive);
+  }
+
+  async updateBrand(id: string, updates: Partial<Brand>): Promise<Brand | undefined> {
+    const brand = this.brandsMap.get(id);
+    if (!brand) return undefined;
+    
+    const updated: Brand = {
+      ...brand,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.brandsMap.set(id, updated);
+    return updated;
+  }
+
+  async deleteBrand(id: string): Promise<boolean> {
+    return this.brandsMap.delete(id);
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -726,6 +804,58 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(adminSessions)
       .where(lt(adminSessions.expiresAt, now));
+  }
+
+  // Brand management methods (database-backed for persistence)
+  async createBrand(insertBrand: InsertBrand): Promise<Brand> {
+    const [inserted] = await db.insert(brands).values(insertBrand).returning();
+    return inserted;
+  }
+
+  async getBrand(id: string): Promise<Brand | undefined> {
+    const [brand] = await db
+      .select()
+      .from(brands)
+      .where(eq(brands.id, id))
+      .limit(1);
+    return brand;
+  }
+
+  async getBrandBySlug(slug: string): Promise<Brand | undefined> {
+    const [brand] = await db
+      .select()
+      .from(brands)
+      .where(eq(brands.slug, slug))
+      .limit(1);
+    return brand;
+  }
+
+  async getAllBrands(): Promise<Brand[]> {
+    return db.select().from(brands);
+  }
+
+  async getActiveBrands(): Promise<Brand[]> {
+    return db
+      .select()
+      .from(brands)
+      .where(eq(brands.isActive, true));
+  }
+
+  async updateBrand(id: string, updates: Partial<Brand>): Promise<Brand | undefined> {
+    const [updated] = await db
+      .update(brands)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(brands.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteBrand(id: string): Promise<boolean> {
+    const result = await db
+      .delete(brands)
+      .where(eq(brands.id, id))
+      .returning();
+    return result.length > 0;
   }
 }
 

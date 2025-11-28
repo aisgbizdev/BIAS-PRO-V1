@@ -1052,6 +1052,155 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ========================================
+  // BRAND MANAGEMENT ENDPOINTS (White-Label)
+  // ========================================
+
+  // Get brand by slug (public - for path-based routing)
+  app.get("/api/brands/slug/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const brand = await storage.getBrandBySlug(slug);
+      
+      if (!brand || !brand.isActive) {
+        return res.status(404).json({ error: 'Brand not found' });
+      }
+      
+      res.json(brand);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get all active brands (public)
+  app.get("/api/brands/active", async (req, res) => {
+    try {
+      const activeBrands = await storage.getActiveBrands();
+      res.json(activeBrands);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get all brands (admin only)
+  app.get("/api/brands", requireAdmin, async (req, res) => {
+    try {
+      const allBrands = await storage.getAllBrands();
+      res.json(allBrands);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Create brand (admin only)
+  app.post("/api/brands", requireAdmin, async (req, res) => {
+    try {
+      const schema = z.object({
+        slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with dashes'),
+        name: z.string().min(1).max(100),
+        shortName: z.string().min(1).max(20),
+        taglineEn: z.string().optional(),
+        taglineId: z.string().optional(),
+        subtitleEn: z.string().optional(),
+        subtitleId: z.string().optional(),
+        descriptionEn: z.string().optional(),
+        descriptionId: z.string().optional(),
+        colorPrimary: z.string().optional(),
+        colorSecondary: z.string().optional(),
+        logoUrl: z.string().optional(),
+        tiktokHandle: z.string().optional(),
+        tiktokUrl: z.string().optional(),
+        instagramHandle: z.string().optional(),
+        instagramUrl: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        isActive: z.boolean().optional(),
+      });
+      
+      const data = schema.parse(req.body);
+      
+      // Check if slug already exists
+      const existing = await storage.getBrandBySlug(data.slug);
+      if (existing) {
+        return res.status(400).json({ error: 'Slug sudah digunakan' });
+      }
+      
+      const brand = await storage.createBrand(data);
+      res.status(201).json(brand);
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: 'Invalid input', details: error.errors });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update brand (admin only)
+  app.put("/api/brands/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const schema = z.object({
+        slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/).optional(),
+        name: z.string().min(1).max(100).optional(),
+        shortName: z.string().min(1).max(20).optional(),
+        taglineEn: z.string().optional(),
+        taglineId: z.string().optional(),
+        subtitleEn: z.string().optional(),
+        subtitleId: z.string().optional(),
+        descriptionEn: z.string().optional(),
+        descriptionId: z.string().optional(),
+        colorPrimary: z.string().optional(),
+        colorSecondary: z.string().optional(),
+        logoUrl: z.string().optional(),
+        tiktokHandle: z.string().optional(),
+        tiktokUrl: z.string().optional(),
+        instagramHandle: z.string().optional(),
+        instagramUrl: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        isActive: z.boolean().optional(),
+      });
+      
+      const data = schema.parse(req.body);
+      
+      // If updating slug, check if new slug already exists
+      if (data.slug) {
+        const existing = await storage.getBrandBySlug(data.slug);
+        if (existing && existing.id !== id) {
+          return res.status(400).json({ error: 'Slug sudah digunakan' });
+        }
+      }
+      
+      const updated = await storage.updateBrand(id, data);
+      if (!updated) {
+        return res.status(404).json({ error: 'Brand not found' });
+      }
+      
+      res.json(updated);
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: 'Invalid input', details: error.errors });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Delete brand (admin only)
+  app.delete("/api/brands/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteBrand(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: 'Brand not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Analytics - Get stats (admin only - requires session auth)
   app.get("/api/analytics/stats", requireAdmin, async (req, res) => {
     try {
