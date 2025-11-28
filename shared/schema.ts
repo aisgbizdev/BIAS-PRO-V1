@@ -133,6 +133,45 @@ export const adminSessions = pgTable("admin_sessions", {
   expiresAt: timestamp("expires_at").notNull(),
 });
 
+// White-label brands for partners/resellers
+export const brands = pgTable("brands", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  slug: text("slug").notNull().unique(), // URL path: bias23.com/newsmaker
+  name: text("name").notNull(), // "Newsmaker"
+  shortName: text("short_name").notNull(), // "NM"
+  
+  // Bilingual taglines
+  taglineEn: text("tagline_en").notNull().default("Powered by BiAS²³"),
+  taglineId: text("tagline_id").notNull().default("Didukung BiAS²³"),
+  subtitleEn: text("subtitle_en").notNull().default("Build Your Influence"),
+  subtitleId: text("subtitle_id").notNull().default("Bangun Pengaruhmu"),
+  descriptionEn: text("description_en"),
+  descriptionId: text("description_id"),
+  
+  // Colors (Tailwind gradient classes)
+  colorPrimary: text("color_primary").notNull().default("from-pink-500 via-purple-500 to-cyan-500"),
+  colorSecondary: text("color_secondary").notNull().default("from-purple-500 via-pink-400 to-cyan-400"),
+  
+  // Logo (base64 or URL)
+  logoUrl: text("logo_url"),
+  
+  // Social media - Partner's accounts
+  tiktokHandle: text("tiktok_handle"),
+  tiktokUrl: text("tiktok_url"),
+  instagramHandle: text("instagram_handle"),
+  instagramUrl: text("instagram_url"),
+  
+  // Meta/SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  
+  // Status
+  isActive: boolean("is_active").notNull().default(true),
+  
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const insertSessionSchema = createInsertSchema(sessions).omit({ id: true, createdAt: true, lastActiveAt: true });
 export const insertAnalysisSchema = createInsertSchema(analyses).omit({ id: true, createdAt: true });
 export const insertChatSchema = createInsertSchema(chats).omit({ id: true, createdAt: true });
@@ -143,6 +182,7 @@ export const insertLibraryContributionSchema = createInsertSchema(libraryContrib
 export const insertPageViewSchema = createInsertSchema(pageViews).omit({ id: true, createdAt: true });
 export const insertFeatureUsageSchema = createInsertSchema(featureUsage).omit({ id: true, createdAt: true });
 export const insertAdminSessionSchema = createInsertSchema(adminSessions).omit({ id: true, createdAt: true });
+export const insertBrandSchema = createInsertSchema(brands).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type InsertSession = z.infer<typeof insertSessionSchema>;
 export type Session = typeof sessions.$inferSelect;
@@ -164,6 +204,8 @@ export type InsertFeatureUsage = z.infer<typeof insertFeatureUsageSchema>;
 export type FeatureUsage = typeof featureUsage.$inferSelect;
 export type InsertAdminSession = z.infer<typeof insertAdminSessionSchema>;
 export type AdminSession = typeof adminSessions.$inferSelect;
+export type InsertBrand = z.infer<typeof insertBrandSchema>;
+export type Brand = typeof brands.$inferSelect;
 
 // BIAS Analysis Result Types
 export interface BiasLayerResult {
