@@ -2120,8 +2120,9 @@ function BrandManagement() {
                     <Button size="sm" variant="outline" onClick={() => handleEdit(brand)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(brand)}>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(brand)} className="gap-1">
                       <Trash2 className="w-4 h-4" />
+                      {t('Delete', 'Hapus')}
                     </Button>
                   </div>
                 </div>
