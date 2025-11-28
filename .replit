@@ -39,16 +39,16 @@ localPort = 33557
 externalPort = 3002
 
 [[ports]]
-localPort = 36107
-externalPort = 4200
-
-[[ports]]
 localPort = 38039
 externalPort = 3003
 
 [[ports]]
 localPort = 39149
 externalPort = 3000
+
+[[ports]]
+localPort = 43899
+externalPort = 4200
 
 [[ports]]
 localPort = 44249
@@ -62,3 +62,4 @@ build = ["npm", "run", "build"]
 [userenv]
 
 [userenv.development]
+VITE_BRAND = "newsmaker"

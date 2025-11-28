@@ -1,0 +1,30 @@
+{
+  "id": "newsmaker",
+  "name": "Newsmaker",
+  "shortName": "NM",
+  "logo": "newsmaker",
+  "tagline": {
+    "en": "Powered by BiAS²³",
+    "id": "Didukung BiAS²³"
+  },
+  "subtitle": {
+    "en": "Create Viral News Content",
+    "id": "Buat Konten Berita Viral"
+  },
+  "description": {
+    "en": "Newsmaker helps journalists and content creators analyze their news delivery for maximum engagement and credibility.",
+    "id": "Newsmaker membantu jurnalis dan kreator konten menganalisis cara penyampaian berita untuk engagement dan kredibilitas maksimal."
+  },
+  "colors": {
+    "primary": "from-orange-500 via-red-500 to-yellow-500",
+    "secondary": "from-red-400 via-orange-400 to-yellow-400"
+  },
+  "social": {
+    "tiktok": "@newsmaker_id",
+    "tiktokUrl": "https://www.tiktok.com/@newsmaker_id"
+  },
+  "meta": {
+    "title": "Newsmaker - AI News Content Analysis",
+    "description": "Analyze your news delivery style with AI-powered behavioral analysis"
+  }
+}
