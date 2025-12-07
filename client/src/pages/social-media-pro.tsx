@@ -9,12 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
-import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText } from 'lucide-react';
+import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image } from 'lucide-react';
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeatureUsage } from '@/lib/analytics';
-import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel } from '@/components/expert';
+import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel } from '@/components/expert';
 
 // Import cartoon illustrations
 import illustrationEngagement from '@assets/stock_images/cartoon_person_shout_fb92982f.jpg';
@@ -262,6 +262,14 @@ export default function SocialMediaPro() {
                   <Radio className="w-4 h-4 mr-1" />
                   {t('Live', 'Live')}
                 </TabsTrigger>
+                <TabsTrigger value="analyzer" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <Image className="w-4 h-4 mr-1" />
+                  {t('Analyzer', 'Analyzer')}
+                </TabsTrigger>
+                <TabsTrigger value="monetization" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <DollarSign className="w-4 h-4 mr-1" />
+                  {t('Money', 'Uang')}
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="knowledge" className="mt-6">
@@ -281,6 +289,12 @@ export default function SocialMediaPro() {
               </TabsContent>
               <TabsContent value="live" className="mt-6">
                 <LiveCoachPanel />
+              </TabsContent>
+              <TabsContent value="analyzer" className="mt-6">
+                <VideoAnalyzerPanel />
+              </TabsContent>
+              <TabsContent value="monetization" className="mt-6">
+                <MonetizationGuidePanel />
               </TabsContent>
             </Tabs>
           </div>
