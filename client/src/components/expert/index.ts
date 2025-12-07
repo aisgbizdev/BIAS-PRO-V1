@@ -9,3 +9,4 @@ export { MonetizationGuidePanel } from './MonetizationGuidePanel';
 export { VideoCreatorWizard } from './VideoCreatorWizard';
 export { LiveStreamingWizard } from './LiveStreamingWizard';
 export { ScreenshotAnalyticsPanel } from './ScreenshotAnalyticsPanel';
+export { InteractiveCreatorHub } from './InteractiveCreatorHub';

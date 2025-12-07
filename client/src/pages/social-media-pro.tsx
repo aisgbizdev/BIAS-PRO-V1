@@ -14,7 +14,7 @@ import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeatureUsage } from '@/lib/analytics';
-import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel, VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel } from '@/components/expert';
+import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel, VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel, InteractiveCreatorHub } from '@/components/expert';
 
 // Import cartoon illustrations
 import illustrationEngagement from '@assets/stock_images/cartoon_person_shout_fb92982f.jpg';
@@ -51,7 +51,7 @@ export default function SocialMediaPro() {
   const [photoLoadError, setPhotoLoadError] = useState(false);
   const [mainMode, setMainMode] = useState<'analytics' | 'beginner' | 'expert'>('analytics');
   const [expertTab, setExpertTab] = useState<string>('knowledge');
-  const [beginnerTab, setBeginnerTab] = useState<string>('video-wizard');
+  const [beginnerTab, setBeginnerTab] = useState<string>('interactive');
 
   const mockData = {
     followers: 60900,
@@ -248,20 +248,27 @@ export default function SocialMediaPro() {
 
             <Tabs value={beginnerTab} onValueChange={setBeginnerTab}>
               <TabsList className="flex flex-wrap justify-start gap-1 bg-transparent h-auto p-0">
+                <TabsTrigger value="interactive" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-pink-400 rounded-lg px-4 py-2 text-sm">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {t('AI Assistant', 'Asisten AI')}
+                </TabsTrigger>
                 <TabsTrigger value="video-wizard" className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 rounded-lg px-4 py-2 text-sm">
                   <PlayCircle className="w-4 h-4 mr-2" />
-                  {t('Create Video', 'Bikin Video')}
+                  {t('Video Wizard', 'Wizard Video')}
                 </TabsTrigger>
                 <TabsTrigger value="live-wizard" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 rounded-lg px-4 py-2 text-sm">
                   <Radio className="w-4 h-4 mr-2" />
-                  {t('Go Live', 'Mulai Live')}
+                  {t('Live Guide', 'Panduan Live')}
                 </TabsTrigger>
                 <TabsTrigger value="screenshot" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 rounded-lg px-4 py-2 text-sm">
                   <Camera className="w-4 h-4 mr-2" />
-                  {t('Screenshot Analytics', 'Analitik Screenshot')}
+                  {t('Analytics', 'Analitik')}
                 </TabsTrigger>
               </TabsList>
 
+              <TabsContent value="interactive" className="mt-6">
+                <InteractiveCreatorHub />
+              </TabsContent>
               <TabsContent value="video-wizard" className="mt-6">
                 <VideoCreatorWizard />
               </TabsContent>
