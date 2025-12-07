@@ -64,7 +64,7 @@ BiAS²³ Pro supports dynamic white-label branding for partners and resellers us
 - `isActive` - Toggle brand visibility
 
 ### Feature Specifications
-- **Modes**: Two primary modes: TikTok Pro (TikTok account analytics with Expert Knowledge Base) and Marketing Pro (sales pitches, presentations, marketing videos).
+- **Modes**: Three TikTok Pro modes: Analytics (account/video analysis), Beginner (step-by-step wizards for first-time creators), Expert (advanced knowledge base with 8 panels). Plus Marketing Pro for sales/presentations.
 - **Comprehensive Analyzer**: Provides narrative diagnoses with context, impact, motivational framing, and actionable recommendations.
 - **Account Analyzer (Social Media Pro)**: Displays profile cards and six comprehensive analytics cards: Engagement Rate Analysis, Follower Growth Strategy, Content Strategy Analysis, Monetization Potential, Audience Quality Analysis, and Posting Optimization.
 - **Video Upload & Comparison**: Supports multi-file video uploads and URL pasting (TikTok) for analysis and comparison.
@@ -116,7 +116,40 @@ A comprehensive, science-backed knowledge system to counter misinformation from 
 - `server/routes.ts` - API endpoints
 - `server/data/expert-knowledge-seed.ts` - Seed data
 - `client/src/components/expert/` - UI components
-- `client/src/pages/social-media-pro.tsx` - Main page with Analytics/Expert mode toggle
+- `client/src/pages/social-media-pro.tsx` - Main page with Analytics/Beginner/Expert mode toggle
+
+### Beginner Hub (NEW - December 2024)
+Step-by-step wizard tools for first-time TikTok creators who need guidance without a mentor.
+
+**UI Components (3 wizards):**
+- `VideoCreatorWizard` - Multi-step video creation guide with:
+  - 10 niche presets (education, comedy, lifestyle, food, beauty, fitness, gaming, motivation, review, story)
+  - 4 duration options (15s, 30s, 60s, 90s)
+  - Dynamic script templates (Hook → Content → CTA)
+  - Production tips and equipment checklist
+  - Bilingual (EN/ID)
+
+- `LiveStreamingWizard` - Comprehensive live streaming guide with:
+  - 3 live types (Solo, PK Battle, Multi-Guest)
+  - 4 duration options (15, 30, 60, 90 minutes)
+  - 10 topic options
+  - Dynamic minute-by-minute timeline generation
+  - Gift strategies per live type
+  - Contingency plans
+  - Bilingual (EN/ID)
+
+- `ScreenshotAnalyticsPanel` - Screenshot-based analytics (no API needed):
+  - 4 screenshot guide types (Profile, Content, Followers, LIVE)
+  - Step-by-step capture instructions with visual guides
+  - Drag-and-drop image upload
+  - Mock AI analysis with metrics and recommendations
+  - Bilingual (EN/ID)
+
+**Key Files:**
+- `client/src/components/expert/VideoCreatorWizard.tsx`
+- `client/src/components/expert/LiveStreamingWizard.tsx`
+- `client/src/components/expert/ScreenshotAnalyticsPanel.tsx`
+- `client/src/components/expert/index.ts` - Exports all components
 
 ## External Dependencies
 
@@ -135,6 +168,10 @@ A comprehensive, science-backed knowledge system to counter misinformation from 
 - **Behavioral Framework Files**: Knowledge base in `attached_assets/` for 8-layer analysis, community guidelines, and specialized modules.
 
 ## Recent Changes (December 2024)
+- **NEW: Beginner Hub** - 3-mode navigation (Analytics/Beginner/Expert) with step-by-step wizards
+- **VideoCreatorWizard** - 10 niches, 4 durations, dynamic scripts, bilingual
+- **LiveStreamingWizard** - Solo/PK/Multi-Guest, timelines, gift strategies
+- **ScreenshotAnalyticsPanel** - Screenshot capture guides + drag-drop upload for analysis
 - Added VideoAnalyzerPanel for screenshot/video upload analysis
 - Added MonetizationGuidePanel with 5 monetization methods and income calculator
 - Added Marketing glossary (20 terms) to Library for Marketing Pro support
