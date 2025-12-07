@@ -77,6 +77,44 @@ BiAS²³ Pro supports dynamic white-label branding for partners and resellers us
 - **Analytics Dashboard**: Real-time, privacy-first analytics dashboard for administrators to track page views, feature usage, platform distribution, and language statistics.
 - **Admin Authentication System**: Secure session-based authentication for administrative access to the analytics dashboard and library management.
 
+### Expert Knowledge Base (Expert Mode PRO)
+A comprehensive, science-backed knowledge system to counter misinformation from fake TikTok experts.
+
+**Database Tables (8 tables):**
+- `expert_knowledge` - Research-backed tips with myth-busting, psychology, and regulation references
+- `hooks` - Psychology-backed hook templates with effectiveness scores
+- `storytelling_frameworks` - Proven narrative structures for content creation
+- `script_templates` - Ready-to-use script templates by category, duration, and goal
+- `live_streaming_templates` - Live streaming formats with timeline and contingency plans
+- `trending_data` - Trending sounds, hashtags, and challenges tracking
+- `growth_stage_guides` - Stage-specific strategies (0-1K, 1K-10K, 10K-100K, 100K+)
+- `response_templates` - Templates for handling comments and engagement
+
+**Expert Mode UI Components (6 panels):**
+- `ExpertKnowledgePanel` - Browse research, myths, guidelines with category/level filtering
+- `HookMasterPanel` - Psychology-backed hooks with copy functionality
+- `GrowthRoadmapPanel` - Follower stage finder with tailored strategies
+- `ScriptGeneratorPanel` - Script templates filterable by category/duration/goal
+- `StorytellingPanel` - Storytelling frameworks with step-by-step structures
+- `LiveCoachPanel` - Live streaming templates with timeline visualization
+
+**API Endpoints:**
+- `GET /api/expert-knowledge` - Query expert knowledge with filters
+- `GET /api/hooks` - Get psychology-backed hooks
+- `GET /api/storytelling-frameworks` - Get storytelling frameworks
+- `GET /api/script-templates` - Get script templates
+- `GET /api/live-streaming-templates` - Get live streaming templates
+- `GET /api/growth-guides` - Get growth stage guides
+- `GET /api/response-templates` - Get response templates
+
+**Key Files:**
+- `shared/schema.ts` - Database schema for all 8 tables
+- `server/storage.ts` - Storage methods for Expert Knowledge
+- `server/routes.ts` - API endpoints
+- `server/data/expert-knowledge-seed.ts` - Seed data
+- `client/src/components/expert/` - UI components
+- `client/src/pages/social-media-pro.tsx` - Main page with Analytics/Expert mode toggle
+
 ## External Dependencies
 
 ### Third-Party Services

@@ -9,11 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
-import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText } from 'lucide-react';
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeatureUsage } from '@/lib/analytics';
+import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel } from '@/components/expert';
 
 // Import cartoon illustrations
 import illustrationEngagement from '@assets/stock_images/cartoon_person_shout_fb92982f.jpg';
@@ -48,6 +49,8 @@ export default function SocialMediaPro() {
   const [analysisMode, setAnalysisMode] = useState<'account' | 'video'>('account');
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
+  const [mainMode, setMainMode] = useState<'analytics' | 'expert'>('analytics');
+  const [expertTab, setExpertTab] = useState<string>('knowledge');
 
   const mockData = {
     followers: 60900,
@@ -189,6 +192,103 @@ export default function SocialMediaPro() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Main Mode Selector: Analytics vs Expert */}
+        <div className="flex justify-center">
+          <div className="inline-flex bg-gray-800/50 rounded-xl p-1 border border-gray-700">
+            <Button
+              variant={mainMode === 'analytics' ? 'default' : 'ghost'}
+              onClick={() => setMainMode('analytics')}
+              className={`px-6 py-2 rounded-lg ${mainMode === 'analytics' ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              {t('Analytics', 'Analitik')}
+            </Button>
+            <Button
+              variant={mainMode === 'expert' ? 'default' : 'ghost'}
+              onClick={() => setMainMode('expert')}
+              className={`px-6 py-2 rounded-lg ${mainMode === 'expert' ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              <GraduationCap className="w-4 h-4 mr-2" />
+              {t('Expert Mode', 'Mode Expert')}
+              <Badge className="ml-2 bg-yellow-500/20 text-yellow-400 text-[10px]">PRO</Badge>
+            </Button>
+          </div>
+        </div>
+
+        {/* EXPERT MODE */}
+        {mainMode === 'expert' && (
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border-purple-500/30">
+              <CardContent className="py-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">
+                      {t('Expert Knowledge Base', 'Basis Pengetahuan Expert')}
+                    </h3>
+                    <p className="text-sm text-gray-400">
+                      {t('Science-backed strategies, myth-busting facts, and proven frameworks', 'Strategi berbasis sains, fakta pemecah mitos, dan framework terbukti')}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Tabs value={expertTab} onValueChange={setExpertTab}>
+              <TabsList className="flex flex-wrap justify-start gap-1 bg-transparent h-auto p-0">
+                <TabsTrigger value="knowledge" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <BookOpen className="w-4 h-4 mr-1" />
+                  {t('Knowledge', 'Pengetahuan')}
+                </TabsTrigger>
+                <TabsTrigger value="hooks" className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <Sparkles className="w-4 h-4 mr-1" />
+                  {t('Hooks', 'Hooks')}
+                </TabsTrigger>
+                <TabsTrigger value="growth" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  {t('Growth', 'Pertumbuhan')}
+                </TabsTrigger>
+                <TabsTrigger value="scripts" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <FileText className="w-4 h-4 mr-1" />
+                  {t('Scripts', 'Script')}
+                </TabsTrigger>
+                <TabsTrigger value="storytelling" className="data-[state=active]:bg-violet-500/20 data-[state=active]:text-violet-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <Lightbulb className="w-4 h-4 mr-1" />
+                  {t('Story', 'Cerita')}
+                </TabsTrigger>
+                <TabsTrigger value="live" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <Radio className="w-4 h-4 mr-1" />
+                  {t('Live', 'Live')}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="knowledge" className="mt-6">
+                <ExpertKnowledgePanel />
+              </TabsContent>
+              <TabsContent value="hooks" className="mt-6">
+                <HookMasterPanel />
+              </TabsContent>
+              <TabsContent value="growth" className="mt-6">
+                <GrowthRoadmapPanel />
+              </TabsContent>
+              <TabsContent value="scripts" className="mt-6">
+                <ScriptGeneratorPanel />
+              </TabsContent>
+              <TabsContent value="storytelling" className="mt-6">
+                <StorytellingPanel />
+              </TabsContent>
+              <TabsContent value="live" className="mt-6">
+                <LiveCoachPanel />
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+
+        {/* ANALYTICS MODE */}
+        {mainMode === 'analytics' && (
+          <>
         {/* Analysis Mode Selector */}
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="pt-6">
@@ -693,6 +793,8 @@ export default function SocialMediaPro() {
         </>
           );
         })()}
+          </>
+        )}
       </div>
     </div>
   );
