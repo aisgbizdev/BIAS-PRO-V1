@@ -67,8 +67,9 @@ BiAS²³ Pro supports dynamic white-label branding for partners and resellers us
 - **Modes**: Two primary modes: TikTok Pro (TikTok account analytics with Expert Knowledge Base) and Marketing Pro (sales pitches, presentations, marketing videos).
 - **Comprehensive Analyzer**: Provides narrative diagnoses with context, impact, motivational framing, and actionable recommendations.
 - **Account Analyzer (Social Media Pro)**: Displays profile cards and six comprehensive analytics cards: Engagement Rate Analysis, Follower Growth Strategy, Content Strategy Analysis, Monetization Potential, Audience Quality Analysis, and Posting Optimization.
-- **Video Upload & Comparison**: Supports multi-file video uploads and URL pasting (TikTok, Instagram, YouTube) for analysis and comparison.
-- **Platform Rules Hub**: A searchable, bilingual database of official community guidelines for social media platforms.
+- **Video Upload & Comparison**: Supports multi-file video uploads and URL pasting (TikTok) for analysis and comparison.
+- **Platform Rules Hub**: A searchable, bilingual database of official TikTok community guidelines.
+- **Library Glossary**: 5 sections - TikTok (23 terms), Marketing (20 terms for sales/public speaking), BIAS (12 terms), Promote, Guidelines.
 - **Adaptive Analysis**: Detects user skill levels to provide tailored recommendations.
 - **Warmth Detection System**: Analyzes communication tone, calculating a Warmth Index.
 - **File-Based Analysis**: Supports link-based and description-based analysis for various content types.
@@ -90,13 +91,15 @@ A comprehensive, science-backed knowledge system to counter misinformation from 
 - `growth_stage_guides` - Stage-specific strategies (0-1K, 1K-10K, 10K-100K, 100K+)
 - `response_templates` - Templates for handling comments and engagement
 
-**Expert Mode UI Components (6 panels):**
+**Expert Mode UI Components (8 panels):**
 - `ExpertKnowledgePanel` - Browse research, myths, guidelines with category/level filtering
 - `HookMasterPanel` - Psychology-backed hooks with copy functionality
 - `GrowthRoadmapPanel` - Follower stage finder with tailored strategies
 - `ScriptGeneratorPanel` - Script templates filterable by category/duration/goal
 - `StorytellingPanel` - Storytelling frameworks with step-by-step structures
 - `LiveCoachPanel` - Live streaming templates with timeline visualization
+- `VideoAnalyzerPanel` - Upload screenshot/video for AI-powered content analysis with scoring
+- `MonetizationGuidePanel` - Comprehensive guide to 5 monetization methods with income calculator
 
 **API Endpoints:**
 - `GET /api/expert-knowledge` - Query expert knowledge with filters
@@ -128,5 +131,12 @@ A comprehensive, science-backed knowledge system to counter misinformation from 
 - **Development**: `vite`, `tsx`, `esbuild`, `@replit/vite-plugin-*`.
 
 ### Platform Integrations
-- **Social Media APIs (Referenced)**: TikTok API, Instagram API, YouTube API.
+- **Social Media APIs (Referenced)**: TikTok API (primary focus - Instagram/YouTube removed for TikTok-only strategy).
 - **Behavioral Framework Files**: Knowledge base in `attached_assets/` for 8-layer analysis, community guidelines, and specialized modules.
+
+## Recent Changes (December 2024)
+- Added VideoAnalyzerPanel for screenshot/video upload analysis
+- Added MonetizationGuidePanel with 5 monetization methods and income calculator
+- Added Marketing glossary (20 terms) to Library for Marketing Pro support
+- Removed Instagram/YouTube from Library - TikTok-only focus
+- Expert Mode now has 8 panels (previously 6)
