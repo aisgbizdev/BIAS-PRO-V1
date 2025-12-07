@@ -10,12 +10,22 @@ import {
   type FeatureUsage, type InsertFeatureUsage,
   type AdminSession, type InsertAdminSession,
   type Brand, type InsertBrand,
+  type ExpertKnowledge, type Hook, type StorytellingFramework,
+  type GrowthStageGuide, type ResponseTemplate, type LiveStreamingTemplate,
+  type ScriptTemplate,
   adminSessions,
-  brands
+  brands,
+  expertKnowledge,
+  hooks,
+  storytellingFrameworks,
+  growthStageGuides,
+  responseTemplates,
+  liveStreamingTemplates,
+  scriptTemplates
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "../db";
-import { eq, lt, and, gt } from "drizzle-orm";
+import { eq, lt, and, gt, or, lte, gte, ilike } from "drizzle-orm";
 
 export interface IStorage {
   // Session management
@@ -594,6 +604,32 @@ export class MemStorage implements IStorage {
   async deleteBrand(id: string): Promise<boolean> {
     return this.brandsMap.delete(id);
   }
+
+  // Expert Knowledge Base stub methods (MemStorage - returns empty arrays)
+  async getExpertKnowledge(_filters?: any): Promise<ExpertKnowledge[]> {
+    return [];
+  }
+  async getHooks(_filters?: any): Promise<Hook[]> {
+    return [];
+  }
+  async getStorytellingFrameworks(): Promise<StorytellingFramework[]> {
+    return [];
+  }
+  async getGrowthStageGuides(_followerCount?: number): Promise<GrowthStageGuide[]> {
+    return [];
+  }
+  async getGrowthStageGuideByStage(_stage: string): Promise<GrowthStageGuide | undefined> {
+    return undefined;
+  }
+  async getResponseTemplates(_category?: string): Promise<ResponseTemplate[]> {
+    return [];
+  }
+  async getLiveStreamingTemplates(_filters?: any): Promise<LiveStreamingTemplate[]> {
+    return [];
+  }
+  async getScriptTemplates(_filters?: any): Promise<ScriptTemplate[]> {
+    return [];
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -856,6 +892,144 @@ export class DatabaseStorage implements IStorage {
       .where(eq(brands.id, id))
       .returning();
     return result.length > 0;
+  }
+
+  // ==========================================
+  // EXPERT KNOWLEDGE BASE METHODS
+  // ==========================================
+
+  async getExpertKnowledge(filters?: { 
+    category?: string; 
+    subcategory?: string; 
+    level?: string; 
+    search?: string; 
+  }): Promise<ExpertKnowledge[]> {
+    let query = db.select().from(expertKnowledge).where(eq(expertKnowledge.isActive, true));
+    
+    const conditions: any[] = [eq(expertKnowledge.isActive, true)];
+    
+    if (filters?.category) {
+      conditions.push(eq(expertKnowledge.category, filters.category));
+    }
+    if (filters?.subcategory) {
+      conditions.push(eq(expertKnowledge.subcategory, filters.subcategory));
+    }
+    if (filters?.level) {
+      conditions.push(eq(expertKnowledge.level, filters.level));
+    }
+    if (filters?.search) {
+      conditions.push(
+        or(
+          ilike(expertKnowledge.titleEn, `%${filters.search}%`),
+          ilike(expertKnowledge.titleId, `%${filters.search}%`),
+          ilike(expertKnowledge.contentEn, `%${filters.search}%`),
+          ilike(expertKnowledge.contentId, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    return db.select().from(expertKnowledge).where(and(...conditions));
+  }
+
+  async getHooks(filters?: { 
+    hookType?: string; 
+    category?: string; 
+    search?: string; 
+  }): Promise<Hook[]> {
+    const conditions: any[] = [eq(hooks.isActive, true)];
+    
+    if (filters?.hookType) {
+      conditions.push(eq(hooks.hookType, filters.hookType));
+    }
+    if (filters?.category) {
+      conditions.push(eq(hooks.category, filters.category));
+    }
+    if (filters?.search) {
+      conditions.push(
+        or(
+          ilike(hooks.hookTextEn, `%${filters.search}%`),
+          ilike(hooks.hookTextId, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    return db.select().from(hooks).where(and(...conditions));
+  }
+
+  async getStorytellingFrameworks(): Promise<StorytellingFramework[]> {
+    return db.select().from(storytellingFrameworks).where(eq(storytellingFrameworks.isActive, true));
+  }
+
+  async getGrowthStageGuides(followerCount?: number): Promise<GrowthStageGuide[]> {
+    if (followerCount !== undefined) {
+      return db.select().from(growthStageGuides).where(
+        and(
+          eq(growthStageGuides.isActive, true),
+          lte(growthStageGuides.followerRangeMin, followerCount)
+        )
+      );
+    }
+    return db.select().from(growthStageGuides).where(eq(growthStageGuides.isActive, true));
+  }
+
+  async getGrowthStageGuideByStage(stage: string): Promise<GrowthStageGuide | undefined> {
+    const [guide] = await db.select().from(growthStageGuides).where(
+      and(
+        eq(growthStageGuides.stage, stage),
+        eq(growthStageGuides.isActive, true)
+      )
+    ).limit(1);
+    return guide;
+  }
+
+  async getResponseTemplates(category?: string): Promise<ResponseTemplate[]> {
+    const conditions: any[] = [eq(responseTemplates.isActive, true)];
+    
+    if (category) {
+      conditions.push(eq(responseTemplates.category, category));
+    }
+    
+    return db.select().from(responseTemplates).where(and(...conditions));
+  }
+
+  async getLiveStreamingTemplates(filters?: { 
+    format?: string; 
+    duration?: string; 
+  }): Promise<LiveStreamingTemplate[]> {
+    const conditions: any[] = [eq(liveStreamingTemplates.isActive, true)];
+    
+    if (filters?.format) {
+      conditions.push(eq(liveStreamingTemplates.format, filters.format));
+    }
+    if (filters?.duration) {
+      conditions.push(eq(liveStreamingTemplates.duration, filters.duration));
+    }
+    
+    return db.select().from(liveStreamingTemplates).where(and(...conditions));
+  }
+
+  async getScriptTemplates(filters?: { 
+    category?: string; 
+    duration?: string; 
+    goal?: string; 
+    level?: string; 
+  }): Promise<ScriptTemplate[]> {
+    const conditions: any[] = [eq(scriptTemplates.isActive, true)];
+    
+    if (filters?.category) {
+      conditions.push(eq(scriptTemplates.category, filters.category));
+    }
+    if (filters?.duration) {
+      conditions.push(eq(scriptTemplates.duration, filters.duration));
+    }
+    if (filters?.goal) {
+      conditions.push(eq(scriptTemplates.goal, filters.goal));
+    }
+    if (filters?.level) {
+      conditions.push(eq(scriptTemplates.level, filters.level));
+    }
+    
+    return db.select().from(scriptTemplates).where(and(...conditions));
   }
 }
 

@@ -1237,6 +1237,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==========================================
+  // EXPERT KNOWLEDGE BASE API ROUTES
+  // ==========================================
+
+  // Get all expert knowledge entries (with optional filtering)
+  app.get("/api/expert-knowledge", async (req, res) => {
+    try {
+      const { category, subcategory, level, search } = req.query;
+      const entries = await storage.getExpertKnowledge({
+        category: category as string,
+        subcategory: subcategory as string,
+        level: level as string,
+        search: search as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[EXPERT_KNOWLEDGE] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get all hooks (with optional filtering)
+  app.get("/api/hooks", async (req, res) => {
+    try {
+      const { hookType, category, search } = req.query;
+      const entries = await storage.getHooks({
+        hookType: hookType as string,
+        category: category as string,
+        search: search as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[HOOKS] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get all storytelling frameworks
+  app.get("/api/storytelling-frameworks", async (req, res) => {
+    try {
+      const entries = await storage.getStorytellingFrameworks();
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[STORYTELLING] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get growth stage guide by follower count
+  app.get("/api/growth-guides", async (req, res) => {
+    try {
+      const { followers } = req.query;
+      const followerCount = followers ? parseInt(followers as string) : undefined;
+      const entries = await storage.getGrowthStageGuides(followerCount);
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[GROWTH_GUIDES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get specific growth stage guide
+  app.get("/api/growth-guides/:stage", async (req, res) => {
+    try {
+      const { stage } = req.params;
+      const entry = await storage.getGrowthStageGuideByStage(stage);
+      if (!entry) {
+        return res.status(404).json({ error: 'Growth stage not found' });
+      }
+      res.json(entry);
+    } catch (error: any) {
+      console.error('[GROWTH_GUIDES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get response templates
+  app.get("/api/response-templates", async (req, res) => {
+    try {
+      const { category } = req.query;
+      const entries = await storage.getResponseTemplates(category as string);
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[RESPONSE_TEMPLATES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get live streaming templates
+  app.get("/api/live-streaming-templates", async (req, res) => {
+    try {
+      const { format, duration } = req.query;
+      const entries = await storage.getLiveStreamingTemplates({
+        format: format as string,
+        duration: duration as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[LIVE_STREAMING] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get script templates
+  app.get("/api/script-templates", async (req, res) => {
+    try {
+      const { category, duration, goal, level } = req.query;
+      const entries = await storage.getScriptTemplates({
+        category: category as string,
+        duration: duration as string,
+        goal: goal as string,
+        level: level as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[SCRIPT_TEMPLATES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
