@@ -6,3 +6,6 @@ export { LiveCoachPanel } from './LiveCoachPanel';
 export { StorytellingPanel } from './StorytellingPanel';
 export { VideoAnalyzerPanel } from './VideoAnalyzerPanel';
 export { MonetizationGuidePanel } from './MonetizationGuidePanel';
+export { VideoCreatorWizard } from './VideoCreatorWizard';
+export { LiveStreamingWizard } from './LiveStreamingWizard';
+export { ScreenshotAnalyticsPanel } from './ScreenshotAnalyticsPanel';

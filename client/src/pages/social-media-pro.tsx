@@ -9,12 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
-import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image } from 'lucide-react';
+import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket } from 'lucide-react';
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeatureUsage } from '@/lib/analytics';
-import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel } from '@/components/expert';
+import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel, VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel } from '@/components/expert';
 
 // Import cartoon illustrations
 import illustrationEngagement from '@assets/stock_images/cartoon_person_shout_fb92982f.jpg';
@@ -49,8 +49,9 @@ export default function SocialMediaPro() {
   const [analysisMode, setAnalysisMode] = useState<'account' | 'video'>('account');
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
-  const [mainMode, setMainMode] = useState<'analytics' | 'expert'>('analytics');
+  const [mainMode, setMainMode] = useState<'analytics' | 'beginner' | 'expert'>('analytics');
   const [expertTab, setExpertTab] = useState<string>('knowledge');
+  const [beginnerTab, setBeginnerTab] = useState<string>('video-wizard');
 
   const mockData = {
     followers: 60900,
@@ -204,6 +205,15 @@ export default function SocialMediaPro() {
               {t('Analytics', 'Analitik')}
             </Button>
             <Button
+              variant={mainMode === 'beginner' ? 'default' : 'ghost'}
+              onClick={() => setMainMode('beginner')}
+              className={`px-6 py-2 rounded-lg ${mainMode === 'beginner' ? 'bg-gradient-to-r from-green-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Rocket className="w-4 h-4 mr-2" />
+              {t('Beginner', 'Pemula')}
+              <Badge className="ml-2 bg-green-500/20 text-green-400 text-[10px]">NEW</Badge>
+            </Button>
+            <Button
               variant={mainMode === 'expert' ? 'default' : 'ghost'}
               onClick={() => setMainMode('expert')}
               className={`px-6 py-2 rounded-lg ${mainMode === 'expert' ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
@@ -214,6 +224,56 @@ export default function SocialMediaPro() {
             </Button>
           </div>
         </div>
+
+        {/* BEGINNER MODE */}
+        {mainMode === 'beginner' && (
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-r from-green-500/10 to-cyan-500/10 border-green-500/30">
+              <CardContent className="py-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-cyan-500 flex items-center justify-center">
+                    <Rocket className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">
+                      {t('Beginner Hub', 'Hub Pemula')}
+                    </h3>
+                    <p className="text-sm text-gray-400">
+                      {t('Step-by-step guides to create videos, go live, and grow your TikTok - no mentor needed!', 'Panduan step-by-step untuk bikin video, live, dan kembangkan TikTok - tanpa perlu mentor!')}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Tabs value={beginnerTab} onValueChange={setBeginnerTab}>
+              <TabsList className="flex flex-wrap justify-start gap-1 bg-transparent h-auto p-0">
+                <TabsTrigger value="video-wizard" className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 rounded-lg px-4 py-2 text-sm">
+                  <PlayCircle className="w-4 h-4 mr-2" />
+                  {t('Create Video', 'Bikin Video')}
+                </TabsTrigger>
+                <TabsTrigger value="live-wizard" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 rounded-lg px-4 py-2 text-sm">
+                  <Radio className="w-4 h-4 mr-2" />
+                  {t('Go Live', 'Mulai Live')}
+                </TabsTrigger>
+                <TabsTrigger value="screenshot" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 rounded-lg px-4 py-2 text-sm">
+                  <Camera className="w-4 h-4 mr-2" />
+                  {t('Screenshot Analytics', 'Analitik Screenshot')}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="video-wizard" className="mt-6">
+                <VideoCreatorWizard />
+              </TabsContent>
+              <TabsContent value="live-wizard" className="mt-6">
+                <LiveStreamingWizard />
+              </TabsContent>
+              <TabsContent value="screenshot" className="mt-6">
+                <ScreenshotAnalyticsPanel />
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
 
         {/* EXPERT MODE */}
         {mainMode === 'expert' && (
