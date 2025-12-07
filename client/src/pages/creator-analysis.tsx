@@ -21,13 +21,13 @@ export default function CreatorAnalysis() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 mb-3 md:mb-4">
             <Video className="w-6 h-6 md:w-8 md:h-8 text-purple-500 flex-shrink-0" />
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-              {t('Communication Analysis', 'Analisis Komunikasi')}
+              {t('Marketing Pro', 'Marketing Pro')}
             </h1>
           </div>
           <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
             {t(
-              'Analyze sales presentations, client pitches, prospecting calls, and marketing videos. Get AI-powered feedback to improve your communication and boost conversions.',
-              'Analisis presentasi penjualan, pitch klien, prospek, dan video marketing. Dapatkan feedback AI untuk meningkatkan komunikasi dan konversi Anda.'
+              'Analyze sales presentations, client pitches, prospecting calls, and marketing videos. Get AI-powered behavioral feedback to improve your communication and boost conversions.',
+              'Analisis presentasi penjualan, pitch klien, prospek, dan video marketing. Dapatkan feedback behavioral berbasis AI untuk meningkatkan komunikasi dan konversi Anda.'
             )}
           </p>
         </div>

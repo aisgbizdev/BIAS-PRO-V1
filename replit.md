@@ -1,7 +1,7 @@
 # BiAS²³ Pro - Behavioral Intelligence Audit System
 
 ## Overview
-BiAS²³ Pro is a bilingual (English-Indonesian) AI-powered web application designed to analyze behavioral communication patterns using an 8-layer framework. It evaluates communicators and professionals across dimensions like visual behavior, emotional processing, and ethical compliance. The system offers two primary modes: Social Media Pro (for TikTok/Instagram/YouTube account analytics) and Communication (for analyzing speaking and presentation patterns). Its core purpose is to deliver premium, detailed, and actionable behavioral assessments to help users build influence through improved communication.
+BiAS²³ Pro is a bilingual (English-Indonesian) AI-powered web application designed to analyze behavioral communication patterns using an 8-layer framework. It evaluates communicators and professionals across dimensions like visual behavior, emotional processing, and ethical compliance. The system offers two primary modes: TikTok Pro (for TikTok account analytics with Expert Knowledge Base) and Marketing Pro (for analyzing sales presentations, client pitches, and marketing videos). Its core purpose is to deliver premium, detailed, and actionable behavioral assessments to help users build influence through improved communication.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -64,7 +64,7 @@ BiAS²³ Pro supports dynamic white-label branding for partners and resellers us
 - `isActive` - Toggle brand visibility
 
 ### Feature Specifications
-- **Modes**: Two primary modes: Social Media Pro (TikTok, Instagram, YouTube account analytics) and Communication (sales pitches, presentations, marketing videos).
+- **Modes**: Two primary modes: TikTok Pro (TikTok account analytics with Expert Knowledge Base) and Marketing Pro (sales pitches, presentations, marketing videos).
 - **Comprehensive Analyzer**: Provides narrative diagnoses with context, impact, motivational framing, and actionable recommendations.
 - **Account Analyzer (Social Media Pro)**: Displays profile cards and six comprehensive analytics cards: Engagement Rate Analysis, Follower Growth Strategy, Content Strategy Analysis, Monetization Potential, Audience Quality Analysis, and Posting Optimization.
 - **Video Upload & Comparison**: Supports multi-file video uploads and URL pasting (TikTok, Instagram, YouTube) for analysis and comparison.

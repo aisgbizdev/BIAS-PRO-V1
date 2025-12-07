@@ -18,8 +18,8 @@ export function BiasHeader() {
 
   const menuItems = [
     { href: '/', icon: Home, label: t('Home', 'Beranda') },
-    { href: '/social-pro', icon: SiTiktok, label: t('Social Pro', 'Social Pro') },
-    { href: '/creator', icon: Mic, label: t('Communication', 'Komunikasi') },
+    { href: '/social-pro', icon: SiTiktok, label: t('TikTok Pro', 'TikTok Pro') },
+    { href: '/creator', icon: Mic, label: t('Marketing Pro', 'Marketing Pro') },
     { href: '/library', icon: BookOpen, label: t('Library', 'Library') },
   ];
 
