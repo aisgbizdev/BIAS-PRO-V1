@@ -118,38 +118,55 @@ A comprehensive, science-backed knowledge system to counter misinformation from 
 - `client/src/components/expert/` - UI components
 - `client/src/pages/social-media-pro.tsx` - Main page with Analytics/Beginner/Expert mode toggle
 
-### Beginner Hub (NEW - December 2024)
-Step-by-step wizard tools for first-time TikTok creators who need guidance without a mentor.
+### Interactive Creator Hub (NEW - December 2024)
+AI-like conversational interface that acts as a TikTok mentor, replacing traditional wizard-style interfaces with natural conversation flow.
 
-**UI Components (3 wizards):**
-- `VideoCreatorWizard` - Multi-step video creation guide with:
-  - 10 niche presets (education, comedy, lifestyle, food, beauty, fitness, gaming, motivation, review, story)
-  - 4 duration options (15s, 30s, 60s, 90s)
-  - Dynamic script templates (Hook → Content → CTA)
-  - Production tips and equipment checklist
-  - Bilingual (EN/ID)
+**Core Features:**
+- `InteractiveCreatorHub` - ChatGPT-like interface with:
+  - Natural language input processing
+  - Conversation memory/context tracking
+  - Dynamic response generation based on user intent
+  - Rich formatted output (tables, sections, scripts)
+  - Warm, personalized Indonesian tone ("bro", "gue")
+  - Follow-up offers at end of each response
 
-- `LiveStreamingWizard` - Comprehensive live streaming guide with:
-  - 3 live types (Solo, PK Battle, Multi-Guest)
-  - 4 duration options (15, 30, 60, 90 minutes)
-  - 10 topic options
-  - Dynamic minute-by-minute timeline generation
-  - Gift strategies per live type
-  - Contingency plans
-  - Bilingual (EN/ID)
+**Response Generators:**
+1. **Live Streaming Generator** (15-180 minutes max):
+   - Dynamic segment breakdown with timing
+   - Script samples per segment
+   - Technical tips (lighting, music, pacing)
+   - CTA templates
+   - Gift strategies
 
-- `ScreenshotAnalyticsPanel` - Screenshot-based analytics (no API needed):
-  - 4 screenshot guide types (Profile, Content, Followers, LIVE)
-  - Step-by-step capture instructions with visual guides
-  - Drag-and-drop image upload
-  - Mock AI analysis with metrics and recommendations
-  - Bilingual (EN/ID)
+2. **Video Script Generator** (15-90 seconds):
+   - Timing breakdown per section
+   - Word-by-word scripts
+   - Hook variations (5 types)
+   - Production tips
+   - Visual/delivery guidance
+
+3. **Knowledge Responses** (13+ topics):
+   - Tap-tap myth, Shadowban, FYP Algorithm
+   - Follower growth, Monetization, Hashtags
+   - Posting time, Hooks, Engagement
+   - Niche selection, Consistency, Editing
+
+**Pattern Matching:**
+- Flexible regex patterns for varied user phrasing
+- Duration extraction (minutes, seconds, hours)
+- Topic extraction from natural language
+- Intent classification (live, video, question, follow-up)
 
 **Key Files:**
-- `client/src/components/expert/VideoCreatorWizard.tsx`
-- `client/src/components/expert/LiveStreamingWizard.tsx`
-- `client/src/components/expert/ScreenshotAnalyticsPanel.tsx`
-- `client/src/components/expert/index.ts` - Exports all components
+- `client/src/components/expert/InteractiveCreatorHub.tsx` - Main chat interface
+- `client/src/components/expert/index.ts` - Component exports
+
+### Legacy Beginner Wizards
+Step-by-step wizard tools still available as alternative tabs:
+
+- `VideoCreatorWizard` - Multi-step video creation guide
+- `LiveStreamingWizard` - Comprehensive live streaming guide  
+- `ScreenshotAnalyticsPanel` - Screenshot-based analytics
 
 ## External Dependencies
 
@@ -168,12 +185,14 @@ Step-by-step wizard tools for first-time TikTok creators who need guidance witho
 - **Behavioral Framework Files**: Knowledge base in `attached_assets/` for 8-layer analysis, community guidelines, and specialized modules.
 
 ## Recent Changes (December 2024)
-- **NEW: Beginner Hub** - 3-mode navigation (Analytics/Beginner/Expert) with step-by-step wizards
-- **VideoCreatorWizard** - 10 niches, 4 durations, dynamic scripts, bilingual
-- **LiveStreamingWizard** - Solo/PK/Multi-Guest, timelines, gift strategies
-- **ScreenshotAnalyticsPanel** - Screenshot capture guides + drag-drop upload for analysis
-- Added VideoAnalyzerPanel for screenshot/video upload analysis
-- Added MonetizationGuidePanel with 5 monetization methods and income calculator
-- Added Marketing glossary (20 terms) to Library for Marketing Pro support
-- Removed Instagram/YouTube from Library - TikTok-only focus
+- **NEW: Interactive Creator Hub** - ChatGPT-like conversational interface as default Beginner mode
+  - Live Streaming Generator (15-180 minutes) with segment breakdowns, scripts, tips
+  - Video Script Generator (15-90 seconds) with timing, hooks, production tips
+  - Knowledge responses for 13+ TikTok topics (myths, algorithm, growth, monetization)
+  - Conversation context/memory for natural follow-up conversations
+  - Warm Indonesian personality ("bro", "gue")
+- Legacy wizards (VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel) moved to alternative tabs
+- Improved table rendering to support any number of columns
+- Enhanced pattern matching for more flexible user input recognition
+- Added Niche, Consistency, and Editing knowledge responses
 - Expert Mode now has 8 panels (previously 6)
