@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone } from 'lucide-react';
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import { TIKTOK_RULES, INSTAGRAM_RULES, YOUTUBE_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -632,6 +632,189 @@ const youtubeTerms: GlossaryTerm[] = [
   },
 ];
 
+const marketingTerms: GlossaryTerm[] = [
+  {
+    term: 'Call-to-Action (CTA)',
+    termId: 'Call-to-Action (CTA)',
+    definition: 'A prompt encouraging audience to take specific action like buy, subscribe, or click',
+    definitionId: 'Ajakan mendorong audiens melakukan tindakan spesifik seperti beli, subscribe, atau klik',
+    category: 'Marketing Fundamental',
+    examples: ['Buy now', 'Subscribe for more', 'Click the link', 'Comment below'],
+    examplesId: ['Beli sekarang', 'Subscribe untuk lebih banyak', 'Klik link', 'Komentar di bawah'],
+  },
+  {
+    term: 'Copywriting',
+    termId: 'Copywriting',
+    definition: 'The art of writing persuasive text to drive sales or engagement',
+    definitionId: 'Seni menulis teks persuasif untuk mendorong penjualan atau engagement',
+    category: 'Marketing Skill',
+    examples: ['Headlines', 'Sales pages', 'Email subject lines', 'Social captions'],
+    examplesId: ['Headlines', 'Sales pages', 'Subject email', 'Caption sosmed'],
+  },
+  {
+    term: 'Lead Magnet',
+    termId: 'Lead Magnet',
+    definition: 'Free valuable content offered in exchange for contact information',
+    definitionId: 'Konten gratis berharga yang ditawarkan sebagai ganti informasi kontak',
+    category: 'Marketing Strategy',
+    examples: ['Free ebook', 'Webinar', 'Checklist', 'Templates'],
+    examplesId: ['Ebook gratis', 'Webinar', 'Checklist', 'Template'],
+  },
+  {
+    term: 'Sales Funnel',
+    termId: 'Sales Funnel',
+    definition: 'Customer journey stages from awareness to purchase decision',
+    definitionId: 'Tahapan perjalanan pelanggan dari awareness hingga keputusan pembelian',
+    category: 'Marketing Strategy',
+    examples: ['TOFU (Top of Funnel)', 'MOFU (Middle)', 'BOFU (Bottom)', 'Conversion'],
+    examplesId: ['TOFU (Atas Funnel)', 'MOFU (Tengah)', 'BOFU (Bawah)', 'Konversi'],
+  },
+  {
+    term: 'AIDA Model',
+    termId: 'AIDA Model',
+    definition: 'Marketing framework: Attention, Interest, Desire, Action',
+    definitionId: 'Framework marketing: Attention, Interest, Desire, Action',
+    category: 'Marketing Framework',
+    examples: ['Grab attention with hook', 'Build interest', 'Create desire', 'Drive action'],
+    examplesId: ['Tarik perhatian dengan hook', 'Bangun interest', 'Ciptakan desire', 'Dorong action'],
+  },
+  {
+    term: 'Unique Selling Proposition (USP)',
+    termId: 'Unique Selling Proposition (USP)',
+    definition: 'What makes your product/service different and better than competitors',
+    definitionId: 'Apa yang membuat produk/jasa Anda berbeda dan lebih baik dari kompetitor',
+    category: 'Marketing Fundamental',
+    examples: ['Fastest delivery', 'Lowest price', 'Best quality', 'Exclusive features'],
+    examplesId: ['Pengiriman tercepat', 'Harga termurah', 'Kualitas terbaik', 'Fitur eksklusif'],
+  },
+  {
+    term: 'Elevator Pitch',
+    termId: 'Elevator Pitch',
+    definition: '30-60 second summary of who you are and what you offer',
+    definitionId: 'Ringkasan 30-60 detik tentang siapa Anda dan apa yang Anda tawarkan',
+    category: 'Public Speaking',
+    examples: ['Problem you solve', 'Target audience', 'Unique solution', 'Call to action'],
+    examplesId: ['Masalah yang diselesaikan', 'Target audiens', 'Solusi unik', 'Ajakan bertindak'],
+  },
+  {
+    term: 'Body Language',
+    termId: 'Body Language / Bahasa Tubuh',
+    definition: 'Non-verbal communication through posture, gestures, and facial expressions',
+    definitionId: 'Komunikasi non-verbal melalui postur, gestur, dan ekspresi wajah',
+    category: 'Public Speaking',
+    examples: ['Eye contact', 'Hand gestures', 'Open posture', 'Confident stance'],
+    examplesId: ['Kontak mata', 'Gerakan tangan', 'Postur terbuka', 'Sikap percaya diri'],
+  },
+  {
+    term: 'Storytelling',
+    termId: 'Storytelling',
+    definition: 'Using narrative structure to convey message and connect emotionally',
+    definitionId: 'Menggunakan struktur naratif untuk menyampaikan pesan dan terhubung secara emosional',
+    category: 'Communication Skill',
+    examples: ['Hero journey', 'Before-after-bridge', 'Problem-agitate-solve', 'Case studies'],
+    examplesId: ['Perjalanan hero', 'Before-after-bridge', 'Problem-agitate-solve', 'Studi kasus'],
+  },
+  {
+    term: 'Objection Handling',
+    termId: 'Objection Handling',
+    definition: 'Techniques to address customer concerns and resistance',
+    definitionId: 'Teknik mengatasi kekhawatiran dan penolakan pelanggan',
+    category: 'Sales Skill',
+    examples: ['Feel-felt-found', 'Acknowledge then redirect', 'Reframe the objection'],
+    examplesId: ['Feel-felt-found', 'Akui lalu arahkan ulang', 'Reframe keberatan'],
+  },
+  {
+    term: 'Closing Techniques',
+    termId: 'Closing Techniques',
+    definition: 'Methods to finalize sales and get commitment from prospects',
+    definitionId: 'Metode untuk menyelesaikan penjualan dan mendapatkan komitmen dari prospek',
+    category: 'Sales Skill',
+    examples: ['Assumptive close', 'Urgency close', 'Summary close', 'Question close'],
+    examplesId: ['Assumptive close', 'Urgency close', 'Summary close', 'Question close'],
+  },
+  {
+    term: 'Pain Point',
+    termId: 'Pain Point',
+    definition: 'Specific problem or frustration that customers experience',
+    definitionId: 'Masalah atau frustrasi spesifik yang dialami pelanggan',
+    category: 'Marketing Fundamental',
+    examples: ['Time constraints', 'Budget limits', 'Lack of knowledge', 'Fear of failure'],
+    examplesId: ['Keterbatasan waktu', 'Batasan budget', 'Kurang pengetahuan', 'Takut gagal'],
+  },
+  {
+    term: 'Social Proof',
+    termId: 'Social Proof',
+    definition: 'Evidence that others have benefited from your product/service',
+    definitionId: 'Bukti bahwa orang lain telah mendapat manfaat dari produk/jasa Anda',
+    category: 'Marketing Psychology',
+    examples: ['Testimonials', 'Case studies', 'Reviews', 'User count'],
+    examplesId: ['Testimoni', 'Studi kasus', 'Review', 'Jumlah pengguna'],
+  },
+  {
+    term: 'Scarcity & Urgency',
+    termId: 'Scarcity & Urgency',
+    definition: 'Creating limited availability or time pressure to drive action',
+    definitionId: 'Menciptakan ketersediaan terbatas atau tekanan waktu untuk mendorong tindakan',
+    category: 'Marketing Psychology',
+    examples: ['Limited stock', 'Deadline', 'Exclusive offer', 'Early bird pricing'],
+    examplesId: ['Stok terbatas', 'Deadline', 'Penawaran eksklusif', 'Harga early bird'],
+  },
+  {
+    term: 'Voice Projection',
+    termId: 'Voice Projection',
+    definition: 'Controlling volume, tone, and clarity for effective speaking',
+    definitionId: 'Mengontrol volume, nada, dan kejelasan untuk berbicara efektif',
+    category: 'Public Speaking',
+    examples: ['Diaphragm breathing', 'Vary your pace', 'Strategic pauses', 'Emphasis on keywords'],
+    examplesId: ['Nafas diafragma', 'Variasi kecepatan', 'Jeda strategis', 'Penekanan kata kunci'],
+  },
+  {
+    term: 'Rapport Building',
+    termId: 'Rapport Building',
+    definition: 'Creating connection and trust with audience or prospect',
+    definitionId: 'Menciptakan koneksi dan kepercayaan dengan audiens atau prospek',
+    category: 'Communication Skill',
+    examples: ['Mirroring', 'Finding common ground', 'Active listening', 'Genuine interest'],
+    examplesId: ['Mirroring', 'Mencari kesamaan', 'Mendengarkan aktif', 'Minat genuine'],
+  },
+  {
+    term: 'Value Proposition',
+    termId: 'Value Proposition',
+    definition: 'Clear statement of benefits customer will receive',
+    definitionId: 'Pernyataan jelas tentang manfaat yang akan diterima pelanggan',
+    category: 'Marketing Fundamental',
+    examples: ['Save time', 'Make money', 'Reduce stress', 'Achieve goals'],
+    examplesId: ['Hemat waktu', 'Hasilkan uang', 'Kurangi stres', 'Capai tujuan'],
+  },
+  {
+    term: 'Audience Analysis',
+    termId: 'Audience Analysis',
+    definition: 'Understanding demographics, psychographics, and needs of target audience',
+    definitionId: 'Memahami demografi, psikografi, dan kebutuhan target audiens',
+    category: 'Marketing Strategy',
+    examples: ['Age group', 'Interests', 'Pain points', 'Buying behavior'],
+    examplesId: ['Kelompok usia', 'Minat', 'Pain points', 'Perilaku pembelian'],
+  },
+  {
+    term: 'Hook',
+    termId: 'Hook',
+    definition: 'Opening statement or visual that captures attention immediately',
+    definitionId: 'Pernyataan atau visual pembuka yang menarik perhatian langsung',
+    category: 'Content Element',
+    examples: ['Question hook', 'Shocking statement', 'Bold claim', 'Pattern interrupt'],
+    examplesId: ['Hook pertanyaan', 'Pernyataan mengejutkan', 'Klaim berani', 'Pattern interrupt'],
+  },
+  {
+    term: 'Presentation Skills',
+    termId: 'Presentation Skills',
+    definition: 'Ability to deliver information effectively to an audience',
+    definitionId: 'Kemampuan menyampaikan informasi secara efektif kepada audiens',
+    category: 'Public Speaking',
+    examples: ['Slide design', 'Speaking flow', 'Q&A handling', 'Engagement techniques'],
+    examplesId: ['Desain slide', 'Alur bicara', 'Penanganan Q&A', 'Teknik engagement'],
+  },
+];
+
 export default function Library() {
   const { t, language } = useLanguage();
   const [location] = useLocation();
@@ -668,10 +851,8 @@ export default function Library() {
   }, []);
 
   // Convert approved contributions to GlossaryTerm format
-  const contributedTerms: { tiktok: GlossaryTerm[]; instagram: GlossaryTerm[]; youtube: GlossaryTerm[] } = {
+  const contributedTerms: { tiktok: GlossaryTerm[] } = {
     tiktok: [],
-    instagram: [],
-    youtube: [],
   };
 
   approvedContributions.forEach((contrib) => {
@@ -685,7 +866,9 @@ export default function Library() {
       examplesId: contrib.exampleId ? [contrib.exampleId] : [],
       contributor: contrib.username, // Add contributor info
     };
-    contributedTerms[contrib.platform as 'tiktok' | 'instagram' | 'youtube'].push(term);
+    if (contrib.platform === 'tiktok') {
+      contributedTerms.tiktok.push(term);
+    }
   });
   
   console.log('[LIBRARY] Contributed terms by platform:', contributedTerms);
@@ -695,10 +878,7 @@ export default function Library() {
     ...biasTerms,
     ...tiktokTerms,
     ...contributedTerms.tiktok,
-    ...instagramTerms,
-    ...contributedTerms.instagram,
-    ...youtubeTerms,
-    ...contributedTerms.youtube,
+    ...marketingTerms,
   ];
 
   // Filter terms based on search
@@ -715,8 +895,7 @@ export default function Library() {
 
   const filteredBias = filterTerms(biasTerms);
   const filteredTikTok = filterTerms([...contributedTerms.tiktok, ...tiktokTerms]);
-  const filteredInstagram = filterTerms([...contributedTerms.instagram, ...instagramTerms]);
-  const filteredYouTube = filterTerms([...contributedTerms.youtube, ...youtubeTerms]);
+  const filteredMarketing = filterTerms(marketingTerms);
 
   const TermCard = ({ term }: { term: GlossaryTerm }) => (
     <Card>
@@ -775,8 +954,8 @@ export default function Library() {
         </div>
         <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
           {t(
-            'Complete community-powered glossary of BIAS framework and social media terminology. Join our library, contribute new terms, and promote your TikTok, Instagram, or YouTube account for FREE!',
-            'Glosarium lengkap yang dikembangkan komunitas untuk framework BIAS dan terminologi media sosial. Bergabunglah dengan library kami, kontribusi istilah baru, dan promosikan akun TikTok, Instagram, atau YouTube Anda GRATIS!'
+            'Complete glossary of TikTok, Marketing, and BIAS framework terminology. Learn essential terms for TikTok mastery, sales, public speaking, and behavioral communication.',
+            'Glosarium lengkap terminologi TikTok, Marketing, dan framework BIAS. Pelajari istilah penting untuk penguasaan TikTok, penjualan, public speaking, dan komunikasi perilaku.'
           )}
         </p>
       </div>
@@ -795,21 +974,16 @@ export default function Library() {
 
       {/* Tabs */}
       <Tabs defaultValue="tiktok" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 gap-1">
           <TabsTrigger value="tiktok" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-tiktok">
             <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">TikTok ({filteredTikTok.length})</span>
             <span className="sm:hidden">TikTok</span>
           </TabsTrigger>
-          <TabsTrigger value="instagram" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-instagram">
-            <SiInstagram className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Instagram ({filteredInstagram.length})</span>
-            <span className="sm:hidden">IG</span>
-          </TabsTrigger>
-          <TabsTrigger value="youtube" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-youtube">
-            <SiYoutube className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">YouTube ({filteredYouTube.length})</span>
-            <span className="sm:hidden">YT</span>
+          <TabsTrigger value="marketing" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-marketing">
+            <Megaphone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Marketing ({filteredMarketing.length})</span>
+            <span className="sm:hidden">Marketing</span>
           </TabsTrigger>
           <TabsTrigger value="bias" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-bias">
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -860,8 +1034,8 @@ export default function Library() {
           )}
         </TabsContent>
 
-        <TabsContent value="instagram" className="space-y-4 mt-6">
-          {filteredInstagram.length === 0 ? (
+        <TabsContent value="marketing" className="space-y-4 mt-6">
+          {filteredMarketing.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
                 {t('No terms found', 'Tidak ada istilah ditemukan')}
@@ -869,23 +1043,7 @@ export default function Library() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {filteredInstagram.map((term, i) => (
-                <TermCard key={i} term={term} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="youtube" className="space-y-4 mt-6">
-          {filteredYouTube.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                {t('No terms found', 'Tidak ada istilah ditemukan')}
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {filteredYouTube.map((term, i) => (
+              {filteredMarketing.map((term, i) => (
                 <TermCard key={i} term={term} />
               ))}
             </div>
@@ -911,7 +1069,7 @@ function ContributionForm() {
   const [formData, setFormData] = useState({
     termId: '',
     definitionId: '',
-    platform: 'tiktok' as 'tiktok' | 'instagram' | 'youtube',
+    platform: 'tiktok' as 'tiktok',
     username: '',
   });
 
@@ -988,8 +1146,8 @@ function ContributionForm() {
           </CardTitle>
           <CardDescription>
             {t(
-              'Add new terms and get your TikTok, Instagram, or YouTube account listed in our library for FREE exposure! Your username will be displayed on every term you contribute. Example: "@yourname contributed this term" - instant visibility!',
-              'Tambahkan istilah baru dan dapatkan akun TikTok, Instagram, atau YouTube kamu terdaftar di library kami untuk promosi GRATIS! Username kamu akan ditampilkan di setiap istilah yang kamu kontribusi. Contoh: "@namakamu mengontribusi istilah ini" - langsung terlihat!'
+              'Add new TikTok terms and get your account listed in our library for FREE exposure! Your username will be displayed on every term you contribute. Example: "@yourname contributed this term" - instant visibility!',
+              'Tambahkan istilah TikTok baru dan dapatkan akun kamu terdaftar di library kami untuk promosi GRATIS! Username kamu akan ditampilkan di setiap istilah yang kamu kontribusi. Contoh: "@namakamu mengontribusi istilah ini" - langsung terlihat!'
             )}
           </CardDescription>
         </CardHeader>
@@ -1006,19 +1164,12 @@ function ContributionForm() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="platform">{t('Platform', 'Platform')} *</Label>
-              <select
-                id="platform"
-                value={formData.platform}
-                onChange={(e) => setFormData({ ...formData, platform: e.target.value as any })}
-                className="w-full h-10 px-3 rounded-md border border-input bg-background"
-                data-testid="select-platform"
-                required
-              >
-                <option value="tiktok">TikTok</option>
-                <option value="instagram">Instagram</option>
-                <option value="youtube">YouTube</option>
-              </select>
+              <Label htmlFor="platform">{t('Platform', 'Platform')}</Label>
+              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-background/50">
+                <SiTiktok className="w-4 h-4" />
+                <span>TikTok</span>
+              </div>
+              <input type="hidden" name="platform" value="tiktok" />
             </div>
 
             <div className="space-y-2">
@@ -1069,8 +1220,8 @@ function ContributionForm() {
               />
               <p className="text-xs text-primary font-medium">
                 {t(
-                  '✨ This account will be displayed publicly! Example: "Contributed by @yourname" - Free exposure for your TikTok, Instagram, or YouTube!',
-                  '✨ Akun ini akan ditampilkan secara publik! Contoh: "Dikontribusi oleh @namakamu" - Promosi gratis untuk TikTok, Instagram, atau YouTube kamu!'
+                  '✨ This TikTok account will be displayed publicly! Example: "Contributed by @yourname" - Free exposure for your TikTok!',
+                  '✨ Akun TikTok ini akan ditampilkan secara publik! Contoh: "Dikontribusi oleh @namakamu" - Promosi gratis untuk TikTok kamu!'
                 )}
               </p>
             </div>
@@ -2140,15 +2291,8 @@ function BrandManagement() {
 
 function PlatformRulesHub({ search }: { search: string }) {
   const { t, language } = useLanguage();
-  const [selectedPlatform, setSelectedPlatform] = useState<'tiktok' | 'instagram' | 'youtube'>('tiktok');
 
-  const platformData = {
-    tiktok: TIKTOK_RULES,
-    instagram: INSTAGRAM_RULES,
-    youtube: YOUTUBE_RULES,
-  };
-
-  const currentRules = platformData[selectedPlatform];
+  const currentRules = TIKTOK_RULES;
 
   const filteredCategories = currentRules.map(category => ({
     ...category,
@@ -2210,44 +2354,10 @@ function PlatformRulesHub({ search }: { search: string }) {
 
   return (
     <div className="space-y-6">
-      {/* Platform Selector */}
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={() => setSelectedPlatform('tiktok')}
-          data-testid="button-rules-tiktok"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover-elevate active-elevate-2 ${
-            selectedPlatform === 'tiktok'
-              ? 'bg-[#FE2C55]/10 border-[#FE2C55]/20 text-[#FE2C55]'
-              : 'bg-card border-border'
-          }`}
-        >
-          <SiTiktok className="w-5 h-5" />
-          <span className="font-medium">TikTok</span>
-        </button>
-        <button
-          onClick={() => setSelectedPlatform('instagram')}
-          data-testid="button-rules-instagram"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover-elevate active-elevate-2 ${
-            selectedPlatform === 'instagram'
-              ? 'bg-pink-500/10 border-pink-500/20 text-pink-500'
-              : 'bg-card border-border'
-          }`}
-        >
-          <SiInstagram className="w-5 h-5" />
-          <span className="font-medium">Instagram</span>
-        </button>
-        <button
-          onClick={() => setSelectedPlatform('youtube')}
-          data-testid="button-rules-youtube"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover-elevate active-elevate-2 ${
-            selectedPlatform === 'youtube'
-              ? 'bg-red-500/10 border-red-500/20 text-red-500'
-              : 'bg-card border-border'
-          }`}
-        >
-          <SiYoutube className="w-5 h-5" />
-          <span className="font-medium">YouTube</span>
-        </button>
+      {/* TikTok Guidelines Header */}
+      <div className="flex items-center gap-3 p-3 bg-[#FE2C55]/10 border border-[#FE2C55]/20 rounded-lg">
+        <SiTiktok className="w-6 h-6 text-[#FE2C55]" />
+        <span className="font-semibold text-[#FE2C55]">{t('TikTok Community Guidelines', 'Panduan Komunitas TikTok')}</span>
       </div>
 
       {/* Rules Display */}
