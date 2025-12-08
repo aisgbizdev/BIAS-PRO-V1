@@ -82,6 +82,9 @@ export interface IStorage {
   getUniqueSessionsCount(days?: number): Promise<number>;
   getTotalPageViews(days?: number): Promise<number>;
   getTotalFeatureUsage(days?: number): Promise<number>;
+  getNavigationBreakdown(days?: number): Promise<{ menuItem: string; destination: string; count: number }[]>;
+  getTabBreakdown(days?: number): Promise<{ page: string; tabName: string; count: number }[]>;
+  getButtonClickBreakdown(days?: number): Promise<{ buttonName: string; context: string; count: number }[]>;
 
   // Admin session management
   createAdminSession(sessionId: string, username: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date }>;
@@ -498,6 +501,90 @@ export class MemStorage implements IStorage {
       .length;
   }
 
+  async getNavigationBreakdown(days: number = 7): Promise<{ menuItem: string; destination: string; count: number }[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const usages = Array.from(this.featureUsages.values())
+      .filter(u => u.createdAt >= cutoff && u.featureType === 'navigation');
+
+    const stats = new Map<string, { menuItem: string; destination: string; count: number }>();
+    usages.forEach(u => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.menuItem || 'unknown'}|${details.destination || 'unknown'}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, { 
+            menuItem: details.menuItem || 'Unknown', 
+            destination: details.destination || '/', 
+            count: 1 
+          });
+        }
+      } catch (e) {}
+    });
+
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  }
+
+  async getTabBreakdown(days: number = 7): Promise<{ page: string; tabName: string; count: number }[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const usages = Array.from(this.featureUsages.values())
+      .filter(u => u.createdAt >= cutoff && u.featureType === 'tab-selection');
+
+    const stats = new Map<string, { page: string; tabName: string; count: number }>();
+    usages.forEach(u => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.page || 'unknown'}|${details.tabName || u.mode || 'unknown'}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, { 
+            page: details.page || 'Unknown', 
+            tabName: details.tabName || u.mode || 'Unknown', 
+            count: 1 
+          });
+        }
+      } catch (e) {}
+    });
+
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  }
+
+  async getButtonClickBreakdown(days: number = 7): Promise<{ buttonName: string; context: string; count: number }[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const usages = Array.from(this.featureUsages.values())
+      .filter(u => u.createdAt >= cutoff && u.featureType === 'button-click');
+
+    const stats = new Map<string, { buttonName: string; context: string; count: number }>();
+    usages.forEach(u => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.buttonName || 'unknown'}|${details.context || u.mode || 'unknown'}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, { 
+            buttonName: details.buttonName || 'Unknown', 
+            context: details.context || u.mode || 'Unknown', 
+            count: 1 
+          });
+        }
+      } catch (e) {}
+    });
+
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  }
+
   // Admin session methods
   async createAdminSession(sessionId: string, username: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date }> {
     const now = new Date();
@@ -785,6 +872,18 @@ export class DatabaseStorage implements IStorage {
 
   async getTotalFeatureUsage(days: number = 7): Promise<number> {
     return this.memStorage.getTotalFeatureUsage(days);
+  }
+
+  async getNavigationBreakdown(days: number = 7): Promise<{ menuItem: string; destination: string; count: number }[]> {
+    return this.memStorage.getNavigationBreakdown(days);
+  }
+
+  async getTabBreakdown(days: number = 7): Promise<{ page: string; tabName: string; count: number }[]> {
+    return this.memStorage.getTabBreakdown(days);
+  }
+
+  async getButtonClickBreakdown(days: number = 7): Promise<{ buttonName: string; context: string; count: number }[]> {
+    return this.memStorage.getButtonClickBreakdown(days);
   }
 
   async createAdminSession(sessionId: string, username: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date }> {

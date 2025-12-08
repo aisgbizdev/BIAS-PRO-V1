@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/lib/languageContext';
-import { TrendingUp, Users, Eye, Activity, BarChart3 } from 'lucide-react';
+import { TrendingUp, Users, Eye, Activity, BarChart3, Navigation, Layers, MousePointer } from 'lucide-react';
 
 interface AnalyticsData {
   period: string;
@@ -14,6 +15,9 @@ interface AnalyticsData {
   };
   pageViews: { page: string; count: number; language?: string }[];
   featureUsage: { featureType: string; count: number; platform?: string }[];
+  navigationBreakdown: { menuItem: string; destination: string; count: number }[];
+  tabBreakdown: { page: string; tabName: string; count: number }[];
+  buttonClickBreakdown: { buttonName: string; context: string; count: number }[];
 }
 
 export function AnalyticsDashboard() {
@@ -235,19 +239,24 @@ export function AnalyticsDashboard() {
                   {t('No page views yet', 'Belum ada tampilan halaman')}
                 </p>
               ) : (
-                topPages.map((item, index) => (
-                  <div key={item.page} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                        {index + 1}
-                      </Badge>
-                      <span className="font-medium">{formatPageName(item.page)}</span>
+                topPages.map((item, index) => {
+                  const maxCount = topPages[0]?.count || 1;
+                  const percentage = (item.count / maxCount) * 100;
+                  return (
+                    <div key={item.page} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline" className="w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                            {index + 1}
+                          </Badge>
+                          <span className="font-medium text-sm">{formatPageName(item.page)}</span>
+                        </div>
+                        <span className="text-sm font-semibold">{item.count}</span>
+                      </div>
+                      <Progress value={percentage} className="h-1.5" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">{item.count} views</span>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </CardContent>
@@ -270,17 +279,124 @@ export function AnalyticsDashboard() {
                   {t('No feature usage yet', 'Belum ada penggunaan fitur')}
                 </p>
               ) : (
-                topFeatures.map((item, index) => (
-                  <div key={item.featureType} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                        {index + 1}
-                      </Badge>
-                      <span className="font-medium">{formatFeatureName(item.featureType)}</span>
+                topFeatures.map((item, index) => {
+                  const maxCount = topFeatures[0]?.count || 1;
+                  const percentage = (item.count / maxCount) * 100;
+                  return (
+                    <div key={item.featureType} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline" className="w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                            {index + 1}
+                          </Badge>
+                          <span className="font-medium text-sm">{formatFeatureName(item.featureType)}</span>
+                        </div>
+                        <span className="text-sm font-semibold">{item.count}</span>
+                      </div>
+                      <Progress value={percentage} className="h-1.5" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">{item.count} uses</span>
+                  );
+                })
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Detailed Breakdowns */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Navigation Breakdown */}
+        <Card className="border-2 border-green-500/20">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Navigation className="h-5 w-5 text-green-500" />
+              <CardTitle className="text-base">{t('Menu Clicks', 'Klik Menu')}</CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              {t('Which menus are clicked most', 'Menu mana yang paling sering diklik')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {(!data.navigationBreakdown || data.navigationBreakdown.length === 0) ? (
+                <p className="text-sm text-muted-foreground">
+                  {t('No data yet', 'Belum ada data')}
+                </p>
+              ) : (
+                data.navigationBreakdown.slice(0, 5).map((item, index) => (
+                  <div key={`${item.menuItem}-${index}`} className="flex items-center justify-between py-1 border-b border-gray-800 last:border-0">
+                    <span className="text-sm truncate max-w-[120px]">{item.menuItem}</span>
+                    <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30">
+                      {item.count}x
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tab Breakdown */}
+        <Card className="border-2 border-yellow-500/20">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Layers className="h-5 w-5 text-yellow-500" />
+              <CardTitle className="text-base">{t('Tab Selection', 'Pilihan Tab')}</CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              {t('Which tabs are used most', 'Tab mana yang paling sering dipilih')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {(!data.tabBreakdown || data.tabBreakdown.length === 0) ? (
+                <p className="text-sm text-muted-foreground">
+                  {t('No data yet', 'Belum ada data')}
+                </p>
+              ) : (
+                data.tabBreakdown.slice(0, 5).map((item, index) => (
+                  <div key={`${item.page}-${item.tabName}-${index}`} className="flex items-center justify-between py-1 border-b border-gray-800 last:border-0">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{item.tabName}</span>
+                      <span className="text-xs text-muted-foreground">{item.page}</span>
                     </div>
+                    <Badge className="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30">
+                      {item.count}x
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Button Click Breakdown */}
+        <Card className="border-2 border-blue-500/20">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <MousePointer className="h-5 w-5 text-blue-500" />
+              <CardTitle className="text-base">{t('Button Clicks', 'Klik Tombol')}</CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              {t('Which buttons are clicked most', 'Tombol mana yang paling sering diklik')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {(!data.buttonClickBreakdown || data.buttonClickBreakdown.length === 0) ? (
+                <p className="text-sm text-muted-foreground">
+                  {t('No data yet', 'Belum ada data')}
+                </p>
+              ) : (
+                data.buttonClickBreakdown.slice(0, 5).map((item, index) => (
+                  <div key={`${item.buttonName}-${index}`} className="flex items-center justify-between py-1 border-b border-gray-800 last:border-0">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{item.buttonName}</span>
+                      <span className="text-xs text-muted-foreground">{item.context}</span>
+                    </div>
+                    <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                      {item.count}x
+                    </Badge>
                   </div>
                 ))
               )}

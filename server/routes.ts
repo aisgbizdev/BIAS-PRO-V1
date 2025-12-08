@@ -1212,13 +1212,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         featureUsageStats,
         uniqueSessions,
         totalPageViews,
-        totalFeatureUsage
+        totalFeatureUsage,
+        navigationBreakdown,
+        tabBreakdown,
+        buttonClickBreakdown
       ] = await Promise.all([
         storage.getPageViewStats(daysNum),
         storage.getFeatureUsageStats(daysNum),
         storage.getUniqueSessionsCount(daysNum),
         storage.getTotalPageViews(daysNum),
         storage.getTotalFeatureUsage(daysNum),
+        storage.getNavigationBreakdown(daysNum),
+        storage.getTabBreakdown(daysNum),
+        storage.getButtonClickBreakdown(daysNum),
       ]);
       
       res.json({
@@ -1230,6 +1236,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         pageViews: pageViewStats,
         featureUsage: featureUsageStats,
+        navigationBreakdown,
+        tabBreakdown,
+        buttonClickBreakdown,
       });
     } catch (error: any) {
       console.error('[ANALYTICS] Error getting stats:', error);
