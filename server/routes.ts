@@ -1238,6 +1238,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ==========================================
+  // HYBRID CHAT (Local + AI Fallback)
+  // ==========================================
+  
+  app.post("/api/chat/hybrid", async (req, res) => {
+    try {
+      const { message, sessionId } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+      
+      const { hybridChat } = await import('./chat/hybrid-chat');
+      const result = await hybridChat({ 
+        message, 
+        sessionId: sessionId || 'anonymous' 
+      });
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error('[HYBRID_CHAT] Error:', error);
+      res.status(500).json({ 
+        response: 'Maaf bro, ada error. Coba lagi ya!',
+        source: 'local',
+        error: error.message 
+      });
+    }
+  });
+
+  // ==========================================
   // AI TOKEN LIMIT SETTINGS (Admin Only)
   // ==========================================
   
