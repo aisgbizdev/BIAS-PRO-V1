@@ -169,8 +169,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error(`❌ [${requestId}] Analysis engine failed:`, analysisError);
         return res.status(500).json({
           error: 'Analysis failed',
-          message: 'Our AI analysis engine encountered an error. This could be due to high load or API timeout. Please try again.',
-          messageId: 'Analisis AI mengalami error. Ini bisa karena server load tinggi atau timeout. Silakan coba lagi.',
+          message: 'Our Ai analysis engine encountered an error. This could be due to high load or API timeout. Please try again.',
+          messageId: 'Analisis Ai mengalami error. Ini bisa karena server load tinggi atau timeout. Silakan coba lagi.',
           details: process.env.NODE_ENV === 'development' ? analysisError.message : undefined,
         });
       }
@@ -220,8 +220,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userMessage = 'Analysis timed out. Please try with shorter content or try again later.';
         userMessageId = 'Analisis timeout. Coba dengan konten lebih pendek atau coba lagi nanti.';
       } else if (error.message?.includes('OpenAI') || error.message?.includes('API')) {
-        userMessage = 'AI service temporarily unavailable. Please try again in a few moments.';
-        userMessageId = 'Layanan AI sedang tidak tersedia. Silakan coba lagi dalam beberapa saat.';
+        userMessage = 'Ai service temporarily unavailable. Please try again in a few moments.';
+        userMessageId = 'Layanan Ai sedang tidak tersedia. Silakan coba lagi dalam beberapa saat.';
       }
       
       res.status(500).json({ 
@@ -382,7 +382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: data.message,
       });
       
-      // Generate response using CASCADE AI: OpenAI → Gemini → BIAS
+      // Generate response using CASCADE Ai: OpenAI → Gemini → BIAS
       const { response, isOnTopic, provider } = await generateAICascadeResponse(data.message, data.mode);
       console.log(`Chat response from ${provider.toUpperCase()}`);
       
@@ -1238,7 +1238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ==========================================
-  // HYBRID CHAT (Local + AI Fallback)
+  // HYBRID CHAT (Local + Ai Fallback)
   // ==========================================
   
   app.post("/api/chat/hybrid", async (req, res) => {
@@ -1279,7 +1279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ==========================================
-  // AI TOKEN LIMIT SETTINGS (Admin Only)
+  // Ai TOKEN LIMIT SETTINGS (Admin Only)
   // ==========================================
   
   app.get("/api/admin/ai-settings", requireAdmin, async (req, res) => {

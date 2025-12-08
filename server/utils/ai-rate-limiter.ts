@@ -1,4 +1,4 @@
-// AI Rate Limiter - Batasi penggunaan OpenAI untuk hemat token
+// Ai Rate Limiter - Batasi penggunaan OpenAI untuk hemat token
 // Configurable limits per session dan per hari
 
 interface UsageRecord {
@@ -125,7 +125,7 @@ export function recordUsage(sessionId: string, tokensUsed: number): void {
   daily.requests++;
   daily.tokens += tokensUsed;
   
-  console.log(`📊 AI Usage - Session ${sessionId.slice(0, 8)}...: ${daily.requests} requests, ${daily.tokens.toLocaleString()} tokens today`);
+  console.log(`📊 Ai Usage - Session ${sessionId.slice(0, 8)}...: ${daily.requests} requests, ${daily.tokens.toLocaleString()} tokens today`);
 }
 
 export function getUsageStats(sessionId: string): {
@@ -143,7 +143,7 @@ export function getUsageStats(sessionId: string): {
 // Export config untuk bisa dimodifikasi
 export function updateConfig(newConfig: Partial<RateLimitConfig>): RateLimitConfig {
   Object.assign(DEFAULT_CONFIG, newConfig);
-  console.log('🔧 AI Rate Limit Config Updated:', DEFAULT_CONFIG);
+  console.log('🔧 Ai Rate Limit Config Updated:', DEFAULT_CONFIG);
   return DEFAULT_CONFIG;
 }
 

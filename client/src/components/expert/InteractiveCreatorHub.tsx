@@ -117,9 +117,9 @@ export function InteractiveCreatorHub() {
       return { response: generateVideoScript(duration, topic, durationType), newContext, isGeneric: false };
     }
 
-    // EVERYTHING ELSE → AI (no more hardcoded knowledge responses)
+    // EVERYTHING ELSE → Ai (no more hardcoded knowledge responses)
     // This includes: FYP questions, shadowban, hashtags, posting time, hooks, etc.
-    // AI will answer with proper 8-layer framework, tables, and BIAS Tips
+    // Ai will answer with proper 8-layer framework, tables, and BIAS Tips
     newContext.lastIntent = 'general';
     return { response: '', newContext, isGeneric: true };
   };
@@ -148,7 +148,7 @@ export function InteractiveCreatorHub() {
     
     let finalResponse = localResult.response;
 
-    // If local didn't match (isGeneric), call AI API with expert mode
+    // If local didn't match (isGeneric), call Ai API with expert mode
     if (localResult.isGeneric) {
       try {
         const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
@@ -170,7 +170,7 @@ export function InteractiveCreatorHub() {
         }
       } catch (err) {
         console.error('Hybrid chat error:', err);
-        finalResponse = `⚠️ **Gak bisa connect ke AI bro**
+        finalResponse = `⚠️ **Gak bisa connect ke Ai bro**
 
 Sementara itu, coba:
 • Pakai template: "Live 60 menit" atau "VT 30 detik"
@@ -214,7 +214,7 @@ Atau refresh dan coba lagi! 🔄`;
             <h2 className="font-semibold text-white flex items-center gap-2">
               BIAS TikTok Mentor
               <span className="px-2 py-0.5 text-[10px] rounded-full bg-gradient-to-r from-pink-500/20 to-cyan-500/20 text-pink-400 border border-pink-500/30">
-                AI-Powered
+                Ai-Powered
               </span>
             </h2>
             <p className="text-xs text-gray-500">

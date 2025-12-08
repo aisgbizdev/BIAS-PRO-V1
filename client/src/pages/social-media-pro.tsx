@@ -190,7 +190,7 @@ export default function SocialMediaPro() {
               className={`flex-1 px-6 py-3 rounded-lg ${mainMode === 'mentor' ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <Bot className="w-5 h-5 mr-2" />
-              {t('AI Mentor', 'AI Mentor')}
+              {t('Ai Mentor', 'Ai Mentor')}
             </Button>
             <Button
               variant={mainMode === 'analytics' ? 'default' : 'ghost'}
@@ -203,7 +203,7 @@ export default function SocialMediaPro() {
           </div>
         </div>
 
-        {/* MENTOR HUB - AI Chat with skill toggle + quick actions */}
+        {/* MENTOR HUB - Ai Chat with skill toggle + quick actions */}
         {mainMode === 'mentor' && (
           <div className="space-y-4">
             {/* Skill Level Toggle */}
@@ -234,7 +234,7 @@ export default function SocialMediaPro() {
               </div>
             </div>
 
-            {/* AI Chat */}
+            {/* Ai Chat */}
             <InteractiveCreatorHub />
 
             {/* Quick Action Buttons */}

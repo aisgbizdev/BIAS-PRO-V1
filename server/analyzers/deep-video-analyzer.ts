@@ -1,4 +1,4 @@
-// Deep Video Analyzer - AI-Powered Specific & Actionable Analysis
+// Deep Video Analyzer - Ai-Powered Specific & Actionable Analysis
 // Provides CONCRETE feedback with timestamps, specific observations, and practical recommendations
 
 import OpenAI from 'openai';
@@ -161,17 +161,17 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
     const responseContent = completion.choices[0]?.message?.content;
     
     if (!responseContent) {
-      throw new Error('Empty AI response');
+      throw new Error('Empty Ai response');
     }
 
-    // Parse AI response
+    // Parse Ai response
     const parsedResponse = JSON.parse(responseContent);
     
     // Handle both array and object with "layers" key
     const layers = Array.isArray(parsedResponse) ? parsedResponse : (parsedResponse.layers || []);
     
     if (!layers || layers.length === 0) {
-      throw new Error('No layers in AI response');
+      throw new Error('No layers in Ai response');
     }
 
     // Record token usage (approximate based on response length)
@@ -185,7 +185,7 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
     };
 
   } catch (error) {
-    console.error('❌ Deep AI Analysis Error:', error);
+    console.error('❌ Deep Ai Analysis Error:', error);
     console.log('📊 Falling back to basic analysis...');
     return { layers: generateBasicAnalysis(input) };
   }
@@ -254,7 +254,7 @@ function getPlatformContext(platform?: string): string {
 }
 
 function generateBasicAnalysis(input: DeepAnalysisInput): DeepLayerAnalysis[] {
-  // Fallback basic analysis if AI fails
+  // Fallback basic analysis if Ai fails
   const layers = [
     'VBM (Visual Behavior Mapping)',
     'EPM (Emotional Processing Metric)',
@@ -280,14 +280,14 @@ function generateBasicAnalysis(input: DeepAnalysisInput): DeepLayerAnalysis[] {
     ],
     weaknesses: [
       `Analisis terbatas tanpa access ke actual video/audio content`,
-      `Untuk feedback yang lebih aplikatif, upload actual file untuk AI deep analysis`
+      `Untuk feedback yang lebih aplikatif, upload actual file untuk Ai deep analysis`
     ],
     actionableRecommendations: [
       `Week 1: Upload actual video file untuk mendapatkan analisis timestamp-specific`,
-      `Week 2-3: Implement recommendations dari deep AI analysis`,
+      `Week 2-3: Implement recommendations dari deep Ai analysis`,
       `Month 1: Track improvement metrics dan iterate based on performance data`
     ],
-    feedback: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. AI deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`,
-    feedbackId: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. AI deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`
+    feedback: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. Ai deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`,
+    feedbackId: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. Ai deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`
   }));
 }

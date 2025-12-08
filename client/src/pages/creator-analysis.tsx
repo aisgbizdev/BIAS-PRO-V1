@@ -28,8 +28,8 @@ export default function CreatorAnalysis() {
           </div>
           <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
             {t(
-              'AI Coach for sales, pitch, leadership & professional communication. Analyze or create scripts, then discuss with AI to level up your skills!',
-              'AI Coach untuk sales, pitch, leadership & komunikasi profesional. Analisis atau buat script, lalu diskusi dengan AI untuk tingkatkan skill-mu!'
+              'Ai Coach for sales, pitch, leadership & professional communication. Analyze or create scripts, then discuss with Ai to level up your skills!',
+              'Ai Coach untuk sales, pitch, leadership & komunikasi profesional. Analisis atau buat script, lalu diskusi dengan Ai untuk tingkatkan skill-mu!'
             )}
           </p>
         </div>

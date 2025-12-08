@@ -191,7 +191,7 @@ export async function analyzeVideo(input: {
   };
 }
 
-// Analyze text/speech/script with AI Deep Analysis
+// Analyze text/speech/script with Ai Deep Analysis
 export async function analyzeText(input: {
   content: string;
   mode: 'creator' | 'academic' | 'hybrid';
@@ -199,14 +199,14 @@ export async function analyzeText(input: {
   platform?: 'tiktok' | 'instagram' | 'youtube' | 'non-social';
 }): Promise<BiasAnalysisResult> {
   
-  // 🚀 Use AI Deep Analysis for ALL content types (video, audio, AND text)
+  // 🚀 Use Ai Deep Analysis for ALL content types (video, audio, AND text)
   // This provides SPECIFIC, ACTIONABLE feedback with concrete examples
-  // Only skip AI if content is too short (less than 20 chars)
+  // Only skip Ai if content is too short (less than 20 chars)
   const shouldUseAI = input.content && input.content.length >= 20;
   
   if (shouldUseAI) {
     try {
-      console.log('🤖 Initiating AI Deep Analysis for', input.inputType, 'content...');
+      console.log('🤖 Initiating Ai Deep Analysis for', input.inputType, 'content...');
       
       const deepResult = await deepAnalyzeWithAI({
         content: input.content,
@@ -218,7 +218,7 @@ export async function analyzeText(input: {
       // FIX: deepAnalyzeWithAI returns { layers: [], rateLimitInfo?, tokensUsed? }
       const deepLayers = deepResult.layers;
       
-      // Check if we got valid AI analysis (not rate limited fallback)
+      // Check if we got valid Ai analysis (not rate limited fallback)
       if (deepLayers && deepLayers.length > 0) {
         // Convert deep analysis to BiasLayerResult format
         const layers: BiasLayerResult[] = deepLayers.map(dl => ({
@@ -240,7 +240,7 @@ export async function analyzeText(input: {
         // Generate comprehensive summary
         const summary = generateDeepSummary(deepLayers, overallScore, input.mode);
 
-        console.log('✅ AI Deep Analysis completed successfully');
+        console.log('✅ Ai Deep Analysis completed successfully');
         
         return {
           mode: input.mode,
@@ -253,12 +253,12 @@ export async function analyzeText(input: {
         };
       }
     } catch (error) {
-      console.error('⚠️ AI Deep Analysis failed, falling back to standard analysis:', error);
+      console.error('⚠️ Ai Deep Analysis failed, falling back to standard analysis:', error);
     }
   }
   
-  // Fallback: Standard template-based analysis (only when AI fails or content too short)
-  console.log('📝 Using standard template-based analysis (AI unavailable or content too short)');
+  // Fallback: Standard template-based analysis (only when Ai fails or content too short)
+  console.log('📝 Using standard template-based analysis (Ai unavailable or content too short)');
   
   const analyzer = new TextAnalyzer({
     content: input.content,

@@ -37,7 +37,7 @@ interface AnalysisInput {
  * Main analysis function - Now using educational analyzer
  */
 export async function analyzeBehavior(input: AnalysisInput): Promise<BiasAnalysisResult> {
-  // Use new educational text analyzer with platform context for deep AI analysis
+  // Use new educational text analyzer with platform context for deep Ai analysis
   return await analyzeText({
     content: input.content,
     mode: input.mode,
@@ -323,7 +323,7 @@ export async function generateChatResponse(message: string, mode: BiasMode): Pro
 }
 
 /**
- * Cascade AI System: OpenAI → Gemini → BIAS Library
+ * Cascade Ai System: OpenAI → Gemini → BIAS Library
  * Strict guardrails: Only answers BIAS-related topics
  */
 
@@ -452,7 +452,7 @@ export async function generateAICascadeResponse(
     }
     
     if (knowledgeResult.source === 'library+ai') {
-      console.log('✅ Answered from Knowledge Library + AI Enhancement');
+      console.log('✅ Answered from Knowledge Library + Ai Enhancement');
       return { 
         response: knowledgeResult.answer, 
         isOnTopic: true, 
@@ -469,14 +469,14 @@ export async function generateAICascadeResponse(
       };
     }
     
-    // If library confidence is medium/low, proceed to AI for enhancement
-    console.log('⚠️ Library confidence medium/low, trying AI for better answer...');
+    // If library confidence is medium/low, proceed to Ai for enhancement
+    console.log('⚠️ Library confidence medium/low, trying Ai for better answer...');
     
   } catch (error) {
-    console.warn('Knowledge library error, falling back to AI:', error);
+    console.warn('Knowledge library error, falling back to Ai:', error);
   }
 
-  // Pre-filter: Block obvious off-topic before hitting AI (save API cost!)
+  // Pre-filter: Block obvious off-topic before hitting Ai (save API cost!)
   const preCheck = await generateChatResponse(message, mode);
   if (!preCheck.isOnTopic) {
     return { ...preCheck, provider: 'bias' };

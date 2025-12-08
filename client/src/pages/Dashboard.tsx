@@ -72,12 +72,12 @@ export default function Dashboard() {
       icon: SiTiktok,
       title: t('TikTok Pro', 'TikTok Pro'),
       description: t(
-        'Master TikTok with AI mentor! FYP secrets, viral hooks, live streaming tips & account analytics all in one place.',
-        'Kuasai TikTok dengan AI mentor! Rahasia FYP, hook viral, tips live streaming & analitik akun dalam satu tempat.'
+        'Master TikTok with Ai mentor! FYP secrets, viral hooks, live streaming tips & account analytics all in one place.',
+        'Kuasai TikTok dengan Ai mentor! Rahasia FYP, hook viral, tips live streaming & analitik akun dalam satu tempat.'
       ),
       color: 'from-pink-500 to-cyan-500',
       features: [
-        { en: 'AI TikTok Mentor (ask anything!)', id: 'AI Mentor TikTok (tanya apa aja!)' },
+        { en: 'Ai TikTok Mentor (ask anything!)', id: 'Ai Mentor TikTok (tanya apa aja!)' },
         { en: 'FYP algorithm & viral secrets', id: 'Algoritma FYP & rahasia viral' },
         { en: 'Live & script generator', id: 'Generator live & script' },
       ],
@@ -90,12 +90,12 @@ export default function Dashboard() {
       icon: Briefcase,
       title: t('Marketing Pro', 'Marketing Pro'),
       description: t(
-        'Level up your professional skills! Sales closing, pitch mastery, leadership, public speaking & negotiation — all with AI coaching.',
-        'Tingkatkan skill profesionalmu! Closing sales, pitch mastery, leadership, public speaking & negosiasi — semua dengan AI coaching.'
+        'Level up your professional skills! Sales closing, pitch mastery, leadership, public speaking & negotiation — all with Ai coaching.',
+        'Tingkatkan skill profesionalmu! Closing sales, pitch mastery, leadership, public speaking & negosiasi — semua dengan Ai coaching.'
       ),
       color: 'from-purple-500 to-pink-500',
       features: [
-        { en: 'AI Sales & Leadership Coach', id: 'AI Coach Sales & Leadership' },
+        { en: 'Ai Sales & Leadership Coach', id: 'Ai Coach Sales & Leadership' },
         { en: 'Pitch & presentation analysis', id: 'Analisis pitch & presentasi' },
         { en: 'Negotiation & closing tips', id: 'Tips negosiasi & closing' },
       ],

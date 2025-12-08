@@ -295,7 +295,7 @@ export function ScreenshotAnalyticsPanel() {
           </h2>
         </div>
         <p className="text-gray-400">
-          {t('Capture your TikTok analytics and get AI-powered insights', 'Capture analitik TikTok kamu dan dapatkan insight AI')}
+          {t('Capture your TikTok analytics and get Ai-powered insights', 'Capture analitik TikTok kamu dan dapatkan insight Ai')}
         </p>
       </div>
 

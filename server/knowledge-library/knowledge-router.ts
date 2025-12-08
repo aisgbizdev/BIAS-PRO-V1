@@ -1,5 +1,5 @@
 // Smart Knowledge Router - Library-First Approach
-// Answers from knowledge base, optional AI enhancement
+// Answers from knowledge base, optional Ai enhancement
 
 import { TikTokKnowledge, getTikTokTip } from './social-media/tiktok-guide';
 import { InstagramKnowledge, getInstagramTip } from './social-media/instagram-guide';
@@ -54,7 +54,7 @@ Coba tanya tentang salah satu topik di atas, atau rephrase pertanyaan dengan leb
     // STEP 2.5: Reformat to actionable format (TOMORROW/Week 1/Expected)
     libraryAnswer.answer = this.reformatToActionable(libraryAnswer.answer, question);
 
-    // STEP 3: Optionally enhance with AI
+    // STEP 3: Optionally enhance with Ai
     if (this.openai && libraryAnswer.confidence === 'medium') {
       try {
         const enhancedAnswer = await this.enhanceWithAI(question, libraryAnswer.answer, topic);
@@ -65,7 +65,7 @@ Coba tanya tentang salah satu topik di atas, atau rephrase pertanyaan dengan leb
           relatedTopics: libraryAnswer.relatedTopics
         };
       } catch (error) {
-        console.warn('⚠️ AI enhancement failed, returning library answer:', error);
+        console.warn('⚠️ Ai enhancement failed, returning library answer:', error);
         return libraryAnswer;
       }
     }

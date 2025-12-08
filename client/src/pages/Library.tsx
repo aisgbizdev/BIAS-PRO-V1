@@ -1254,7 +1254,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           </TabsTrigger>
           <TabsTrigger value="ai-settings" className="gap-2">
             <Sparkles className="w-4 h-4" />
-            {t('AI Limits', 'Limit AI')}
+            {t('Ai Limits', 'Limit Ai')}
           </TabsTrigger>
           <TabsTrigger value="analytics" className="gap-2">
             <BarChart3 className="w-4 h-4" />
@@ -1808,7 +1808,7 @@ function BrandManagement() {
                   <Input
                     value={formData.subtitleEn}
                     onChange={(e) => setFormData({ ...formData, subtitleEn: e.target.value })}
-                    placeholder="AI-Powered Analysis"
+                    placeholder="Ai-Powered Analysis"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1816,7 +1816,7 @@ function BrandManagement() {
                   <Input
                     value={formData.subtitleId}
                     onChange={(e) => setFormData({ ...formData, subtitleId: e.target.value })}
-                    placeholder="Analisis AI"
+                    placeholder="Analisis Ai"
                   />
                 </div>
               </div>
@@ -2149,7 +2149,7 @@ function AISettingsPanel() {
         setConfig(data.config);
       }
     } catch (error) {
-      console.error('Error fetching AI config:', error);
+      console.error('Error fetching Ai config:', error);
     } finally {
       setLoading(false);
     }
@@ -2170,7 +2170,7 @@ function AISettingsPanel() {
         setConfig(data.config);
         toast({
           title: t('Settings Saved', 'Pengaturan Disimpan'),
-          description: t('AI limits have been updated', 'Limit AI sudah diperbarui'),
+          description: t('Ai limits have been updated', 'Limit Ai sudah diperbarui'),
         });
       } else {
         throw new Error('Failed to save');
@@ -2199,7 +2199,7 @@ function AISettingsPanel() {
       <div className="flex items-center gap-3">
         <Sparkles className="w-6 h-6 text-primary" />
         <div>
-          <h2 className="text-xl font-bold">{t('AI Token Limits', 'Limit Token AI')}</h2>
+          <h2 className="text-xl font-bold">{t('Ai Token Limits', 'Limit Token Ai')}</h2>
           <p className="text-sm text-muted-foreground">
             {t('Control OpenAI API usage to save tokens', 'Kontrol penggunaan OpenAI API supaya token hemat')}
           </p>
@@ -2214,7 +2214,7 @@ function AISettingsPanel() {
               {t('Requests per Hour', 'Request per Jam')}
             </CardTitle>
             <CardDescription>
-              {t('Maximum AI requests allowed per hour per user', 'Maksimal request AI per jam per user')}
+              {t('Maximum Ai requests allowed per hour per user', 'Maksimal request Ai per jam per user')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -2235,7 +2235,7 @@ function AISettingsPanel() {
               {t('Requests per Day', 'Request per Hari')}
             </CardTitle>
             <CardDescription>
-              {t('Maximum AI requests allowed per day per user', 'Maksimal request AI per hari per user')}
+              {t('Maximum Ai requests allowed per day per user', 'Maksimal request Ai per hari per user')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -2281,7 +2281,7 @@ function AISettingsPanel() {
               {t('Tokens per Request', 'Token per Request')}
             </CardTitle>
             <CardDescription>
-              {t('Maximum tokens per single AI request', 'Maksimal token per satu request AI')}
+              {t('Maximum tokens per single Ai request', 'Maksimal token per satu request Ai')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -2310,8 +2310,8 @@ function AISettingsPanel() {
         <AlertCircle className="w-4 h-4" />
         <AlertDescription>
           {t(
-            'These limits help control OpenAI API costs. When limits are reached, users will see basic (non-AI) analysis instead.',
-            'Limit ini membantu kontrol biaya OpenAI API. Kalau limit tercapai, user akan lihat analisis dasar (tanpa AI).'
+            'These limits help control OpenAI API costs. When limits are reached, users will see basic (non-Ai) analysis instead.',
+            'Limit ini membantu kontrol biaya OpenAI API. Kalau limit tercapai, user akan lihat analisis dasar (tanpa Ai).'
           )}
         </AlertDescription>
       </Alert>

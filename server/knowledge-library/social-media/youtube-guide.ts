@@ -313,7 +313,7 @@ export const YouTubeKnowledge = {
     ],
     
     features: [
-      "AI-powered tools: Auto-dubbing (multi-language), AI chapters, thumbnail suggestions",
+      "Ai-powered tools: Auto-dubbing (multi-language), Ai chapters, thumbnail suggestions",
       "Shopping integration: Tag products directly in video (affiliate on steroids)",
       "Handles (@username): Easier discovery, cross-platform consistency"
     ],

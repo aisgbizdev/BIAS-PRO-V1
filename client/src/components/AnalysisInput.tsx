@@ -174,8 +174,8 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
         </CardTitle>
         <CardDescription>
           {t(
-            'Paste your script (sales pitch, meeting opening, cold call, presentation) and get AI feedback to improve it!',
-            'Paste script kamu (sales pitch, pembuka meeting, cold call, presentasi) dan dapatkan feedback AI untuk improve!'
+            'Paste your script (sales pitch, meeting opening, cold call, presentation) and get Ai feedback to improve it!',
+            'Paste script kamu (sales pitch, pembuka meeting, cold call, presentasi) dan dapatkan feedback Ai untuk improve!'
           )}
         </CardDescription>
       </CardHeader>
@@ -211,8 +211,8 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
           </Label>
           <p className="text-xs text-muted-foreground">
             {t(
-              'Paste your script below — AI will analyze and give specific improvement tips',
-              'Paste script kamu di bawah — AI akan analisis dan kasih tips perbaikan spesifik'
+              'Paste your script below — Ai will analyze and give specific improvement tips',
+              'Paste script kamu di bawah — Ai akan analisis dan kasih tips perbaikan spesifik'
             )}
           </p>
         </div>

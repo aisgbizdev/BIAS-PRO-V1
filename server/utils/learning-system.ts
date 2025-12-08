@@ -1,4 +1,4 @@
-// Learning System - AI answers become local knowledge
+// Learning System - Ai answers become local knowledge
 import { db } from '../../db';
 import { learnedResponses } from '@shared/schema';
 import { eq, sql, desc } from 'drizzle-orm';
@@ -120,7 +120,7 @@ export async function findSimilarResponse(question: string): Promise<{
   }
 }
 
-// Save AI response to learned library
+// Save Ai response to learned library
 export async function saveLearnedResponse(question: string, response: string): Promise<boolean> {
   try {
     const keywords = extractKeywords(question);

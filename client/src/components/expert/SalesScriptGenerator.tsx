@@ -333,7 +333,7 @@ export function SalesScriptGenerator() {
                 <div>
                   <Label className="text-gray-300">{t('Unique Value', 'Nilai Unik')}</Label>
                   <Input
-                    placeholder="AI-powered automation"
+                    placeholder="Ai-powered automation"
                     value={customizations.uniqueValue}
                     onChange={(e) => setCustomizations({ ...customizations, uniqueValue: e.target.value })}
                     className="bg-gray-800 border-gray-700"

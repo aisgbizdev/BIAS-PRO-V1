@@ -148,7 +148,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: '⚠️ Gagal connect ke AI. Coba refresh dan tanya lagi ya!',
+        content: '⚠️ Gagal connect ke Ai. Coba refresh dan tanya lagi ya!',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -179,7 +179,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
               {t('Discuss Your Results', 'Diskusikan Hasilmu')}
             </span>
             <span className={`px-2 py-0.5 text-[10px] rounded-full ${mode === 'tiktok' ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'}`}>
-              AI Chat
+              Ai Chat
             </span>
           </CardTitle>
           
@@ -204,8 +204,8 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
         </div>
         <p className="text-xs text-gray-500 mt-1">
           {t(
-            'Ask BIAS AI about your analysis — get tips to improve!',
-            'Tanya BIAS AI tentang hasil analisismu — dapatkan tips untuk improve!'
+            'Ask BIAS Ai about your analysis — get tips to improve!',
+            'Tanya BIAS Ai tentang hasil analisismu — dapatkan tips untuk improve!'
           )}
         </p>
       </CardHeader>

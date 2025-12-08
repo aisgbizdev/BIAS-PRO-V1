@@ -156,7 +156,7 @@ export function AnalysisResults({ result, onDiscussLayer }: AnalysisResultsProps
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-              {t('AI-powered analysis', 'Analisis bertenaga AI')}
+              {t('Ai-powered analysis', 'Analisis bertenaga Ai')}
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-primary" />

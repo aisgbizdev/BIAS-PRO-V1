@@ -268,8 +268,8 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           <CardDescription className="text-gray-400">
             {mode === 'academic' 
               ? t(
-                  'Upload your sales presentations, prospecting calls, or client pitches. Get AI-powered feedback on what to improve for better conversions.',
-                  'Upload presentasi jualan, prospek, atau pitch klien Anda. Dapatkan feedback AI tentang apa yang harus diperbaiki untuk konversi lebih baik.'
+                  'Upload your sales presentations, prospecting calls, or client pitches. Get Ai-powered feedback on what to improve for better conversions.',
+                  'Upload presentasi jualan, prospek, atau pitch klien Anda. Dapatkan feedback Ai tentang apa yang harus diperbaiki untuk konversi lebih baik.'
                 )
               : t(
                   'Upload one or more videos to analyze or compare performance',
@@ -411,7 +411,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                         <div className="space-y-1">
                           <Label className="text-xs text-pink-400 font-medium flex items-center gap-1">
                             <span className="text-red-500">*</span>
-                            {t('Video Description (REQUIRED for AI Analysis)', 'Deskripsi Video (WAJIB untuk Analisis AI)')}
+                            {t('Video Description (REQUIRED for Ai Analysis)', 'Deskripsi Video (WAJIB untuk Analisis Ai)')}
                           </Label>
                           <Textarea
                             placeholder={t(
@@ -447,15 +447,15 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
               <AlertDescription className="text-white space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">
-                    {t('Deep AI Analysis in Progress...', 'Analisis AI Mendalam Sedang Berlangsung...')}
+                    {t('Deep Ai Analysis in Progress...', 'Analisis Ai Mendalam Sedang Berlangsung...')}
                   </span>
                   <span className="text-sm text-cyan-300">{Math.round(uploadProgress)}%</span>
                 </div>
                 <Progress value={uploadProgress} className="h-2" />
                 <p className="text-xs text-gray-300 mt-1">
                   {t(
-                    'AI is analyzing your content in detail. This may take 15-30 seconds to give specific and actionable feedback.',
-                    'AI sedang menganalisis konten Anda secara detail. Ini mungkin memakan waktu 15-30 detik untuk memberikan feedback spesifik dan aplikatif.'
+                    'Ai is analyzing your content in detail. This may take 15-30 seconds to give specific and actionable feedback.',
+                    'Ai sedang menganalisis konten Anda secara detail. Ini mungkin memakan waktu 15-30 detik untuk memberikan feedback spesifik dan aplikatif.'
                   )}
                 </p>
               </AlertDescription>
@@ -490,8 +490,8 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
               <AlertCircle className="w-4 h-4 text-yellow-400" />
               <AlertDescription className="text-yellow-300 text-sm">
                 {t(
-                  'AI cannot watch videos directly. Please describe each video in detail (min 50 chars) including: speaking style, gestures, tone, filler words, timestamps, etc. The more detail you provide, the more specific your feedback will be!',
-                  'AI tidak bisa langsung menonton video. Mohon deskripsikan setiap video secara detail (min 50 karakter) termasuk: gaya bicara, gestur, tone, filler words, timestamps, dll. Makin detail deskripsimu, makin spesifik feedback yang kamu dapat!'
+                  'Ai cannot watch videos directly. Please describe each video in detail (min 50 chars) including: speaking style, gestures, tone, filler words, timestamps, etc. The more detail you provide, the more specific your feedback will be!',
+                  'Ai tidak bisa langsung menonton video. Mohon deskripsikan setiap video secara detail (min 50 karakter) termasuk: gaya bicara, gestur, tone, filler words, timestamps, dll. Makin detail deskripsimu, makin spesifik feedback yang kamu dapat!'
                 )}
               </AlertDescription>
             </Alert>
@@ -502,8 +502,8 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             <AlertCircle className="w-4 h-4 text-gray-400" />
             <AlertDescription className="text-gray-400 text-sm">
               {t(
-                'Tip: AI reads your DESCRIPTION, not the video file. Better description = better analysis!',
-                'Tips: AI membaca DESKRIPSI kamu, bukan file video. Deskripsi lebih detail = analisis lebih akurat!'
+                'Tip: Ai reads your DESCRIPTION, not the video file. Better description = better analysis!',
+                'Tips: Ai membaca DESKRIPSI kamu, bukan file video. Deskripsi lebih detail = analisis lebih akurat!'
               )}
             </AlertDescription>
           </Alert>

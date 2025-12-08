@@ -393,10 +393,10 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
       };
     }
   } catch (error) {
-    console.log('⚠️ Learning library check failed, continuing to AI');
+    console.log('⚠️ Learning library check failed, continuing to Ai');
   }
 
-  // STEP 2: Check rate limit before calling AI
+  // STEP 2: Check rate limit before calling Ai
   const rateLimitCheck = checkRateLimit(sessionId);
   if (!rateLimitCheck.allowed) {
     return {
@@ -420,7 +420,7 @@ Sementara itu, kamu masih bisa:
     return {
       response: `🔧 **OpenAI belum dikonfigurasi**
 
-Untuk mengaktifkan AI chat, admin perlu setup OpenAI API key.
+Untuk mengaktifkan Ai chat, admin perlu setup OpenAI API key.
 
 Sementara itu, kamu bisa pakai:
 • Template Live Generator
@@ -515,7 +515,7 @@ User ini baru mulai. Penyesuaian:
     return {
       response: `⚠️ **Ada gangguan bro!**
 
-Gue gak bisa connect ke AI sekarang. Error: ${error.message || 'Unknown error'}
+Gue gak bisa connect ke Ai sekarang. Error: ${error.message || 'Unknown error'}
 
 Coba:
 • Refresh dan tanya lagi
