@@ -1,21 +1,18 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Sparkles, Copy, CheckCircle2, Target, Users, Clock, Zap, MessageSquare, Phone, Mail, Video, Presentation } from 'lucide-react';
+import { FileText, Sparkles, Copy, CheckCircle2, Clock, Zap, MessageSquare, Phone, Mail, Presentation } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ScriptTemplate {
   id: string;
   name: string;
   nameId: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   description: string;
   descriptionId: string;
   sections: {
