@@ -121,6 +121,15 @@ export function getRelevantKnowledge(topic: string): string {
     'voice': ['suara', 'voice', 'tone', 'VPL', 'pacing'],
     'emotion': ['emosi', 'emotion', 'EPM', 'empati'],
     'visual': ['visual', 'VBM', 'gesture', 'framing', 'ekspresi'],
+    // Marketing & Sales keywords
+    'pitch': ['pitch', 'pitching', 'proposal', 'presentasi', 'investor'],
+    'sales': ['sales', 'jualan', 'closing', 'prospek', 'konversi', 'selling'],
+    'marketing': ['marketing', 'pemasaran', 'branding', 'campaign'],
+    'negotiation': ['negosiasi', 'negotiation', 'deal', 'tawar'],
+    'leadership': ['leadership', 'kepemimpinan', 'leader', 'tim', 'team'],
+    'speaking': ['public speaking', 'pidato', 'speech', 'presentasi', 'berbicara'],
+    'objection': ['objection', 'keberatan', 'handling', 'penolakan'],
+    'closing': ['closing', 'tutup deal', 'conversion', 'close'],
   };
 
   const relevantSections: string[] = [];
