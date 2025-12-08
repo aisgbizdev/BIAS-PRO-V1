@@ -6,12 +6,13 @@ import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
-import { Video, FileText, Zap, Briefcase } from 'lucide-react';
+import { SalesScriptGenerator } from '@/components/expert/SalesScriptGenerator';
+import { Video, FileText, Zap, Briefcase, ScrollText } from 'lucide-react';
 import type { BiasAnalysisResult } from '@shared/schema';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
-  const [inputMode, setInputMode] = useState<'form' | 'upload'>('upload');
+  const [inputMode, setInputMode] = useState<'upload' | 'form' | 'scripts'>('upload');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   return (
@@ -39,14 +40,14 @@ export default function CreatorAnalysis() {
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="pt-6">
             <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as typeof inputMode)}>
-              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700 gap-1">
+              <TabsList className="grid w-full grid-cols-3 bg-[#1E1E1E] border border-gray-700 gap-1">
                 <TabsTrigger 
                   value="upload"
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
                   data-testid="tab-input-upload"
                 >
                   <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Video', 'Video')}</span>
+                  <span className="truncate">{t('Analyze Video', 'Analisis Video')}</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="form"
@@ -54,7 +55,15 @@ export default function CreatorAnalysis() {
                   data-testid="tab-input-form"
                 >
                   <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Text', 'Teks')}</span>
+                  <span className="truncate">{t('Review Script', 'Review Script')}</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="scripts"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+                  data-testid="tab-input-scripts"
+                >
+                  <ScrollText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">{t('Script Templates', 'Template Script')}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -71,8 +80,13 @@ export default function CreatorAnalysis() {
           <VideoUploadAnalyzer onAnalysisComplete={setCurrentAnalysis} mode="academic" />
         )}
 
+        {/* Sales Script Templates */}
+        {inputMode === 'scripts' && (
+          <SalesScriptGenerator />
+        )}
+
         {/* Analysis Results */}
-        {currentAnalysis && (
+        {currentAnalysis && inputMode !== 'scripts' && (
           <div data-results-container>
             <AnalysisResults result={currentAnalysis} />
             

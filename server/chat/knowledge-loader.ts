@@ -8,6 +8,8 @@ const PRIORITY_FILES = [
   'BIAS_Creator_Intelligence_Core',
   'BIAS_VoiceEmotion_Core',
   'BIAS_Full_Core',
+  'VBM_AudioVisual',
+  'EPM_Psychology',
   'BMIL_Ethics',
   'ESI_EthicalSensitivity',
   'NLP_Storytelling',
@@ -15,6 +17,8 @@ const PRIORITY_FILES = [
   'Leadership',
   'PublicSpeaking',
   'TeamBuilding',
+  'BIAS_ModeSwitch',
+  'BIAS_Greeting',
 ];
 
 let cachedKnowledge: string | null = null;
