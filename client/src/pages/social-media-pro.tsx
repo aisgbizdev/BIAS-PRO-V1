@@ -513,8 +513,8 @@ export default function SocialMediaPro() {
           const videosDisplay = videos.toString();
           
           return (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
               title={t('Total Followers', 'Total Followers')}
               value={followersDisplay}
@@ -772,12 +772,12 @@ export default function SocialMediaPro() {
               </div>
             </CardContent>
           </Card>
-          </div>
-        </>
+              </div>
+            </>
           );
         })()}
-          </div>
-        )}
+        </div>
+      )}
       </div>
     </div>
   );
