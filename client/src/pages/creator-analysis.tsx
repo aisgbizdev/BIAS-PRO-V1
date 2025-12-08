@@ -5,7 +5,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
-import { Video, FileText, Zap } from 'lucide-react';
+import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
+import { Video, FileText, Zap, Briefcase } from 'lucide-react';
 import type { BiasAnalysisResult } from '@shared/schema';
 
 export default function CreatorAnalysis() {
@@ -19,15 +20,15 @@ export default function CreatorAnalysis() {
       <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 border-b border-gray-800/50">
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <Video className="w-6 h-6 md:w-8 md:h-8 text-purple-500 flex-shrink-0" />
+            <Briefcase className="w-6 h-6 md:w-8 md:h-8 text-purple-500 flex-shrink-0" />
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
               {t('Marketing Pro', 'Marketing Pro')}
             </h1>
           </div>
           <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
             {t(
-              'Analyze sales presentations, client pitches, prospecting calls, and marketing videos. Get AI-powered behavioral feedback to improve your communication and boost conversions.',
-              'Analisis presentasi penjualan, pitch klien, prospek, dan video marketing. Dapatkan feedback behavioral berbasis AI untuk meningkatkan komunikasi dan konversi Anda.'
+              'AI Coach for sales, pitch, leadership & professional communication. Analyze or create scripts, then discuss with AI to level up your skills!',
+              'AI Coach untuk sales, pitch, leadership & komunikasi profesional. Analisis atau buat script, lalu diskusi dengan AI untuk tingkatkan skill-mu!'
             )}
           </p>
         </div>
@@ -74,6 +75,13 @@ export default function CreatorAnalysis() {
         {currentAnalysis && (
           <div data-results-container>
             <AnalysisResults result={currentAnalysis} />
+            
+            {/* Discussion Chat Box */}
+            <AnalysisDiscussion 
+              analysisResult={currentAnalysis} 
+              mode="marketing" 
+              analysisType={inputMode === 'upload' ? 'video' : 'text'} 
+            />
           </div>
         )}
       </div>

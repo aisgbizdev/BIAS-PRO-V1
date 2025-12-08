@@ -169,26 +169,50 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          {t('New Analysis', 'Analisis Baru')}
+          <Sparkles className="w-5 h-5 text-purple-500" />
+          {t('Script Analysis & Review', 'Analisis & Review Script')}
         </CardTitle>
         <CardDescription>
           {t(
-            'Analyze your communication patterns with 8-layer BIAS framework',
-            'Analisis pola komunikasi kamu dengan framework BIAS 8-layer'
+            'Paste your script (sales pitch, meeting opening, cold call, presentation) and get AI feedback to improve it!',
+            'Paste script kamu (sales pitch, pembuka meeting, cold call, presentasi) dan dapatkan feedback AI untuk improve!'
           )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Input Type - Simplified to Text/Document Only */}
+        {/* Script Type Selector */}
+        <div className="space-y-2">
+          <Label>{t('What kind of script?', 'Jenis script apa?')}</Label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { en: '💼 Sales Pitch', id: '💼 Sales Pitch' },
+              { en: '📞 Cold Call', id: '📞 Cold Call' },
+              { en: '🤝 Meeting Opening', id: '🤝 Pembuka Meeting' },
+              { en: '📊 Presentation', id: '📊 Presentasi' },
+              { en: '💬 Follow-up WA', id: '💬 Follow-up WA' },
+              { en: '🎤 Public Speaking', id: '🎤 Public Speaking' },
+            ].map((type, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setContent(prev => prev ? prev : `[${t(type.en, type.id)}]\n\n`)}
+                className="px-3 py-1.5 text-xs rounded-full bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 transition-colors"
+              >
+                {t(type.en, type.id)}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Content Input Label */}
         <div className="space-y-2">
           <Label htmlFor="content-input">
-            {t('Content to Analyze', 'Konten yang Akan Dianalisis')}
+            {t('Your Script / Text', 'Script / Teks Kamu')}
           </Label>
           <p className="text-xs text-muted-foreground">
             {t(
-              'Upload document (doc/pdf/txt/script) OR write your description below',
-              'Upload dokumen (doc/pdf/txt/script) ATAU tulis deskripsi di bawah'
+              'Paste your script below — AI will analyze and give specific improvement tips',
+              'Paste script kamu di bawah — AI akan analisis dan kasih tips perbaikan spesifik'
             )}
           </p>
         </div>
@@ -222,18 +246,18 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
 
         {/* Text Description Input */}
         <div className="space-y-2">
-          <Label htmlFor="content">
-            {t('Description / Text Content', 'Deskripsi / Konten Teks')}
+          <Label htmlFor="content" className="sr-only">
+            {t('Script Content', 'Konten Script')}
           </Label>
           <Textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t(
-              'Paste your speech script, conversation, presentation text, or describe your communication style in detail...',
-              'Paste skrip pidato, percakapan, teks presentasi, atau deskripsikan gaya komunikasi Anda secara detail...'
+              'Example: "Hi [Prospect Name], I noticed your company just expanded to..."',
+              'Contoh: "Halo [Nama Prospek], saya lihat perusahaan Bapak baru saja expand ke..."'
             )}
-            className="min-h-32 resize-none"
+            className="min-h-40 resize-none font-mono text-sm"
             data-testid="textarea-content"
           />
           <div className="flex items-center justify-between text-xs">
@@ -295,7 +319,10 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
               {t('Analyzing...', 'Menganalisis...')}
             </>
           ) : (
-            t('Analyze with BIAS', 'Analisis dengan BIAS')
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              {t('Review My Script', 'Review Script Saya')}
+            </>
           )}
         </Button>
       </CardFooter>

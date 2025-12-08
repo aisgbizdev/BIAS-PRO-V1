@@ -24,13 +24,15 @@ The application uses cookieless session tracking with client-generated session I
 The application supports dynamic white-label branding for partners via a path-based routing system with database-backed brand management. Brands are stored in a PostgreSQL `brands` table and dynamically loaded based on the URL path.
 
 ### Key Features
-- **Modes**: TikTok Pro (Analytics, Beginner, Expert) and Marketing Pro.
+- **Dual AI Mentor System**: TikTok Pro (FYP secrets, viral hooks, live streaming) and Marketing Pro (sales, pitch, leadership, negotiation).
+- **Analysis Discussion**: Post-analysis chat box for discussing results with AI mentor (mode-specific context).
 - **Comprehensive Analyzer**: Provides narrative diagnoses, context, impact, motivational framing, and actionable recommendations.
-- **Account Analyzer**: For social media accounts, offering engagement, growth, content, monetization, audience quality, and posting optimization analysis.
-- **Video Analysis**: Supports multi-file video uploads and URL pasting (TikTok) for analysis and comparison.
-- **Expert Knowledge Base**: A science-backed knowledge system with 8 panels, including research-backed tips, hook templates, storytelling frameworks, script templates, live streaming templates, trending data, growth stage guides, and response templates.
-- **Interactive Creator Hub**: A conversational AI interface (ChatGPT-like) acting as a TikTok mentor, replacing traditional wizards. It offers live streaming and video script generators, and knowledge responses for 13+ TikTok topics, with conversation memory and a hybrid 3-tier response system (local templates → learning library → OpenAI fallback).
-- **Hybrid Chat System**: Prioritizes responses from local templates, then a self-learning library of previously answered AI questions, and finally falls back to OpenAI API for new unique questions.
+- **Video & Script Analysis**: Supports multi-file video uploads, URL pasting (TikTok), and text-based script review.
+- **Script Review Tool**: Quick script type selection (Sales Pitch, Cold Call, Meeting Opening, Presentation, Follow-up, Public Speaking).
+- **Expert Knowledge Base**: Science-backed knowledge system with 8 panels, including research-backed tips, hook templates, storytelling frameworks, script templates, live streaming templates, trending data, growth stage guides, and response templates.
+- **Interactive Creator Hub**: A conversational AI interface (ChatGPT-like) acting as a TikTok mentor, replacing traditional wizards.
+- **Hybrid Chat System**: Prioritizes responses from local templates, then a self-learning library, and finally falls back to OpenAI API for new unique questions.
+- **Cross-Domain Knowledge**: Marketing Pro can access relevant TikTok knowledge (voice, emotion, ethics) when applicable.
 - **Adaptive Analysis**: Tailors recommendations based on user skill levels.
 - **Warmth Detection System**: Analyzes communication tone and calculates a Warmth Index.
 - **Platform Rules Hub**: A searchable, bilingual database of official TikTok community guidelines.
