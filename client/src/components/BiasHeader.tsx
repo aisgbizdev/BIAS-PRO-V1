@@ -70,6 +70,7 @@ export function BiasHeader() {
               {/* TikTok Follow in Mobile Menu */}
               <Button
                 onClick={() => {
+                  trackButtonClick('TikTok Follow', 'mobile-menu');
                   openExternalLink(brand.social.tiktokUrl);
                   setMobileMenuOpen(false);
                 }}
@@ -85,6 +86,7 @@ export function BiasHeader() {
               <Button
                 variant="outline"
                 onClick={() => {
+                  trackButtonClick('Language Toggle', 'mobile-menu', { from: language, to: language === 'en' ? 'id' : 'en' });
                   toggleLanguage();
                   setMobileMenuOpen(false);
                 }}

@@ -104,15 +104,16 @@ export function AnalyticsDashboard() {
     return acc;
   }, [] as { featureType: string; count: number }[]);
 
-  const topPages = pageViewsByPage.sort((a, b) => b.count - a.count).slice(0, 5);
-  const topFeatures = featuresByType.sort((a, b) => b.count - a.count).slice(0, 5);
+  const topPages = pageViewsByPage.sort((a, b) => b.count - a.count).slice(0, 10);
+  const topFeatures = featuresByType.sort((a, b) => b.count - a.count).slice(0, 10);
 
   const formatPageName = (page: string) => {
     const names: Record<string, string> = {
+      '/': t('Home', 'Beranda'),
       'dashboard': t('Dashboard', 'Dashboard'),
-      'social-pro': t('Social Pro', 'Social Pro'),
-      'creator': t('Communication', 'Komunikasi'),
-      'library': t('Library', 'Perpustakaan'),
+      'social-pro': t('TikTok Pro', 'TikTok Pro'),
+      'creator': t('Marketing Pro', 'Marketing Pro'),
+      'library': t('Library', 'Library'),
       'admin': t('Admin', 'Admin'),
     };
     return names[page] || page;
@@ -124,7 +125,17 @@ export function AnalyticsDashboard() {
       'chat': t('Chat', 'Chat'),
       'comparison': t('Comparison', 'Perbandingan'),
       'video_upload': t('Video Upload', 'Upload Video'),
+      'video-upload': t('Video Upload', 'Upload Video'),
       'account_analysis': t('Account Analysis', 'Analisis Akun'),
+      'navigation': t('Navigation Click', 'Klik Navigasi'),
+      'tab-selection': t('Tab Selection', 'Pilih Tab'),
+      'button-click': t('Button Click', 'Klik Tombol'),
+      'library-search': t('Library Search', 'Pencarian Library'),
+      'rules-hub': t('Rules Hub', 'Rules Hub'),
+      'script-generator': t('Script Generator', 'Generator Script'),
+      'script-review': t('Script Review', 'Review Script'),
+      'expert-panel': t('Expert Panel', 'Panel Expert'),
+      'ai-coach': t('Ai Coach', 'Ai Coach'),
     };
     return names[feature] || feature;
   };
