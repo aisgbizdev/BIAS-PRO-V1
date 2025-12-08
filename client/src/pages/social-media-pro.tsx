@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
-import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket } from 'lucide-react';
+import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot } from 'lucide-react';
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
@@ -50,7 +50,7 @@ export default function SocialMediaPro() {
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
   const [mainMode, setMainMode] = useState<'analytics' | 'beginner' | 'expert'>('analytics');
-  const [expertTab, setExpertTab] = useState<string>('knowledge');
+  const [expertTab, setExpertTab] = useState<string>('ai-mentor');
   const [beginnerTab, setBeginnerTab] = useState<string>('interactive');
 
   const mockData = {
@@ -305,6 +305,10 @@ export default function SocialMediaPro() {
 
             <Tabs value={expertTab} onValueChange={setExpertTab}>
               <TabsList className="flex flex-wrap justify-start gap-1 bg-transparent h-auto p-0">
+                <TabsTrigger value="ai-mentor" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-pink-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
+                  <Bot className="w-4 h-4 mr-1" />
+                  {t('AI Mentor', 'AI Mentor')}
+                </TabsTrigger>
                 <TabsTrigger value="knowledge" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
                   <BookOpen className="w-4 h-4 mr-1" />
                   {t('Knowledge', 'Pengetahuan')}
@@ -339,6 +343,9 @@ export default function SocialMediaPro() {
                 </TabsTrigger>
               </TabsList>
 
+              <TabsContent value="ai-mentor" className="mt-6">
+                <InteractiveCreatorHub />
+              </TabsContent>
               <TabsContent value="knowledge" className="mt-6">
                 <ExpertKnowledgePanel />
               </TabsContent>
