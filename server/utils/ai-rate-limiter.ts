@@ -14,12 +14,12 @@ interface RateLimitConfig {
   maxTokensPerRequest: number;
 }
 
-// Default config - bisa diubah sesuai kebutuhan
+// Default config HEMAT - bisa diubah di admin panel
 const DEFAULT_CONFIG: RateLimitConfig = {
-  maxRequestsPerHour: 10,      // Max 10 request per jam
-  maxRequestsPerDay: 50,       // Max 50 request per hari
-  maxTokensPerDay: 100000,     // Max 100K tokens per hari
-  maxTokensPerRequest: 2200,   // Max token per request (sudah di set)
+  maxRequestsPerHour: 5,       // Max 5 request per jam (hemat)
+  maxRequestsPerDay: 20,       // Max 20 request per hari (hemat)
+  maxTokensPerDay: 50000,      // Max 50K tokens per hari (hemat)
+  maxTokensPerRequest: 1500,   // Max 1500 token per request (hemat, tetap quality)
 };
 
 // In-memory storage untuk tracking usage (reset saat server restart)

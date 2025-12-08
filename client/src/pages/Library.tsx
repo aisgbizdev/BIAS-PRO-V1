@@ -2129,10 +2129,10 @@ function AISettingsPanel() {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [config, setConfig] = useState<AIConfig>({
-    maxRequestsPerHour: 10,
-    maxRequestsPerDay: 50,
-    maxTokensPerDay: 100000,
-    maxTokensPerRequest: 2200,
+    maxRequestsPerHour: 5,
+    maxRequestsPerDay: 20,
+    maxTokensPerDay: 50000,
+    maxTokensPerRequest: 1500,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
