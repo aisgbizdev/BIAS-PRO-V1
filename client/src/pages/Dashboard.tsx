@@ -4,7 +4,7 @@ import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mic, Briefcase, Zap, CheckCircle, ArrowRight, BookOpen, Send, MessageCircle, Loader2 } from 'lucide-react';
+import { Mic, Briefcase, Zap, CheckCircle, ArrowRight, BookOpen, Send, MessageCircle, Loader2, Minimize2, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link } from 'wouter';
 import biasLogo from '@assets/bias logo_1762016709581.jpg';
@@ -18,6 +18,14 @@ export default function Dashboard() {
   const [chatResponse, setChatResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  const handleClearChat = () => {
+    setChatInput('');
+    setChatResponse('');
+    setShowResponse(false);
+    setIsMinimized(false);
+  };
 
   const handleQuickChat = async () => {
     if (!chatInput.trim() || isLoading) return;
@@ -217,29 +225,56 @@ export default function Dashboard() {
         {/* Response Panel (slides up when there's response) */}
         {showResponse && (
           <div className="max-w-3xl mx-auto px-4 pt-3">
-            <div className="bg-[#141414] border border-gray-700 rounded-lg p-3 max-h-48 overflow-y-auto">
-              {isLoading ? (
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">{t('Thinking...', 'Mikir dulu...')}</span>
+            <div className="bg-[#141414] border border-gray-700 rounded-lg overflow-hidden">
+              {/* Chat Header with controls */}
+              <div className="flex items-center justify-between px-3 py-2 bg-[#1a1a1a] border-b border-gray-700">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs font-medium text-gray-300">BIAS Response</span>
                 </div>
-              ) : (
-                <div className="text-gray-200 text-sm leading-relaxed">
-                  {chatResponse.split('\n').map((line, i) => {
-                    const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-                    const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
-                    return (
-                      <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
-                    );
-                  })}
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setIsMinimized(!isMinimized)}
+                    className="p-1.5 hover:bg-gray-700 rounded transition-colors"
+                    title={isMinimized ? 'Expand' : 'Minimize'}
+                  >
+                    {isMinimized ? (
+                      <ChevronUp className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                    )}
+                  </button>
+                  <button
+                    onClick={handleClearChat}
+                    className="p-1.5 hover:bg-gray-700 rounded transition-colors"
+                    title={t('Clear chat', 'Hapus chat')}
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Chat Content (collapsible) */}
+              {!isMinimized && (
+                <div className="p-3 max-h-48 overflow-y-auto">
+                  {isLoading ? (
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">{t('Thinking...', 'Mikir dulu...')}</span>
+                    </div>
+                  ) : (
+                    <div className="text-gray-200 text-sm leading-relaxed">
+                      {chatResponse.split('\n').map((line, i) => {
+                        const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                        const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
+                        return (
+                          <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
-              <button 
-                onClick={() => { setShowResponse(false); setChatInput(''); setChatResponse(''); }}
-                className="mt-2 text-xs text-gray-500 hover:text-gray-300"
-              >
-                {t('Close', 'Tutup')} ✕
-              </button>
             </div>
           </div>
         )}

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Send, Sparkles, Bot, User } from 'lucide-react';
+import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -31,8 +31,16 @@ export function InteractiveCreatorHub() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [context, setContext] = useState<ConversationContext>({});
+  const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleClearChat = () => {
+    setMessages([]);
+    setInput('');
+    setContext({});
+    setIsMinimized(false);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -197,24 +205,49 @@ Atau refresh dan coba lagi! 🔄`;
   return (
     <div className="flex flex-col h-[calc(100vh-300px)] min-h-[500px] max-h-[750px]">
       {/* Header */}
-      <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-white" />
+      <div className="flex items-center justify-between pb-4 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-white flex items-center gap-2">
+              BIAS TikTok Mentor
+              <span className="px-2 py-0.5 text-[10px] rounded-full bg-gradient-to-r from-pink-500/20 to-cyan-500/20 text-pink-400 border border-pink-500/30">
+                AI-Powered
+              </span>
+            </h2>
+            <p className="text-xs text-gray-500">
+              {t('Your personal TikTok mastery assistant', 'Asisten TikTok pribadimu')}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="font-semibold text-white flex items-center gap-2">
-            BIAS TikTok Mentor
-            <span className="px-2 py-0.5 text-[10px] rounded-full bg-gradient-to-r from-pink-500/20 to-cyan-500/20 text-pink-400 border border-pink-500/30">
-              AI-Powered
-            </span>
-          </h2>
-          <p className="text-xs text-gray-500">
-            {t('Your personal TikTok mastery assistant', 'Asisten TikTok pribadimu')}
-          </p>
+        
+        {/* Chat Controls */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsMinimized(!isMinimized)}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            title={isMinimized ? t('Expand', 'Perbesar') : t('Minimize', 'Perkecil')}
+          >
+            {isMinimized ? (
+              <ChevronUp className="w-4 h-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            )}
+          </button>
+          <button
+            onClick={handleClearChat}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            title={t('Clear chat', 'Hapus chat')}
+          >
+            <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
+          </button>
         </div>
       </div>
 
-      {/* Messages Area */}
+      {/* Messages Area (collapsible) */}
+      {!isMinimized && (
       <div className="flex-1 overflow-y-auto py-4 space-y-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
@@ -302,6 +335,7 @@ Atau refresh dan coba lagi! 🔄`;
           </>
         )}
       </div>
+      )}
 
       {/* Input Area */}
       <div className="pt-4 border-t border-white/10">
