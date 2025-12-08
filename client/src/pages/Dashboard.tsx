@@ -213,7 +213,7 @@ export default function Dashboard() {
       </div>
 
       {/* Sticky Bottom Chat Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-lg border-t border-gray-800">
+      <div className="fixed bottom-4 left-0 right-0 z-50">
         {/* Response Panel (slides up when there's response) */}
         {showResponse && (
           <div className="max-w-3xl mx-auto px-4 pt-3">
@@ -245,7 +245,7 @@ export default function Dashboard() {
         )}
 
         {/* Input Bar */}
-        <div className="max-w-3xl mx-auto px-4 py-3">
+        <div className="max-w-3xl mx-auto px-4 py-3 bg-[#0A0A0A]/95 backdrop-blur-lg border border-gray-800 rounded-2xl mx-4 sm:mx-auto">
           <div className="flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
             <input
