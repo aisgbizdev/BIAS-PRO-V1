@@ -39,6 +39,16 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Platform Rules Hub**: A searchable, bilingual database of official TikTok community guidelines.
 - **Library Glossary**: Categorized glossary for TikTok, Marketing, BIAS terms.
 - **Admin Analytics Dashboard**: Real-time, privacy-first analytics for administrators.
+- **PDF Export**: Download analysis results as styled PDF reports using jspdf and html2canvas.
+- **Save History**: LocalStorage-based privacy-first analysis history with auto-refresh on save via custom events.
+- **Voice Input**: Web Speech API integration for hands-free text input in analysis forms.
+- **Competitor Analysis**: Compare up to 3 TikTok accounts side-by-side with visual metrics comparison.
+- **Thumbnail Generator**: AI-powered video thumbnail generation integrated into TikTok Pro analytics.
+
+## Recent Changes (Dec 2024)
+- Added 5 new features: PDF Export, Save History, Voice Input, Competitor Analysis, Thumbnail Generator
+- Integrated new analytics tabs (Account, Video, Screenshot, Compare, Thumbnail) into TikTok Pro
+- Fixed Save History auto-refresh using custom event dispatching ('bias-history-updated')
 
 ## External Dependencies
 
