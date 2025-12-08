@@ -49,9 +49,9 @@ export default function SocialMediaPro() {
   const [analysisMode, setAnalysisMode] = useState<'account' | 'video'>('account');
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
-  const [mainMode, setMainMode] = useState<'analytics' | 'beginner' | 'expert'>('analytics');
-  const [expertTab, setExpertTab] = useState<string>('ai-mentor');
-  const [beginnerTab, setBeginnerTab] = useState<string>('interactive');
+  const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('mentor');
+  const [skillLevel, setSkillLevel] = useState<'beginner' | 'expert'>('beginner');
+  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot'>('account');
 
   const mockData = {
     followers: 60900,
@@ -193,169 +193,130 @@ export default function SocialMediaPro() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {/* Main Mode Selector: Analytics vs Expert */}
+        {/* Main Mode Selector: Mentor | Analytics (2 tabs only) */}
         <div className="flex justify-center">
-          <div className="inline-flex bg-gray-800/50 rounded-xl p-1 border border-gray-700">
+          <div className="inline-flex bg-gray-800/50 rounded-xl p-1 border border-gray-700 w-full max-w-md">
+            <Button
+              variant={mainMode === 'mentor' ? 'default' : 'ghost'}
+              onClick={() => setMainMode('mentor')}
+              className={`flex-1 px-6 py-3 rounded-lg ${mainMode === 'mentor' ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Bot className="w-5 h-5 mr-2" />
+              {t('AI Mentor', 'AI Mentor')}
+            </Button>
             <Button
               variant={mainMode === 'analytics' ? 'default' : 'ghost'}
               onClick={() => setMainMode('analytics')}
-              className={`px-6 py-2 rounded-lg ${mainMode === 'analytics' ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 px-6 py-3 rounded-lg ${mainMode === 'analytics' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              <TrendingUp className="w-4 h-4 mr-2" />
+              <TrendingUp className="w-5 h-5 mr-2" />
               {t('Analytics', 'Analitik')}
-            </Button>
-            <Button
-              variant={mainMode === 'beginner' ? 'default' : 'ghost'}
-              onClick={() => setMainMode('beginner')}
-              className={`px-6 py-2 rounded-lg ${mainMode === 'beginner' ? 'bg-gradient-to-r from-green-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
-            >
-              <Rocket className="w-4 h-4 mr-2" />
-              {t('Beginner', 'Pemula')}
-              <Badge className="ml-2 bg-green-500/20 text-green-400 text-[10px]">NEW</Badge>
-            </Button>
-            <Button
-              variant={mainMode === 'expert' ? 'default' : 'ghost'}
-              onClick={() => setMainMode('expert')}
-              className={`px-6 py-2 rounded-lg ${mainMode === 'expert' ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
-            >
-              <GraduationCap className="w-4 h-4 mr-2" />
-              {t('Expert Mode', 'Mode Expert')}
-              <Badge className="ml-2 bg-yellow-500/20 text-yellow-400 text-[10px]">PRO</Badge>
             </Button>
           </div>
         </div>
 
-        {/* BEGINNER MODE */}
-        {mainMode === 'beginner' && (
-          <div className="space-y-6">
-            <Card className="bg-gradient-to-r from-green-500/10 to-cyan-500/10 border-green-500/30">
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-cyan-500 flex items-center justify-center">
-                    <Rocket className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">
-                      {t('Beginner Hub', 'Hub Pemula')}
-                    </h3>
-                    <p className="text-sm text-gray-400">
-                      {t('Step-by-step guides to create videos, go live, and grow your TikTok - no mentor needed!', 'Panduan step-by-step untuk bikin video, live, dan kembangkan TikTok - tanpa perlu mentor!')}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* MENTOR HUB - AI Chat with skill toggle + quick actions */}
+        {mainMode === 'mentor' && (
+          <div className="space-y-4">
+            {/* Skill Level Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bot className="w-5 h-5 text-pink-400" />
+                <span className="text-sm text-gray-400">{t('Response Level', 'Level Jawaban')}</span>
+              </div>
+              <div className="inline-flex bg-gray-800/50 rounded-lg p-0.5 border border-gray-700">
+                <Button
+                  size="sm"
+                  variant={skillLevel === 'beginner' ? 'default' : 'ghost'}
+                  onClick={() => setSkillLevel('beginner')}
+                  className={`px-4 py-1.5 text-xs rounded-md ${skillLevel === 'beginner' ? 'bg-green-500 text-white' : 'text-gray-400'}`}
+                >
+                  <Rocket className="w-3 h-3 mr-1" />
+                  {t('Beginner', 'Pemula')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={skillLevel === 'expert' ? 'default' : 'ghost'}
+                  onClick={() => setSkillLevel('expert')}
+                  className={`px-4 py-1.5 text-xs rounded-md ${skillLevel === 'expert' ? 'bg-purple-500 text-white' : 'text-gray-400'}`}
+                >
+                  <GraduationCap className="w-3 h-3 mr-1" />
+                  {t('Expert', 'Expert')}
+                </Button>
+              </div>
+            </div>
 
-            <Tabs value={beginnerTab} onValueChange={setBeginnerTab}>
-              <TabsList className="flex flex-wrap justify-start gap-1 bg-transparent h-auto p-0">
-                <TabsTrigger value="interactive" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-pink-400 rounded-lg px-4 py-2 text-sm">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {t('AI Assistant', 'Asisten AI')}
-                </TabsTrigger>
-                <TabsTrigger value="video-wizard" className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 rounded-lg px-4 py-2 text-sm">
-                  <PlayCircle className="w-4 h-4 mr-2" />
-                  {t('Video Wizard', 'Wizard Video')}
-                </TabsTrigger>
-                <TabsTrigger value="live-wizard" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 rounded-lg px-4 py-2 text-sm">
-                  <Radio className="w-4 h-4 mr-2" />
-                  {t('Live Guide', 'Panduan Live')}
-                </TabsTrigger>
-                <TabsTrigger value="screenshot" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 rounded-lg px-4 py-2 text-sm">
-                  <Camera className="w-4 h-4 mr-2" />
-                  {t('Analytics', 'Analitik')}
-                </TabsTrigger>
-              </TabsList>
+            {/* AI Chat */}
+            <InteractiveCreatorHub />
 
-              <TabsContent value="interactive" className="mt-6">
-                <InteractiveCreatorHub />
-              </TabsContent>
-              <TabsContent value="video-wizard" className="mt-6">
-                <VideoCreatorWizard />
-              </TabsContent>
-              <TabsContent value="live-wizard" className="mt-6">
-                <LiveStreamingWizard />
-              </TabsContent>
-              <TabsContent value="screenshot" className="mt-6">
-                <ScreenshotAnalyticsPanel />
-              </TabsContent>
-            </Tabs>
+            {/* Quick Action Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card 
+                className="bg-gradient-to-br from-pink-500/10 to-pink-500/5 border-pink-500/30 cursor-pointer hover:border-pink-500/50 transition-colors"
+                onClick={() => {
+                  const chatInput = document.querySelector('textarea');
+                  if (chatInput) {
+                    (chatInput as HTMLTextAreaElement).value = 'Bikin script video 60 detik';
+                    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+                  }
+                }}
+              >
+                <CardContent className="py-3 px-4 flex items-center gap-3">
+                  <PlayCircle className="w-5 h-5 text-pink-400 flex-shrink-0" />
+                  <span className="text-sm text-white">{t('Video Script', 'Script Video')}</span>
+                </CardContent>
+              </Card>
+              <Card 
+                className="bg-gradient-to-br from-red-500/10 to-red-500/5 border-red-500/30 cursor-pointer hover:border-red-500/50 transition-colors"
+                onClick={() => {
+                  const chatInput = document.querySelector('textarea');
+                  if (chatInput) {
+                    (chatInput as HTMLTextAreaElement).value = 'Panduan live 60 menit';
+                    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+                  }
+                }}
+              >
+                <CardContent className="py-3 px-4 flex items-center gap-3">
+                  <Radio className="w-5 h-5 text-red-400 flex-shrink-0" />
+                  <span className="text-sm text-white">{t('Live Guide', 'Panduan Live')}</span>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
-        {/* EXPERT MODE - Simplified: AI Mentor + Video Analyzer only */}
-        {mainMode === 'expert' && (
-          <div className="space-y-6">
-            <Card className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border-purple-500/30">
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
-                    <GraduationCap className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">
-                      {t('Expert Mode', 'Mode Expert')}
-                    </h3>
-                    <p className="text-sm text-gray-400">
-                      {t('AI-powered mentor with pro-level insights', 'Mentor AI dengan insight level pro')}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Tabs value={expertTab} onValueChange={setExpertTab}>
-              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700 gap-1">
-                <TabsTrigger value="ai-mentor" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white rounded-lg px-4 py-2.5 text-sm">
-                  <Bot className="w-4 h-4 mr-2" />
-                  {t('AI Mentor', 'AI Mentor')}
-                </TabsTrigger>
-                <TabsTrigger value="analyzer" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-500 data-[state=active]:text-white rounded-lg px-4 py-2.5 text-sm">
-                  <Image className="w-4 h-4 mr-2" />
-                  {t('Video Analyzer', 'Analisis Video')}
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="ai-mentor" className="mt-6">
-                <InteractiveCreatorHub />
-              </TabsContent>
-              <TabsContent value="analyzer" className="mt-6">
-                <VideoAnalyzerPanel />
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
-
-        {/* ANALYTICS MODE */}
+        {/* ANALYTICS LAB - Consolidated analytics */}
         {mainMode === 'analytics' && (
-          <>
-        {/* Analysis Mode Selector */}
-        <Card className="bg-[#141414] border-gray-800">
-          <CardContent className="pt-6">
-            <Tabs value={analysisMode} onValueChange={(v) => setAnalysisMode(v as typeof analysisMode)}>
-              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700 gap-1">
-                <TabsTrigger 
-                  value="account"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-mode-account"
-                >
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Account', 'Akun')}</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="video"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-mode-video"
-                >
-                  <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Video', 'Video')}</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </CardContent>
-        </Card>
+          <div className="space-y-6">
+        {/* Analytics Tab Selector */}
+        <Tabs value={analyticsTab} onValueChange={(v) => setAnalyticsTab(v as typeof analyticsTab)}>
+          <TabsList className="grid w-full grid-cols-3 bg-[#1E1E1E] border border-gray-700 gap-1">
+            <TabsTrigger 
+              value="account"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+            >
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{t('Account', 'Akun')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="video"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+            >
+              <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{t('Video', 'Video')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="screenshot"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+            >
+              <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{t('Screenshot', 'Screenshot')}</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Account Analysis Mode */}
-        {analysisMode === 'account' && (
+        {analyticsTab === 'account' && (
           <Card className="bg-[#141414] border-gray-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
@@ -438,12 +399,17 @@ export default function SocialMediaPro() {
         )}
 
         {/* Video Upload & Compare Mode */}
-        {analysisMode === 'video' && (
+        {analyticsTab === 'video' && (
           <VideoUploadAnalyzer mode="creator" />
         )}
 
+        {/* Screenshot Analytics Mode */}
+        {analyticsTab === 'screenshot' && (
+          <ScreenshotAnalyticsPanel />
+        )}
+
         {/* Account Profile Card - Show after analysis */}
-        {analysisMode === 'account' && accountData && (
+        {analyticsTab === 'account' && accountData && (
           <Card className="bg-[#141414] border-gray-800" id="account-profile">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-6">
@@ -529,7 +495,7 @@ export default function SocialMediaPro() {
         )}
 
         {/* Account Metrics Grid & Analytics - Only show when analysis is complete */}
-        {analysisMode === 'account' && accountData && (() => {
+        {analyticsTab === 'account' && accountData && (() => {
           // Extract real metrics from API response
           const followers = getMetricValue(accountData.metrics?.followers);
           const likes = getMetricValue(accountData.metrics?.likes);
@@ -810,7 +776,7 @@ export default function SocialMediaPro() {
         </>
           );
         })()}
-          </>
+          </div>
         )}
       </div>
     </div>
