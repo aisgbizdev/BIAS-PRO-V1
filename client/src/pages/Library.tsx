@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -1243,7 +1243,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="library" className="gap-2">
             <BookOpen className="w-4 h-4" />
             {t('Library', 'Perpustakaan')}
@@ -1251,6 +1251,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           <TabsTrigger value="brands" className="gap-2">
             <Palette className="w-4 h-4" />
             {t('Brands', 'Partner')}
+          </TabsTrigger>
+          <TabsTrigger value="ai-settings" className="gap-2">
+            <Sparkles className="w-4 h-4" />
+            {t('AI Limits', 'Limit AI')}
           </TabsTrigger>
           <TabsTrigger value="analytics" className="gap-2">
             <BarChart3 className="w-4 h-4" />
@@ -1474,6 +1478,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
 
         <TabsContent value="brands" className="mt-6">
           <BrandManagement />
+        </TabsContent>
+
+        <TabsContent value="ai-settings" className="mt-6">
+          <AISettingsPanel />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
@@ -2106,6 +2114,207 @@ function PlatformRulesHub({ search }: { search: string }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+interface AIConfig {
+  maxRequestsPerHour: number;
+  maxRequestsPerDay: number;
+  maxTokensPerDay: number;
+  maxTokensPerRequest: number;
+}
+
+function AISettingsPanel() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [config, setConfig] = useState<AIConfig>({
+    maxRequestsPerHour: 10,
+    maxRequestsPerDay: 50,
+    maxTokensPerDay: 100000,
+    maxTokensPerRequest: 2200,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchConfig();
+  }, []);
+
+  const fetchConfig = async () => {
+    try {
+      const response = await fetch('/api/admin/ai-settings', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        setConfig(data.config);
+      }
+    } catch (error) {
+      console.error('Error fetching AI config:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/admin/ai-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(config),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setConfig(data.config);
+        toast({
+          title: t('Settings Saved', 'Pengaturan Disimpan'),
+          description: t('AI limits have been updated', 'Limit AI sudah diperbarui'),
+        });
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to save settings', 'Gagal menyimpan pengaturan'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Sparkles className="w-6 h-6 text-primary" />
+        <div>
+          <h2 className="text-xl font-bold">{t('AI Token Limits', 'Limit Token AI')}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t('Control OpenAI API usage to save tokens', 'Kontrol penggunaan OpenAI API supaya token hemat')}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Zap className="w-4 h-4 text-yellow-500" />
+              {t('Requests per Hour', 'Request per Jam')}
+            </CardTitle>
+            <CardDescription>
+              {t('Maximum AI requests allowed per hour per user', 'Maksimal request AI per jam per user')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Input
+              type="number"
+              min="1"
+              max="100"
+              value={config.maxRequestsPerHour}
+              onChange={(e) => setConfig({ ...config, maxRequestsPerHour: parseInt(e.target.value) || 1 })}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-blue-500" />
+              {t('Requests per Day', 'Request per Hari')}
+            </CardTitle>
+            <CardDescription>
+              {t('Maximum AI requests allowed per day per user', 'Maksimal request AI per hari per user')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Input
+              type="number"
+              min="1"
+              max="500"
+              value={config.maxRequestsPerDay}
+              onChange={(e) => setConfig({ ...config, maxRequestsPerDay: parseInt(e.target.value) || 1 })}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Settings className="w-4 h-4 text-purple-500" />
+              {t('Tokens per Day', 'Token per Hari')}
+            </CardTitle>
+            <CardDescription>
+              {t('Maximum total tokens allowed per day (all users)', 'Maksimal total token per hari (semua user)')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Input
+              type="number"
+              min="1000"
+              max="10000000"
+              step="1000"
+              value={config.maxTokensPerDay}
+              onChange={(e) => setConfig({ ...config, maxTokensPerDay: parseInt(e.target.value) || 1000 })}
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              {(config.maxTokensPerDay / 1000).toLocaleString()}K tokens
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-orange-500" />
+              {t('Tokens per Request', 'Token per Request')}
+            </CardTitle>
+            <CardDescription>
+              {t('Maximum tokens per single AI request', 'Maksimal token per satu request AI')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Input
+              type="number"
+              min="100"
+              max="8000"
+              step="100"
+              value={config.maxTokensPerRequest}
+              onChange={(e) => setConfig({ ...config, maxTokensPerRequest: parseInt(e.target.value) || 100 })}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <Button variant="outline" onClick={fetchConfig}>
+          {t('Reset', 'Reset')}
+        </Button>
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? t('Saving...', 'Menyimpan...') : t('Save Settings', 'Simpan Pengaturan')}
+        </Button>
+      </div>
+
+      <Alert>
+        <AlertCircle className="w-4 h-4" />
+        <AlertDescription>
+          {t(
+            'These limits help control OpenAI API costs. When limits are reached, users will see basic (non-AI) analysis instead.',
+            'Limit ini membantu kontrol biaya OpenAI API. Kalau limit tercapai, user akan lihat analisis dasar (tanpa AI).'
+          )}
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }

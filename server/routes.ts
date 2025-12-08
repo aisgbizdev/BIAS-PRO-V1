@@ -1238,6 +1238,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ==========================================
+  // AI TOKEN LIMIT SETTINGS (Admin Only)
+  // ==========================================
+  
+  app.get("/api/admin/ai-settings", requireAdmin, async (req, res) => {
+    try {
+      const { getConfig, getUsageStats } = await import('./utils/ai-rate-limiter');
+      const config = getConfig();
+      res.json({ config });
+    } catch (error: any) {
+      console.error('[AI_SETTINGS] Error getting config:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.put("/api/admin/ai-settings", requireAdmin, async (req, res) => {
+    try {
+      const { updateConfig, getConfig } = await import('./utils/ai-rate-limiter');
+      const newConfig = req.body;
+      
+      // Validate input
+      const validKeys = ['maxRequestsPerHour', 'maxRequestsPerDay', 'maxTokensPerDay', 'maxTokensPerRequest'];
+      const updates: any = {};
+      
+      for (const key of validKeys) {
+        if (newConfig[key] !== undefined) {
+          const value = parseInt(newConfig[key]);
+          if (isNaN(value) || value < 0) {
+            return res.status(400).json({ error: `Invalid value for ${key}` });
+          }
+          updates[key] = value;
+        }
+      }
+      
+      updateConfig(updates);
+      res.json({ success: true, config: getConfig() });
+    } catch (error: any) {
+      console.error('[AI_SETTINGS] Error updating config:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/admin/ai-usage", requireAdmin, async (req, res) => {
+    try {
+      const { getConfig } = await import('./utils/ai-rate-limiter');
+      res.json({ 
+        config: getConfig(),
+        note: 'Per-session usage stats reset on server restart',
+      });
+    } catch (error: any) {
+      console.error('[AI_USAGE] Error getting usage:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==========================================
   // EXPERT KNOWLEDGE BASE API ROUTES
   // ==========================================
 

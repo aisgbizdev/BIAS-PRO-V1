@@ -2,12 +2,20 @@
 // Provides CONCRETE feedback with timestamps, specific observations, and practical recommendations
 
 import OpenAI from 'openai';
+import { checkRateLimit, recordUsage, RateLimitResult } from '../utils/ai-rate-limiter';
 
 interface DeepAnalysisInput {
   content: string;
   mode: 'creator' | 'academic' | 'hybrid';
   inputType: 'text' | 'video' | 'photo' | 'audio';
   platform?: 'tiktok' | 'instagram' | 'youtube' | 'non-social';
+  sessionId?: string;
+}
+
+export interface DeepAnalysisResult {
+  layers: DeepLayerAnalysis[];
+  rateLimitInfo?: RateLimitResult;
+  tokensUsed?: number;
 }
 
 interface DeepLayerAnalysis {
@@ -70,12 +78,23 @@ Setiap layer:
 
 INGAT: User frustasi dengan generic advice. Berikan VALUE MAKSIMAL - specific observations + actionable steps!`;
 
-export async function deepAnalyzeWithAI(input: DeepAnalysisInput): Promise<DeepLayerAnalysis[]> {
+export async function deepAnalyzeWithAI(input: DeepAnalysisInput): Promise<DeepAnalysisResult> {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const sessionId = input.sessionId || 'anonymous';
 
   if (!process.env.OPENAI_API_KEY) {
     console.warn('⚠️ OpenAI API key not found - falling back to basic analysis');
-    return generateBasicAnalysis(input);
+    return { layers: generateBasicAnalysis(input) };
+  }
+
+  // Check rate limit before making API call
+  const rateLimitCheck = checkRateLimit(sessionId);
+  if (!rateLimitCheck.allowed) {
+    console.warn(`⚠️ Rate limit exceeded for session ${sessionId}: ${rateLimitCheck.reason}`);
+    return { 
+      layers: generateBasicAnalysis(input),
+      rateLimitInfo: rateLimitCheck,
+    };
   }
 
   try {
@@ -155,12 +174,20 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
       throw new Error('No layers in AI response');
     }
 
-    return layers as DeepLayerAnalysis[];
+    // Record token usage (approximate based on response length)
+    const tokensUsed = completion.usage?.total_tokens || Math.ceil(responseContent.length / 4);
+    recordUsage(sessionId, tokensUsed);
+
+    return { 
+      layers: layers as DeepLayerAnalysis[], 
+      rateLimitInfo: rateLimitCheck,
+      tokensUsed,
+    };
 
   } catch (error) {
     console.error('❌ Deep AI Analysis Error:', error);
     console.log('📊 Falling back to basic analysis...');
-    return generateBasicAnalysis(input);
+    return { layers: generateBasicAnalysis(input) };
   }
 }
 
