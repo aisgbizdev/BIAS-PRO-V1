@@ -113,97 +113,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Quick Chat Section */}
-      <div className="max-w-3xl mx-auto px-4 -mt-6 mb-8 relative z-10">
-        <Card className="bg-[#141414] border-gray-800 shadow-2xl">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <MessageCircle className="w-5 h-5 text-cyan-400" />
-              <h3 className="text-base sm:text-lg font-semibold">
-                {t('Quick Ask BIAS', 'Tanya BIAS Langsung')}
-              </h3>
-              <Badge variant="outline" className="bg-cyan-500/10 text-cyan-300 border-cyan-500/30 text-xs">
-                {t('Free', 'Gratis')}
-              </Badge>
-            </div>
-            <p className="text-gray-400 text-sm mb-4">
-              {t(
-                'Ask anything about TikTok - algorithm, growth, monetization, content tips & more!',
-                'Tanya apa aja tentang TikTok - algoritma, growth, monetisasi, tips konten & lainnya!'
-              )}
-            </p>
-            
-            {/* Input */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleQuickChat()}
-                placeholder={t('e.g. How to grow followers fast?', 'cth: Gimana cara nambah follower cepet?')}
-                className="flex-1 bg-[#0A0A0A] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500"
-              />
-              <Button
-                onClick={handleQuickChat}
-                disabled={isLoading || !chatInput.trim()}
-                className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600 px-4"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </Button>
-            </div>
-
-            {/* Response */}
-            {showResponse && (
-              <div className="mt-4 p-4 bg-[#0A0A0A] border border-gray-700 rounded-lg">
-                {isLoading ? (
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>{t('Thinking...', 'Mikir dulu...')}</span>
-                  </div>
-                ) : (
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="whitespace-pre-wrap text-gray-200 text-sm leading-relaxed">
-                      {chatResponse.split('\n').map((line, i) => {
-                        // Handle bold text
-                        const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-                        // Handle italic
-                        const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
-                        return (
-                          <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Quick suggestion chips */}
-            {!showResponse && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {[
-                  { en: 'How does FYP work?', id: 'Gimana kerja FYP?' },
-                  { en: 'Best posting time?', id: 'Jam posting terbaik?' },
-                  { en: 'How to go viral?', id: 'Cara viral gimana?' },
-                ].map((chip, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setChatInput(t(chip.en, chip.id))}
-                    className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full transition-colors"
-                  >
-                    {t(chip.en, chip.id)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Analysis Types Grid */}
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
         <div className="text-center mb-8 md:mb-12">
@@ -273,7 +182,7 @@ export default function Dashboard() {
         </div>
 
         {/* Library Link */}
-        <Card className="bg-[#141414] border-gray-800 hover-elevate">
+        <Card className="bg-[#141414] border-gray-800 hover-elevate mb-32">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
               <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
@@ -301,6 +210,86 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Sticky Bottom Chat Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-lg border-t border-gray-800">
+        {/* Response Panel (slides up when there's response) */}
+        {showResponse && (
+          <div className="max-w-3xl mx-auto px-4 pt-3">
+            <div className="bg-[#141414] border border-gray-700 rounded-lg p-3 max-h-48 overflow-y-auto">
+              {isLoading ? (
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">{t('Thinking...', 'Mikir dulu...')}</span>
+                </div>
+              ) : (
+                <div className="text-gray-200 text-sm leading-relaxed">
+                  {chatResponse.split('\n').map((line, i) => {
+                    const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                    const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
+                    return (
+                      <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
+                    );
+                  })}
+                </div>
+              )}
+              <button 
+                onClick={() => { setShowResponse(false); setChatInput(''); setChatResponse(''); }}
+                className="mt-2 text-xs text-gray-500 hover:text-gray-300"
+              >
+                {t('Close', 'Tutup')} ✕
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Input Bar */}
+        <div className="max-w-3xl mx-auto px-4 py-3">
+          <div className="flex items-center gap-2">
+            <MessageCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleQuickChat()}
+              placeholder={t('Ask BIAS anything about TikTok...', 'Tanya BIAS apa aja soal TikTok...')}
+              className="flex-1 bg-[#141414] border border-gray-700 rounded-full px-4 py-2.5 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500"
+            />
+            <Button
+              onClick={handleQuickChat}
+              disabled={isLoading || !chatInput.trim()}
+              size="sm"
+              className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600 rounded-full w-10 h-10 p-0"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+          
+          {/* Quick chips - only show when no response */}
+          {!showResponse && (
+            <div className="flex gap-2 mt-2 overflow-x-auto pb-1 scrollbar-hide">
+              {[
+                { en: 'FYP algorithm?', id: 'Algoritma FYP?' },
+                { en: 'Best time to post?', id: 'Jam post terbaik?' },
+                { en: 'How to viral?', id: 'Cara viral?' },
+                { en: 'Grow followers?', id: 'Nambah follower?' },
+              ].map((chip, i) => (
+                <button
+                  key={i}
+                  onClick={() => setChatInput(t(chip.en, chip.id))}
+                  className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full whitespace-nowrap transition-colors flex-shrink-0"
+                >
+                  {t(chip.en, chip.id)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
