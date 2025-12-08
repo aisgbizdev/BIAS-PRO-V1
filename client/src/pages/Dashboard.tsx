@@ -275,9 +275,10 @@ export default function Dashboard() {
             <div className="flex gap-2 mt-2 overflow-x-auto pb-1 scrollbar-hide">
               {[
                 { en: 'FYP algorithm?', id: 'Algoritma FYP?' },
-                { en: 'Best time to post?', id: 'Jam post terbaik?' },
-                { en: 'How to viral?', id: 'Cara viral?' },
-                { en: 'Grow followers?', id: 'Nambah follower?' },
+                { en: 'Best posting time?', id: 'Jam posting terbaik?' },
+                { en: 'Live tips?', id: 'Tips Live rame?' },
+                { en: 'What is shadowban?', id: 'Shadowban itu apa?' },
+                { en: '3-sec hook tips', id: 'Tips hook 3 detik' },
               ].map((chip, i) => (
                 <button
                   key={i}
