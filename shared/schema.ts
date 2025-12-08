@@ -33,6 +33,26 @@ export const chats = pgTable("chats", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Learned responses - AI answers that become local knowledge
+export const learnedResponses = pgTable("learned_responses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  question: text("question").notNull(), // Original question
+  keywords: text("keywords").array().notNull(), // Extracted keywords for matching
+  response: text("response").notNull(), // AI response
+  useCount: integer("use_count").notNull().default(1), // How many times this was used
+  quality: integer("quality").default(0), // User feedback (-1, 0, 1)
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
+});
+
+export const insertLearnedResponseSchema = createInsertSchema(learnedResponses).omit({
+  id: true,
+  useCount: true,
+  quality: true,
+  createdAt: true,
+  lastUsedAt: true,
+});
+
 // TikTok account data
 export const tiktokAccounts = pgTable("tiktok_accounts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

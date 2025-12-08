@@ -267,9 +267,12 @@ Mau durasi berapa detik bro? 🎥`, newContext, isGeneric: false };
         const data = await res.json();
         finalResponse = data.response || 'Maaf bro, ada gangguan. Coba lagi ya!';
         
-        // Add source indicator if from AI
+        // Add source indicator
         if (data.source === 'ai') {
-          finalResponse = finalResponse + '\n\n---\n*🤖 Dijawab oleh AI*';
+          finalResponse = finalResponse + '\n\n---\n*🤖 Dijawab oleh AI (disimpan ke library)*';
+        } else if (data.source === 'local' && !finalResponse.includes('⚠️')) {
+          // From learning library
+          finalResponse = finalResponse + '\n\n---\n*📚 Dari Learning Library*';
         }
       } catch (err) {
         console.error('Hybrid chat error:', err);

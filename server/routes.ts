@@ -1266,6 +1266,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Learning Library Stats (Admin)
+  app.get("/api/admin/learning-stats", requireAdmin, async (req, res) => {
+    try {
+      const { getLearningStats } = await import('./utils/learning-system');
+      const stats = await getLearningStats();
+      res.json(stats);
+    } catch (error: any) {
+      console.error('[LEARNING_STATS] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==========================================
   // AI TOKEN LIMIT SETTINGS (Admin Only)
   // ==========================================

@@ -1,6 +1,7 @@
-// Hybrid Chat System - Local first, then OpenAI API if needed
+// Hybrid Chat System - Local first, then Learning Library, then OpenAI API
 import OpenAI from 'openai';
 import { checkRateLimit, recordUsage } from '../utils/ai-rate-limiter';
+import { findSimilarResponse, saveLearnedResponse } from '../utils/learning-system';
 
 interface ChatRequest {
   message: string;
@@ -47,7 +48,22 @@ Jawab pertanyaan user tentang TikTok dengan gaya mentor yang helpful.`;
 export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
   const sessionId = request.sessionId || 'anonymous';
   
-  // Check rate limit
+  // STEP 1: Check learning library first (FREE, no API call)
+  try {
+    const learned = await findSimilarResponse(request.message);
+    if (learned.found && learned.response) {
+      console.log(`📚 Found in learning library! Similarity: ${((learned.similarity || 0) * 100).toFixed(0)}%`);
+      return {
+        response: learned.response,
+        source: 'local', // Counts as local since it's from our library
+        rateLimitInfo: checkRateLimit(sessionId),
+      };
+    }
+  } catch (error) {
+    console.log('⚠️ Learning library check failed, continuing to AI');
+  }
+
+  // STEP 2: Check rate limit before calling AI
   const rateLimitCheck = checkRateLimit(sessionId);
   if (!rateLimitCheck.allowed) {
     return {
@@ -66,7 +82,7 @@ Sementara itu, kamu masih bisa:
     };
   }
 
-  // Check if OpenAI is configured
+  // STEP 3: Check if OpenAI is configured
   if (!process.env.OPENAI_API_KEY) {
     return {
       response: `🔧 **OpenAI belum dikonfigurasi**
@@ -81,6 +97,7 @@ Sementara itu, kamu bisa pakai:
     };
   }
 
+  // STEP 4: Call OpenAI API
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     
@@ -106,6 +123,11 @@ Sementara itu, kamu bisa pakai:
     recordUsage(sessionId, tokensUsed);
 
     const response = completion.choices[0]?.message?.content || 'Maaf bro, ada error. Coba lagi ya!';
+
+    // STEP 5: Save to learning library (async, don't wait)
+    saveLearnedResponse(request.message, response).catch(err => {
+      console.error('Failed to save to learning library:', err);
+    });
 
     return {
       response,
