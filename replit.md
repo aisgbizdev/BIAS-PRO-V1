@@ -29,6 +29,7 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Comprehensive Analyzer**: Provides narrative diagnoses, context, impact, motivational framing, and actionable recommendations.
 - **Video & Script Analysis**: Supports multi-file video uploads, URL pasting (TikTok), and text-based script review.
 - **Script Review Tool**: Quick script type selection (Sales Pitch, Cold Call, Meeting Opening, Presentation, Follow-up, Public Speaking).
+- **Sales Script Generator**: Ready-to-use templates for Cold Calls, Sales Pitches, Objection Handling, Follow-up Messages, and Elevator Pitches with bilingual content and quick personalization.
 - **Expert Knowledge Base**: Science-backed knowledge system with 8 panels, including research-backed tips, hook templates, storytelling frameworks, script templates, live streaming templates, trending data, growth stage guides, and response templates.
 - **Interactive Creator Hub**: A conversational AI interface (ChatGPT-like) acting as a TikTok mentor, replacing traditional wizards.
 - **Hybrid Chat System**: Prioritizes responses from local templates, then a self-learning library, and finally falls back to OpenAI API for new unique questions.
