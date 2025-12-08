@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [chatMode, setChatMode] = useState<'tiktok' | 'marketing'>('tiktok');
 
   const handleClearChat = () => {
     setChatInput('');
@@ -39,7 +40,11 @@ export default function Dashboard() {
       const res = await fetch('/api/chat/hybrid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: chatInput.trim(), sessionId }),
+        body: JSON.stringify({ 
+          message: chatInput.trim(), 
+          sessionId,
+          mode: chatMode === 'marketing' ? 'marketing' : 'home'
+        }),
       });
       
       const data = await res.json();
@@ -61,40 +66,40 @@ export default function Dashboard() {
   };
 
   const analysisTypes = [
-    // FIRST: Social Media Pro (Account Analytics)
+    // FIRST: TikTok Pro
     {
       href: '/social-pro',
       icon: SiTiktok,
-      title: t('Social Media Pro', 'Social Media Pro'),
+      title: t('TikTok Pro', 'TikTok Pro'),
       description: t(
-        'Deep analytics dashboard for TikTok accounts with premium visualizations & metrics',
-        'Dashboard analitik mendalam untuk akun TikTok dengan visualisasi & metrik premium'
+        'Master TikTok with AI mentor! FYP secrets, viral hooks, live streaming tips & account analytics all in one place.',
+        'Kuasai TikTok dengan AI mentor! Rahasia FYP, hook viral, tips live streaming & analitik akun dalam satu tempat.'
       ),
       color: 'from-pink-500 to-cyan-500',
       features: [
-        { en: 'Account performance metrics', id: 'Metrik performa akun' },
-        { en: 'Video comparison analysis', id: 'Analisis perbandingan video' },
-        { en: '6 comprehensive analytics cards', id: '6 kartu analitik komprehensif' },
+        { en: 'AI TikTok Mentor (ask anything!)', id: 'AI Mentor TikTok (tanya apa aja!)' },
+        { en: 'FYP algorithm & viral secrets', id: 'Algoritma FYP & rahasia viral' },
+        { en: 'Live & script generator', id: 'Generator live & script' },
       ],
-      badge: t('Premium', 'Premium'),
+      badge: t('Creator', 'Creator'),
       badgeColor: 'bg-gradient-to-r from-pink-500/30 to-cyan-500/30 text-pink-300 border-pink-500/50',
     },
-    // SECOND: Communication Analysis (Sales & Marketing Focus)
+    // SECOND: Marketing Pro
     {
       href: '/creator',
-      icon: Mic,
-      title: t('Communication Analysis', 'Analisis Komunikasi'),
+      icon: Briefcase,
+      title: t('Marketing Pro', 'Marketing Pro'),
       description: t(
-        'Analyze sales presentations, prospecting calls, client pitches & marketing videos. Get AI-powered feedback to boost conversions.',
-        'Analisis presentasi jualan, prospek, pitch klien & video marketing. Dapatkan feedback AI untuk tingkatkan konversi.'
+        'Level up your professional skills! Sales closing, pitch mastery, leadership, public speaking & negotiation — all with AI coaching.',
+        'Tingkatkan skill profesionalmu! Closing sales, pitch mastery, leadership, public speaking & negosiasi — semua dengan AI coaching.'
       ),
       color: 'from-purple-500 to-pink-500',
       features: [
-        { en: 'Sales pitch analysis', id: 'Analisis sales pitch' },
-        { en: 'Client presentation feedback', id: 'Feedback presentasi klien' },
-        { en: 'Conversion optimization tips', id: 'Tips optimasi konversi' },
+        { en: 'AI Sales & Leadership Coach', id: 'AI Coach Sales & Leadership' },
+        { en: 'Pitch & presentation analysis', id: 'Analisis pitch & presentasi' },
+        { en: 'Negotiation & closing tips', id: 'Tips negosiasi & closing' },
       ],
-      badge: t('General', 'Umum'),
+      badge: t('Professional', 'Profesional'),
       badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/50',
     },
   ];
@@ -281,21 +286,62 @@ export default function Dashboard() {
 
         {/* Input Bar */}
         <div className="max-w-3xl mx-auto px-4 py-3 bg-[#0A0A0A]/95 backdrop-blur-lg border border-gray-800 rounded-2xl mx-4 sm:mx-auto">
+          {/* Mode Toggle */}
+          <div className="flex items-center gap-2 mb-2">
+            <button
+              onClick={() => setChatMode('tiktok')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                chatMode === 'tiktok'
+                  ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              <SiTiktok className="w-3 h-3" />
+              TikTok Pro
+            </button>
+            <button
+              onClick={() => setChatMode('marketing')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                chatMode === 'marketing'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              <Briefcase className="w-3 h-3" />
+              Marketing Pro
+            </button>
+          </div>
+
           <div className="flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+            {chatMode === 'tiktok' ? (
+              <SiTiktok className="w-5 h-5 text-pink-400 flex-shrink-0" />
+            ) : (
+              <Briefcase className="w-5 h-5 text-purple-400 flex-shrink-0" />
+            )}
             <input
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleQuickChat()}
-              placeholder={t('Ask BIAS anything about TikTok...', 'Tanya BIAS apa aja soal TikTok...')}
-              className="flex-1 bg-[#141414] border border-gray-700 rounded-full px-4 py-2.5 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500"
+              placeholder={chatMode === 'tiktok' 
+                ? t('Ask about TikTok, FYP, viral, live...', 'Tanya soal TikTok, FYP, viral, live...')
+                : t('Ask about sales, pitch, leadership, negotiation...', 'Tanya soal sales, pitch, leadership, negosiasi...')
+              }
+              className={`flex-1 bg-[#141414] border border-gray-700 rounded-full px-4 py-2.5 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 ${
+                chatMode === 'tiktok' 
+                  ? 'focus:ring-pink-500/50 focus:border-pink-500' 
+                  : 'focus:ring-purple-500/50 focus:border-purple-500'
+              }`}
             />
             <Button
               onClick={handleQuickChat}
               disabled={isLoading || !chatInput.trim()}
               size="sm"
-              className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600 rounded-full w-10 h-10 p-0"
+              className={`rounded-full w-10 h-10 p-0 ${
+                chatMode === 'tiktok'
+                  ? 'bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600'
+                  : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+              }`}
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -305,20 +351,30 @@ export default function Dashboard() {
             </Button>
           </div>
           
-          {/* Quick chips - only show when no response */}
+          {/* Quick chips - based on mode */}
           {!showResponse && (
             <div className="flex gap-2 mt-2 overflow-x-auto pb-1 scrollbar-hide">
-              {[
+              {(chatMode === 'tiktok' ? [
                 { en: 'FYP algorithm?', id: 'Algoritma FYP?' },
                 { en: 'Best posting time?', id: 'Jam posting terbaik?' },
                 { en: 'Live tips?', id: 'Tips Live rame?' },
                 { en: 'What is shadowban?', id: 'Shadowban itu apa?' },
                 { en: '3-sec hook tips', id: 'Tips hook 3 detik' },
-              ].map((chip, i) => (
+              ] : [
+                { en: 'How to close deals?', id: 'Cara closing deal?' },
+                { en: 'Pitch to investors?', id: 'Pitch ke investor?' },
+                { en: 'Handle objections?', id: 'Handle keberatan klien?' },
+                { en: 'Leadership tips?', id: 'Tips leadership?' },
+                { en: 'Negotiation tactics?', id: 'Taktik negosiasi?' },
+              ]).map((chip, i) => (
                 <button
                   key={i}
                   onClick={() => setChatInput(t(chip.en, chip.id))}
-                  className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full whitespace-nowrap transition-colors flex-shrink-0"
+                  className={`px-3 py-1 text-xs rounded-full whitespace-nowrap transition-colors flex-shrink-0 ${
+                    chatMode === 'tiktok'
+                      ? 'bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/20'
+                      : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20'
+                  }`}
                 >
                   {t(chip.en, chip.id)}
                 </button>
