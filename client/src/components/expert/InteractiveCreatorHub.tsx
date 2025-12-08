@@ -60,12 +60,11 @@ export function InteractiveCreatorHub() {
     const input = userInput.toLowerCase();
     let newContext = { ...ctx };
     
-    // More flexible pattern matching
+    // Only match specific template requests (Live/Video scripts with duration)
     const isLiveRequest = /live|siaran|streaming|siaran langsung/i.test(input);
-    const isVideoRequest = /video|vt|script|konten|reels|shorts|bikin|buat/i.test(input) && !isLiveRequest;
-    const isFollowUp = /iya|ya|boleh|ok|oke|mau|lanjut|please|tolong|gas|siap|bisa|yuk/i.test(input) && input.length < 30;
+    const isVideoRequest = /video|vt|script|konten|reels|shorts/i.test(input) && !isLiveRequest;
     
-    // Duration detection - more patterns
+    // Duration detection
     const durationMatch = input.match(/(\d+)\s*(menit|detik|min|sec|s|m|jam|hour|mnt)/i);
     let duration = 0;
     let durationType = 'minutes';
@@ -79,14 +78,12 @@ export function InteractiveCreatorHub() {
       newContext.mentionedDuration = duration;
     }
 
-    // Topic extraction - multiple patterns
+    // Topic extraction
     let topic = '';
     const topicPatterns = [
       /tentang\s+(.+?)(?:\s+bisa|\s+dong|\s+ya|\s+nih|\s+gak|\?|,|$)/i,
       /topik\s+(.+?)(?:\s+bisa|\s+dong|\s+ya|\?|$)/i,
       /niche\s+(.+?)(?:\s+bisa|\s+dong|\?|$)/i,
-      /soal\s+(.+?)(?:\s+bisa|\s+dong|\?|$)/i,
-      /bahas\s+(.+?)(?:\s+bisa|\s+dong|\?|$)/i,
     ];
     for (const pattern of topicPatterns) {
       const match = input.match(pattern);
@@ -96,136 +93,25 @@ export function InteractiveCreatorHub() {
         break;
       }
     }
-    
-    // Use previous topic if available and current has none
     if (!topic && ctx.lastTopic) {
       topic = ctx.lastTopic;
     }
 
-    // Handle follow-up with context
-    if (isFollowUp && ctx.lastIntent === 'live' && !duration) {
-      return { 
-        response: `🎯 **Oke bro, kasih tau durasinya!**
-
-Contoh:
-• "30 menit" untuk live singkat
-• "90 menit" untuk deep dive
-• "2 jam" untuk marathon session
-
-Mau berapa lama? ⏱️`, 
-        newContext,
-        isGeneric: false
-      };
-    }
-
-    // LIVE STREAMING GENERATOR
+    // ONLY TEMPLATES: Live Streaming Generator (with duration)
     if (isLiveRequest && duration > 0) {
       newContext.lastIntent = 'live';
       return { response: generateLiveBreakdown(duration, topic), newContext, isGeneric: false };
     }
 
-    // VIDEO SCRIPT GENERATOR
+    // ONLY TEMPLATES: Video Script Generator (with duration)
     if (isVideoRequest && duration > 0) {
       newContext.lastIntent = 'video';
       return { response: generateVideoScript(duration, topic, durationType), newContext, isGeneric: false };
     }
 
-    // KNOWLEDGE QUESTIONS - expanded keywords
-    if (/tap|ketuk|klik|click|like.*layar/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateTapTapResponse(), newContext, isGeneric: false };
-    }
-    if (/shadowban|shadow\s*ban|dibatasi|dibanned|akun.*mati/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateShadowbanResponse(), newContext, isGeneric: false };
-    }
-    if (/fyp|for\s*you|algoritma|algorithm|masuk.*fyp|viral/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateFYPResponse(), newContext, isGeneric: false };
-    }
-    if (/follower|grow|nambah|tambah|subscriber|fans|pengikut/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateFollowerResponse(), newContext, isGeneric: false };
-    }
-    if (/monetisasi|uang|cuan|duit|money|penghasilan|income|gaji/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateMonetizationResponse(), newContext, isGeneric: false };
-    }
-    if (/hashtag|tagar|#|tag/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateHashtagResponse(), newContext, isGeneric: false };
-    }
-    if (/jam.*post|waktu.*post|kapan.*post|jadwal|schedule|prime\s*time/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generatePostingTimeResponse(), newContext, isGeneric: false };
-    }
-    if (/hook|opening|pembuka|awal.*video|3.*detik|attention/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateHookResponse(), newContext, isGeneric: false };
-    }
-    if (/engagement|interact|komentar|komen|save|share|like.*rate/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateEngagementResponse(), newContext, isGeneric: false };
-    }
-    if (/niche|topik|konten.*apa|ide.*konten/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateNicheResponse(), newContext, isGeneric: false };
-    }
-    if (/konsisten|rajin|rutin|berapa.*kali.*post/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateConsistencyResponse(), newContext, isGeneric: false };
-    }
-    if (/edit|editing|capcut|vn|aplikasi/i.test(input)) {
-      newContext.lastIntent = 'question';
-      return { response: generateEditingResponse(), newContext, isGeneric: false };
-    }
-
-    // GENERAL LIVE REQUEST WITHOUT DURATION
-    if (isLiveRequest && duration === 0) {
-      newContext.lastIntent = 'live';
-      return { response: `🎯 **Oke bro, mau live berapa lama?**
-
-Kasih tau aja durasi dan topiknya, contoh:
-• "Live 30 menit tentang Q&A"
-• "Live 90 menit edukasi TikTok"
-• "Live 2 jam sharing pengalaman"
-
-⏱️ **Rekomendasi durasi:**
-
-| Tipe Live | Durasi | Cocok Untuk |
-|-----------|--------|-------------|
-| Quick Session | 15-30 menit | Q&A ringan, update singkat |
-| Standard | 45-60 menit | Tutorial, sharing |
-| Deep Dive | 90-120 menit | Edukasi mendalam, workshop |
-| Marathon | 150-180 menit | Event khusus, kolaborasi |
-
-⚠️ **Pro tip:** Jangan lebih dari 180 menit ya bro, penonton bakal capek dan engagement drop.
-
-Mau durasi berapa? 🎤`, newContext, isGeneric: false };
-    }
-
-    // GENERAL VIDEO REQUEST WITHOUT DURATION
-    if (isVideoRequest && duration === 0) {
-      newContext.lastIntent = 'video';
-      return { response: `🎬 **Siap bikin script video!**
-
-Kasih tau durasi dan topiknya, contoh:
-• "VT 30 detik tips followers"
-• "Video 60 detik tentang algoritma"
-• "Script 90 detik edukasi"
-
-⏱️ **Format durasi optimal:**
-
-| Durasi | Tipe Konten | Watch Time Target |
-|--------|-------------|-------------------|
-| 15-30s | Hook viral, tips singkat | 90%+ |
-| 45-60s | Tutorial cepat, storytelling | 70%+ |
-| 90s | Edukasi mendalam | 50%+ |
-
-Mau durasi berapa detik bro? 🎥`, newContext, isGeneric: false };
-    }
-
-    // DEFAULT - tidak ketemu di local, perlu AI
+    // EVERYTHING ELSE → AI (no more hardcoded knowledge responses)
+    // This includes: FYP questions, shadowban, hashtags, posting time, hooks, etc.
+    // AI will answer with proper 8-layer framework, tables, and BIAS Tips
     newContext.lastIntent = 'general';
     return { response: '', newContext, isGeneric: true };
   };
@@ -254,14 +140,14 @@ Mau durasi berapa detik bro? 🎥`, newContext, isGeneric: false };
     
     let finalResponse = localResult.response;
 
-    // If local didn't match (isGeneric), call AI API
+    // If local didn't match (isGeneric), call AI API with expert mode
     if (localResult.isGeneric) {
       try {
         const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
         const res = await fetch('/api/chat/hybrid', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userInput, sessionId }),
+          body: JSON.stringify({ message: userInput, sessionId, mode: 'expert' }),
         });
         
         const data = await res.json();

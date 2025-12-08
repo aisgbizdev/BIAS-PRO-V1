@@ -6,6 +6,7 @@ import { findSimilarResponse, saveLearnedResponse } from '../utils/learning-syst
 interface ChatRequest {
   message: string;
   sessionId?: string;
+  mode?: 'beginner' | 'expert' | 'home';
 }
 
 interface ChatResponse {
@@ -214,17 +215,49 @@ Sementara itu, kamu bisa pakai:
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     
-    console.log(`🤖 Calling OpenAI for chat: "${request.message.slice(0, 50)}..."`);
+    // Add mode-specific context
+    const mode = request.mode || 'home';
+    let modeContext = '';
+    
+    if (mode === 'expert') {
+      modeContext = `
+
+═══════════════════════════════════════════════════════
+🎓 MODE: EXPERT (Advanced Creator)
+═══════════════════════════════════════════════════════
+User ini sudah level EXPERT. Berikan:
+- Insight lebih MENDALAM dengan data/statistik
+- Strategi ADVANCED (monetisasi, brand deals, scaling)
+- Reference ke LAYER ANALYSIS yang lebih detail
+- Tips untuk level PRO (bukan basic)
+- Bahasa tetap santai tapi kontennya pro-level`;
+    } else if (mode === 'beginner') {
+      modeContext = `
+
+═══════════════════════════════════════════════════════
+🌱 MODE: BEGINNER (Pemula)
+═══════════════════════════════════════════════════════
+User ini PEMULA. Berikan:
+- Penjelasan SIMPLE dan step-by-step
+- Hindari jargon teknis, jelaskan kalau pakai
+- Focus ke FUNDAMENTAL dulu
+- Encouragement dan motivasi ekstra
+- Contoh yang MUDAH dipraktekkan`;
+    }
+    
+    const fullPrompt = TIKTOK_MENTOR_PROMPT + modeContext;
+    
+    console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
     const startTime = Date.now();
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: TIKTOK_MENTOR_PROMPT },
+        { role: 'system', content: fullPrompt },
         { role: 'user', content: request.message }
       ],
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: mode === 'expert' ? 1500 : 1000, // More tokens for expert mode
     });
 
     const duration = Date.now() - startTime;
