@@ -2,6 +2,7 @@
 import OpenAI from 'openai';
 import { checkRateLimit, recordUsage } from '../utils/ai-rate-limiter';
 import { findSimilarResponse, saveLearnedResponse } from '../utils/learning-system';
+import { getRelevantKnowledge } from './knowledge-loader';
 
 interface ChatRequest {
   message: string;
@@ -203,6 +204,10 @@ User ini baru mulai. Penyesuaian:
     
     const fullPrompt = TIKTOK_MENTOR_PROMPT + modeContext;
     
+    // Load relevant knowledge based on user's question
+    const relevantKnowledge = getRelevantKnowledge(request.message);
+    console.log(`📚 Loaded ${relevantKnowledge.length} chars of relevant knowledge`);
+    
     console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
     const startTime = Date.now();
 
@@ -210,10 +215,14 @@ User ini baru mulai. Penyesuaian:
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: fullPrompt },
+        { 
+          role: 'system', 
+          content: `📚 KNOWLEDGE BASE (gunakan untuk menjawab dengan akurat):\n\n${relevantKnowledge}` 
+        },
         { role: 'user', content: request.message }
       ],
       temperature: 0.7,
-      max_tokens: mode === 'expert' ? 1500 : 1000, // More tokens for expert mode
+      max_tokens: mode === 'expert' ? 2000 : 1500,
     });
 
     const duration = Date.now() - startTime;
