@@ -213,7 +213,7 @@ export default function Dashboard() {
       </div>
 
       {/* Sticky Bottom Chat Bar */}
-      <div className="fixed bottom-4 left-0 right-0 z-50">
+      <div className="fixed bottom-8 left-0 right-0 z-50">
         {/* Response Panel (slides up when there's response) */}
         {showResponse && (
           <div className="max-w-3xl mx-auto px-4 pt-3">
