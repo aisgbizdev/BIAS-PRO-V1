@@ -10,7 +10,7 @@ import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot } from 'lucide-react';
-import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
+import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeatureUsage } from '@/lib/analytics';
@@ -42,7 +42,7 @@ function formatMetric(value: number): string {
 export default function SocialMediaPro() {
   const { language, t } = useLanguage();
   const { toast } = useToast();
-  const [platform, setPlatform] = useState<'tiktok' | 'instagram' | 'youtube'>('tiktok');
+  const [platform, setPlatform] = useState<'tiktok'>('tiktok');
   const [username, setUsername] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,18 +78,6 @@ export default function SocialMediaPro() {
       color: '#FF0050',
       name: 'TikTok',
       placeholder: '@username',
-    },
-    instagram: {
-      icon: SiInstagram,
-      color: '#E4405F',
-      name: 'Instagram',
-      placeholder: '@username',
-    },
-    youtube: {
-      icon: SiYoutube,
-      color: '#FF0000',
-      name: 'YouTube',
-      placeholder: '@channelname',
     },
   };
 

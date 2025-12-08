@@ -67,8 +67,8 @@ export default function Dashboard() {
       icon: SiTiktok,
       title: t('Social Media Pro', 'Social Media Pro'),
       description: t(
-        'Deep analytics dashboard for TikTok, Instagram & YouTube accounts with premium visualizations & metrics',
-        'Dashboard analitik mendalam untuk akun TikTok, Instagram & YouTube dengan visualisasi & metrik premium'
+        'Deep analytics dashboard for TikTok accounts with premium visualizations & metrics',
+        'Dashboard analitik mendalam untuk akun TikTok dengan visualisasi & metrik premium'
       ),
       color: 'from-pink-500 to-cyan-500',
       features: [
@@ -203,8 +203,8 @@ export default function Dashboard() {
                   </h3>
                   <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed">
                     {t(
-                      'TikTok, Instagram & YouTube terms you can add yourself. Include your account for FREE promotion!',
-                      'Istilah TikTok, Instagram & YouTube yang bisa kamu tambahkan sendiri. Cantumkan akun kamu untuk promosi GRATIS!'
+                      'TikTok & Marketing terms you can add yourself. Include your account for FREE promotion!',
+                      'Istilah TikTok & Marketing yang bisa kamu tambahkan sendiri. Cantumkan akun kamu untuk promosi GRATIS!'
                     )}
                   </p>
                 </div>

@@ -11,13 +11,13 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, X, Video, FileVideo, Zap, AlertCircle, CheckCircle2, Presentation, Briefcase, Loader2 } from 'lucide-react';
-import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
+import { SiTiktok } from 'react-icons/si';
 import { apiRequest } from '@/lib/queryClient';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { trackFeatureUsage } from '@/lib/analytics';
 
-type Platform = 'tiktok' | 'instagram' | 'youtube' | 'non-social';
+type Platform = 'tiktok' | 'non-social';
 
 interface VideoFile {
   file: File;
@@ -53,24 +53,10 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
       accept: 'video/mp4,video/quicktime',
       maxSize: 100, // MB
     },
-    instagram: {
-      icon: SiInstagram,
-      color: '#E4405F',
-      name: 'Instagram',
-      accept: 'video/mp4,video/quicktime',
-      maxSize: 100,
-    },
-    youtube: {
-      icon: SiYoutube,
-      color: '#FF0000',
-      name: 'YouTube',
-      accept: 'video/mp4,video/quicktime,video/avi',
-      maxSize: 100,
-    },
     'non-social': {
       icon: Presentation,
       color: '#8B5CF6',
-      name: language === 'id' ? 'Non-Media Sosial' : 'Non-Social Media',
+      name: language === 'id' ? 'Profesional' : 'Professional',
       accept: 'video/mp4,video/quicktime,video/avi,video/webm',
       maxSize: 100,
     },
@@ -299,7 +285,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                 {t('Select Social Media Platform', 'Pilih Platform Media Sosial')}
               </Label>
               <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
-                <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-4">
+                <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-2">
                   <TabsTrigger 
                     value="tiktok" 
                     className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-2"
@@ -307,22 +293,6 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                   >
                     <SiTiktok className="w-4 h-4" />
                     <span className="hidden sm:inline">TikTok</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="instagram"
-                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-instagram"
-                  >
-                    <SiInstagram className="w-4 h-4" />
-                    <span className="hidden sm:inline">Instagram</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="youtube"
-                    className="data-[state=active]:bg-red-600 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-youtube"
-                  >
-                    <SiYoutube className="w-4 h-4" />
-                    <span className="hidden sm:inline">YouTube</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="non-social"
