@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -6,16 +6,23 @@ import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
+import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { SalesScriptGenerator } from '@/components/expert/SalesScriptGenerator';
 import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
 import { Video, FileText, Zap, Briefcase, ScrollText, MessageCircle } from 'lucide-react';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { trackTabSelection } from '@/lib/analytics';
+import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
   const [inputMode, setInputMode] = useState<'upload' | 'form' | 'scripts' | 'coach'>('coach');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
+
+  const handleAnalysisComplete = useCallback((result: BiasAnalysisResult, inputType: 'text' | 'video' = 'text', preview: string = '') => {
+    setCurrentAnalysis(result);
+    saveAnalysisToHistory(result, 'marketing', inputType, preview || 'Marketing Pro Analysis');
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
@@ -94,12 +101,12 @@ export default function CreatorAnalysis() {
 
         {/* Analysis Input - Form Mode */}
         {inputMode === 'form' && (
-          <AnalysisInput onAnalysisComplete={setCurrentAnalysis} />
+          <AnalysisInput onAnalysisComplete={(result) => handleAnalysisComplete(result, 'text', 'Script Review')} />
         )}
 
         {/* Analysis Input - Upload Mode */}
         {inputMode === 'upload' && (
-          <VideoUploadAnalyzer onAnalysisComplete={setCurrentAnalysis} mode="academic" />
+          <VideoUploadAnalyzer onAnalysisComplete={(result) => handleAnalysisComplete(result, 'video', 'Video Analysis')} mode="academic" />
         )}
 
         {/* Sales Script Templates */}
@@ -110,7 +117,7 @@ export default function CreatorAnalysis() {
         {/* Analysis Results */}
         {currentAnalysis && inputMode !== 'scripts' && (
           <div data-results-container>
-            <AnalysisResults result={currentAnalysis} />
+            <AnalysisResults result={currentAnalysis} mode="marketing" />
             
             {/* Discussion Chat Box */}
             <AnalysisDiscussion 
@@ -119,6 +126,11 @@ export default function CreatorAnalysis() {
               analysisType={inputMode === 'upload' ? 'video' : 'text'} 
             />
           </div>
+        )}
+
+        {/* Analysis History */}
+        {(inputMode === 'form' || inputMode === 'upload') && (
+          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
         )}
       </div>
     </div>

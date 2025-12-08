@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
-import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot } from 'lucide-react';
+import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
+import { ThumbnailGenerator } from '@/components/ThumbnailGenerator';
+import { AnalysisHistory } from '@/components/AnalysisHistory';
+import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, Wand2 } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeatureUsage, trackTabSelection, trackButtonClick } from '@/lib/analytics';
+import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel, VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel, InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
 
 // Import cartoon illustrations
@@ -51,7 +55,13 @@ export default function SocialMediaPro() {
   const [photoLoadError, setPhotoLoadError] = useState(false);
   const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('mentor');
   const [skillLevel, setSkillLevel] = useState<'beginner' | 'expert'>('beginner');
-  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot'>('account');
+  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail'>('account');
+  const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
+
+  const handleTikTokAnalysisComplete = useCallback((result: BiasAnalysisResult) => {
+    setCurrentAnalysis(result);
+    saveAnalysisToHistory(result, 'tiktok', 'video', 'TikTok Video Analysis');
+  }, []);
 
   const mockData = {
     followers: 60900,
@@ -291,27 +301,41 @@ export default function SocialMediaPro() {
           setAnalyticsTab(newTab);
           trackTabSelection('tiktok-pro', newTab);
         }}>
-          <TabsList className="grid w-full grid-cols-3 bg-[#1E1E1E] border border-gray-700 gap-1">
+          <TabsList className="grid w-full grid-cols-5 bg-[#1E1E1E] border border-gray-700 gap-1">
             <TabsTrigger 
               value="account"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
             >
-              <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{t('Account', 'Akun')}</span>
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
+              <span className="truncate hidden sm:inline">{t('Account', 'Akun')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="video"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
             >
-              <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{t('Video', 'Video')}</span>
+              <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
+              <span className="truncate hidden sm:inline">{t('Video', 'Video')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="screenshot"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
             >
-              <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{t('Screenshot', 'Screenshot')}</span>
+              <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
+              <span className="truncate hidden sm:inline">{t('SS', 'SS')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="compare"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
+            >
+              <BarChart2 className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
+              <span className="truncate hidden sm:inline">{t('Compare', 'Compare')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="thumbnail"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
+            >
+              <Wand2 className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
+              <span className="truncate hidden sm:inline">{t('Thumb', 'Thumb')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -407,6 +431,21 @@ export default function SocialMediaPro() {
         {/* Screenshot Analytics Mode */}
         {analyticsTab === 'screenshot' && (
           <ScreenshotAnalyticsPanel />
+        )}
+
+        {/* Competitor Comparison Mode */}
+        {analyticsTab === 'compare' && (
+          <CompetitorAnalysis />
+        )}
+
+        {/* Thumbnail Generator Mode */}
+        {analyticsTab === 'thumbnail' && (
+          <ThumbnailGenerator />
+        )}
+
+        {/* Analysis History */}
+        {(analyticsTab === 'video' || analyticsTab === 'account') && (
+          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
         )}
 
         {/* Account Profile Card - Show after analysis */}

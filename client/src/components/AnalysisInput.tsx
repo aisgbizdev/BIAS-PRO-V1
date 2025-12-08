@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@/lib/sessionContext';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Sparkles, CheckCircle2, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { VoiceInputButton } from '@/components/VoiceInputButton';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { trackFeatureUsage } from '@/lib/analytics';
 
@@ -246,9 +247,20 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
 
         {/* Text Description Input */}
         <div className="space-y-2">
-          <Label htmlFor="content" className="sr-only">
-            {t('Script Content', 'Konten Script')}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="content">
+              {t('Script Content', 'Konten Script')}
+            </Label>
+            <VoiceInputButton 
+              onTranscript={(text, append) => {
+                if (append) {
+                  setContent(prev => prev ? `${prev} ${text}` : text);
+                } else {
+                  setContent(text);
+                }
+              }}
+            />
+          </div>
           <Textarea
             id="content"
             value={content}

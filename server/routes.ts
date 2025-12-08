@@ -1247,6 +1247,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ==========================================
+  // THUMBNAIL GENERATOR (Placeholder)
+  // ==========================================
+  
+  app.post("/api/generate-thumbnail", async (req, res) => {
+    try {
+      const { topic, style, aspectRatio, additionalDetails } = req.body;
+      
+      if (!topic) {
+        return res.status(400).json({ error: 'Topic is required' });
+      }
+
+      const dimensions = {
+        '16:9': '1280x720',
+        '9:16': '720x1280',
+        '1:1': '720x720',
+      };
+
+      const dim = dimensions[aspectRatio as keyof typeof dimensions] || '1280x720';
+      const placeholderUrl = `https://placehold.co/${dim}/1a1a1a/ff0050?text=${encodeURIComponent(topic.substring(0, 30))}`;
+
+      res.json({
+        success: true,
+        imageUrl: placeholderUrl,
+        prompt: `${topic} - ${style}`,
+        note: 'Placeholder image. AI generation coming soon.',
+      });
+    } catch (error: any) {
+      console.error('[THUMBNAIL] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==========================================
   // HYBRID CHAT (Local + Ai Fallback)
   // ==========================================
   
