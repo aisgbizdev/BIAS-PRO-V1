@@ -562,10 +562,10 @@ ${seg.tips.map(tip => `• ${tip}`).join('\n')}
 
 ## 🎯 CTA NATURAL (COPY-PASTE)
 
-• "Tap layar kalau kamu ngerasa relate."
-• "Ketik 'NEXT' kalau mau lanjut ke sesi berikutnya."
-• "Share ke temen yang butuh info ini."
-• "Follow biar gak ketinggalan live selanjutnya!"
+• "Kalau ada pertanyaan, langsung ketik di komen ya."
+• "Mau lanjut ke topik berikutnya? Tulis di komen."
+• "Save live ini buat reference nanti."
+• "Makasih udah nonton, see you next live!"
 
 ---
 
@@ -576,26 +576,26 @@ Atau mau breakdown lebih detail untuk bagian mana? 🎤`;
 function generateLiveSegments(duration: number) {
   if (duration <= 30) {
     return [
-      { emoji: '1️⃣', name: 'OPENING HOOK', start: 0, end: Math.round(duration * 0.2), theme: 'Bangun vibe', goal: 'Tarik audiens awal', script: 'Halo semuanya! Sebelum mulai, gue mau tanya — siapa di sini yang pernah ngerasa stuck di TikTok? Ketik "ME" kalau relate.', tips: ['Tatap kamera 60-70% waktu', 'Senyum natural', 'Sapa viewer by name'], cta: 'Ketik "READY" kalau siap mulai!' },
-      { emoji: '2️⃣', name: 'MAIN CONTENT', start: Math.round(duration * 0.2), end: Math.round(duration * 0.8), theme: 'Deliver value', goal: 'Edukasi inti', script: 'Oke langsung ke intinya ya. Ada 3 hal penting yang harus kamu tau...', tips: ['Struktur 1-2-3', 'Contoh konkret', 'Pause baca komentar'], cta: 'Tap layar kalau ini helpful!' },
-      { emoji: '3️⃣', name: 'CLOSING', start: Math.round(duration * 0.8), end: duration, theme: 'Wrap up', goal: 'CTA & follow', script: 'Itu tadi 3 tips utama dari gue. Inget, konsistensi > viral. Follow biar gak ketinggalan!', tips: ['Recap poin utama', 'Motivasi singkat', 'Clear CTA'], cta: 'Follow sekarang biar next live gak ketinggalan!' }
+      { emoji: '1️⃣', name: 'OPENING HOOK', start: 0, end: Math.round(duration * 0.2), theme: 'Bangun vibe', goal: 'Tarik audiens awal', script: 'Halo semuanya! Sebelum mulai, gue mau tanya — siapa di sini yang pernah ngerasa stuck di TikTok? Tulis pengalaman kalian di komen.', tips: ['Tatap kamera 60-70% waktu', 'Senyum natural', 'Sapa viewer by name'], cta: 'Tulis niche kalian di komen!' },
+      { emoji: '2️⃣', name: 'MAIN CONTENT', start: Math.round(duration * 0.2), end: Math.round(duration * 0.8), theme: 'Deliver value', goal: 'Edukasi inti', script: 'Oke langsung ke intinya ya. Ada 3 hal penting yang harus kamu tau...', tips: ['Struktur 1-2-3', 'Contoh konkret', 'Pause baca komentar'], cta: 'Ada pertanyaan? Langsung tulis!' },
+      { emoji: '3️⃣', name: 'CLOSING', start: Math.round(duration * 0.8), end: duration, theme: 'Wrap up', goal: 'CTA & memorable', script: 'Itu tadi 3 tips utama dari gue. Inget, konsistensi > viral. Semoga bermanfaat!', tips: ['Recap poin utama', 'Motivasi singkat', 'Ucapan terima kasih'], cta: 'Makasih udah nonton sampai akhir!' }
     ];
   } else if (duration <= 60) {
     return [
-      { emoji: '1️⃣', name: 'WARM OPENING', start: 0, end: Math.round(duration * 0.15), theme: 'Build trust', goal: 'Bangun vibe & koneksi', script: 'Yo what\'s up semuanya! Gue excited banget malam ini karena kita bakal bahas sesuatu yang banyak orang salah paham...', tips: ['Energi tinggi tapi natural', 'Teaser menarik', 'Interaksi awal'], cta: 'Ketik darimana kamu nonton!' },
-      { emoji: '2️⃣', name: 'MYTH BUSTER', start: Math.round(duration * 0.15), end: Math.round(duration * 0.4), theme: 'Hancurkan hoax', goal: 'Bangun kredibilitas', script: 'Banyak yang bilang shadowban itu nyata. Tapi faktanya, TikTok sendiri bilang mereka gak punya fitur itu...', tips: ['Data & fakta', 'Personal story', 'Validasi viewer'], cta: 'Ketik "GUILTY" kalau pernah percaya mitos ini!' },
-      { emoji: '3️⃣', name: 'DEEP DIVE', start: Math.round(duration * 0.4), end: Math.round(duration * 0.75), theme: 'Edukasi', goal: 'Value mendalam', script: 'Sekarang kita masuk ke cara kerja algoritma yang sebenarnya. Ada 4 faktor utama...', tips: ['Step by step', 'Visual aids', 'Check understanding'], cta: 'Mana yang paling surprising? Ketik di komen!' },
-      { emoji: '4️⃣', name: 'Q&A + CLOSING', start: Math.round(duration * 0.75), end: duration, theme: 'Interaksi', goal: 'Engagement & memorable', script: 'Oke sekarang gue buka Q&A. Tulis pertanyaan kalian!', tips: ['Jawab 3-5 pertanyaan', 'Sebut nama penanya', 'End with motivation'], cta: 'Share live ini ke temen! Follow untuk part 2!' }
+      { emoji: '1️⃣', name: 'WARM OPENING', start: 0, end: Math.round(duration * 0.15), theme: 'Build trust', goal: 'Bangun vibe & koneksi', script: 'Yo what\'s up semuanya! Gue excited banget malam ini karena kita bakal bahas sesuatu yang banyak orang salah paham...', tips: ['Energi tinggi tapi natural', 'Teaser menarik', 'Interaksi awal'], cta: 'Tulis niche kalian di komen!' },
+      { emoji: '2️⃣', name: 'MYTH BUSTER', start: Math.round(duration * 0.15), end: Math.round(duration * 0.4), theme: 'Hancurkan hoax', goal: 'Bangun kredibilitas', script: 'Banyak yang bilang shadowban itu nyata. Tapi faktanya, TikTok sendiri bilang mereka gak punya fitur itu...', tips: ['Data & fakta', 'Personal story', 'Validasi viewer'], cta: 'Siapa yang pernah denger ini? Tulis di komen!' },
+      { emoji: '3️⃣', name: 'DEEP DIVE', start: Math.round(duration * 0.4), end: Math.round(duration * 0.75), theme: 'Edukasi', goal: 'Value mendalam', script: 'Sekarang kita masuk ke cara kerja algoritma yang sebenarnya. Ada 4 faktor utama...', tips: ['Step by step', 'Visual aids', 'Check understanding'], cta: 'Ada yang mau ditanya? Tulis di komen!' },
+      { emoji: '4️⃣', name: 'Q&A + CLOSING', start: Math.round(duration * 0.75), end: duration, theme: 'Interaksi', goal: 'Engagement & memorable', script: 'Oke sekarang gue buka Q&A. Tulis pertanyaan kalian!', tips: ['Jawab 3-5 pertanyaan', 'Sebut nama penanya', 'End with motivation'], cta: 'Makasih udah nonton! See you next time!' }
     ];
   } else {
     const segLen = Math.round(duration / 6);
     return [
-      { emoji: '1️⃣', name: 'OPENING WARM HOOK', start: 0, end: segLen, theme: 'Build trust', goal: 'Tarik audiens awal', script: 'Bro, banyak yang mikir TikTok itu soal hoki — padahal ini soal behavior. Malam ini gue bakal bongkar kenapa konten kamu belum nempel di algoritma.', tips: ['Tatap kamera 60-70%', 'Tone hangat + senyum', 'Interaksi: Ketik "AKTIF"'], cta: 'Ketik "AKTIF" kalau pernah ngerasa views turun terus!' },
-      { emoji: '2️⃣', name: 'MYTH BUSTER SESSION', start: segLen, end: segLen * 2, theme: 'Hancurkan hoax', goal: 'Bangun kredibilitas', script: 'Sekarang kita masuk MYTH BUSTER. Ada 4 mitos yang harus kita hancurin...', tips: ['Shadowban = salah kaprah', 'Jam posting = parsial', 'Tap layar = minor', 'Hashtag viral ≠ jaminan'], cta: 'Kalau pernah percaya salah satu, tulis "GUILTY"!' },
-      { emoji: '3️⃣', name: 'ALGORITHM UNLOCKED', start: segLen * 2, end: segLen * 3, theme: 'Cara kerja FYP', goal: 'Edukasi algoritma', script: 'FYP bukan soal nasib, tapi soal siapa yang nonton sampai habis. Ada 4 faktor: Watch Time, Replay, Comment Velocity, Consistency.', tips: ['Breakdown tiap faktor', 'Contoh real', 'Tulis: Retention = Emosi + Durasi'], cta: 'Faktor mana yang paling susah buat kamu?' },
-      { emoji: '4️⃣', name: 'EMOTIONAL BRANDING', start: segLen * 3, end: segLen * 4, theme: 'Storytelling', goal: 'Koneksi emosional', script: 'Gue mau cerita sesuatu personal. Dulu gue juga stuck di 200 views... dan ini yang gue lakuin.', tips: ['Cerita pribadi relatable', 'Emosi naik-turun', 'Empati: "Kamu gak salah"'], cta: 'Siapa yang pernah ngerasa sama? Tap layar!' },
-      { emoji: '5️⃣', name: 'Q&A + CHALLENGE', start: segLen * 4, end: segLen * 5, theme: 'Interaksi', goal: 'Engagement aktif', script: 'Sekarang giliran kalian! Ketik niche konten kamu, gue kasih insight cepat.', tips: ['Balas 5-10 komen', 'Sebut nama viewer', 'Feedback per niche'], cta: 'Save/share live ini buat catatan!' },
-      { emoji: '6️⃣', name: 'REFLECTIVE CLOSING', start: segLen * 5, end: duration, theme: 'Motivasi', goal: 'Memorable ending', script: 'Kalau dari ' + duration + ' menit ini kamu cuma inget satu hal: TikTok bukan tempat cari validasi, tapi tempat nunjukin value diri kamu.', tips: ['Tenang & reflektif', 'Jeda 2 detik antar kalimat', 'Senyum ringan'], cta: 'Gue BIAS-in kamu malam ini. Follow biar live selanjutnya lebih dalam!' }
+      { emoji: '1️⃣', name: 'OPENING WARM HOOK', start: 0, end: segLen, theme: 'Build trust', goal: 'Tarik audiens awal', script: 'Bro, banyak yang mikir TikTok itu soal hoki — padahal ini soal behavior. Malam ini gue bakal bongkar kenapa konten kamu belum nempel di algoritma.', tips: ['Tatap kamera 60-70%', 'Tone hangat + senyum', 'Interaksi natural'], cta: 'Tulis niche konten kamu di komen!' },
+      { emoji: '2️⃣', name: 'MYTH BUSTER SESSION', start: segLen, end: segLen * 2, theme: 'Hancurkan hoax', goal: 'Bangun kredibilitas', script: 'Sekarang kita masuk MYTH BUSTER. Ada 4 mitos yang harus kita hancurin...', tips: ['Shadowban = salah kaprah', 'Jam posting = parsial', 'Engagement bait = risky', 'Hashtag viral ≠ jaminan'], cta: 'Tulis mitos mana yang pernah kamu percaya!' },
+      { emoji: '3️⃣', name: 'ALGORITHM UNLOCKED', start: segLen * 2, end: segLen * 3, theme: 'Cara kerja FYP', goal: 'Edukasi algoritma', script: 'FYP bukan soal nasib, tapi soal siapa yang nonton sampai habis. Ada 4 faktor: Watch Time, Replay, Comment Velocity, Consistency.', tips: ['Breakdown tiap faktor', 'Contoh real', 'Retention = Emosi + Durasi'], cta: 'Faktor mana yang paling susah buat kamu?' },
+      { emoji: '4️⃣', name: 'EMOTIONAL BRANDING', start: segLen * 3, end: segLen * 4, theme: 'Storytelling', goal: 'Koneksi emosional', script: 'Gue mau cerita sesuatu personal. Dulu gue juga stuck di 200 views... dan ini yang gue lakuin.', tips: ['Cerita pribadi relatable', 'Emosi naik-turun', 'Empati: "Kamu gak salah"'], cta: 'Tulis pengalaman serupa di komen!' },
+      { emoji: '5️⃣', name: 'Q&A SESSION', start: segLen * 4, end: segLen * 5, theme: 'Interaksi', goal: 'Engagement aktif', script: 'Sekarang giliran kalian! Tulis niche konten kamu, gue kasih insight cepat.', tips: ['Balas 5-10 komen', 'Sebut nama viewer', 'Feedback per niche'], cta: 'Save live ini buat reference!' },
+      { emoji: '6️⃣', name: 'REFLECTIVE CLOSING', start: segLen * 5, end: duration, theme: 'Motivasi', goal: 'Memorable ending', script: 'Kalau dari ' + duration + ' menit ini kamu cuma inget satu hal: TikTok bukan tempat cari validasi, tapi tempat nunjukin value diri kamu.', tips: ['Tenang & reflektif', 'Jeda 2 detik antar kalimat', 'Senyum ringan'], cta: 'Makasih banget udah nonton sampai akhir!' }
     ];
   }
 }
@@ -859,14 +859,13 @@ Growth = Consistency × Value × Time
 }
 
 function generateMonetizationResponse(): string {
-  return `💰 **5 Cara Monetisasi TikTok**
+  return `💰 **4 Cara Monetisasi TikTok (HALAL & AMAN)**
 
 📊 **Revenue Streams:**
 
 | Stream | Min Requirement | Potensi |
 |--------|-----------------|---------|
 | Creator Fund | 10K followers | 50K-500K/bln |
-| Live Gifts | 1K followers | 500K-10jt/bln |
 | Brand Deals | 5K+ followers | 500K-50jt/post |
 | Affiliate | 1K followers | 100K-5jt/bln |
 | Own Product | No min | Unlimited |
@@ -878,28 +877,32 @@ function generateMonetizationResponse(): string {
 • ~Rp 20-50 per 1000 views
 • Tambahan, bukan main income
 
-**2. Live Gifts**
-• 1K = bisa live
-• Build loyal community
-
-**3. Brand Deals**
+**2. Brand Deals**
 • Rate: Rp 100-500/follower
-• Bangun media kit
+• Bangun media kit profesional
+• Disclosure wajib (#ad atau "Paid partnership")
 
-**4. Affiliate**
-• Shopee Affiliate, TikTok Shop
-• Review genuine > hard sell
+**3. Affiliate Marketing**
+• TikTok Shop, Shopee Affiliate
+• Review JUJUR > hard sell
+• Disclose affiliate link (wajib)
 
-**5. Own Product**
-• Course, merch, jasa
-• Potensi tertinggi
+**4. Own Product/Service**
+• Course, merch, jasa konsultasi
+• Potensi paling besar & sustainable
+• Build expertise dulu
+
+⚠️ **YANG GAK BOLEH:**
+• Minta gift/donasi (melanggar guidelines)
+• Giveaway engagement bait
+• Fake urgency atau scarcity
 
 ✅ **REKOMENDASI:**
-• <10K: Fokus growth dulu
+• <10K: Fokus growth & skill dulu
 • 10K-50K: Affiliate + brand kecil
 • 50K+: Diversifikasi semua
 
-💡 **Mau aku hitung potensi income niche kamu?**`;
+💡 **Mau aku kasih tips brand deal untuk niche kamu?**`;
 }
 
 function generateHashtagResponse(): string {
@@ -1022,7 +1025,7 @@ function generateHookResponse(): string {
 }
 
 function generateEngagementResponse(): string {
-  return `💬 **Strategi Boost Engagement**
+  return `💬 **Strategi Boost Engagement (AMAN & ORGANIC)**
 
 📌 **FAKTA:**
 Engagement rate yang sehat: 5-10%. Di bawah itu perlu improve.
@@ -1036,33 +1039,36 @@ Engagement rate yang sehat: 5-10%. Di bawah itu perlu improve.
 | Share Rate | 0.1-0.5% | Shareable value |
 | Save Rate | 0.5-1% | Reference content |
 
-📖 **TAKTIK BOOST:**
+📖 **TAKTIK BOOST (ORGANIC):**
 
 **1. Trigger Komentar:**
-• Tanya opini kontroversial
-• Minta vote A atau B
-• Challenge viewers
+• Tanya pendapat: "Menurut kamu gimana?"
+• Open-ended question
+• Ajak diskusi genuine
 
 **2. Trigger Save:**
 • Tips/tutorial yang worth revisit
 • Checklist/resources
-• "Save buat nanti"
+• Konten yang perlu diulang
 
 **3. Trigger Share:**
-• Relatable content
-• "Tag temen yang..."
-• Valuable info
+• Konten relatable & valuable
+• Informasi bermanfaat
+• Content yang orang mau share sendiri
 
-✅ **CTA TEMPLATES:**
+⚠️ **HINDARI (Engagement Bait):**
+• "Tap 5x biar viral"
+• "Tag 3 temen wajib"
+• "Like kalo setuju"
 
-• "Setuju atau nggak? Komen!"
-• "A atau B? Vote!"
-• "Tag temen yang butuh ini"
-• "Save buat reminder"
-• "Share ke yang perlu tau"
+✅ **CTA AMAN:**
+
+• "Menurut kamu gimana? Komen!"
+• "Mana yang cocok buat kamu?"
+• "Pengalaman kamu gimana?"
 
 🎯 **FORMULA:**
-High Engagement = Value + Trigger + Timing
+High Engagement = Value + Diskusi Natural + Timing
 
 💡 **Mau aku review engagement rate akun kamu?**`;
 }
