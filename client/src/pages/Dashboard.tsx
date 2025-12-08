@@ -95,7 +95,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 lg:py-12">
           <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
             <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r ${brand.colors.secondary} bg-clip-text text-transparent`}>
               {brand.name}
@@ -114,7 +114,7 @@ export default function Dashboard() {
       </div>
 
       {/* Analysis Types Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">
             {t('Choose Your Analysis Type', 'Pilih Tipe Analisis Anda')}
