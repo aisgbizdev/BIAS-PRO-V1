@@ -282,7 +282,7 @@ export default function SocialMediaPro() {
           </div>
         )}
 
-        {/* EXPERT MODE */}
+        {/* EXPERT MODE - Simplified: AI Mentor + Video Analyzer only */}
         {mainMode === 'expert' && (
           <div className="space-y-6">
             <Card className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border-purple-500/30">
@@ -293,10 +293,10 @@ export default function SocialMediaPro() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">
-                      {t('Expert Knowledge Base', 'Basis Pengetahuan Expert')}
+                      {t('Expert Mode', 'Mode Expert')}
                     </h3>
                     <p className="text-sm text-gray-400">
-                      {t('Science-backed strategies, myth-busting facts, and proven frameworks', 'Strategi berbasis sains, fakta pemecah mitos, dan framework terbukti')}
+                      {t('AI-powered mentor with pro-level insights', 'Mentor AI dengan insight level pro')}
                     </p>
                   </div>
                 </div>
@@ -304,71 +304,22 @@ export default function SocialMediaPro() {
             </Card>
 
             <Tabs value={expertTab} onValueChange={setExpertTab}>
-              <TabsList className="flex flex-wrap justify-start gap-1 bg-transparent h-auto p-0">
-                <TabsTrigger value="ai-mentor" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-pink-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <Bot className="w-4 h-4 mr-1" />
+              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700 gap-1">
+                <TabsTrigger value="ai-mentor" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white rounded-lg px-4 py-2.5 text-sm">
+                  <Bot className="w-4 h-4 mr-2" />
                   {t('AI Mentor', 'AI Mentor')}
                 </TabsTrigger>
-                <TabsTrigger value="knowledge" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <BookOpen className="w-4 h-4 mr-1" />
-                  {t('Knowledge', 'Pengetahuan')}
-                </TabsTrigger>
-                <TabsTrigger value="hooks" className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <Sparkles className="w-4 h-4 mr-1" />
-                  {t('Hooks', 'Hooks')}
-                </TabsTrigger>
-                <TabsTrigger value="growth" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  {t('Growth', 'Pertumbuhan')}
-                </TabsTrigger>
-                <TabsTrigger value="scripts" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <FileText className="w-4 h-4 mr-1" />
-                  {t('Scripts', 'Script')}
-                </TabsTrigger>
-                <TabsTrigger value="storytelling" className="data-[state=active]:bg-violet-500/20 data-[state=active]:text-violet-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <Lightbulb className="w-4 h-4 mr-1" />
-                  {t('Story', 'Cerita')}
-                </TabsTrigger>
-                <TabsTrigger value="live" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <Radio className="w-4 h-4 mr-1" />
-                  {t('Live', 'Live')}
-                </TabsTrigger>
-                <TabsTrigger value="analyzer" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <Image className="w-4 h-4 mr-1" />
-                  {t('Analyzer', 'Analyzer')}
-                </TabsTrigger>
-                <TabsTrigger value="monetization" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                  <DollarSign className="w-4 h-4 mr-1" />
-                  {t('Money', 'Uang')}
+                <TabsTrigger value="analyzer" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-500 data-[state=active]:text-white rounded-lg px-4 py-2.5 text-sm">
+                  <Image className="w-4 h-4 mr-2" />
+                  {t('Video Analyzer', 'Analisis Video')}
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="ai-mentor" className="mt-6">
                 <InteractiveCreatorHub />
               </TabsContent>
-              <TabsContent value="knowledge" className="mt-6">
-                <ExpertKnowledgePanel />
-              </TabsContent>
-              <TabsContent value="hooks" className="mt-6">
-                <HookMasterPanel />
-              </TabsContent>
-              <TabsContent value="growth" className="mt-6">
-                <GrowthRoadmapPanel />
-              </TabsContent>
-              <TabsContent value="scripts" className="mt-6">
-                <ScriptGeneratorPanel />
-              </TabsContent>
-              <TabsContent value="storytelling" className="mt-6">
-                <StorytellingPanel />
-              </TabsContent>
-              <TabsContent value="live" className="mt-6">
-                <LiveCoachPanel />
-              </TabsContent>
               <TabsContent value="analyzer" className="mt-6">
                 <VideoAnalyzerPanel />
-              </TabsContent>
-              <TabsContent value="monetization" className="mt-6">
-                <MonetizationGuidePanel />
               </TabsContent>
             </Tabs>
           </div>
