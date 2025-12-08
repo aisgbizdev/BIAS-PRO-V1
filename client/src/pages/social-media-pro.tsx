@@ -207,9 +207,9 @@ export default function SocialMediaPro() {
         {mainMode === 'mentor' && (
           <div className="space-y-4">
             {/* Skill Level Toggle */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-end gap-3">
               <div className="flex items-center gap-2">
-                <Bot className="w-5 h-5 text-pink-400" />
+                <Bot className="w-4 h-4 text-pink-400" />
                 <span className="text-sm text-gray-400">{t('Response Level', 'Level Jawaban')}</span>
               </div>
               <div className="inline-flex bg-gray-800/50 rounded-lg p-0.5 border border-gray-700">
