@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mic, Briefcase, Zap, CheckCircle, ArrowRight, BookOpen } from 'lucide-react';
+import { Mic, Briefcase, Zap, CheckCircle, ArrowRight, BookOpen, Send, MessageCircle, Loader2 } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link } from 'wouter';
 import biasLogo from '@assets/bias logo_1762016709581.jpg';
@@ -11,6 +12,45 @@ import biasLogo from '@assets/bias logo_1762016709581.jpg';
 export default function Dashboard() {
   const { t, language } = useLanguage();
   const { brand, getTagline, getSubtitle, getDescription } = useBrand();
+  
+  // Quick Chat state
+  const [chatInput, setChatInput] = useState('');
+  const [chatResponse, setChatResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showResponse, setShowResponse] = useState(false);
+
+  const handleQuickChat = async () => {
+    if (!chatInput.trim() || isLoading) return;
+    
+    setIsLoading(true);
+    setShowResponse(true);
+    setChatResponse('');
+    
+    try {
+      const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
+      const res = await fetch('/api/chat/hybrid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: chatInput.trim(), sessionId }),
+      });
+      
+      const data = await res.json();
+      let response = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
+      
+      // Add source indicator
+      if (data.source === 'ai') {
+        response += '\n\n---\n*🤖 Dijawab oleh AI*';
+      } else if (data.source === 'local' && !response.includes('⚠️')) {
+        response += '\n\n---\n*📚 Dari Learning Library*';
+      }
+      
+      setChatResponse(response);
+    } catch (err) {
+      setChatResponse('⚠️ Gagal connect. Coba refresh dan tanya lagi ya!');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const analysisTypes = [
     // FIRST: Social Media Pro (Account Analytics)
@@ -71,6 +111,97 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Quick Chat Section */}
+      <div className="max-w-3xl mx-auto px-4 -mt-6 mb-8 relative z-10">
+        <Card className="bg-[#141414] border-gray-800 shadow-2xl">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <MessageCircle className="w-5 h-5 text-cyan-400" />
+              <h3 className="text-base sm:text-lg font-semibold">
+                {t('Quick Ask BIAS', 'Tanya BIAS Langsung')}
+              </h3>
+              <Badge variant="outline" className="bg-cyan-500/10 text-cyan-300 border-cyan-500/30 text-xs">
+                {t('Free', 'Gratis')}
+              </Badge>
+            </div>
+            <p className="text-gray-400 text-sm mb-4">
+              {t(
+                'Ask anything about TikTok - algorithm, growth, monetization, content tips & more!',
+                'Tanya apa aja tentang TikTok - algoritma, growth, monetisasi, tips konten & lainnya!'
+              )}
+            </p>
+            
+            {/* Input */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleQuickChat()}
+                placeholder={t('e.g. How to grow followers fast?', 'cth: Gimana cara nambah follower cepet?')}
+                className="flex-1 bg-[#0A0A0A] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500"
+              />
+              <Button
+                onClick={handleQuickChat}
+                disabled={isLoading || !chatInput.trim()}
+                className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600 px-4"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
+
+            {/* Response */}
+            {showResponse && (
+              <div className="mt-4 p-4 bg-[#0A0A0A] border border-gray-700 rounded-lg">
+                {isLoading ? (
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>{t('Thinking...', 'Mikir dulu...')}</span>
+                  </div>
+                ) : (
+                  <div className="prose prose-invert prose-sm max-w-none">
+                    <div className="whitespace-pre-wrap text-gray-200 text-sm leading-relaxed">
+                      {chatResponse.split('\n').map((line, i) => {
+                        // Handle bold text
+                        const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                        // Handle italic
+                        const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
+                        return (
+                          <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Quick suggestion chips */}
+            {!showResponse && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {[
+                  { en: 'How does FYP work?', id: 'Gimana kerja FYP?' },
+                  { en: 'Best posting time?', id: 'Jam posting terbaik?' },
+                  { en: 'How to go viral?', id: 'Cara viral gimana?' },
+                ].map((chip, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setChatInput(t(chip.en, chip.id))}
+                    className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full transition-colors"
+                  >
+                    {t(chip.en, chip.id)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Analysis Types Grid */}
