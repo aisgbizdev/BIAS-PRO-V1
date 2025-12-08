@@ -45,25 +45,25 @@ const TARGET_EXAMPLES = [
 ];
 
 const PAIN_EXAMPLES = [
-  { name: 'Low returns on traditional savings', nameId: 'Return rendah dari tabungan tradisional' },
-  { name: 'Missing profitable market opportunities', nameId: 'Kehilangan peluang pasar yang menguntungkan' },
-  { name: 'Confused by complex trading platforms', nameId: 'Bingung dengan platform trading yang rumit' },
-  { name: 'Lack of professional market guidance', nameId: 'Kurangnya bimbingan pasar profesional' },
-  { name: 'Fear of market volatility', nameId: 'Takut volatilitas pasar' },
-  { name: 'No time to monitor markets daily', nameId: 'Tidak punya waktu pantau pasar setiap hari' },
-  { name: 'Difficulty finding reliable broker', nameId: 'Sulit menemukan broker terpercaya' },
-  { name: 'Limited investment knowledge', nameId: 'Pengetahuan investasi terbatas' },
+  { name: 'Savings barely growing', nameId: 'Uang di tabungan gak berkembang' },
+  { name: 'Want extra income but confused how', nameId: 'Mau cuan tambahan tapi bingung caranya' },
+  { name: 'Tried investing but always lost', nameId: 'Udah coba invest tapi selalu rugi' },
+  { name: 'No time to learn trading', nameId: 'Gak ada waktu belajar trading' },
+  { name: 'Scared of losing money', nameId: 'Takut uangnya hilang' },
+  { name: 'Don\'t know who to trust', nameId: 'Bingung mau percaya siapa' },
+  { name: 'Too many choices, overwhelmed', nameId: 'Kebanyakan pilihan, pusing' },
+  { name: 'Want passive income for retirement', nameId: 'Mau penghasilan pasif buat pensiun' },
 ];
 
 const VALUE_EXAMPLES = [
-  { name: '24/7 dedicated account manager', nameId: 'Account manager dedicated 24/7' },
-  { name: 'Licensed & regulated by BAPPEBTI', nameId: 'Berlisensi & diawasi BAPPEBTI' },
-  { name: 'Free daily market analysis', nameId: 'Analisis pasar harian gratis' },
-  { name: 'Zero commission on selected pairs', nameId: 'Komisi 0% untuk pasangan tertentu' },
-  { name: 'Personal trading coach', nameId: 'Coach trading personal' },
-  { name: 'Risk-free demo account', nameId: 'Akun demo bebas risiko' },
-  { name: 'Instant deposit & withdrawal', nameId: 'Deposit & tarik dana instan' },
-  { name: 'Exclusive VIP trading signals', nameId: 'Signal trading VIP eksklusif' },
+  { name: 'Personal guide 24 hours', nameId: 'Ada yang bantu 24 jam' },
+  { name: 'Legal & supervised by government', nameId: 'Legal & diawasi pemerintah' },
+  { name: 'Free daily tips', nameId: 'Tips harian gratis' },
+  { name: 'No hidden fees', nameId: 'Tanpa biaya tersembunyi' },
+  { name: 'Learn while earning', nameId: 'Belajar sambil dapat cuan' },
+  { name: 'Try free without risk', nameId: 'Coba gratis tanpa risiko' },
+  { name: 'Withdraw anytime', nameId: 'Tarik dana kapan aja' },
+  { name: 'Special signals for members', nameId: 'Sinyal khusus buat member' },
 ];
 
 // ==========================================

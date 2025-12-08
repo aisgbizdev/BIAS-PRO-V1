@@ -7,12 +7,13 @@ import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { SalesScriptGenerator } from '@/components/expert/SalesScriptGenerator';
-import { Video, FileText, Zap, Briefcase, ScrollText } from 'lucide-react';
+import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
+import { Video, FileText, Zap, Briefcase, ScrollText, MessageCircle } from 'lucide-react';
 import type { BiasAnalysisResult } from '@shared/schema';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
-  const [inputMode, setInputMode] = useState<'upload' | 'form' | 'scripts'>('upload');
+  const [inputMode, setInputMode] = useState<'upload' | 'form' | 'scripts' | 'coach'>('coach');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   return (
@@ -40,22 +41,30 @@ export default function CreatorAnalysis() {
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="pt-6">
             <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as typeof inputMode)}>
-              <TabsList className="grid w-full grid-cols-3 bg-[#1E1E1E] border border-gray-700 gap-1">
+              <TabsList className="grid w-full grid-cols-4 bg-[#1E1E1E] border border-gray-700 gap-1">
+                <TabsTrigger 
+                  value="coach"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+                  data-testid="tab-input-coach"
+                >
+                  <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">{t('Ai Coach', 'Ai Coach')}</span>
+                </TabsTrigger>
                 <TabsTrigger 
                   value="upload"
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
                   data-testid="tab-input-upload"
                 >
                   <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Analyze Video', 'Analisis Video')}</span>
+                  <span className="truncate">{t('Analyze', 'Analisis')}</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="form"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
                   data-testid="tab-input-form"
                 >
                   <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Review Script', 'Review Script')}</span>
+                  <span className="truncate">{t('Review', 'Review')}</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="scripts"
@@ -63,12 +72,20 @@ export default function CreatorAnalysis() {
                   data-testid="tab-input-scripts"
                 >
                   <ScrollText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Script Templates', 'Template Script')}</span>
+                  <span className="truncate">{t('Templates', 'Template')}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Ai Coach - Chat Mode */}
+        {inputMode === 'coach' && (
+          <div className="space-y-4">
+            <InteractiveCreatorHub />
+            <MotivationalQuote variant="purple" />
+          </div>
+        )}
 
         {/* Analysis Input - Form Mode */}
         {inputMode === 'form' && (
