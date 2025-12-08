@@ -192,6 +192,18 @@ export const brands = pgTable("brands", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Admin audit log for tracking admin actions
+export const adminAuditLog = pgTable("admin_audit_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  adminUsername: text("admin_username").notNull(),
+  action: text("action").notNull(), // 'approve', 'reject', 'delete', 'edit', 'create', 'login', 'logout', 'settings_update'
+  targetType: text("target_type").notNull(), // 'contribution', 'brand', 'library_item', 'ai_settings', 'session'
+  targetId: text("target_id"), // ID of affected item
+  details: text("details"), // JSON string with additional context
+  ipAddress: text("ip_address"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertSessionSchema = createInsertSchema(sessions).omit({ id: true, createdAt: true, lastActiveAt: true });
 export const insertAnalysisSchema = createInsertSchema(analyses).omit({ id: true, createdAt: true });
 export const insertChatSchema = createInsertSchema(chats).omit({ id: true, createdAt: true });
@@ -203,6 +215,7 @@ export const insertPageViewSchema = createInsertSchema(pageViews).omit({ id: tru
 export const insertFeatureUsageSchema = createInsertSchema(featureUsage).omit({ id: true, createdAt: true });
 export const insertAdminSessionSchema = createInsertSchema(adminSessions).omit({ id: true, createdAt: true });
 export const insertBrandSchema = createInsertSchema(brands).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertAuditLogSchema = createInsertSchema(adminAuditLog).omit({ id: true, createdAt: true });
 
 // ==========================================
 // EXPERT KNOWLEDGE BASE - Social Pro TikTok
