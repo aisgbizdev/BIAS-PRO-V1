@@ -39,7 +39,7 @@ export default function Dashboard() {
       
       // Add source indicator
       if (data.source === 'ai') {
-        response += '\n\n---\n*🤖 Dijawab oleh AI*';
+        response += '\n\n---\n*✨ Fresh from BIAS Brain*';
       } else if (data.source === 'local' && !response.includes('⚠️')) {
         response += '\n\n---\n*📚 Dari Learning Library*';
       }

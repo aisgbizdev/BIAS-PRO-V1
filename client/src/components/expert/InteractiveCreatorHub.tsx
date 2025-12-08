@@ -155,7 +155,7 @@ export function InteractiveCreatorHub() {
         
         // Add source indicator
         if (data.source === 'ai') {
-          finalResponse = finalResponse + '\n\n---\n*🤖 Dijawab oleh AI (disimpan ke library)*';
+          finalResponse = finalResponse + '\n\n---\n*✨ Fresh from BIAS Brain · Saved to Library*';
         } else if (data.source === 'local' && !finalResponse.includes('⚠️')) {
           // From learning library
           finalResponse = finalResponse + '\n\n---\n*📚 Dari Learning Library*';
