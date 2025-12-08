@@ -10,6 +10,7 @@ import { SalesScriptGenerator } from '@/components/expert/SalesScriptGenerator';
 import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
 import { Video, FileText, Zap, Briefcase, ScrollText, MessageCircle } from 'lucide-react';
 import type { BiasAnalysisResult } from '@shared/schema';
+import { trackTabSelection } from '@/lib/analytics';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
@@ -40,7 +41,11 @@ export default function CreatorAnalysis() {
         {/* Input Mode Selector */}
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="pt-6">
-            <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as typeof inputMode)}>
+            <Tabs value={inputMode} onValueChange={(v) => {
+              const newMode = v as typeof inputMode;
+              setInputMode(newMode);
+              trackTabSelection('marketing-pro', newMode);
+            }}>
               <TabsList className="grid w-full grid-cols-4 bg-[#1E1E1E] border border-gray-700 gap-1">
                 <TabsTrigger 
                   value="coach"

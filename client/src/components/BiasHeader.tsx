@@ -8,6 +8,7 @@ import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
 import { useState } from 'react';
 import { openExternalLink } from '@/lib/external-link-handler';
+import { trackNavigation, trackButtonClick } from '@/lib/analytics';
 
 export function BiasHeader() {
   const { language, toggleLanguage, t } = useLanguage();
@@ -54,7 +55,10 @@ export function BiasHeader() {
                     <Button
                       variant={location === item.href ? 'default' : 'ghost'}
                       className="w-full justify-start gap-3 h-12"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => {
+                        trackNavigation(item.label, item.href);
+                        setMobileMenuOpen(false);
+                      }}
                     >
                       <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
@@ -124,6 +128,7 @@ export function BiasHeader() {
                   size="sm"
                   className="gap-1 h-8 px-2 md:px-3"
                   data-testid={`button-nav-${item.href.replace('/', '') || 'home'}`}
+                  onClick={() => trackNavigation(item.label, item.href)}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span className="hidden lg:inline text-xs">{item.label}</span>
@@ -137,7 +142,10 @@ export function BiasHeader() {
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
           {/* TikTok Follow - Always Visible */}
           <Button
-            onClick={() => openExternalLink(brand.social.tiktokUrl)}
+            onClick={() => {
+              trackButtonClick('TikTok Follow', 'header');
+              openExternalLink(brand.social.tiktokUrl);
+            }}
             size="sm"
             variant="outline"
             data-testid="button-tiktok"
@@ -152,7 +160,10 @@ export function BiasHeader() {
           <Button
             variant="outline"
             size="sm"
-            onClick={toggleLanguage}
+            onClick={() => {
+              trackButtonClick('Language Toggle', 'header', { from: language, to: language === 'en' ? 'id' : 'en' });
+              toggleLanguage();
+            }}
             title={t('Switch to Indonesian', 'Ganti ke Bahasa Inggris')}
             data-testid="button-language-toggle"
             className="gap-1 h-8 px-2 md:px-3"

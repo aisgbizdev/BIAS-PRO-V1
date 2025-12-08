@@ -13,7 +13,7 @@ import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loade
 import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
-import { trackFeatureUsage } from '@/lib/analytics';
+import { trackFeatureUsage, trackTabSelection, trackButtonClick } from '@/lib/analytics';
 import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel, VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel, InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
 
 // Import cartoon illustrations
@@ -186,7 +186,10 @@ export default function SocialMediaPro() {
           <div className="inline-flex bg-gray-800/50 rounded-xl p-1 border border-gray-700 w-full max-w-md">
             <Button
               variant={mainMode === 'mentor' ? 'default' : 'ghost'}
-              onClick={() => setMainMode('mentor')}
+              onClick={() => {
+                setMainMode('mentor');
+                trackTabSelection('tiktok-pro', 'mentor');
+              }}
               className={`flex-1 px-6 py-3 rounded-lg ${mainMode === 'mentor' ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <Bot className="w-5 h-5 mr-2" />
@@ -194,7 +197,10 @@ export default function SocialMediaPro() {
             </Button>
             <Button
               variant={mainMode === 'analytics' ? 'default' : 'ghost'}
-              onClick={() => setMainMode('analytics')}
+              onClick={() => {
+                setMainMode('analytics');
+                trackTabSelection('tiktok-pro', 'analytics');
+              }}
               className={`flex-1 px-6 py-3 rounded-lg ${mainMode === 'analytics' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <TrendingUp className="w-5 h-5 mr-2" />
@@ -280,7 +286,11 @@ export default function SocialMediaPro() {
         {mainMode === 'analytics' && (
           <div className="space-y-6">
         {/* Analytics Tab Selector */}
-        <Tabs value={analyticsTab} onValueChange={(v) => setAnalyticsTab(v as typeof analyticsTab)}>
+        <Tabs value={analyticsTab} onValueChange={(v) => {
+          const newTab = v as typeof analyticsTab;
+          setAnalyticsTab(newTab);
+          trackTabSelection('tiktok-pro', newTab);
+        }}>
           <TabsList className="grid w-full grid-cols-3 bg-[#1E1E1E] border border-gray-700 gap-1">
             <TabsTrigger 
               value="account"
