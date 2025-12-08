@@ -10,3 +10,4 @@ export { VideoCreatorWizard } from './VideoCreatorWizard';
 export { LiveStreamingWizard } from './LiveStreamingWizard';
 export { ScreenshotAnalyticsPanel } from './ScreenshotAnalyticsPanel';
 export { InteractiveCreatorHub } from './InteractiveCreatorHub';
+export { MotivationalQuote } from './MotivationalQuote';

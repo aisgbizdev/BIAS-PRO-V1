@@ -1,12 +1,101 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Sparkles, Copy, CheckCircle2, Clock, Zap, MessageSquare, Phone, Mail, Presentation } from 'lucide-react';
+import { FileText, Sparkles, Copy, CheckCircle2, Clock, Zap, MessageSquare, Phone, Mail, Presentation, Quote, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+// ==========================================
+// ROTATING PLACEHOLDER EXAMPLES - Broker/Pialang Focus
+// ==========================================
+const COMPANY_EXAMPLES = [
+  { name: 'PT Futures Prima', nameId: 'PT Futures Prima' },
+  { name: 'Golden Commodity Broker', nameId: 'Golden Commodity Broker' },
+  { name: 'PT Pialang Berjangka Mandiri', nameId: 'PT Pialang Berjangka Mandiri' },
+  { name: 'Asia Pacific Futures', nameId: 'Asia Pacific Futures' },
+  { name: 'PT Millennium Penata Futures', nameId: 'PT Millennium Penata Futures' },
+  { name: 'Capital Trade Indonesia', nameId: 'Capital Trade Indonesia' },
+  { name: 'PT Valbury Asia Futures', nameId: 'PT Valbury Asia Futures' },
+  { name: 'Prime Commodity Trading', nameId: 'Prime Commodity Trading' },
+];
+
+const PRODUCT_EXAMPLES = [
+  { name: 'Gold & Forex Trading', nameId: 'Trading Emas & Forex' },
+  { name: 'Crude Oil Futures', nameId: 'Kontrak Berjangka Minyak' },
+  { name: 'Index Trading CFD', nameId: 'Trading Indeks CFD' },
+  { name: 'Managed Account Service', nameId: 'Layanan Managed Account' },
+  { name: 'Copy Trading Platform', nameId: 'Platform Copy Trading' },
+  { name: 'Signal Trading Premium', nameId: 'Signal Trading Premium' },
+  { name: 'Private Wealth Management', nameId: 'Pengelolaan Aset Pribadi' },
+  { name: 'Commodity Futures Contract', nameId: 'Kontrak Berjangka Komoditas' },
+];
+
+const TARGET_EXAMPLES = [
+  { name: 'High-net-worth individuals', nameId: 'Individu dengan aset tinggi' },
+  { name: 'Active retail traders', nameId: 'Trader retail aktif' },
+  { name: 'Business owners seeking diversification', nameId: 'Pemilik usaha yang ingin diversifikasi' },
+  { name: 'Professional investors', nameId: 'Investor profesional' },
+  { name: 'Corporate treasury departments', nameId: 'Departemen treasury perusahaan' },
+  { name: 'Young professionals with savings', nameId: 'Profesional muda dengan tabungan' },
+  { name: 'Retirees looking for passive income', nameId: 'Pensiunan yang cari passive income' },
+  { name: 'First-time investors', nameId: 'Investor pemula' },
+];
+
+const PAIN_EXAMPLES = [
+  { name: 'Low returns on traditional savings', nameId: 'Return rendah dari tabungan tradisional' },
+  { name: 'Missing profitable market opportunities', nameId: 'Kehilangan peluang pasar yang menguntungkan' },
+  { name: 'Confused by complex trading platforms', nameId: 'Bingung dengan platform trading yang rumit' },
+  { name: 'Lack of professional market guidance', nameId: 'Kurangnya bimbingan pasar profesional' },
+  { name: 'Fear of market volatility', nameId: 'Takut volatilitas pasar' },
+  { name: 'No time to monitor markets daily', nameId: 'Tidak punya waktu pantau pasar setiap hari' },
+  { name: 'Difficulty finding reliable broker', nameId: 'Sulit menemukan broker terpercaya' },
+  { name: 'Limited investment knowledge', nameId: 'Pengetahuan investasi terbatas' },
+];
+
+const VALUE_EXAMPLES = [
+  { name: '24/7 dedicated account manager', nameId: 'Account manager dedicated 24/7' },
+  { name: 'Licensed & regulated by BAPPEBTI', nameId: 'Berlisensi & diawasi BAPPEBTI' },
+  { name: 'Free daily market analysis', nameId: 'Analisis pasar harian gratis' },
+  { name: 'Zero commission on selected pairs', nameId: 'Komisi 0% untuk pasangan tertentu' },
+  { name: 'Personal trading coach', nameId: 'Coach trading personal' },
+  { name: 'Risk-free demo account', nameId: 'Akun demo bebas risiko' },
+  { name: 'Instant deposit & withdrawal', nameId: 'Deposit & tarik dana instan' },
+  { name: 'Exclusive VIP trading signals', nameId: 'Signal trading VIP eksklusif' },
+];
+
+// ==========================================
+// MOTIVATIONAL QUOTES BANK
+// ==========================================
+const MOTIVATIONAL_QUOTES = [
+  { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs", quoteId: "Satu-satunya cara melakukan pekerjaan hebat adalah mencintai apa yang kamu kerjakan." },
+  { quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", quoteId: "Sukses bukanlah akhir, kegagalan bukanlah fatal: yang penting adalah keberanian untuk terus maju." },
+  { quote: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb", quoteId: "Waktu terbaik menanam pohon adalah 20 tahun lalu. Waktu terbaik kedua adalah sekarang." },
+  { quote: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson", quoteId: "Jangan lihat jam; lakukan seperti yang dilakukannya. Terus bergerak." },
+  { quote: "The secret of getting ahead is getting started.", author: "Mark Twain", quoteId: "Rahasia untuk maju adalah memulai." },
+  { quote: "Your limitation—it's only your imagination.", author: "Unknown", quoteId: "Batasanmu—hanyalah imajinasimu." },
+  { quote: "Great things never come from comfort zones.", author: "Unknown", quoteId: "Hal-hal hebat tidak pernah datang dari zona nyaman." },
+  { quote: "Dream it. Wish it. Do it.", author: "Unknown", quoteId: "Impikan. Inginkan. Lakukan." },
+  { quote: "Success usually comes to those who are too busy to be looking for it.", author: "Henry David Thoreau", quoteId: "Sukses biasanya datang kepada mereka yang terlalu sibuk untuk mencarinya." },
+  { quote: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller", quoteId: "Jangan takut melepas yang baik untuk meraih yang hebat." },
+  { quote: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson", quoteId: "Semakin keras aku bekerja, semakin beruntung diriku." },
+  { quote: "The way to get started is to quit talking and begin doing.", author: "Walt Disney", quoteId: "Cara untuk memulai adalah berhenti bicara dan mulai melakukan." },
+  { quote: "If you are not willing to risk the usual, you will have to settle for the ordinary.", author: "Jim Rohn", quoteId: "Jika kamu tidak mau ambil risiko yang biasa, kamu harus puas dengan yang biasa-biasa saja." },
+  { quote: "Whether you think you can or think you can't, you're right.", author: "Henry Ford", quoteId: "Apakah kamu pikir bisa atau tidak bisa, kamu benar." },
+  { quote: "The only place where success comes before work is in the dictionary.", author: "Vidal Sassoon", quoteId: "Satu-satunya tempat di mana sukses datang sebelum kerja adalah di kamus." },
+  { quote: "It's not about having time. It's about making time.", author: "Unknown", quoteId: "Bukan soal punya waktu. Tapi soal membuat waktu." },
+  { quote: "Don't count the days, make the days count.", author: "Muhammad Ali", quoteId: "Jangan hitung hari, buat hari-harimu berarti." },
+  { quote: "Opportunities don't happen. You create them.", author: "Chris Grosser", quoteId: "Peluang tidak terjadi begitu saja. Kamu yang menciptakannya." },
+  { quote: "The only impossible journey is the one you never begin.", author: "Tony Robbins", quoteId: "Perjalanan yang mustahil adalah yang tidak pernah kamu mulai." },
+  { quote: "Everything you've ever wanted is on the other side of fear.", author: "George Addair", quoteId: "Semua yang pernah kamu inginkan ada di sisi lain dari ketakutan." },
+  { quote: "Hustle in silence and let your success make the noise.", author: "Unknown", quoteId: "Kerja keras dalam diam dan biarkan suksesmu yang bersuara." },
+  { quote: "Small daily improvements are the key to staggering long-term results.", author: "Unknown", quoteId: "Perbaikan kecil setiap hari adalah kunci hasil luar biasa jangka panjang." },
+  { quote: "What you do today can improve all your tomorrows.", author: "Ralph Marston", quoteId: "Apa yang kamu lakukan hari ini bisa memperbaiki semua hari esokmu." },
+  { quote: "Be so good they can't ignore you.", author: "Steve Martin", quoteId: "Jadilah begitu baik sehingga mereka tidak bisa mengabaikanmu." },
+  { quote: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt", quoteId: "Masa depan milik mereka yang percaya pada keindahan impian mereka." },
+];
 
 interface ScriptTemplate {
   id: string;
@@ -190,8 +279,20 @@ const SCRIPT_TEMPLATES: ScriptTemplate[] = [
   }
 ];
 
+// Helper to get random item from array
+const getRandomItem = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+// Get random indices for placeholders (regenerates on each component mount)
+const getRandomPlaceholders = () => ({
+  company: getRandomItem(COMPANY_EXAMPLES),
+  product: getRandomItem(PRODUCT_EXAMPLES),
+  target: getRandomItem(TARGET_EXAMPLES),
+  pain: getRandomItem(PAIN_EXAMPLES),
+  value: getRandomItem(VALUE_EXAMPLES),
+});
+
 export function SalesScriptGenerator() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<ScriptTemplate | null>(null);
   const [customizations, setCustomizations] = useState({
@@ -202,6 +303,20 @@ export function SalesScriptGenerator() {
     uniqueValue: '',
   });
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
+  
+  // Rotating placeholders - different for each user/session
+  const [placeholders, setPlaceholders] = useState(getRandomPlaceholders);
+  
+  // Random motivational quote
+  const [currentQuote, setCurrentQuote] = useState(() => getRandomItem(MOTIVATIONAL_QUOTES));
+  
+  const refreshPlaceholders = () => {
+    setPlaceholders(getRandomPlaceholders());
+  };
+  
+  const refreshQuote = () => {
+    setCurrentQuote(getRandomItem(MOTIVATIONAL_QUOTES));
+  };
 
   const handleCopy = (content: string, sectionName: string) => {
     navigator.clipboard.writeText(content);
@@ -297,7 +412,7 @@ export function SalesScriptGenerator() {
                 <div>
                   <Label className="text-gray-300">{t('Company Name', 'Nama Perusahaan')}</Label>
                   <Input
-                    placeholder="PT ABC"
+                    placeholder={language === 'id' ? placeholders.company.nameId : placeholders.company.name}
                     value={customizations.companyName}
                     onChange={(e) => setCustomizations({ ...customizations, companyName: e.target.value })}
                     className="bg-gray-800 border-gray-700"
@@ -306,7 +421,7 @@ export function SalesScriptGenerator() {
                 <div>
                   <Label className="text-gray-300">{t('Product/Service', 'Produk/Layanan')}</Label>
                   <Input
-                    placeholder="CRM Software"
+                    placeholder={language === 'id' ? placeholders.product.nameId : placeholders.product.name}
                     value={customizations.productName}
                     onChange={(e) => setCustomizations({ ...customizations, productName: e.target.value })}
                     className="bg-gray-800 border-gray-700"
@@ -315,7 +430,7 @@ export function SalesScriptGenerator() {
                 <div>
                   <Label className="text-gray-300">{t('Target Audience', 'Target Audience')}</Label>
                   <Input
-                    placeholder="Growing startups"
+                    placeholder={language === 'id' ? placeholders.target.nameId : placeholders.target.name}
                     value={customizations.targetAudience}
                     onChange={(e) => setCustomizations({ ...customizations, targetAudience: e.target.value })}
                     className="bg-gray-800 border-gray-700"
@@ -324,7 +439,7 @@ export function SalesScriptGenerator() {
                 <div>
                   <Label className="text-gray-300">{t('Main Pain Point', 'Pain Point Utama')}</Label>
                   <Input
-                    placeholder="Managing leads manually"
+                    placeholder={language === 'id' ? placeholders.pain.nameId : placeholders.pain.name}
                     value={customizations.painPoint}
                     onChange={(e) => setCustomizations({ ...customizations, painPoint: e.target.value })}
                     className="bg-gray-800 border-gray-700"
@@ -333,12 +448,23 @@ export function SalesScriptGenerator() {
                 <div>
                   <Label className="text-gray-300">{t('Unique Value', 'Nilai Unik')}</Label>
                   <Input
-                    placeholder="Ai-powered automation"
+                    placeholder={language === 'id' ? placeholders.value.nameId : placeholders.value.name}
                     value={customizations.uniqueValue}
                     onChange={(e) => setCustomizations({ ...customizations, uniqueValue: e.target.value })}
                     className="bg-gray-800 border-gray-700"
                   />
                 </div>
+              </div>
+              <div className="mt-3 flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={refreshPlaceholders}
+                  className="text-gray-400 hover:text-white text-xs"
+                >
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                  {t('New Examples', 'Contoh Baru')}
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -391,6 +517,30 @@ export function SalesScriptGenerator() {
           </Card>
         </>
       )}
+      
+      {/* Motivational Quote Section */}
+      <div className="mt-8 p-6 rounded-xl bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-cyan-900/30 border border-purple-500/20">
+        <div className="flex items-start gap-4">
+          <Quote className="w-8 h-8 text-purple-400 flex-shrink-0 mt-1" />
+          <div className="flex-1">
+            <p className="text-lg text-white italic leading-relaxed">
+              "{language === 'id' ? currentQuote.quoteId : currentQuote.quote}"
+            </p>
+            <div className="flex items-center justify-between mt-3">
+              <p className="text-sm text-purple-300">— {currentQuote.author}</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshQuote}
+                className="text-gray-400 hover:text-white text-xs"
+              >
+                <RefreshCw className="w-3 h-3 mr-1" />
+                {t('New Quote', 'Quote Baru')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
