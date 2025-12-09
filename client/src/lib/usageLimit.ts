@@ -1,9 +1,16 @@
-const DAILY_VIDEO_LIMIT = 5;
+const DEFAULT_DAILY_VIDEO_LIMIT = 5;
 const STORAGE_KEY = 'bias_video_usage';
+const SETTINGS_CACHE_KEY = 'bias_settings_cache';
+const SETTINGS_CACHE_TTL = 5 * 60 * 1000;
 
 interface UsageData {
   date: string;
   count: number;
+}
+
+interface CachedSettings {
+  daily_video_limit: number;
+  timestamp: number;
 }
 
 function getTodayKey(): string {
@@ -36,16 +43,45 @@ function setUsageData(data: UsageData): void {
   }
 }
 
+function getCachedLimit(): number {
+  try {
+    const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+    if (cached) {
+      const data = JSON.parse(cached) as CachedSettings;
+      if (Date.now() - data.timestamp < SETTINGS_CACHE_TTL) {
+        return data.daily_video_limit;
+      }
+    }
+  } catch (e) {
+    console.error('Error reading cached settings:', e);
+  }
+  return DEFAULT_DAILY_VIDEO_LIMIT;
+}
+
+export function updateCachedLimit(limit: number): void {
+  try {
+    const data: CachedSettings = {
+      daily_video_limit: limit,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error('Error caching settings:', e);
+  }
+}
+
 export function getVideoUsageToday(): number {
   return getUsageData().count;
 }
 
-export function getRemainingVideoAnalysis(): number {
-  return Math.max(0, DAILY_VIDEO_LIMIT - getUsageData().count);
+export function getRemainingVideoAnalysis(serverLimit?: number): number {
+  const limit = serverLimit ?? getCachedLimit();
+  return Math.max(0, limit - getUsageData().count);
 }
 
-export function canUseVideoAnalysis(): boolean {
-  return getUsageData().count < DAILY_VIDEO_LIMIT;
+export function canUseVideoAnalysis(serverLimit?: number): boolean {
+  const limit = serverLimit ?? getCachedLimit();
+  return getUsageData().count < limit;
 }
 
 export function incrementVideoUsage(): void {
@@ -54,6 +90,6 @@ export function incrementVideoUsage(): void {
   setUsageData(data);
 }
 
-export function getDailyLimit(): number {
-  return DAILY_VIDEO_LIMIT;
+export function getDailyLimit(serverLimit?: number): number {
+  return serverLimit ?? getCachedLimit();
 }

@@ -1243,7 +1243,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="library" className="gap-2">
             <BookOpen className="w-4 h-4" />
             {t('Library', 'Perpustakaan')}
@@ -1251,6 +1251,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           <TabsTrigger value="brands" className="gap-2">
             <Palette className="w-4 h-4" />
             {t('Brands', 'Partner')}
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2">
+            <Settings className="w-4 h-4" />
+            {t('Settings', 'Pengaturan')}
           </TabsTrigger>
           <TabsTrigger value="ai-settings" className="gap-2">
             <Sparkles className="w-4 h-4" />
@@ -1478,6 +1482,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
 
         <TabsContent value="brands" className="mt-6">
           <BrandManagement />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <PlatformSettingsPanel />
         </TabsContent>
 
         <TabsContent value="ai-settings" className="mt-6">
@@ -2312,6 +2320,345 @@ function AISettingsPanel() {
           {t(
             'These limits help control OpenAI API costs. When limits are reached, users will see basic (non-Ai) analysis instead.',
             'Limit ini membantu kontrol biaya OpenAI API. Kalau limit tercapai, user akan lihat analisis dasar (tanpa Ai).'
+          )}
+        </AlertDescription>
+      </Alert>
+    </div>
+  );
+}
+
+interface AppSetting {
+  id: string;
+  key: string;
+  value: string;
+  valueType: string;
+  category: string;
+  labelEn: string;
+  labelId: string;
+  descriptionEn?: string;
+  descriptionId?: string;
+  isEditable: boolean;
+  updatedBy?: string;
+  updatedAt: string;
+}
+
+interface PricingTier {
+  id: string;
+  name: string;
+  slug: string;
+  priceIdr: number;
+  priceUsd?: number;
+  period: string;
+  descriptionEn?: string;
+  descriptionId?: string;
+  featuresEn?: string[];
+  featuresId?: string[];
+  chatLimit?: number;
+  videoLimit?: number;
+  isActive: boolean;
+  isPopular: boolean;
+  sortOrder: number;
+}
+
+function PlatformSettingsPanel() {
+  const { t, language } = useLanguage();
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<AppSetting[]>([]);
+  const [pricing, setPricing] = useState<PricingTier[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'settings' | 'pricing'>('settings');
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [settingsRes, pricingRes] = await Promise.all([
+        fetch('/api/admin/settings', { credentials: 'include' }),
+        fetch('/api/admin/pricing', { credentials: 'include' }),
+      ]);
+
+      if (settingsRes.ok) {
+        const data = await settingsRes.json();
+        setSettings(data);
+      }
+      if (pricingRes.ok) {
+        const data = await pricingRes.json();
+        setPricing(data);
+      }
+    } catch (error) {
+      console.error('Error fetching platform settings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateSetting = async (key: string, value: string) => {
+    setSaving(key);
+    try {
+      const response = await fetch(`/api/admin/settings/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ value }),
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        setSettings(prev => prev.map(s => s.key === key ? updated : s));
+        toast({
+          title: t('Setting Updated', 'Pengaturan Diperbarui'),
+          description: t(`${key} has been updated`, `${key} sudah diperbarui`),
+        });
+      } else {
+        throw new Error('Failed to update');
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to update setting', 'Gagal memperbarui pengaturan'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleUpdatePricing = async (slug: string, updates: Partial<PricingTier>) => {
+    setSaving(slug);
+    try {
+      const response = await fetch(`/api/admin/pricing/${slug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updates),
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        setPricing(prev => prev.map(p => p.slug === slug ? updated : p));
+        toast({
+          title: t('Pricing Updated', 'Harga Diperbarui'),
+          description: t(`${slug} plan has been updated`, `Paket ${slug} sudah diperbarui`),
+        });
+      } else {
+        throw new Error('Failed to update');
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to update pricing', 'Gagal memperbarui harga'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  const groupedSettings = settings.reduce((acc, setting) => {
+    if (!acc[setting.category]) acc[setting.category] = [];
+    acc[setting.category].push(setting);
+    return acc;
+  }, {} as Record<string, AppSetting[]>);
+
+  const categoryLabels: Record<string, { en: string; id: string }> = {
+    limits: { en: 'Usage Limits', id: 'Limit Penggunaan' },
+    features: { en: 'Feature Toggles', id: 'Toggle Fitur' },
+    general: { en: 'General Settings', id: 'Pengaturan Umum' },
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Settings className="w-6 h-6 text-primary" />
+        <div>
+          <h2 className="text-xl font-bold">{t('Platform Settings', 'Pengaturan Platform')}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t('Control all platform limits, features, and pricing without code changes', 'Kontrol semua limit, fitur, dan harga platform tanpa ubah kode')}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 border-b pb-2">
+        <Button
+          variant={activeTab === 'settings' ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => setActiveTab('settings')}
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          {t('Settings', 'Pengaturan')}
+        </Button>
+        <Button
+          variant={activeTab === 'pricing' ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => setActiveTab('pricing')}
+        >
+          <ShoppingCart className="w-4 h-4 mr-2" />
+          {t('Pricing Tiers', 'Paket Harga')}
+        </Button>
+      </div>
+
+      {activeTab === 'settings' && (
+        <div className="space-y-6">
+          {Object.entries(groupedSettings).map(([category, categorySettings]) => (
+            <Card key={category}>
+              <CardHeader>
+                <CardTitle className="text-lg">
+                  {language === 'id' ? categoryLabels[category]?.id : categoryLabels[category]?.en || category}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {categorySettings.map((setting) => (
+                  <div key={setting.key} className="flex items-center justify-between gap-4 py-2 border-b last:border-0">
+                    <div className="flex-1">
+                      <Label className="font-medium">
+                        {language === 'id' ? setting.labelId : setting.labelEn}
+                      </Label>
+                      {(setting.descriptionEn || setting.descriptionId) && (
+                        <p className="text-xs text-muted-foreground">
+                          {language === 'id' ? setting.descriptionId : setting.descriptionEn}
+                        </p>
+                      )}
+                    </div>
+                    <div className="w-32">
+                      {setting.valueType === 'boolean' ? (
+                        <Button
+                          variant={setting.value === 'true' ? 'default' : 'outline'}
+                          size="sm"
+                          className="w-full"
+                          onClick={() => handleUpdateSetting(setting.key, setting.value === 'true' ? 'false' : 'true')}
+                          disabled={saving === setting.key || !setting.isEditable}
+                        >
+                          {saving === setting.key ? '...' : setting.value === 'true' ? t('ON', 'AKTIF') : t('OFF', 'MATI')}
+                        </Button>
+                      ) : (
+                        <Input
+                          type={setting.valueType === 'number' ? 'number' : 'text'}
+                          value={setting.value}
+                          onChange={(e) => {
+                            setSettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: e.target.value } : s));
+                          }}
+                          onBlur={(e) => handleUpdateSetting(setting.key, e.target.value)}
+                          disabled={!setting.isEditable}
+                          className="text-right"
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'pricing' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {pricing.map((tier) => (
+            <Card key={tier.slug} className={tier.isPopular ? 'border-primary border-2' : ''}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {tier.name}
+                    {tier.isPopular && <Badge className="bg-primary">{t('Popular', 'Populer')}</Badge>}
+                  </CardTitle>
+                  <Button
+                    variant={tier.isActive ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleUpdatePricing(tier.slug, { isActive: !tier.isActive })}
+                    disabled={saving === tier.slug}
+                  >
+                    {tier.isActive ? t('Active', 'Aktif') : t('Inactive', 'Nonaktif')}
+                  </Button>
+                </div>
+                <CardDescription>
+                  {language === 'id' ? tier.descriptionId : tier.descriptionEn}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">{t('Price (IDR)', 'Harga (Rp)')}</Label>
+                    <Input
+                      type="number"
+                      value={tier.priceIdr}
+                      onChange={(e) => {
+                        setPricing(prev => prev.map(p => p.slug === tier.slug ? { ...p, priceIdr: parseInt(e.target.value) || 0 } : p));
+                      }}
+                      onBlur={(e) => handleUpdatePricing(tier.slug, { priceIdr: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">{t('Video Limit', 'Limit Video')}</Label>
+                    <Input
+                      type="number"
+                      value={tier.videoLimit ?? 0}
+                      onChange={(e) => {
+                        setPricing(prev => prev.map(p => p.slug === tier.slug ? { ...p, videoLimit: parseInt(e.target.value) } : p));
+                      }}
+                      onBlur={(e) => handleUpdatePricing(tier.slug, { videoLimit: parseInt(e.target.value) })}
+                    />
+                    <p className="text-xs text-muted-foreground">-1 = {t('unlimited', 'unlimited')}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs">{t('Chat Limit', 'Limit Chat')}</Label>
+                    <Input
+                      type="number"
+                      value={tier.chatLimit ?? 0}
+                      onChange={(e) => {
+                        setPricing(prev => prev.map(p => p.slug === tier.slug ? { ...p, chatLimit: parseInt(e.target.value) } : p));
+                      }}
+                      onBlur={(e) => handleUpdatePricing(tier.slug, { chatLimit: parseInt(e.target.value) })}
+                    />
+                    <p className="text-xs text-muted-foreground">-1 = {t('unlimited', 'unlimited')}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs">{t('Popular', 'Populer')}</Label>
+                    <Button
+                      variant={tier.isPopular ? 'default' : 'outline'}
+                      size="sm"
+                      className="w-full mt-1"
+                      onClick={() => handleUpdatePricing(tier.slug, { isPopular: !tier.isPopular })}
+                      disabled={saving === tier.slug}
+                    >
+                      {tier.isPopular ? '★' : '☆'}
+                    </Button>
+                  </div>
+                </div>
+                
+                <div>
+                  <Label className="text-xs">{t('Features', 'Fitur')}</Label>
+                  <div className="mt-1 space-y-1">
+                    {(language === 'id' ? tier.featuresId : tier.featuresEn)?.map((feature, i) => (
+                      <Badge key={i} variant="outline" className="mr-1 mb-1 text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Alert>
+        <AlertCircle className="w-4 h-4" />
+        <AlertDescription>
+          {t(
+            'Changes are saved automatically. Settings affect all users immediately. Use with caution!',
+            'Perubahan disimpan otomatis. Pengaturan berlaku untuk semua user langsung. Gunakan dengan hati-hati!'
           )}
         </AlertDescription>
       </Alert>

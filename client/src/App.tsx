@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/lib/languageContext";
 import { BrandProvider, useBrand } from "@/lib/brandContext";
 import { SessionProvider } from "@/lib/sessionContext";
+import { SettingsProvider } from "@/lib/settingsContext";
 import { BiasHeader } from "@/components/BiasHeader";
 import { FloatingChatGPT } from "@/components/FloatingChatGPT";
 import Dashboard from "@/pages/Dashboard";
@@ -97,10 +98,12 @@ export default function App() {
       <TooltipProvider>
         <LanguageProvider>
           <BrandProvider>
-            <SessionProvider>
-              <AppContent />
-              <Toaster />
-            </SessionProvider>
+            <SettingsProvider>
+              <SessionProvider>
+                <AppContent />
+                <Toaster />
+              </SessionProvider>
+            </SettingsProvider>
           </BrandProvider>
         </LanguageProvider>
       </TooltipProvider>

@@ -1853,7 +1853,7 @@ Be objective and provide actionable feedback.`;
     }
   });
 
-  // Public: Get active pricing tiers
+  // Public: Get active pricing tiers (no auth required)
   app.get("/api/pricing", async (req, res) => {
     try {
       const tiers = await storage.getActivePricingTiers();
@@ -1875,7 +1875,7 @@ Be objective and provide actionable feedback.`;
     }
   });
 
-  // Admin: Update a setting
+  // Admin: Update a setting with validation
   app.put("/api/admin/settings/:key", requireAdmin, async (req, res) => {
     try {
       const { key } = req.params;
@@ -1886,12 +1886,30 @@ Be objective and provide actionable feedback.`;
         return res.status(400).json({ error: 'Value is required' });
       }
       
-      const setting = await storage.updateSetting(key, String(value), adminUser);
-      
-      if (!setting) {
+      const existingSetting = await storage.getSetting(key);
+      if (!existingSetting) {
         return res.status(404).json({ error: 'Setting not found' });
       }
       
+      if (!existingSetting.isEditable) {
+        return res.status(403).json({ error: 'This setting cannot be modified' });
+      }
+      
+      let validatedValue = String(value);
+      if (existingSetting.valueType === 'number') {
+        const numVal = parseFloat(value);
+        if (isNaN(numVal)) {
+          return res.status(400).json({ error: 'Value must be a valid number' });
+        }
+        validatedValue = String(numVal);
+      } else if (existingSetting.valueType === 'boolean') {
+        if (value !== 'true' && value !== 'false' && value !== true && value !== false) {
+          return res.status(400).json({ error: 'Value must be true or false' });
+        }
+        validatedValue = String(value === true || value === 'true');
+      }
+      
+      const setting = await storage.updateSetting(key, validatedValue, adminUser);
       res.json(setting);
     } catch (error: any) {
       console.error('[ADMIN_SETTINGS] Error updating setting:', error);
@@ -1910,19 +1928,53 @@ Be objective and provide actionable feedback.`;
     }
   });
 
-  // Admin: Update a pricing tier
+  // Admin: Update a pricing tier with validation
   app.put("/api/admin/pricing/:slug", requireAdmin, async (req, res) => {
     try {
       const { slug } = req.params;
       const updates = req.body;
       const adminUser = (req as any).adminUser;
       
-      const tier = await storage.updatePricingTier(slug, updates, adminUser);
-      
-      if (!tier) {
+      const existingTier = await storage.getPricingTier(slug);
+      if (!existingTier) {
         return res.status(404).json({ error: 'Pricing tier not found' });
       }
       
+      const validatedUpdates: any = {};
+      
+      if (updates.priceIdr !== undefined) {
+        const price = parseInt(updates.priceIdr);
+        if (isNaN(price) || price < 0) {
+          return res.status(400).json({ error: 'Price must be a valid non-negative number' });
+        }
+        validatedUpdates.priceIdr = price;
+      }
+      
+      if (updates.videoLimit !== undefined) {
+        const limit = parseInt(updates.videoLimit);
+        if (isNaN(limit)) {
+          return res.status(400).json({ error: 'Video limit must be a valid number' });
+        }
+        validatedUpdates.videoLimit = limit;
+      }
+      
+      if (updates.chatLimit !== undefined) {
+        const limit = parseInt(updates.chatLimit);
+        if (isNaN(limit)) {
+          return res.status(400).json({ error: 'Chat limit must be a valid number' });
+        }
+        validatedUpdates.chatLimit = limit;
+      }
+      
+      if (updates.isActive !== undefined) {
+        validatedUpdates.isActive = updates.isActive === true || updates.isActive === 'true';
+      }
+      
+      if (updates.isPopular !== undefined) {
+        validatedUpdates.isPopular = updates.isPopular === true || updates.isPopular === 'true';
+      }
+      
+      const tier = await storage.updatePricingTier(slug, validatedUpdates, adminUser);
       res.json(tier);
     } catch (error: any) {
       console.error('[ADMIN_PRICING] Error updating pricing:', error);
