@@ -104,13 +104,11 @@ export function BiasHeader() {
         {/* Logo + Brand Name - Clickable to Home */}
         <Link href="/">
           <div className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-white overflow-hidden flex items-start justify-center">
-              <img 
-                src={brandLogo} 
-                alt={`${brand.name} Logo`}
-                className="w-full scale-150 -translate-y-1"
-              />
-            </div>
+            <img 
+              src={brandLogo} 
+              alt={`${brand.name} Logo`}
+              className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
+            />
             <div className="flex flex-col leading-none">
               <span className={`text-sm md:text-base font-bold bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent`}>
                 {brand.name}
