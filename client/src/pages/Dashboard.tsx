@@ -106,86 +106,75 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 lg:py-12">
-          <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r ${brand.colors.secondary} bg-clip-text text-transparent`}>
+      {/* Hero Section - Minimal */}
+      <div className="border-b border-gray-800/30">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
               {brand.name}
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500">
+            <p className="text-[10px] sm:text-xs text-gray-600">
               {getTagline()}
             </p>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl font-semibold">
+            <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-lg">
               {getSubtitle()}
-            </p>
-            <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-2xl leading-relaxed">
-              {getDescription()}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Analysis Types Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-        <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">
-            {t('Choose Your Analysis Type', 'Pilih Tipe Analisis Anda')}
+      {/* Analysis Types Grid - Clean */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="text-center mb-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-medium mb-2 text-white">
+            {t('Choose Analysis Type', 'Pilih Tipe Analisis')}
           </h2>
-          <p className="text-gray-400 text-sm sm:text-base md:text-lg">
-            {t(
-              'Select the analysis mode that best fits your needs',
-              'Pilih mode analisis yang paling sesuai dengan kebutuhan Anda'
-            )}
+          <p className="text-gray-500 text-xs sm:text-sm">
+            {t('Select the mode that fits your needs', 'Pilih mode sesuai kebutuhan Anda')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {analysisTypes.map((type) => {
             const Icon = type.icon;
             return (
               <Card
                 key={type.href}
-                className="bg-[#141414] border-gray-800 hover-elevate group relative overflow-hidden"
+                className="bg-[#141414] border-gray-800 hover:border-gray-700 transition-colors"
               >
-                {/* Gradient Background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${type.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
-                
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <div className={`p-3 rounded-lg bg-gradient-to-br ${type.color} bg-opacity-10`}>
-                      <Icon className="w-6 h-6 text-white" />
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="p-2 rounded-lg bg-gray-800">
+                      <Icon className="w-5 h-5 text-gray-300" />
                     </div>
-                    <Badge variant="outline" className={`${type.badgeColor} border`}>
+                    <Badge variant="outline" className="bg-gray-800/50 text-gray-400 border-gray-700 text-[10px]">
                       {type.badge}
                     </Badge>
                   </div>
-                  <CardTitle className="text-xl sm:text-2xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  <CardTitle className="text-base sm:text-lg text-white">
                     {type.title}
                   </CardTitle>
-                  <CardDescription className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                  <CardDescription className="text-gray-500 text-xs sm:text-sm">
                     {type.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Features */}
-                  <div className="space-y-2">
+                <CardContent className="space-y-3 pt-0">
+                  <div className="space-y-1.5">
                     {type.features.map((feature, i) => (
-                      <div key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                        <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-cyan-400" />
+                      <div key={i} className="flex items-start gap-2 text-xs text-gray-400">
+                        <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-500" />
                         <span>{t(feature.en, feature.id)}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* CTA Button */}
                   <Link href={type.href}>
                     <Button
-                      className={`w-full bg-gradient-to-r ${type.color} hover:opacity-90 transition-opacity gap-2`}
+                      className="w-full bg-pink-500 hover:bg-pink-600 transition-colors text-sm"
                       data-testid={`button-start-${type.href.slice(1)}`}
                     >
-                      {t('Start Analysis', 'Mulai Analisis')}
-                      <ArrowRight className="w-4 h-4" />
+                      {t('Start', 'Mulai')}
+                      <ArrowRight className="w-3.5 h-3.5 ml-1" />
                     </Button>
                   </Link>
                 </CardContent>
@@ -194,29 +183,25 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Library Link */}
-        <Card className="bg-[#141414] border-gray-800 hover-elevate mb-32">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                <div className="p-2.5 sm:p-3 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 bg-opacity-10 flex-shrink-0">
-                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+        {/* Library Link - Compact */}
+        <Card className="bg-[#141414] border-gray-800 mb-24">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="p-2 rounded-lg bg-gray-800 flex-shrink-0">
+                  <BookOpen className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 leading-tight">
-                    {t('Platform Terms & Free Promotion', 'Istilah Platform & Promosi Gratis')}
+                  <h3 className="text-sm font-medium text-white">
+                    {t('Library', 'Library')}
                   </h3>
-                  <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed">
-                    {t(
-                      'TikTok & Marketing terms you can add yourself. Include your account for FREE promotion!',
-                      'Istilah TikTok & Marketing yang bisa kamu tambahkan sendiri. Cantumkan akun kamu untuk promosi GRATIS!'
-                    )}
+                  <p className="text-gray-500 text-[10px] sm:text-xs truncate">
+                    {t('Terms & free promotion', 'Istilah & promosi gratis')}
                   </p>
                 </div>
               </div>
-              <Link href="/library" className="w-full sm:w-auto flex-shrink-0">
-                <Button variant="outline" className="gap-2 w-full sm:w-auto" data-testid="button-go-library">
-                  {t('Browse Library', 'Buka Library')}
+              <Link href="/library" className="flex-shrink-0">
+                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white" data-testid="button-go-library">
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -225,156 +210,108 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Sticky Bottom Chat Bar */}
-      <div className="fixed bottom-8 left-0 right-0 z-50">
-        {/* Response Panel (slides up when there's response) */}
+      {/* Sticky Bottom Chat Bar - Minimal */}
+      <div className="fixed bottom-4 left-0 right-0 z-50">
+        {/* Response Panel */}
         {showResponse && (
-          <div className="max-w-3xl mx-auto px-4 pt-3">
-            <div className="bg-[#141414] border border-gray-700 rounded-lg overflow-hidden">
-              {/* Chat Header with controls */}
-              <div className="flex items-center justify-between px-3 py-2 bg-[#1a1a1a] border-b border-gray-700">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-cyan-400" />
-                  <span className="text-xs font-medium text-gray-300">BIAS Response</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setIsMinimized(!isMinimized)}
-                    className="p-1.5 hover:bg-gray-700 rounded transition-colors"
-                    title={isMinimized ? 'Expand' : 'Minimize'}
-                  >
-                    {isMinimized ? (
-                      <ChevronUp className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    )}
-                  </button>
-                  <button
-                    onClick={handleClearChat}
-                    className="p-1.5 hover:bg-gray-700 rounded transition-colors"
-                    title={t('Clear chat', 'Hapus chat')}
-                  >
-                    <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
-                  </button>
-                </div>
+          <div className="max-w-2xl mx-auto px-4 mb-2">
+            <div className="bg-[#141414] border border-gray-800 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
+                <span className="text-xs text-gray-500">Response</span>
+                <button
+                  onClick={handleClearChat}
+                  className="p-1 hover:bg-gray-800 rounded transition-colors"
+                >
+                  <Trash2 className="w-3 h-3 text-gray-500 hover:text-gray-300" />
+                </button>
               </div>
-              
-              {/* Chat Content (collapsible) */}
-              {!isMinimized && (
-                <div className="p-3 max-h-48 overflow-y-auto">
-                  {isLoading ? (
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm">{t('Thinking...', 'Mikir dulu...')}</span>
-                    </div>
-                  ) : (
-                    <div className="text-gray-200 text-sm leading-relaxed">
-                      {chatResponse.split('\n').map((line, i) => {
-                        const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-                        const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
-                        return (
-                          <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="p-3 max-h-32 overflow-y-auto">
+                {isLoading ? (
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span className="text-xs">{t('Thinking...', 'Mikir...')}</span>
+                  </div>
+                ) : (
+                  <div className="text-gray-300 text-xs leading-relaxed">
+                    {chatResponse.split('\n').map((line, i) => {
+                      const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                      const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
+                      return (
+                        <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Input Bar */}
-        <div className="max-w-3xl mx-auto px-4 py-3 bg-[#0A0A0A]/95 backdrop-blur-lg border border-gray-800 rounded-2xl mx-4 sm:mx-auto">
-          {/* Mode Toggle */}
-          <div className="flex items-center gap-2 mb-2">
+        {/* Input Bar - Clean */}
+        <div className="max-w-2xl mx-auto mx-4 sm:mx-auto px-3 py-2 bg-[#141414] border border-gray-800 rounded-lg">
+          {/* Mode Toggle - Compact */}
+          <div className="flex items-center gap-1.5 mb-2">
             <button
               onClick={() => setChatMode('tiktok')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                chatMode === 'tiktok'
-                  ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
+                chatMode === 'tiktok' ? 'bg-pink-500 text-white' : 'bg-gray-800 text-gray-500'
               }`}
             >
-              <SiTiktok className="w-3 h-3" />
-              TikTok Pro
+              <SiTiktok className="w-2.5 h-2.5" />
+              TikTok
             </button>
             <button
               onClick={() => setChatMode('marketing')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                chatMode === 'marketing'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
+                chatMode === 'marketing' ? 'bg-gray-600 text-white' : 'bg-gray-800 text-gray-500'
               }`}
             >
-              <Briefcase className="w-3 h-3" />
-              Marketing Pro
+              <Briefcase className="w-2.5 h-2.5" />
+              Marketing
             </button>
           </div>
 
           <div className="flex items-center gap-2">
-            {chatMode === 'tiktok' ? (
-              <SiTiktok className="w-5 h-5 text-pink-400 flex-shrink-0" />
-            ) : (
-              <Briefcase className="w-5 h-5 text-purple-400 flex-shrink-0" />
-            )}
             <input
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleQuickChat()}
               placeholder={chatMode === 'tiktok' 
-                ? t('Ask about TikTok, FYP, viral, live...', 'Tanya soal TikTok, FYP, viral, live...')
-                : t('Ask about sales, pitch, leadership, negotiation...', 'Tanya soal sales, pitch, leadership, negosiasi...')
+                ? t('Ask about TikTok...', 'Tanya tentang TikTok...')
+                : t('Ask about sales...', 'Tanya tentang sales...')
               }
-              className={`flex-1 bg-[#141414] border border-gray-700 rounded-full px-4 py-2.5 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 ${
-                chatMode === 'tiktok' 
-                  ? 'focus:ring-pink-500/50 focus:border-pink-500' 
-                  : 'focus:ring-purple-500/50 focus:border-purple-500'
-              }`}
+              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-xs placeholder:text-gray-500 focus:outline-none focus:border-gray-600"
             />
-            <Button
+            <button
               onClick={handleQuickChat}
               disabled={isLoading || !chatInput.trim()}
-              size="sm"
-              className={`rounded-full w-10 h-10 p-0 ${
-                chatMode === 'tiktok'
-                  ? 'bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600'
-                  : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
-              }`}
+              className="p-2 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 rounded-lg transition-colors"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 text-white animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-4 h-4 text-white" />
               )}
-            </Button>
+            </button>
           </div>
           
-          {/* Quick chips - based on mode */}
+          {/* Quick chips - minimal */}
           {!showResponse && (
-            <div className="flex gap-2 mt-2 overflow-x-auto pb-1 scrollbar-hide">
+            <div className="flex gap-1.5 mt-2 overflow-x-auto scrollbar-hide">
               {(chatMode === 'tiktok' ? [
-                { en: 'FYP algorithm?', id: 'Algoritma FYP?' },
-                { en: 'Best posting time?', id: 'Jam posting terbaik?' },
-                { en: 'Live tips?', id: 'Tips Live rame?' },
-                { en: 'What is shadowban?', id: 'Shadowban itu apa?' },
-                { en: '3-sec hook tips', id: 'Tips hook 3 detik' },
+                { en: 'FYP?', id: 'FYP?' },
+                { en: 'Posting time?', id: 'Jam posting?' },
+                { en: 'Live tips?', id: 'Tips Live?' },
               ] : [
-                { en: 'How to close deals?', id: 'Cara closing deal?' },
-                { en: 'Pitch to investors?', id: 'Pitch ke investor?' },
-                { en: 'Handle objections?', id: 'Handle keberatan klien?' },
-                { en: 'Leadership tips?', id: 'Tips leadership?' },
-                { en: 'Negotiation tactics?', id: 'Taktik negosiasi?' },
+                { en: 'Close deals?', id: 'Closing?' },
+                { en: 'Pitch tips?', id: 'Tips pitch?' },
+                { en: 'Objections?', id: 'Keberatan?' },
               ]).map((chip, i) => (
                 <button
                   key={i}
                   onClick={() => setChatInput(t(chip.en, chip.id))}
-                  className={`px-3 py-1 text-xs rounded-full whitespace-nowrap transition-colors flex-shrink-0 ${
-                    chatMode === 'tiktok'
-                      ? 'bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/20'
-                      : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20'
-                  }`}
+                  className="px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-400 rounded whitespace-nowrap transition-colors flex-shrink-0"
                 >
                   {t(chip.en, chip.id)}
                 </button>
