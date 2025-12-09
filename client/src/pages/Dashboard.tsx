@@ -55,7 +55,9 @@ export default function Dashboard() {
       {/* Combined Hero + Section Header */}
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-4 flex-1">
         <div className="text-center mb-6">
-          <p className="text-xs text-pink-400 mb-1">{brand.name}</p>
+          <p className="text-xs text-pink-400 mb-1">
+            {t('Behavioral Intelligence Audit System', 'Behavioral Intelligence Audit System')}
+          </p>
           <h1 className="text-lg sm:text-xl font-medium text-white mb-1">
             {getTagline()}
           </h1>
