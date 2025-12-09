@@ -2799,11 +2799,13 @@ function PlatformSettingsPanel() {
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const [settings, setSettings] = useState<AppSetting[]>([]);
+  const [originalSettings, setOriginalSettings] = useState<AppSetting[]>([]);
   const [pricing, setPricing] = useState<PricingTier[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'settings' | 'pricing'>('settings');
   const [editingTiers, setEditingTiers] = useState<Record<string, TierEditState>>({});
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -2820,6 +2822,7 @@ function PlatformSettingsPanel() {
       if (settingsRes.ok) {
         const data = await settingsRes.json();
         setSettings(data);
+        setOriginalSettings(JSON.parse(JSON.stringify(data)));
       }
       if (pricingRes.ok) {
         const data = await pricingRes.json();
@@ -2950,30 +2953,64 @@ function PlatformSettingsPanel() {
     });
   };
 
-  const handleUpdateSetting = async (key: string, value: string) => {
-    setSaving(key);
-    try {
-      const response = await fetch(`/api/admin/settings/${key}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ value }),
-      });
+  const startEditingCategory = (category: string) => {
+    setEditingCategory(category);
+  };
 
-      if (response.ok) {
-        const updated = await response.json();
-        setSettings(prev => prev.map(s => s.key === key ? updated : s));
-        toast({
-          title: t('Setting Updated', 'Pengaturan Diperbarui'),
-          description: t(`${key} has been updated`, `${key} sudah diperbarui`),
+  const cancelCategoryChanges = (category: string) => {
+    setSettings(prev => prev.map(s => {
+      if (s.category !== category) return s;
+      const original = originalSettings.find(o => o.key === s.key);
+      return original ? { ...original } : s;
+    }));
+    setEditingCategory(null);
+  };
+
+  const updateSettingValue = (key: string, value: string) => {
+    setSettings(prev => prev.map(s => s.key === key ? { ...s, value } : s));
+  };
+
+  const saveCategorySettings = async (category: string) => {
+    const categorySettings = settings.filter(s => s.category === category);
+    const originalCategory = originalSettings.filter(s => s.category === category);
+    
+    const changedSettings = categorySettings.filter(s => {
+      const orig = originalCategory.find(o => o.key === s.key);
+      return orig && orig.value !== s.value;
+    });
+
+    if (changedSettings.length === 0) {
+      setEditingCategory(null);
+      return;
+    }
+
+    setSaving(category);
+    try {
+      for (const setting of changedSettings) {
+        const response = await fetch(`/api/admin/settings/${setting.key}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ value: setting.value }),
         });
-      } else {
-        throw new Error('Failed to update');
+
+        if (!response.ok) {
+          throw new Error(`Failed to update ${setting.key}`);
+        }
+
+        const updated = await response.json();
+        setOriginalSettings(prev => prev.map(s => s.key === setting.key ? updated : s));
       }
+
+      toast({
+        title: t('Saved', 'Tersimpan'),
+        description: t('Settings updated successfully', 'Pengaturan berhasil diperbarui'),
+      });
+      setEditingCategory(null);
     } catch (error) {
       toast({
         title: t('Error', 'Error'),
-        description: t('Failed to update setting', 'Gagal memperbarui pengaturan'),
+        description: t('Failed to save settings', 'Gagal menyimpan pengaturan'),
         variant: 'destructive',
       });
     } finally {
@@ -2990,6 +3027,8 @@ function PlatformSettingsPanel() {
   }
 
   const groupedSettings = settings.reduce((acc, setting) => {
+    // Skip 'features' category - now controlled per-tier in Pricing tab
+    if (setting.category === 'features') return acc;
     if (!acc[setting.category]) acc[setting.category] = [];
     acc[setting.category].push(setting);
     return acc;
@@ -2997,7 +3036,6 @@ function PlatformSettingsPanel() {
 
   const categoryLabels: Record<string, { en: string; id: string }> = {
     limits: { en: 'Usage Limits', id: 'Limit Penggunaan' },
-    features: { en: 'Feature Toggles', id: 'Toggle Fitur' },
     general: { en: 'General Settings', id: 'Pengaturan Umum' },
   };
 
@@ -3034,12 +3072,46 @@ function PlatformSettingsPanel() {
 
       {activeTab === 'settings' && (
         <div className="space-y-6">
-          {Object.entries(groupedSettings).map(([category, categorySettings]) => (
-            <Card key={category}>
+          {Object.entries(groupedSettings).map(([category, categorySettings]) => {
+            const isEditingThis = editingCategory === category;
+            return (
+            <Card key={category} className={isEditingThis ? 'ring-2 ring-yellow-500' : ''}>
               <CardHeader>
-                <CardTitle className="text-lg">
-                  {language === 'id' ? categoryLabels[category]?.id : categoryLabels[category]?.en || category}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {language === 'id' ? categoryLabels[category]?.id : categoryLabels[category]?.en || category}
+                    {isEditingThis && <Badge variant="outline" className="bg-yellow-500/20 text-yellow-500">{t('Editing', 'Mengedit')}</Badge>}
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    {!isEditingThis ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEditingCategory(category)}
+                      >
+                        {t('Edit', 'Edit')}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => cancelCategoryChanges(category)}
+                        >
+                          {t('Cancel', 'Batal')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => saveCategorySettings(category)}
+                          disabled={saving === category}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {saving === category ? '...' : t('Save', 'Simpan')}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {categorySettings.map((setting) => (
@@ -3060,20 +3132,17 @@ function PlatformSettingsPanel() {
                           variant={setting.value === 'true' ? 'default' : 'outline'}
                           size="sm"
                           className="w-full"
-                          onClick={() => handleUpdateSetting(setting.key, setting.value === 'true' ? 'false' : 'true')}
-                          disabled={saving === setting.key || !setting.isEditable}
+                          onClick={() => isEditingThis && updateSettingValue(setting.key, setting.value === 'true' ? 'false' : 'true')}
+                          disabled={!isEditingThis || !setting.isEditable}
                         >
-                          {saving === setting.key ? '...' : setting.value === 'true' ? t('ON', 'AKTIF') : t('OFF', 'MATI')}
+                          {setting.value === 'true' ? t('ON', 'AKTIF') : t('OFF', 'MATI')}
                         </Button>
                       ) : (
                         <Input
                           type={setting.valueType === 'number' ? 'number' : 'text'}
                           value={setting.value}
-                          onChange={(e) => {
-                            setSettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: e.target.value } : s));
-                          }}
-                          onBlur={(e) => handleUpdateSetting(setting.key, e.target.value)}
-                          disabled={!setting.isEditable}
+                          onChange={(e) => updateSettingValue(setting.key, e.target.value)}
+                          disabled={!isEditingThis || !setting.isEditable}
                           className="text-right"
                         />
                       )}
@@ -3082,7 +3151,7 @@ function PlatformSettingsPanel() {
                 ))}
               </CardContent>
             </Card>
-          ))}
+          )})}
         </div>
       )}
 
