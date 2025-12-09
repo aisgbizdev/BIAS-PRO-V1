@@ -1,0 +1,62 @@
+import { db } from '../db';
+import { appSettings, pricingTiers } from '../shared/schema';
+
+const defaultSettings = [
+  { key: 'daily_video_limit', value: '5', valueType: 'number', category: 'limits', labelEn: 'Daily Video Analysis Limit', labelId: 'Limit Analisis Video Harian', descriptionEn: 'Maximum video/screenshot analysis per day for free users', descriptionId: 'Maksimum analisis video/screenshot per hari untuk user gratis', isEditable: true },
+  { key: 'daily_chat_limit', value: '50', valueType: 'number', category: 'limits', labelEn: 'Daily Chat Limit', labelId: 'Limit Chat Harian', descriptionEn: 'Maximum AI chat messages per day for free users', descriptionId: 'Maksimum pesan chat AI per hari untuk user gratis', isEditable: true },
+  { key: 'enable_batch_analysis', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Batch Analysis', labelId: 'Batch Analysis', descriptionEn: 'Enable batch video analysis feature', descriptionId: 'Aktifkan fitur analisis batch video', isEditable: true },
+  { key: 'enable_ab_testing', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'A/B Hook Tester', labelId: 'A/B Hook Tester', descriptionEn: 'Enable A/B hook testing feature', descriptionId: 'Aktifkan fitur A/B hook testing', isEditable: true },
+  { key: 'enable_screenshot_analytics', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Screenshot Analytics', labelId: 'Screenshot Analytics', descriptionEn: 'Enable screenshot analytics feature', descriptionId: 'Aktifkan fitur analitik screenshot', isEditable: true },
+  { key: 'enable_competitor_analysis', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Competitor Analysis', labelId: 'Competitor Analysis', descriptionEn: 'Enable competitor analysis feature', descriptionId: 'Aktifkan fitur analisis kompetitor', isEditable: true },
+  { key: 'enable_thumbnail_generator', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Thumbnail Generator', labelId: 'Thumbnail Generator', descriptionEn: 'Enable AI thumbnail generator', descriptionId: 'Aktifkan generator thumbnail AI', isEditable: true },
+  { key: 'enable_voice_input', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Voice Input', labelId: 'Voice Input', descriptionEn: 'Enable voice input for analysis forms', descriptionId: 'Aktifkan input suara untuk form analisis', isEditable: true },
+  { key: 'enable_pdf_export', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'PDF Export', labelId: 'PDF Export', descriptionEn: 'Enable PDF export for analysis results', descriptionId: 'Aktifkan ekspor PDF untuk hasil analisis', isEditable: true },
+  { key: 'enable_save_history', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Save History', labelId: 'Save History', descriptionEn: 'Enable save analysis history to localStorage', descriptionId: 'Aktifkan simpan riwayat analisis ke localStorage', isEditable: true },
+];
+
+const defaultPricingTiers = [
+  { slug: 'gratis', name: 'Gratis', priceIdr: 0, period: 'month', descriptionEn: 'Perfect for trying out', descriptionId: 'Cocok untuk mencoba', videoLimit: 0, chatLimit: 10, featuresEn: ['10 Ai chat/day', 'No video analysis', 'Basic knowledge base'], featuresId: ['10 chat Ai/hari', 'Tanpa analisis video', 'Knowledge base dasar'], isPopular: false, isActive: true, sortOrder: 1 },
+  { slug: 'basic', name: 'Basic', priceIdr: 10000, period: 'month', descriptionEn: 'For casual creators', descriptionId: 'Untuk kreator kasual', videoLimit: 10, chatLimit: -1, featuresEn: ['Unlimited Ai chat', '10 video analysis/month', 'Full knowledge base', 'Save history'], featuresId: ['Chat Ai unlimited', '10 analisis video/bulan', 'Knowledge base lengkap', 'Simpan riwayat'], isPopular: false, isActive: true, sortOrder: 2 },
+  { slug: 'pro', name: 'Pro', priceIdr: 25000, period: 'month', descriptionEn: 'For serious creators', descriptionId: 'Untuk kreator serius', videoLimit: 30, chatLimit: -1, featuresEn: ['All Basic features', '30 video analysis/month', 'Batch Analysis', 'A/B Hook Tester', 'PDF Export'], featuresId: ['Semua fitur Basic', '30 analisis video/bulan', 'Batch Analysis', 'A/B Hook Tester', 'Export PDF'], isPopular: true, isActive: true, sortOrder: 3 },
+  { slug: 'unlimited', name: 'Unlimited', priceIdr: 99000, period: 'month', descriptionEn: 'For agencies & power users', descriptionId: 'Untuk agensi & power user', videoLimit: 100, chatLimit: -1, featuresEn: ['All Pro features', '100 video analysis/month', 'Priority support', 'White-label option'], featuresId: ['Semua fitur Pro', '100 analisis video/bulan', 'Priority support', 'White-label option'], isPopular: false, isActive: true, sortOrder: 4 },
+];
+
+async function seedSettings() {
+  console.log('🌱 Starting Settings & Pricing seed...\n');
+  
+  try {
+    // Check if settings already exist
+    const existingSettings = await db.select().from(appSettings);
+    if (existingSettings.length > 0) {
+      console.log(`⚠️  Settings already exist (${existingSettings.length} items). Skipping settings seed.`);
+    } else {
+      console.log('📝 Seeding app_settings...');
+      for (const setting of defaultSettings) {
+        await db.insert(appSettings).values(setting);
+        console.log(`  ✅ ${setting.key}`);
+      }
+      console.log(`\n✅ Seeded ${defaultSettings.length} settings`);
+    }
+
+    // Check if pricing tiers already exist
+    const existingTiers = await db.select().from(pricingTiers);
+    if (existingTiers.length > 0) {
+      console.log(`⚠️  Pricing tiers already exist (${existingTiers.length} items). Skipping pricing seed.`);
+    } else {
+      console.log('\n💰 Seeding pricing_tiers...');
+      for (const tier of defaultPricingTiers) {
+        await db.insert(pricingTiers).values(tier);
+        console.log(`  ✅ ${tier.name} (Rp ${tier.priceIdr.toLocaleString()})`);
+      }
+      console.log(`\n✅ Seeded ${defaultPricingTiers.length} pricing tiers`);
+    }
+
+    console.log('\n🎉 Settings & Pricing seed completed!');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error seeding settings:', error);
+    process.exit(1);
+  }
+}
+
+seedSettings();
