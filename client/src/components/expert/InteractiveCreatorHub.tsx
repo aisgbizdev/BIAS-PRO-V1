@@ -203,22 +203,22 @@ Atau refresh dan coba lagi! 🔄`;
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-300px)] min-h-[500px] max-h-[750px]">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-white" />
+    <div className="flex flex-col h-[calc(100vh-280px)] min-h-[400px] max-h-[600px] bg-[#141414] rounded-lg border border-gray-800">
+      {/* Header - Minimal */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-pink-400" />
           </div>
           <div>
-            <h2 className="font-semibold text-white flex items-center gap-2">
+            <h2 className="text-sm font-medium text-white flex items-center gap-2">
               BIAS TikTok Mentor
-              <span className="px-2 py-0.5 text-[10px] rounded-full bg-gradient-to-r from-pink-500/20 to-cyan-500/20 text-pink-400 border border-pink-500/30">
-                Ai-Powered
+              <span className="px-1.5 py-0.5 text-[9px] rounded bg-gray-800 text-gray-400">
+                Ai
               </span>
             </h2>
-            <p className="text-xs text-gray-500">
-              {t('Your personal TikTok mastery assistant', 'Asisten TikTok pribadimu')}
+            <p className="text-[10px] text-gray-600">
+              {t('Your TikTok assistant', 'Asisten TikTok pribadimu')}
             </p>
           </div>
         </div>
@@ -227,52 +227,51 @@ Atau refresh dan coba lagi! 🔄`;
         <div className="flex items-center gap-1">
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-gray-800 rounded transition-colors"
             title={isMinimized ? t('Expand', 'Perbesar') : t('Minimize', 'Perkecil')}
           >
             {isMinimized ? (
-              <ChevronUp className="w-4 h-4 text-gray-400" />
+              <ChevronUp className="w-4 h-4 text-gray-500" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ChevronDown className="w-4 h-4 text-gray-500" />
             )}
           </button>
           <button
             onClick={handleClearChat}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-gray-800 rounded transition-colors"
             title={t('Clear chat', 'Hapus chat')}
           >
-            <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
+            <Trash2 className="w-4 h-4 text-gray-500 hover:text-red-400" />
           </button>
         </div>
       </div>
 
       {/* Messages Area (collapsible) */}
       {!isMinimized && (
-      <div className="flex-1 overflow-y-auto py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500/20 to-cyan-500/20 flex items-center justify-center mb-4">
-              <Bot className="w-8 h-8 text-pink-400" />
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center mb-3">
+              <Bot className="w-6 h-6 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-white mb-2">
-              {t('Hey bro! What can I help you with?', 'Halo bro! Mau dibantu apa nih?')}
+            <h3 className="text-sm font-medium text-white mb-1">
+              {t('What can I help with?', 'Mau dibantu apa?')}
             </h3>
-            <p className="text-sm text-gray-500 mb-6 max-w-md">
+            <p className="text-xs text-gray-500 mb-4 max-w-xs">
               {t(
-                'Ask anything about TikTok - scripts, live guides, algorithm tips, growth strategies, myths & facts.',
-                'Tanya apapun tentang TikTok - script, panduan live, tips algoritma, strategi growth, mitos & fakta.'
+                'Scripts, live guides, algorithm tips, growth strategies.',
+                'Script, panduan live, tips algoritma, strategi growth.'
               )}
             </p>
             
-            <div className="flex flex-wrap justify-center gap-2 max-w-lg">
-              {quickSuggestions.map((suggestion, index) => (
+            <div className="flex flex-wrap justify-center gap-1.5 max-w-sm">
+              {quickSuggestions.slice(0, 3).map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion.text)}
-                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-500/30 text-sm text-gray-300 hover:text-white transition-all flex items-center gap-2"
+                  className="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-400 hover:text-white transition-colors"
                 >
-                  <span>{suggestion.icon}</span>
-                  <span>{suggestion.text}</span>
+                  {suggestion.text}
                 </button>
               ))}
             </div>
@@ -283,30 +282,30 @@ Atau refresh dan coba lagi! 🔄`;
               {messages.map((message) => (
                 <motion.div
                   key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {message.type === 'assistant' && (
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-4 h-4 text-white" />
+                    <div className="w-6 h-6 rounded-md bg-gray-800 flex items-center justify-center flex-shrink-0 mt-1">
+                      <Sparkles className="w-3 h-3 text-gray-400" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                    className={`max-w-[80%] rounded-lg px-3 py-2 ${
                       message.type === 'user'
-                        ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white'
-                        : 'bg-white/5 border border-white/10 text-gray-200'
+                        ? 'bg-pink-500 text-white'
+                        : 'bg-gray-800 text-gray-200'
                     }`}
                   >
-                    <div className="text-sm whitespace-pre-wrap">
+                    <div className="text-xs whitespace-pre-wrap">
                       <FormattedMessage content={message.content} />
                     </div>
                   </div>
                   {message.type === 'user' && (
-                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                      <User className="w-4 h-4 text-white" />
+                    <div className="w-6 h-6 rounded-md bg-gray-800 flex items-center justify-center flex-shrink-0 mt-1">
+                      <User className="w-3 h-3 text-gray-400" />
                     </div>
                   )}
                 </motion.div>
@@ -317,16 +316,16 @@ Atau refresh dan coba lagi! 🔄`;
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex gap-3"
+                className="flex gap-2"
               >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
+                <div className="w-6 h-6 rounded-md bg-gray-800 flex items-center justify-center">
+                  <Sparkles className="w-3 h-3 text-gray-400" />
                 </div>
-                <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
                   <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               </motion.div>
@@ -337,8 +336,8 @@ Atau refresh dan coba lagi! 🔄`;
       </div>
       )}
 
-      {/* Input Area */}
-      <div className="pt-4 border-t border-white/10">
+      {/* Input Area - Minimal */}
+      <div className="px-4 py-3 border-t border-gray-800">
         <div className="flex gap-2 items-end">
           <div className="flex-1 relative">
             <textarea
@@ -346,23 +345,20 @@ Atau refresh dan coba lagi! 🔄`;
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('Ask anything about TikTok...', 'Tanya apapun tentang TikTok...')}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-pink-500/50 focus:ring-1 focus:ring-pink-500/20 text-white placeholder-gray-500 resize-none text-sm transition-all"
+              placeholder={t('Type message...', 'Ketik pesan...')}
+              className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 resize-none text-xs transition-colors"
               rows={1}
-              style={{ minHeight: '48px', maxHeight: '120px' }}
+              style={{ minHeight: '40px', maxHeight: '100px' }}
             />
           </div>
           <button
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
-            className="h-12 w-12 rounded-xl bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all"
+            className="h-10 w-10 rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
           >
-            <Send className="w-5 h-5 text-white" />
+            <Send className="w-4 h-4 text-white" />
           </button>
         </div>
-        <p className="text-[10px] text-gray-600 mt-2 text-center">
-          BIAS Pro • Powered by NM23 Ai
-        </p>
       </div>
     </div>
   );

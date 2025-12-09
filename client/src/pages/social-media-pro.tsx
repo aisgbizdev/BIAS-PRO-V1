@@ -172,91 +172,82 @@ export default function SocialMediaPro() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-pink-500/10 via-transparent to-cyan-400/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <Zap className="w-6 h-6 md:w-8 md:h-8 text-pink-500 flex-shrink-0" />
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+      {/* Hero Section - Minimal & Clean */}
+      <div className="border-b border-gray-800/30">
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-5 h-5 md:w-6 md:h-6 text-pink-500" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white">
               {t('TikTok Pro', 'TikTok Pro')}
             </h1>
           </div>
-          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
+          <p className="text-gray-500 text-xs sm:text-sm md:text-base max-w-2xl">
             {t(
-              'Deep behavioral analysis for TikTok creators. Track metrics, identify growth opportunities, and optimize your content strategy with science-backed insights.',
-              'Analisis behavioral mendalam untuk kreator TikTok. Lacak metrik, identifikasi peluang pertumbuhan, dan optimalkan strategi konten dengan insight berbasis sains.'
+              'Behavioral analysis for TikTok creators with science-backed insights.',
+              'Analisis behavioral untuk kreator TikTok dengan insight berbasis sains.'
             )}
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {/* Main Mode Selector: Mentor | Analytics (2 tabs only) */}
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+        {/* Main Mode Selector - Minimal */}
         <div className="flex justify-center">
-          <div className="inline-flex bg-gray-800/50 rounded-xl p-1 border border-gray-700 w-full max-w-md">
+          <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-xs">
             <Button
-              variant={mainMode === 'mentor' ? 'default' : 'ghost'}
+              variant="ghost"
               onClick={() => {
                 setMainMode('mentor');
                 trackTabSelection('tiktok-pro', 'mentor');
               }}
-              className={`flex-1 px-6 py-3 rounded-lg ${mainMode === 'mentor' ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-pink-500 text-white' : 'text-gray-500 hover:text-white'}`}
             >
-              <Bot className="w-5 h-5 mr-2" />
+              <Bot className="w-4 h-4 mr-1.5" />
               {t('Ai Mentor', 'Ai Mentor')}
             </Button>
             <Button
-              variant={mainMode === 'analytics' ? 'default' : 'ghost'}
+              variant="ghost"
               onClick={() => {
                 setMainMode('analytics');
                 trackTabSelection('tiktok-pro', 'analytics');
               }}
-              className={`flex-1 px-6 py-3 rounded-lg ${mainMode === 'analytics' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'}`}
             >
-              <TrendingUp className="w-5 h-5 mr-2" />
+              <TrendingUp className="w-4 h-4 mr-1.5" />
               {t('Analytics', 'Analitik')}
             </Button>
           </div>
         </div>
 
-        {/* MENTOR HUB - Ai Chat with skill toggle + quick actions */}
+        {/* MENTOR HUB - Ai Chat with skill toggle */}
         {mainMode === 'mentor' && (
-          <div className="space-y-4">
-            {/* Skill Level Toggle */}
-            <div className="flex items-center justify-end gap-3">
-              <div className="flex items-center gap-2">
-                <Bot className="w-4 h-4 text-pink-400" />
-                <span className="text-sm text-gray-400">{t('Response Level', 'Level Jawaban')}</span>
-              </div>
-              <div className="inline-flex bg-gray-800/50 rounded-lg p-0.5 border border-gray-700">
-                <Button
-                  size="sm"
-                  variant={skillLevel === 'beginner' ? 'default' : 'ghost'}
+          <div className="space-y-3">
+            {/* Skill Level Toggle - Compact */}
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-xs text-gray-500">{t('Level', 'Level')}</span>
+              <div className="inline-flex bg-[#141414] rounded-md p-0.5 border border-gray-800">
+                <button
                   onClick={() => setSkillLevel('beginner')}
-                  className={`px-4 py-1.5 text-xs rounded-md ${skillLevel === 'beginner' ? 'bg-green-500 text-white' : 'text-gray-400'}`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'beginner' ? 'bg-gray-700 text-white' : 'text-gray-500'}`}
                 >
-                  <Rocket className="w-3 h-3 mr-1" />
-                  {t('Beginner', 'Pemula')}
-                </Button>
-                <Button
-                  size="sm"
-                  variant={skillLevel === 'expert' ? 'default' : 'ghost'}
+                  {t('Basic', 'Pemula')}
+                </button>
+                <button
                   onClick={() => setSkillLevel('expert')}
-                  className={`px-4 py-1.5 text-xs rounded-md ${skillLevel === 'expert' ? 'bg-purple-500 text-white' : 'text-gray-400'}`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'expert' ? 'bg-gray-700 text-white' : 'text-gray-500'}`}
                 >
-                  <GraduationCap className="w-3 h-3 mr-1" />
                   {t('Expert', 'Expert')}
-                </Button>
+                </button>
               </div>
             </div>
 
             {/* Ai Chat */}
             <InteractiveCreatorHub />
 
-            {/* Quick Action Buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <Card 
-                className="bg-gradient-to-br from-pink-500/10 to-pink-500/5 border-pink-500/30 cursor-pointer hover:border-pink-500/50 transition-colors"
+            {/* Quick Actions - Simpler */}
+            <div className="flex gap-2">
+              <button 
+                className="flex-1 px-3 py-2 text-xs bg-[#141414] border border-gray-800 rounded-lg text-gray-400 hover:text-white hover:border-gray-700 transition-colors"
                 onClick={() => {
                   const chatInput = document.querySelector('textarea');
                   if (chatInput) {
@@ -265,13 +256,11 @@ export default function SocialMediaPro() {
                   }
                 }}
               >
-                <CardContent className="py-3 px-4 flex items-center gap-3">
-                  <PlayCircle className="w-5 h-5 text-pink-400 flex-shrink-0" />
-                  <span className="text-sm text-white">{t('Video Script', 'Script Video')}</span>
-                </CardContent>
-              </Card>
-              <Card 
-                className="bg-gradient-to-br from-red-500/10 to-red-500/5 border-red-500/30 cursor-pointer hover:border-red-500/50 transition-colors"
+                <PlayCircle className="w-3.5 h-3.5 inline mr-1" />
+                {t('Script', 'Script')}
+              </button>
+              <button 
+                className="flex-1 px-3 py-2 text-xs bg-[#141414] border border-gray-800 rounded-lg text-gray-400 hover:text-white hover:border-gray-700 transition-colors"
                 onClick={() => {
                   const chatInput = document.querySelector('textarea');
                   if (chatInput) {
@@ -280,62 +269,57 @@ export default function SocialMediaPro() {
                   }
                 }}
               >
-                <CardContent className="py-3 px-4 flex items-center gap-3">
-                  <Radio className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <span className="text-sm text-white">{t('Live Guide', 'Panduan Live')}</span>
-                </CardContent>
-              </Card>
+                <Radio className="w-3.5 h-3.5 inline mr-1" />
+                {t('Live', 'Live')}
+              </button>
             </div>
-            
-            {/* Motivational Quote */}
-            <MotivationalQuote variant="pink" />
           </div>
         )}
 
         {/* ANALYTICS LAB - Consolidated analytics */}
         {mainMode === 'analytics' && (
-          <div className="space-y-6">
-        {/* Analytics Tab Selector */}
+          <div className="space-y-4">
+        {/* Analytics Tab Selector - Clean & Minimal */}
         <Tabs value={analyticsTab} onValueChange={(v) => {
           const newTab = v as typeof analyticsTab;
           setAnalyticsTab(newTab);
           trackTabSelection('tiktok-pro', newTab);
         }}>
-          <TabsList className="grid w-full grid-cols-5 bg-[#1E1E1E] border border-gray-700 gap-1">
+          <TabsList className="grid w-full grid-cols-5 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
             <TabsTrigger 
               value="account"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
-              <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
-              <span className="truncate hidden sm:inline">{t('Account', 'Akun')}</span>
+              <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Account', 'Akun')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="video"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
-              <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
-              <span className="truncate hidden sm:inline">{t('Video', 'Video')}</span>
+              <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Video', 'Video')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="screenshot"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
-              <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
-              <span className="truncate hidden sm:inline">{t('SS', 'SS')}</span>
+              <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('SS', 'SS')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="compare"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
-              <BarChart2 className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
-              <span className="truncate hidden sm:inline">{t('Compare', 'Compare')}</span>
+              <BarChart2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Compare', 'Compare')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="thumbnail"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-white text-[10px] sm:text-sm px-1 sm:px-2"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
-              <Wand2 className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1 flex-shrink-0" />
-              <span className="truncate hidden sm:inline">{t('Thumb', 'Thumb')}</span>
+              <Wand2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Thumb', 'Thumb')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
