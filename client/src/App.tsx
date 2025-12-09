@@ -9,6 +9,7 @@ import { SessionProvider } from "@/lib/sessionContext";
 import { SettingsProvider } from "@/lib/settingsContext";
 import { BiasHeader } from "@/components/BiasHeader";
 import { FloatingChatGPT } from "@/components/FloatingChatGPT";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import Dashboard from "@/pages/Dashboard";
 import Library from "@/pages/Library";
 import SocialMediaPro from "@/pages/social-media-pro";
@@ -89,6 +90,7 @@ function AppContent() {
         <Router />
       </main>
       <FloatingChatGPT />
+      <OnboardingModal />
       <footer className="border-t border-zinc-800 py-4 text-center text-sm text-muted-foreground">
         <p className="mb-2">
           {brand.shortName} • Behavioral Intelligence Audit System •{' '}
