@@ -1,69 +1,15 @@
-import { useState } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mic, Briefcase, Zap, CheckCircle, ArrowRight, BookOpen, Send, MessageCircle, Loader2, Minimize2, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Briefcase, CheckCircle, ArrowRight, BookOpen } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link } from 'wouter';
-import biasLogo from '@assets/bias logo_1762016709581.jpg';
 
 export default function Dashboard() {
-  const { t, language } = useLanguage();
-  const { brand, getTagline, getSubtitle, getDescription } = useBrand();
-  
-  // Quick Chat state
-  const [chatInput, setChatInput] = useState('');
-  const [chatResponse, setChatResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showResponse, setShowResponse] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [chatMode, setChatMode] = useState<'tiktok' | 'marketing'>('tiktok');
-
-  const handleClearChat = () => {
-    setChatInput('');
-    setChatResponse('');
-    setShowResponse(false);
-    setIsMinimized(false);
-  };
-
-  const handleQuickChat = async () => {
-    if (!chatInput.trim() || isLoading) return;
-    
-    setIsLoading(true);
-    setShowResponse(true);
-    setChatResponse('');
-    
-    try {
-      const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
-      const res = await fetch('/api/chat/hybrid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: chatInput.trim(), 
-          sessionId,
-          mode: chatMode === 'marketing' ? 'marketing' : 'home'
-        }),
-      });
-      
-      const data = await res.json();
-      let response = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
-      
-      // Add source indicator
-      if (data.source === 'ai') {
-        response += '\n\n---\n*✨ Fresh from BIAS Brain*';
-      } else if (data.source === 'local' && !response.includes('⚠️')) {
-        response += '\n\n---\n*📚 Dari Learning Library*';
-      }
-      
-      setChatResponse(response);
-    } catch (err) {
-      setChatResponse('⚠️ Gagal connect. Coba refresh dan tanya lagi ya!');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { t } = useLanguage();
+  const { brand, getTagline, getSubtitle } = useBrand();
 
   const analysisTypes = [
     // FIRST: TikTok Pro
@@ -183,26 +129,30 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Library Link - Compact */}
-        <Card className="bg-[#141414] border-gray-800 mb-24">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="p-2 rounded-lg bg-gray-800 flex-shrink-0">
-                  <BookOpen className="w-4 h-4 text-gray-400" />
+        {/* Library Link - With Description */}
+        <Card className="bg-[#141414] border-gray-800 mb-8">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="p-2 rounded-lg bg-gray-800 flex-shrink-0 mt-0.5">
+                  <BookOpen className="w-5 h-5 text-gray-400" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-white">
-                    {t('Library', 'Library')}
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-white mb-1">
+                    {t('Knowledge Library', 'Knowledge Library')}
                   </h3>
-                  <p className="text-gray-400 text-[10px] sm:text-xs truncate">
-                    {t('Terms & free promotion', 'Istilah & promosi gratis')}
+                  <p className="text-gray-400 text-xs leading-relaxed">
+                    {t(
+                      'Access glossary of TikTok, Marketing & BIAS terms. Browse community tips, contribute your knowledge, and get free promotion for your content.',
+                      'Akses glosarium istilah TikTok, Marketing & BIAS. Jelajahi tips komunitas, kontribusi pengetahuanmu, dan dapatkan promosi gratis untuk kontenmu.'
+                    )}
                   </p>
                 </div>
               </div>
               <Link href="/library" className="flex-shrink-0">
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white" data-testid="button-go-library">
-                  <ArrowRight className="w-4 h-4" />
+                <Button size="sm" className="bg-gray-800 hover:bg-gray-700 text-gray-300" data-testid="button-go-library">
+                  {t('Browse', 'Jelajahi')}
+                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </Link>
             </div>
@@ -210,116 +160,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Sticky Bottom Chat Bar - Minimal */}
-      <div className="fixed bottom-4 left-0 right-0 z-50">
-        {/* Response Panel */}
-        {showResponse && (
-          <div className="max-w-2xl mx-auto px-4 mb-2">
-            <div className="bg-[#141414] border border-gray-800 rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
-                <span className="text-xs text-gray-400">Response</span>
-                <button
-                  onClick={handleClearChat}
-                  className="p-1 hover:bg-gray-800 rounded transition-colors"
-                >
-                  <Trash2 className="w-3 h-3 text-gray-400 hover:text-gray-300" />
-                </button>
-              </div>
-              <div className="p-3 max-h-32 overflow-y-auto">
-                {isLoading ? (
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    <span className="text-xs">{t('Thinking...', 'Mikir...')}</span>
-                  </div>
-                ) : (
-                  <div className="text-gray-300 text-xs leading-relaxed">
-                    {chatResponse.split('\n').map((line, i) => {
-                      const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-                      const italicParsed = boldParsed.replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
-                      return (
-                        <p key={i} className="mb-1" dangerouslySetInnerHTML={{ __html: italicParsed }} />
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Input Bar - Clean */}
-        <div className="max-w-2xl mx-auto mx-4 sm:mx-auto px-3 py-2 bg-[#141414] border border-gray-800 rounded-lg">
-          {/* Mode Toggle - Compact */}
-          <div className="flex items-center gap-1.5 mb-2">
-            <button
-              onClick={() => setChatMode('tiktok')}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
-                chatMode === 'tiktok' ? 'bg-pink-500 text-white' : 'bg-gray-800 text-gray-400'
-              }`}
-            >
-              <SiTiktok className="w-2.5 h-2.5" />
-              TikTok
-            </button>
-            <button
-              onClick={() => setChatMode('marketing')}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
-                chatMode === 'marketing' ? 'bg-gray-600 text-white' : 'bg-gray-800 text-gray-400'
-              }`}
-            >
-              <Briefcase className="w-2.5 h-2.5" />
-              Marketing
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleQuickChat()}
-              placeholder={chatMode === 'tiktok' 
-                ? t('Ex: Script 60s about...', 'Cth: Script 60 detik tentang...')
-                : t('Ex: Pitch script for...', 'Cth: Script pitch untuk...')
-              }
-              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-xs placeholder:text-gray-400 focus:outline-none focus:border-gray-600"
-            />
-            <button
-              onClick={handleQuickChat}
-              disabled={isLoading || !chatInput.trim()}
-              className="p-2 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 rounded-lg transition-colors"
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 text-white animate-spin" />
-              ) : (
-                <Send className="w-4 h-4 text-white" />
-              )}
-            </button>
-          </div>
-          
-          {/* Quick chips - minimal */}
-          {!showResponse && (
-            <div className="flex gap-1.5 mt-2 overflow-x-auto scrollbar-hide">
-              {(chatMode === 'tiktok' ? [
-                { en: 'FYP?', id: 'FYP?' },
-                { en: 'Posting time?', id: 'Jam posting?' },
-                { en: 'Live tips?', id: 'Tips Live?' },
-              ] : [
-                { en: 'Close deals?', id: 'Closing?' },
-                { en: 'Pitch tips?', id: 'Tips pitch?' },
-                { en: 'Objections?', id: 'Keberatan?' },
-              ]).map((chip, i) => (
-                <button
-                  key={i}
-                  onClick={() => setChatInput(t(chip.en, chip.id))}
-                  className="px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-400 rounded whitespace-nowrap transition-colors flex-shrink-0"
-                >
-                  {t(chip.en, chip.id)}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
