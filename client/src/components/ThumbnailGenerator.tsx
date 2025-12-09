@@ -81,32 +81,21 @@ export function ThumbnailGenerator() {
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setGeneratedThumbnails(prev => [{
-          url: data.imageUrl,
-          prompt: fullPrompt,
-          style,
-        }, ...prev].slice(0, 6));
-
-        toast({
-          title: t('Thumbnail Generated!', 'Thumbnail Dibuat!'),
-          description: t('Your thumbnail is ready', 'Thumbnail kamu sudah siap'),
-        });
-      } else {
-        const placeholderUrl = `https://placehold.co/${aspectRatio === '16:9' ? '1280x720' : aspectRatio === '9:16' ? '720x1280' : '720x720'}/1a1a1a/ff0050?text=${encodeURIComponent(topic.substring(0, 20))}`;
-        
-        setGeneratedThumbnails(prev => [{
-          url: placeholderUrl,
-          prompt: fullPrompt,
-          style,
-        }, ...prev].slice(0, 6));
-
-        toast({
-          title: t('Preview Generated', 'Preview Dibuat'),
-          description: t('Placeholder thumbnail created. API integration pending.', 'Thumbnail placeholder dibuat. Integrasi API pending.'),
-        });
+      if (!response.ok) {
+        throw new Error(t('Failed to generate thumbnail', 'Gagal membuat thumbnail'));
       }
+
+      const data = await response.json();
+      setGeneratedThumbnails(prev => [{
+        url: data.imageUrl,
+        prompt: fullPrompt,
+        style,
+      }, ...prev].slice(0, 6));
+
+      toast({
+        title: t('Concept Preview Created!', 'Preview Konsep Dibuat!'),
+        description: t('Use this as reference for your thumbnail design', 'Gunakan ini sebagai referensi untuk desain thumbnail'),
+      });
 
       trackFeatureUsage('video-upload', 'tiktok', { action: 'thumbnail-generate', style });
 

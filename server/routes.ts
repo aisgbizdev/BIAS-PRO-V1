@@ -1481,15 +1481,20 @@ Status meanings:
   });
 
   // ==========================================
-  // THUMBNAIL GENERATOR (Placeholder)
+  // THUMBNAIL GENERATOR (Concept Preview)
+  // Returns a reference image for thumbnail design ideas
   // ==========================================
   
   app.post("/api/generate-thumbnail", async (req, res) => {
     try {
-      const { topic, style, aspectRatio, additionalDetails } = req.body;
+      const { topic, style, aspectRatio } = req.body;
       
       if (!topic) {
-        return res.status(400).json({ error: 'Topic is required' });
+        return res.status(400).json({ 
+          error: 'Topic is required',
+          message: 'Topik diperlukan untuk membuat preview',
+          messageId: 'Topik diperlukan untuk membuat preview',
+        });
       }
 
       const dimensions = {
@@ -1499,17 +1504,24 @@ Status meanings:
       };
 
       const dim = dimensions[aspectRatio as keyof typeof dimensions] || '1280x720';
-      const placeholderUrl = `https://placehold.co/${dim}/1a1a1a/ff0050?text=${encodeURIComponent(topic.substring(0, 30))}`;
+      
+      // Generate concept preview with topic and style
+      const displayText = `${topic.substring(0, 25)}`;
+      const previewUrl = `https://placehold.co/${dim}/1a1a1a/ff0050?text=${encodeURIComponent(displayText)}&font=roboto`;
 
       res.json({
         success: true,
-        imageUrl: placeholderUrl,
+        imageUrl: previewUrl,
         prompt: `${topic} - ${style}`,
-        note: 'Placeholder image. AI generation coming soon.',
+        type: 'concept-preview',
       });
     } catch (error: any) {
       console.error('[THUMBNAIL] Error:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ 
+        error: error.message,
+        message: 'Gagal membuat preview thumbnail',
+        messageId: 'Gagal membuat preview thumbnail',
+      });
     }
   });
 
