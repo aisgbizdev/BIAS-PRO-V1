@@ -181,7 +181,7 @@ export default function SocialMediaPro() {
               {t('TikTok Pro', 'TikTok Pro')}
             </h1>
           </div>
-          <p className="text-gray-500 text-xs sm:text-sm md:text-base max-w-2xl">
+          <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
             {t(
               'Behavioral analysis for TikTok creators with science-backed insights.',
               'Analisis behavioral untuk kreator TikTok dengan insight berbasis sains.'
@@ -200,7 +200,7 @@ export default function SocialMediaPro() {
                 setMainMode('mentor');
                 trackTabSelection('tiktok-pro', 'mentor');
               }}
-              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-pink-500 text-white' : 'text-gray-500 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <Bot className="w-4 h-4 mr-1.5" />
               {t('Ai Mentor', 'Ai Mentor')}
@@ -211,7 +211,7 @@ export default function SocialMediaPro() {
                 setMainMode('analytics');
                 trackTabSelection('tiktok-pro', 'analytics');
               }}
-              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <TrendingUp className="w-4 h-4 mr-1.5" />
               {t('Analytics', 'Analitik')}
@@ -224,17 +224,17 @@ export default function SocialMediaPro() {
           <div className="space-y-3">
             {/* Skill Level Toggle - Compact */}
             <div className="flex items-center justify-end gap-2">
-              <span className="text-xs text-gray-500">{t('Level', 'Level')}</span>
+              <span className="text-xs text-gray-400">{t('Level', 'Level')}</span>
               <div className="inline-flex bg-[#141414] rounded-md p-0.5 border border-gray-800">
                 <button
                   onClick={() => setSkillLevel('beginner')}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'beginner' ? 'bg-gray-700 text-white' : 'text-gray-500'}`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'beginner' ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
                 >
                   {t('Basic', 'Pemula')}
                 </button>
                 <button
                   onClick={() => setSkillLevel('expert')}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'expert' ? 'bg-gray-700 text-white' : 'text-gray-500'}`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'expert' ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
                 >
                   {t('Expert', 'Expert')}
                 </button>
@@ -288,35 +288,35 @@ export default function SocialMediaPro() {
           <TabsList className="grid w-full grid-cols-5 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
             <TabsTrigger 
               value="account"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Account', 'Akun')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="video"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Video', 'Video')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="screenshot"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('SS', 'SS')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="compare"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <BarChart2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Compare', 'Compare')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="thumbnail"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-500 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <Wand2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Thumb', 'Thumb')}</span>
@@ -343,7 +343,7 @@ export default function SocialMediaPro() {
                 <SiTiktok className="w-4 h-4 text-pink-500" />
                 <span className="text-pink-400 font-medium">TikTok</span>
               </div>
-              <span className="text-xs text-gray-500">{t('More platforms coming soon', 'Platform lain segera hadir')}</span>
+              <span className="text-xs text-gray-400">{t('More platforms coming soon', 'Platform lain segera hadir')}</span>
             </div>
 
             {/* Username Input */}

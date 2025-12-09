@@ -217,7 +217,7 @@ Atau refresh dan coba lagi! 🔄`;
                 Ai
               </span>
             </h2>
-            <p className="text-[10px] text-gray-600">
+            <p className="text-[10px] text-gray-400">
               {t('Your TikTok assistant', 'Asisten TikTok pribadimu')}
             </p>
           </div>
@@ -231,9 +231,9 @@ Atau refresh dan coba lagi! 🔄`;
             title={isMinimized ? t('Expand', 'Perbesar') : t('Minimize', 'Perkecil')}
           >
             {isMinimized ? (
-              <ChevronUp className="w-4 h-4 text-gray-500" />
+              <ChevronUp className="w-4 h-4 text-gray-400" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
+              <ChevronDown className="w-4 h-4 text-gray-400" />
             )}
           </button>
           <button
@@ -241,7 +241,7 @@ Atau refresh dan coba lagi! 🔄`;
             className="p-1.5 hover:bg-gray-800 rounded transition-colors"
             title={t('Clear chat', 'Hapus chat')}
           >
-            <Trash2 className="w-4 h-4 text-gray-500 hover:text-red-400" />
+            <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
           </button>
         </div>
       </div>
@@ -257,7 +257,7 @@ Atau refresh dan coba lagi! 🔄`;
             <h3 className="text-sm font-medium text-white mb-1">
               {t('What can I help with?', 'Mau dibantu apa?')}
             </h3>
-            <p className="text-xs text-gray-500 mb-4 max-w-xs">
+            <p className="text-xs text-gray-400 mb-4 max-w-xs">
               {t(
                 'Scripts, live guides, algorithm tips, growth strategies.',
                 'Script, panduan live, tips algoritma, strategi growth.'

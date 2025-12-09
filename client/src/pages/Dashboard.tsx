@@ -113,7 +113,7 @@ export default function Dashboard() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
               {brand.name}
             </h1>
-            <p className="text-[10px] sm:text-xs text-gray-600">
+            <p className="text-[10px] sm:text-xs text-gray-400">
               {getTagline()}
             </p>
             <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-lg">
@@ -129,7 +129,7 @@ export default function Dashboard() {
           <h2 className="text-lg sm:text-xl md:text-2xl font-medium mb-2 text-white">
             {t('Choose Analysis Type', 'Pilih Tipe Analisis')}
           </h2>
-          <p className="text-gray-500 text-xs sm:text-sm">
+          <p className="text-gray-400 text-xs sm:text-sm">
             {t('Select the mode that fits your needs', 'Pilih mode sesuai kebutuhan Anda')}
           </p>
         </div>
@@ -154,7 +154,7 @@ export default function Dashboard() {
                   <CardTitle className="text-base sm:text-lg text-white">
                     {type.title}
                   </CardTitle>
-                  <CardDescription className="text-gray-500 text-xs sm:text-sm">
+                  <CardDescription className="text-gray-400 text-xs sm:text-sm">
                     {type.description}
                   </CardDescription>
                 </CardHeader>
@@ -162,7 +162,7 @@ export default function Dashboard() {
                   <div className="space-y-1.5">
                     {type.features.map((feature, i) => (
                       <div key={i} className="flex items-start gap-2 text-xs text-gray-400">
-                        <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-500" />
+                        <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-400" />
                         <span>{t(feature.en, feature.id)}</span>
                       </div>
                     ))}
@@ -195,7 +195,7 @@ export default function Dashboard() {
                   <h3 className="text-sm font-medium text-white">
                     {t('Library', 'Library')}
                   </h3>
-                  <p className="text-gray-500 text-[10px] sm:text-xs truncate">
+                  <p className="text-gray-400 text-[10px] sm:text-xs truncate">
                     {t('Terms & free promotion', 'Istilah & promosi gratis')}
                   </p>
                 </div>
@@ -217,17 +217,17 @@ export default function Dashboard() {
           <div className="max-w-2xl mx-auto px-4 mb-2">
             <div className="bg-[#141414] border border-gray-800 rounded-lg overflow-hidden">
               <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
-                <span className="text-xs text-gray-500">Response</span>
+                <span className="text-xs text-gray-400">Response</span>
                 <button
                   onClick={handleClearChat}
                   className="p-1 hover:bg-gray-800 rounded transition-colors"
                 >
-                  <Trash2 className="w-3 h-3 text-gray-500 hover:text-gray-300" />
+                  <Trash2 className="w-3 h-3 text-gray-400 hover:text-gray-300" />
                 </button>
               </div>
               <div className="p-3 max-h-32 overflow-y-auto">
                 {isLoading ? (
-                  <div className="flex items-center gap-2 text-gray-500">
+                  <div className="flex items-center gap-2 text-gray-400">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     <span className="text-xs">{t('Thinking...', 'Mikir...')}</span>
                   </div>
@@ -254,7 +254,7 @@ export default function Dashboard() {
             <button
               onClick={() => setChatMode('tiktok')}
               className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
-                chatMode === 'tiktok' ? 'bg-pink-500 text-white' : 'bg-gray-800 text-gray-500'
+                chatMode === 'tiktok' ? 'bg-pink-500 text-white' : 'bg-gray-800 text-gray-400'
               }`}
             >
               <SiTiktok className="w-2.5 h-2.5" />
@@ -263,7 +263,7 @@ export default function Dashboard() {
             <button
               onClick={() => setChatMode('marketing')}
               className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
-                chatMode === 'marketing' ? 'bg-gray-600 text-white' : 'bg-gray-800 text-gray-500'
+                chatMode === 'marketing' ? 'bg-gray-600 text-white' : 'bg-gray-800 text-gray-400'
               }`}
             >
               <Briefcase className="w-2.5 h-2.5" />
@@ -281,7 +281,7 @@ export default function Dashboard() {
                 ? t('Ask about TikTok...', 'Tanya tentang TikTok...')
                 : t('Ask about sales...', 'Tanya tentang sales...')
               }
-              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-xs placeholder:text-gray-500 focus:outline-none focus:border-gray-600"
+              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-xs placeholder:text-gray-400 focus:outline-none focus:border-gray-600"
             />
             <button
               onClick={handleQuickChat}
