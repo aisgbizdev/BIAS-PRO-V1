@@ -14,15 +14,26 @@ export function OnboardingModal() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
-    if (!hasCompletedOnboarding) {
-      const timer = setTimeout(() => setOpen(true), 500);
-      return () => clearTimeout(timer);
+    if (typeof window === 'undefined') return;
+    try {
+      const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
+      if (!hasCompletedOnboarding) {
+        const timer = setTimeout(() => setOpen(true), 500);
+        return () => clearTimeout(timer);
+      }
+    } catch (e) {
+      console.warn('LocalStorage not available:', e);
     }
   }, []);
 
   const completeOnboarding = () => {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(ONBOARDING_KEY, 'true');
+      }
+    } catch (e) {
+      console.warn('LocalStorage not available:', e);
+    }
     setOpen(false);
   };
 

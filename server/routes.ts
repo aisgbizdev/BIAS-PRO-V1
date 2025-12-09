@@ -1159,7 +1159,7 @@ Status meanings:
   });
 
   // Admin - Get Pending Success Stories
-  app.get("/api/success-stories/pending", async (req, res) => {
+  app.get("/api/success-stories/pending", requireAdmin, async (req, res) => {
     try {
       const stories = await storage.getPendingSuccessStories();
       res.json(stories);
@@ -1169,7 +1169,7 @@ Status meanings:
   });
 
   // Admin - Approve Success Story
-  app.post("/api/success-stories/:id/approve", async (req, res) => {
+  app.post("/api/success-stories/:id/approve", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const { featured } = req.body;
@@ -1188,7 +1188,7 @@ Status meanings:
   });
 
   // Admin - Reject Success Story
-  app.post("/api/success-stories/:id/reject", async (req, res) => {
+  app.post("/api/success-stories/:id/reject", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const story = await storage.updateSuccessStory(id, { status: 'rejected' });
@@ -1202,7 +1202,7 @@ Status meanings:
   });
 
   // Admin - Update Success Story (toggle featured, edit, etc.)
-  app.put("/api/success-stories/:id", async (req, res) => {
+  app.put("/api/success-stories/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const story = await storage.updateSuccessStory(id, req.body);
@@ -1216,7 +1216,7 @@ Status meanings:
   });
 
   // Admin - Delete Success Story
-  app.delete("/api/success-stories/:id", async (req, res) => {
+  app.delete("/api/success-stories/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const deleted = await storage.deleteSuccessStory(id);
@@ -1230,7 +1230,7 @@ Status meanings:
   });
 
   // Admin - Get ALL Success Stories (for admin panel)
-  app.get("/api/success-stories/all", async (req, res) => {
+  app.get("/api/success-stories/all", requireAdmin, async (req, res) => {
     try {
       const [pending, approved] = await Promise.all([
         storage.getPendingSuccessStories(),
