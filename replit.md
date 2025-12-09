@@ -61,6 +61,8 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Admin-Configurable Settings System**: Added `app_settings` and `pricing_tiers` database tables for dynamic platform configuration. Admin can now manage usage limits, feature toggles, and pricing tiers from the Settings tab without code changes. Frontend uses SettingsProvider context to fetch and cache settings.
 - **Documentation**: Added README_DEVELOPER.md (technical docs) and PANDUAN_PENGGUNA.md (user guide in Indonesian)
 - **Help Page**: Added /help route with interactive guide, feature overview, 8-layer BIAS explanation, FAQ, and privacy info. Help menu accessible from main navigation.
+- **Mode-Aware InteractiveCreatorHub**: Component now accepts `mode` prop ('tiktok' | 'marketing') to display context-appropriate content. TikTok Pro shows TikTok-specific suggestions (FYP, live streaming, viral hooks), Marketing Pro shows sales-focused suggestions (pitch scripts, cold calls, objection handling).
+- **Auto-Seed Production Database**: Server startup automatically seeds default settings and pricing tiers if database is empty (`server/init-settings.ts`). Uses transaction for atomicity.
 
 ## External Dependencies
 
