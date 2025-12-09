@@ -3042,121 +3042,31 @@ function PlatformSettingsPanel() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Settings className="w-6 h-6 text-primary" />
+        <ShoppingCart className="w-6 h-6 text-primary" />
         <div>
-          <h2 className="text-xl font-bold">{t('Platform Settings', 'Pengaturan Platform')}</h2>
+          <h2 className="text-xl font-bold">{t('Pricing & Limits', 'Harga & Limit')}</h2>
           <p className="text-sm text-muted-foreground">
-            {t('Control all platform limits, features, and pricing without code changes', 'Kontrol semua limit, fitur, dan harga platform tanpa ubah kode')}
+            {t('Control pricing tiers, limits, and features per plan', 'Kontrol paket harga, limit, dan fitur per tier')}
           </p>
         </div>
       </div>
 
-      <div className="flex gap-2 border-b pb-2">
-        <Button
-          variant={activeTab === 'settings' ? 'default' : 'ghost'}
-          size="sm"
-          onClick={() => setActiveTab('settings')}
-        >
-          <Settings className="w-4 h-4 mr-2" />
-          {t('Settings', 'Pengaturan')}
-        </Button>
-        <Button
-          variant={activeTab === 'pricing' ? 'default' : 'ghost'}
-          size="sm"
-          onClick={() => setActiveTab('pricing')}
-        >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          {t('Pricing Tiers', 'Paket Harga')}
-        </Button>
-      </div>
+      <Card className="bg-gradient-to-r from-pink-500/10 to-cyan-500/10 border-pink-500/30 mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-white flex items-center gap-2">
+                🚀 {t('Beta Period Active', 'Periode Beta Aktif')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('All features unlocked for free users during beta. Adjust limits below.', 'Semua fitur terbuka untuk user gratis selama beta. Atur limit di bawah.')}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {activeTab === 'settings' && (
-        <div className="space-y-6">
-          {Object.entries(groupedSettings).map(([category, categorySettings]) => {
-            const isEditingThis = editingCategory === category;
-            return (
-            <Card key={category} className={isEditingThis ? 'ring-2 ring-yellow-500' : ''}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    {language === 'id' ? categoryLabels[category]?.id : categoryLabels[category]?.en || category}
-                    {isEditingThis && <Badge variant="outline" className="bg-yellow-500/20 text-yellow-500">{t('Editing', 'Mengedit')}</Badge>}
-                  </CardTitle>
-                  <div className="flex gap-2">
-                    {!isEditingThis ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startEditingCategory(category)}
-                      >
-                        {t('Edit', 'Edit')}
-                      </Button>
-                    ) : (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => cancelCategoryChanges(category)}
-                        >
-                          {t('Cancel', 'Batal')}
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => saveCategorySettings(category)}
-                          disabled={saving === category}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          {saving === category ? '...' : t('Save', 'Simpan')}
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {categorySettings.map((setting) => (
-                  <div key={setting.key} className="flex items-center justify-between gap-4 py-2 border-b last:border-0">
-                    <div className="flex-1">
-                      <Label className="font-medium">
-                        {language === 'id' ? setting.labelId : setting.labelEn}
-                      </Label>
-                      {(setting.descriptionEn || setting.descriptionId) && (
-                        <p className="text-xs text-muted-foreground">
-                          {language === 'id' ? setting.descriptionId : setting.descriptionEn}
-                        </p>
-                      )}
-                    </div>
-                    <div className="w-32">
-                      {setting.valueType === 'boolean' ? (
-                        <Button
-                          variant={setting.value === 'true' ? 'default' : 'outline'}
-                          size="sm"
-                          className="w-full"
-                          onClick={() => isEditingThis && updateSettingValue(setting.key, setting.value === 'true' ? 'false' : 'true')}
-                          disabled={!isEditingThis || !setting.isEditable}
-                        >
-                          {setting.value === 'true' ? t('ON', 'AKTIF') : t('OFF', 'MATI')}
-                        </Button>
-                      ) : (
-                        <Input
-                          type={setting.valueType === 'number' ? 'number' : 'text'}
-                          value={setting.value}
-                          onChange={(e) => updateSettingValue(setting.key, e.target.value)}
-                          disabled={!isEditingThis || !setting.isEditable}
-                          className="text-right"
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )})}
-        </div>
-      )}
-
-      {activeTab === 'pricing' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pricing.map((tier) => {
             const editing = isEditing(tier.slug);
             const editState = getEditState(tier.slug);
@@ -3286,7 +3196,6 @@ function PlatformSettingsPanel() {
             </Card>
           )})}
         </div>
-      )}
 
       <Alert>
         <AlertCircle className="w-4 h-4" />
