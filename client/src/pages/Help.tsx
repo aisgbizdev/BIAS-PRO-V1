@@ -26,17 +26,17 @@ export default function Help() {
   const features = [
     {
       icon: <MessageSquare className="w-5 h-5" />,
-      titleEn: "AI Chat Analysis",
-      titleId: "Analisis Chat AI",
-      descEn: "Chat with AI mentor to analyze your scripts and get personalized recommendations.",
-      descId: "Chat dengan mentor AI untuk menganalisis script dan dapatkan rekomendasi personal."
+      titleEn: "Ai Chat Analysis",
+      titleId: "Analisis Chat Ai",
+      descEn: "Chat with Ai mentor to analyze your scripts and get personalized recommendations.",
+      descId: "Chat dengan mentor Ai untuk menganalisis script dan dapatkan rekomendasi personal."
     },
     {
       icon: <Video className="w-5 h-5" />,
       titleEn: "Video Analysis",
       titleId: "Analisis Video",
-      descEn: "Upload video thumbnails or screenshots for AI-powered engagement analysis.",
-      descId: "Upload thumbnail video atau screenshot untuk analisis engagement berbasis AI."
+      descEn: "Upload video thumbnails or screenshots for Ai-powered engagement analysis.",
+      descId: "Upload thumbnail video atau screenshot untuk analisis engagement berbasis Ai."
     },
     {
       icon: <Zap className="w-5 h-5" />,
@@ -101,14 +101,14 @@ export default function Help() {
     {
       questionEn: "How many free analyses can I do?",
       questionId: "Berapa analisis gratis yang bisa dilakukan?",
-      answerEn: "Free users get 10 AI chats per day. Video analysis requires a premium subscription.",
-      answerId: "Pengguna gratis mendapat 10 chat AI per hari. Analisis video memerlukan langganan premium."
+      answerEn: "Free users get 10 Ai chats per day. Video analysis requires a premium subscription.",
+      answerId: "Pengguna gratis mendapat 10 chat Ai per hari. Analisis video memerlukan langganan premium."
     },
     {
       questionEn: "What makes BiAS different from other tools?",
       questionId: "Apa yang membedakan BiAS dari tool lain?",
-      answerEn: "BiAS uses a unique 8-layer behavioral analysis framework backed by research, not just generic AI responses.",
-      answerId: "BiAS menggunakan framework 8 layer analisis perilaku berbasis riset, bukan hanya respon AI generik."
+      answerEn: "BiAS uses a unique 8-layer behavioral analysis framework backed by research, not just generic Ai responses.",
+      answerId: "BiAS menggunakan framework 8 layer analisis perilaku berbasis riset, bukan hanya respon Ai generik."
     },
     {
       questionEn: "Can I export my analysis results?",
@@ -131,8 +131,8 @@ export default function Help() {
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             {t(
-              "Learn how to get the most out of AI-powered behavioral analysis.",
-              "Pelajari cara memaksimalkan analisis perilaku berbasis AI."
+              "Learn how to get the most out of Ai-powered behavioral analysis.",
+              "Pelajari cara memaksimalkan analisis perilaku berbasis Ai."
             )}
           </p>
         </div>
@@ -174,7 +174,7 @@ export default function Help() {
                 <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
                   <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold">3</div>
                   <div>
-                    <h3 className="font-semibold text-white">{t("Get AI Analysis", "Dapatkan Analisis AI")}</h3>
+                    <h3 className="font-semibold text-white">{t("Get Ai Analysis", "Dapatkan Analisis Ai")}</h3>
                     <p className="text-gray-400 text-sm">
                       {t(
                         "Receive detailed feedback across 8 behavioral layers with actionable recommendations.",
@@ -189,8 +189,8 @@ export default function Help() {
                     <h3 className="font-semibold text-white">{t("Chat & Improve", "Chat & Tingkatkan")}</h3>
                     <p className="text-gray-400 text-sm">
                       {t(
-                        "Ask follow-up questions to your AI mentor for deeper insights.",
-                        "Tanyakan lebih lanjut ke mentor AI untuk insight lebih dalam."
+                        "Ask follow-up questions to your Ai mentor for deeper insights.",
+                        "Tanyakan lebih lanjut ke mentor Ai untuk insight lebih dalam."
                       )}
                     </p>
                   </div>

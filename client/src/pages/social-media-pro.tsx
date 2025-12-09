@@ -316,7 +316,7 @@ export default function SocialMediaPro() {
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <Wand2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('AI', 'AI')}</span>
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai', 'Ai')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -334,15 +334,6 @@ export default function SocialMediaPro() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-            {/* Platform Badge - TikTok Only */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-4 py-2 bg-pink-500/20 border border-pink-500/50 rounded-full">
-                <SiTiktok className="w-4 h-4 text-pink-500" />
-                <span className="text-pink-400 font-medium">TikTok</span>
-              </div>
-              <span className="text-xs text-gray-400">{t('More platforms coming soon', 'Platform lain segera hadir')}</span>
-            </div>
-
             {/* Username Input */}
             <div className="space-y-3">
               <Label htmlFor="username" className="text-white">

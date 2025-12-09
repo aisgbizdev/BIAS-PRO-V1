@@ -36,8 +36,8 @@ export default function Premium() {
       period: "month",
       descriptionEn: "Perfect for trying out",
       descriptionId: "Cocok untuk mencoba",
-      featuresEn: ["10 AI chats/day", "No video analysis", "Basic knowledge base"],
-      featuresId: ["10 chat AI/hari", "Tanpa analisis video", "Knowledge base dasar"],
+      featuresEn: ["10 Ai chats/day", "No video analysis", "Basic knowledge base"],
+      featuresId: ["10 chat Ai/hari", "Tanpa analisis video", "Knowledge base dasar"],
       isPopular: false,
     },
     {
@@ -47,8 +47,8 @@ export default function Premium() {
       period: "month",
       descriptionEn: "For casual creators",
       descriptionId: "Untuk kreator kasual",
-      featuresEn: ["Unlimited AI chats", "10 video analysis/month", "Full knowledge base", "Save history"],
-      featuresId: ["Chat AI unlimited", "10 analisis video/bulan", "Knowledge base lengkap", "Simpan riwayat"],
+      featuresEn: ["Unlimited Ai chats", "10 video analysis/month", "Full knowledge base", "Save history"],
+      featuresId: ["Chat Ai unlimited", "10 analisis video/bulan", "Knowledge base lengkap", "Simpan riwayat"],
       isPopular: false,
     },
     {
@@ -58,8 +58,8 @@ export default function Premium() {
       period: "month",
       descriptionEn: "For serious creators",
       descriptionId: "Untuk kreator serius",
-      featuresEn: ["Unlimited AI chats", "30 video analysis/month", "Batch analysis", "A/B Hook testing", "Priority support"],
-      featuresId: ["Chat AI unlimited", "30 analisis video/bulan", "Batch analysis", "A/B Hook testing", "Dukungan prioritas"],
+      featuresEn: ["Unlimited Ai chats", "30 video analysis/month", "Batch analysis", "A/B Hook testing", "Priority support"],
+      featuresId: ["Chat Ai unlimited", "30 analisis video/bulan", "Batch analysis", "A/B Hook testing", "Dukungan prioritas"],
       isPopular: true,
     },
     {
@@ -90,8 +90,8 @@ export default function Premium() {
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             {t(
-              "Unlock the full power of AI-powered behavioral analysis. Premium plans coming soon!",
-              "Buka kekuatan penuh analisis perilaku berbasis AI. Paket premium segera hadir!"
+              "Unlock the full power of Ai-powered behavioral analysis. Premium plans coming soon!",
+              "Buka kekuatan penuh analisis perilaku berbasis Ai. Paket premium segera hadir!"
             )}
           </p>
         </div>

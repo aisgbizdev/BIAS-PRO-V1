@@ -176,7 +176,7 @@ export function ABHookTester() {
           </h2>
         </div>
         <p className="text-gray-400 text-sm">
-          {t('Compare hook variations - AI picks the winner', 'Bandingkan variasi hook - AI pilih yang terbaik')}
+          {t('Compare hook variations - Ai picks the winner', 'Bandingkan variasi hook - Ai pilih yang terbaik')}
         </p>
       </div>
 
@@ -351,7 +351,7 @@ export function ABHookTester() {
 
                     <div className="mt-4 p-3 bg-pink-500/10 rounded-lg border border-pink-500/20">
                       <p className="text-pink-400 text-sm font-medium mb-1">
-                        {t('AI Suggestion', 'Saran AI')}
+                        {t('Ai Suggestion', 'Saran Ai')}
                       </p>
                       <p className="text-gray-300 text-sm">{hookResult.suggestion}</p>
                     </div>

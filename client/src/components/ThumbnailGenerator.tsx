@@ -130,7 +130,7 @@ export function ThumbnailGenerator() {
             </div>
             <div>
               <CardTitle className="text-lg">
-                {t('AI Thumbnail Generator', 'Generator Thumbnail AI')}
+                {t('Ai Thumbnail Generator', 'Generator Thumbnail Ai')}
               </CardTitle>
               <CardDescription>
                 {t('Create eye-catching thumbnails for your videos', 'Buat thumbnail menarik untuk video kamu')}
