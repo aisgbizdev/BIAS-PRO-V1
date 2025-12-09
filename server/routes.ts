@@ -1838,6 +1838,98 @@ Be objective and provide actionable feedback.`;
     }
   });
 
+  // ==========================================
+  // PLATFORM SETTINGS API ROUTES
+  // ==========================================
+
+  // Public: Get all active settings (for frontend consumption)
+  app.get("/api/settings/public", async (req, res) => {
+    try {
+      const settings = await storage.getPublicSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('[SETTINGS] Error getting public settings:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Public: Get active pricing tiers
+  app.get("/api/pricing", async (req, res) => {
+    try {
+      const tiers = await storage.getActivePricingTiers();
+      res.json(tiers);
+    } catch (error: any) {
+      console.error('[PRICING] Error getting pricing:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Get all settings
+  app.get("/api/admin/settings", requireAdmin, async (req, res) => {
+    try {
+      const settings = await storage.getAllSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('[ADMIN_SETTINGS] Error getting settings:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Update a setting
+  app.put("/api/admin/settings/:key", requireAdmin, async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value } = req.body;
+      const adminUser = (req as any).adminUser;
+      
+      if (value === undefined) {
+        return res.status(400).json({ error: 'Value is required' });
+      }
+      
+      const setting = await storage.updateSetting(key, String(value), adminUser);
+      
+      if (!setting) {
+        return res.status(404).json({ error: 'Setting not found' });
+      }
+      
+      res.json(setting);
+    } catch (error: any) {
+      console.error('[ADMIN_SETTINGS] Error updating setting:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Get all pricing tiers
+  app.get("/api/admin/pricing", requireAdmin, async (req, res) => {
+    try {
+      const tiers = await storage.getAllPricingTiers();
+      res.json(tiers);
+    } catch (error: any) {
+      console.error('[ADMIN_PRICING] Error getting pricing:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Update a pricing tier
+  app.put("/api/admin/pricing/:slug", requireAdmin, async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const updates = req.body;
+      const adminUser = (req as any).adminUser;
+      
+      const tier = await storage.updatePricingTier(slug, updates, adminUser);
+      
+      if (!tier) {
+        return res.status(404).json({ error: 'Pricing tier not found' });
+      }
+      
+      res.json(tier);
+    } catch (error: any) {
+      console.error('[ADMIN_PRICING] Error updating pricing:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

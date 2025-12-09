@@ -13,6 +13,7 @@ import {
   type ExpertKnowledge, type Hook, type StorytellingFramework,
   type GrowthStageGuide, type ResponseTemplate, type LiveStreamingTemplate,
   type ScriptTemplate,
+  type AppSetting, type PricingTier,
   adminSessions,
   brands,
   expertKnowledge,
@@ -21,7 +22,9 @@ import {
   growthStageGuides,
   responseTemplates,
   liveStreamingTemplates,
-  scriptTemplates
+  scriptTemplates,
+  appSettings,
+  pricingTiers
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "../db";
@@ -100,6 +103,18 @@ export interface IStorage {
   getActiveBrands(): Promise<Brand[]>;
   updateBrand(id: string, updates: Partial<Brand>): Promise<Brand | undefined>;
   deleteBrand(id: string): Promise<boolean>;
+
+  // Platform settings management
+  getPublicSettings(): Promise<Record<string, any>>;
+  getAllSettings(): Promise<AppSetting[]>;
+  getSetting(key: string): Promise<AppSetting | undefined>;
+  updateSetting(key: string, value: string, updatedBy?: string): Promise<AppSetting | undefined>;
+
+  // Pricing tier management
+  getActivePricingTiers(): Promise<PricingTier[]>;
+  getAllPricingTiers(): Promise<PricingTier[]>;
+  getPricingTier(slug: string): Promise<PricingTier | undefined>;
+  updatePricingTier(slug: string, updates: Partial<PricingTier>, updatedBy?: string): Promise<PricingTier | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -717,6 +732,34 @@ export class MemStorage implements IStorage {
   async getScriptTemplates(_filters?: any): Promise<ScriptTemplate[]> {
     return [];
   }
+
+  // Platform settings stub methods (MemStorage - returns empty)
+  async getPublicSettings(): Promise<Record<string, any>> {
+    return {};
+  }
+  async getAllSettings(): Promise<AppSetting[]> {
+    return [];
+  }
+  async getSetting(_key: string): Promise<AppSetting | undefined> {
+    return undefined;
+  }
+  async updateSetting(_key: string, _value: string, _updatedBy?: string): Promise<AppSetting | undefined> {
+    return undefined;
+  }
+
+  // Pricing tier stub methods (MemStorage - returns empty)
+  async getActivePricingTiers(): Promise<PricingTier[]> {
+    return [];
+  }
+  async getAllPricingTiers(): Promise<PricingTier[]> {
+    return [];
+  }
+  async getPricingTier(_slug: string): Promise<PricingTier | undefined> {
+    return undefined;
+  }
+  async updatePricingTier(_slug: string, _updates: Partial<PricingTier>, _updatedBy?: string): Promise<PricingTier | undefined> {
+    return undefined;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1129,6 +1172,121 @@ export class DatabaseStorage implements IStorage {
     }
     
     return db.select().from(scriptTemplates).where(and(...conditions));
+  }
+
+  // Platform settings management
+  async getPublicSettings(): Promise<Record<string, any>> {
+    try {
+      const settings = await db.select().from(appSettings);
+      const result: Record<string, any> = {};
+      
+      for (const setting of settings) {
+        let value: any = setting.value;
+        
+        if (setting.valueType === 'number') {
+          value = parseFloat(setting.value);
+        } else if (setting.valueType === 'boolean') {
+          value = setting.value === 'true';
+        } else if (setting.valueType === 'json') {
+          try {
+            value = JSON.parse(setting.value);
+          } catch {
+            value = setting.value;
+          }
+        }
+        
+        result[setting.key] = value;
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('[SETTINGS] Error getting public settings:', error);
+      return {};
+    }
+  }
+
+  async getAllSettings(): Promise<AppSetting[]> {
+    try {
+      return db.select().from(appSettings);
+    } catch (error) {
+      console.error('[SETTINGS] Error getting all settings:', error);
+      return [];
+    }
+  }
+
+  async getSetting(key: string): Promise<AppSetting | undefined> {
+    try {
+      const [setting] = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
+      return setting;
+    } catch (error) {
+      console.error('[SETTINGS] Error getting setting:', error);
+      return undefined;
+    }
+  }
+
+  async updateSetting(key: string, value: string, updatedBy?: string): Promise<AppSetting | undefined> {
+    try {
+      const [updated] = await db.update(appSettings)
+        .set({ 
+          value, 
+          updatedBy: updatedBy || null,
+          updatedAt: new Date()
+        })
+        .where(eq(appSettings.key, key))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('[SETTINGS] Error updating setting:', error);
+      return undefined;
+    }
+  }
+
+  // Pricing tier management
+  async getActivePricingTiers(): Promise<PricingTier[]> {
+    try {
+      return db.select().from(pricingTiers)
+        .where(eq(pricingTiers.isActive, true))
+        .orderBy(pricingTiers.sortOrder);
+    } catch (error) {
+      console.error('[PRICING] Error getting active pricing tiers:', error);
+      return [];
+    }
+  }
+
+  async getAllPricingTiers(): Promise<PricingTier[]> {
+    try {
+      return db.select().from(pricingTiers).orderBy(pricingTiers.sortOrder);
+    } catch (error) {
+      console.error('[PRICING] Error getting all pricing tiers:', error);
+      return [];
+    }
+  }
+
+  async getPricingTier(slug: string): Promise<PricingTier | undefined> {
+    try {
+      const [tier] = await db.select().from(pricingTiers).where(eq(pricingTiers.slug, slug)).limit(1);
+      return tier;
+    } catch (error) {
+      console.error('[PRICING] Error getting pricing tier:', error);
+      return undefined;
+    }
+  }
+
+  async updatePricingTier(slug: string, updates: Partial<PricingTier>, updatedBy?: string): Promise<PricingTier | undefined> {
+    try {
+      const [updated] = await db.update(pricingTiers)
+        .set({ 
+          ...updates,
+          updatedBy: updatedBy || null,
+          updatedAt: new Date()
+        })
+        .where(eq(pricingTiers.slug, slug))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('[PRICING] Error updating pricing tier:', error);
+      return undefined;
+    }
   }
 }
 
