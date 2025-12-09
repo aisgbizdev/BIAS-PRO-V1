@@ -83,40 +83,49 @@ export function CompetitorAnalysis() {
 
           if (response.ok) {
             const data = await response.json();
-            accountsData.push({
-              username: username.trim(),
-              followers: data.stats?.followers || 0,
-              following: data.stats?.following || 0,
-              likes: data.stats?.likes || 0,
-              videos: data.stats?.videos || 0,
-              engagementRate: data.stats?.engagementRate || 0,
-              avgViews: data.stats?.avgViews || 0,
-              nickname: data.accountInfo?.nickname,
-              photoUrl: data.accountInfo?.photoUrl,
-              verified: data.accountInfo?.verified,
-            });
+            if (data.stats?.followers > 0) {
+              accountsData.push({
+                username: username.trim(),
+                followers: data.stats?.followers || 0,
+                following: data.stats?.following || 0,
+                likes: data.stats?.likes || 0,
+                videos: data.stats?.videos || 0,
+                engagementRate: data.stats?.engagementRate || 0,
+                avgViews: data.stats?.avgViews || 0,
+                nickname: data.accountInfo?.nickname,
+                photoUrl: data.accountInfo?.photoUrl,
+                verified: data.accountInfo?.verified,
+              });
+            } else {
+              toast({
+                title: t('Account not found', 'Akun tidak ditemukan'),
+                description: t(`@${username.trim()} - Could not retrieve data`, `@${username.trim()} - Tidak bisa mengambil data`),
+                variant: 'destructive',
+              });
+            }
           } else {
-            accountsData.push({
-              username: username.trim(),
-              followers: Math.floor(Math.random() * 100000) + 1000,
-              following: Math.floor(Math.random() * 500) + 50,
-              likes: Math.floor(Math.random() * 500000) + 5000,
-              videos: Math.floor(Math.random() * 200) + 10,
-              engagementRate: Math.random() * 5 + 0.5,
-              avgViews: Math.floor(Math.random() * 50000) + 1000,
+            toast({
+              title: t('Failed to analyze', 'Gagal menganalisis'),
+              description: t(`@${username.trim()} - Account may be private or not found`, `@${username.trim()} - Akun mungkin private atau tidak ditemukan`),
+              variant: 'destructive',
             });
           }
         } catch (error) {
-          accountsData.push({
-            username: username.trim(),
-            followers: Math.floor(Math.random() * 100000) + 1000,
-            following: Math.floor(Math.random() * 500) + 50,
-            likes: Math.floor(Math.random() * 500000) + 5000,
-            videos: Math.floor(Math.random() * 200) + 10,
-            engagementRate: Math.random() * 5 + 0.5,
-            avgViews: Math.floor(Math.random() * 50000) + 1000,
+          toast({
+            title: t('Error', 'Error'),
+            description: t(`@${username.trim()} - Network error`, `@${username.trim()} - Error jaringan`),
+            variant: 'destructive',
           });
         }
+      }
+
+      if (accountsData.length < 2) {
+        toast({
+          title: t('Not enough data', 'Data tidak cukup'),
+          description: t('Need at least 2 valid accounts to compare. Please try different usernames.', 'Butuh minimal 2 akun valid untuk dibandingkan. Silakan coba username lain.'),
+          variant: 'destructive',
+        });
+        return;
       }
 
       const winner = accountsData.reduce((prev, curr) => 

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useLanguage } from '@/lib/languageContext';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -47,6 +48,7 @@ const analysisCategories = [
 
 export function VideoAnalyzerPanel() {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -76,37 +78,51 @@ export function VideoAnalyzerPanel() {
   };
 
   const analyzeContent = async () => {
+    if (!uploadedFile) return;
+    
     setIsAnalyzing(true);
     
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const mockResult: AnalysisResult = {
-      overallScore: Math.floor(Math.random() * 30) + 65,
-      hookStrength: Math.floor(Math.random() * 40) + 55,
-      visualQuality: Math.floor(Math.random() * 35) + 60,
-      audioClarity: Math.floor(Math.random() * 30) + 65,
-      engagement: Math.floor(Math.random() * 35) + 60,
-      retention: Math.floor(Math.random() * 40) + 55,
-      strengths: [
-        t('Good visual composition and framing', 'Komposisi dan framing visual yang baik'),
-        t('Clear text overlay placement', 'Penempatan overlay teks yang jelas'),
-        t('Attention-grabbing first frame', 'Frame pertama yang menarik perhatian'),
-      ],
-      improvements: [
-        t('Hook could be stronger - add curiosity gap', 'Hook bisa lebih kuat - tambahkan curiosity gap'),
-        t('Consider adding trending audio', 'Pertimbangkan menambahkan audio trending'),
-        t('Text size could be larger for mobile', 'Ukuran teks bisa lebih besar untuk mobile'),
-      ],
-      recommendations: [
-        t('Use pattern interrupt in first 0.5 seconds', 'Gunakan pattern interrupt di 0.5 detik pertama'),
-        t('Add CTA at the end for engagement', 'Tambahkan CTA di akhir untuk engagement'),
-        t('Test different hooks with A/B testing', 'Uji hook berbeda dengan A/B testing'),
-        t('Optimize thumbnail for maximum CTR', 'Optimasi thumbnail untuk CTR maksimal'),
-      ],
-    };
-    
-    setAnalysisResult(mockResult);
-    setIsAnalyzing(false);
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadedFile);
+      formData.append('description', description || 'TikTok video content');
+      formData.append('mode', 'tiktok');
+      
+      const response = await fetch('/api/analyze-video', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error(t('Analysis failed', 'Analisis gagal'));
+      }
+      
+      const data = await response.json();
+      
+      if (data.result && data.result.overallScore !== undefined) {
+        setAnalysisResult({
+          overallScore: data.result.overallScore,
+          hookStrength: data.result.hookStrength || 0,
+          visualQuality: data.result.visualQuality || 0,
+          audioClarity: data.result.audioClarity || 0,
+          engagement: data.result.engagement || 0,
+          retention: data.result.retention || 0,
+          strengths: data.result.strengths || [],
+          improvements: data.result.improvements || [],
+          recommendations: data.result.recommendations || [],
+        });
+      } else {
+        throw new Error(t('Analysis incomplete - please try again', 'Analisis tidak lengkap - silakan coba lagi'));
+      }
+    } catch (error: any) {
+      toast({
+        title: t('Analysis Failed', 'Analisis Gagal'),
+        description: error.message || t('Could not analyze content', 'Tidak bisa menganalisis konten'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const getScoreColor = (score: number) => {

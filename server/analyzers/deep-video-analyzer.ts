@@ -254,7 +254,7 @@ function getPlatformContext(platform?: string): string {
 }
 
 function generateBasicAnalysis(input: DeepAnalysisInput): DeepLayerAnalysis[] {
-  // Fallback basic analysis if Ai fails
+  // Fallback basic analysis if Ai fails - show clear message that deep analysis requires video file
   const layers = [
     'VBM (Visual Behavior Mapping)',
     'EPM (Emotional Processing Metric)',
@@ -268,26 +268,25 @@ function generateBasicAnalysis(input: DeepAnalysisInput): DeepLayerAnalysis[] {
 
   return layers.map((layer, idx) => ({
     layer,
-    score: 65 + Math.floor(Math.random() * 25),  // 65-90 range
+    score: 0,  // No score available without actual analysis
     specificObservations: [
-      `Analisis berdasarkan content description yang diberikan`,
-      `Detail observasi memerlukan actual video/audio file untuk analisis maksimal`,
-      `Gunakan mode upload video untuk mendapatkan feedback yang lebih spesifik`
+      `⚠️ Deep analysis memerlukan upload video/audio file`,
+      `Analisis berbasis teks tidak dapat memberikan skor akurat`,
+      `Upload file untuk mendapatkan observasi spesifik`
     ],
     strengths: [
-      `Konten memiliki potensi yang baik untuk platform ${input.platform || 'digital'}`,
+      `Konten memiliki potensi untuk platform ${input.platform || 'digital'}`,
       `Approach komunikasi sesuai dengan mode ${input.mode}`
     ],
     weaknesses: [
-      `Analisis terbatas tanpa access ke actual video/audio content`,
-      `Untuk feedback yang lebih aplikatif, upload actual file untuk Ai deep analysis`
+      `Tidak dapat menganalisis tanpa actual video/audio content`,
+      `Upload file untuk mendapatkan feedback yang aplikatif`
     ],
     actionableRecommendations: [
-      `Week 1: Upload actual video file untuk mendapatkan analisis timestamp-specific`,
-      `Week 2-3: Implement recommendations dari deep Ai analysis`,
-      `Month 1: Track improvement metrics dan iterate based on performance data`
+      `Upload actual video/audio file untuk analisis detail`,
+      `Gunakan mode upload untuk mendapatkan skor dan feedback konkret`
     ],
-    feedback: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. Ai deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`,
-    feedbackId: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. Ai deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`
+    feedback: `⚠️ SKOR TIDAK TERSEDIA - Analisis ini berbasis description text saja. Untuk mendapatkan skor dan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file.`,
+    feedbackId: `⚠️ SKOR TIDAK TERSEDIA - Analisis ini berbasis description text saja. Untuk mendapatkan skor dan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file.`
   }));
 }

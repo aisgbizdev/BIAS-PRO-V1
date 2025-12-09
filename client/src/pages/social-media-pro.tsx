@@ -63,25 +63,6 @@ export default function SocialMediaPro() {
     saveAnalysisToHistory(result, 'tiktok', 'video', 'TikTok Video Analysis');
   }, []);
 
-  const mockData = {
-    followers: 60900,
-    following: 304,
-    likes: 81900,
-    videos: 159,
-    engagementRate: 0.8,
-    avgViews: 3200,
-    layers: [
-      { layer: 'VBM Visual Branding', score: 7, feedback: 'Visual quality strong', feedbackId: 'Kualitas visual kuat' },
-      { layer: 'EPM Emotional Processing', score: 5, feedback: 'Emotional engagement low', feedbackId: 'Engagement emosional rendah' },
-      { layer: 'NLP Narrative & Language', score: 6, feedback: 'Narrative decent', feedbackId: 'Narasi cukup baik' },
-      { layer: 'ETH Ethical Communication', score: 9, feedback: 'Ethics excellent', feedbackId: 'Etika sangat baik' },
-      { layer: 'ECO Ecosystem Awareness', score: 7, feedback: 'Good platform understanding', feedbackId: 'Pemahaman platform baik' },
-      { layer: 'SOC Social Intelligence', score: 4, feedback: 'Interaction needs work', feedbackId: 'Interaksi perlu ditingkatkan' },
-      { layer: 'COG Cognitive Load', score: 6, feedback: 'Pacing adequate', feedbackId: 'Kecepatan memadai' },
-      { layer: 'BMIL Micro-Indicators', score: 8, feedback: 'Behavioral signals strong', feedbackId: 'Sinyal behavioral kuat' },
-    ],
-  };
-
   const platformConfig = {
     tiktok: {
       icon: SiTiktok,

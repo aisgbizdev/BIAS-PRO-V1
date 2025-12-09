@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useLanguage } from '@/lib/languageContext';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -125,6 +126,7 @@ const screenshotGuides: ScreenshotGuide[] = [
 
 export function ScreenshotAnalyticsPanel() {
   const { language, t } = useLanguage();
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedGuide, setSelectedGuide] = useState<string>('profile');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -160,101 +162,37 @@ export function ScreenshotAnalyticsPanel() {
     
     setIsAnalyzing(true);
     
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const mockResults: Record<string, AnalysisResult> = {
-      profile: {
-        metrics: [
-          { name: language === 'id' ? 'Followers' : 'Followers', value: 'Detected', status: 'good', insight: language === 'id' ? 'Pertumbuhan stabil' : 'Stable growth' },
-          { name: language === 'id' ? 'Engagement Rate' : 'Engagement Rate', value: '~4.2%', status: 'average', insight: language === 'id' ? 'Di atas rata-rata, bisa ditingkatkan' : 'Above average, can improve' },
-          { name: language === 'id' ? 'Profile Views' : 'Profile Views', value: 'Growing', status: 'good', insight: language === 'id' ? 'Konten menarik traffic' : 'Content attracting traffic' },
-          { name: language === 'id' ? 'Video Views Trend' : 'Video Views Trend', value: 'Upward', status: 'good', insight: language === 'id' ? 'Momentum positif' : 'Positive momentum' },
-        ],
-        overallScore: 72,
-        recommendations: language === 'id' ? [
-          'Tingkatkan frekuensi posting ke 1-2x per hari',
-          'Fokus pada video yang sudah perform bagus',
-          'Buat series content untuk boost retention',
-          'Gunakan trending sounds lebih sering',
-          'Respond semua komentar dalam 1 jam pertama',
-        ] : [
-          'Increase posting frequency to 1-2x daily',
-          'Focus on video types that already perform well',
-          'Create content series to boost retention',
-          'Use trending sounds more frequently',
-          'Respond to all comments within the first hour',
-        ],
-      },
-      content: {
-        metrics: [
-          { name: language === 'id' ? 'Avg Watch Time' : 'Avg Watch Time', value: '~65%', status: 'average', insight: language === 'id' ? 'Perlu hook lebih kuat' : 'Need stronger hook' },
-          { name: language === 'id' ? 'Top Video' : 'Top Video', value: 'Identified', status: 'good', insight: language === 'id' ? 'Pelajari pola suksesnya' : 'Study its success pattern' },
-          { name: language === 'id' ? 'Content Consistency' : 'Content Consistency', value: 'Moderate', status: 'needs_work', insight: language === 'id' ? 'Posting lebih teratur' : 'Post more regularly' },
-          { name: language === 'id' ? 'Engagement Pattern' : 'Engagement Pattern', value: 'Varies', status: 'average', insight: language === 'id' ? 'Beberapa video outperform' : 'Some videos outperform' },
-        ],
-        overallScore: 65,
-        recommendations: language === 'id' ? [
-          'Buat lebih banyak video seperti top performer-mu',
-          'Hook dalam 1 detik pertama sangat penting',
-          'Eksperimen dengan durasi video berbeda',
-          'Posting di jam audience paling aktif',
-          'Gunakan teks overlay untuk accessibility',
-        ] : [
-          'Create more videos like your top performer',
-          'Hook within first 1 second is crucial',
-          'Experiment with different video durations',
-          'Post during peak audience activity times',
-          'Use text overlay for accessibility',
-        ],
-      },
-      followers: {
-        metrics: [
-          { name: language === 'id' ? 'Demografi Gender' : 'Gender Demographics', value: 'Analyzed', status: 'good', insight: language === 'id' ? 'Pahami audience-mu' : 'Understand your audience' },
-          { name: language === 'id' ? 'Lokasi Teratas' : 'Top Locations', value: 'Indonesia', status: 'good', insight: language === 'id' ? 'Cocok untuk konten lokal' : 'Great for local content' },
-          { name: language === 'id' ? 'Waktu Aktif' : 'Active Hours', value: 'Identified', status: 'good', insight: language === 'id' ? 'Posting di jam ini' : 'Post during these hours' },
-          { name: language === 'id' ? 'Pertumbuhan' : 'Growth Rate', value: 'Steady', status: 'average', insight: language === 'id' ? 'Bisa dipercepat' : 'Can be accelerated' },
-        ],
-        overallScore: 70,
-        recommendations: language === 'id' ? [
-          'Sesuaikan konten dengan demografi audience',
-          'Posting saat followers paling aktif',
-          'Buat konten dalam bahasa audience mayoritas',
-          'Engage dengan kreator yang punya audience serupa',
-          'Gunakan hashtag lokal yang relevan',
-        ] : [
-          'Tailor content to your audience demographics',
-          'Post when your followers are most active',
-          'Create content in your majority audience language',
-          'Engage with creators who have similar audiences',
-          'Use relevant local hashtags',
-        ],
-      },
-      live: {
-        metrics: [
-          { name: language === 'id' ? 'Peak Viewers' : 'Peak Viewers', value: 'Tracked', status: 'average', insight: language === 'id' ? 'Bisa ditingkatkan' : 'Can be improved' },
-          { name: language === 'id' ? 'Durasi' : 'Duration', value: 'Analyzed', status: 'good', insight: language === 'id' ? 'Durasi optimal' : 'Optimal duration' },
-          { name: language === 'id' ? 'Gifts Received' : 'Gifts Received', value: 'Recorded', status: 'average', insight: language === 'id' ? 'Strategi gift bisa lebih baik' : 'Gift strategy can improve' },
-          { name: language === 'id' ? 'Engagement' : 'Engagement', value: 'Active', status: 'good', insight: language === 'id' ? 'Interaksi bagus' : 'Good interaction' },
-        ],
-        overallScore: 68,
-        recommendations: language === 'id' ? [
-          'Umumkan jadwal live sebelumnya',
-          'Buat hook menarik di awal live',
-          'Set gift goals untuk encourage participation',
-          'Live di waktu followers paling aktif',
-          'Siapkan konten backup kalau kehabisan topik',
-        ] : [
-          'Announce live schedule in advance',
-          'Create engaging hook at the start of live',
-          'Set gift goals to encourage participation',
-          'Go live when followers are most active',
-          'Prepare backup content if you run out of topics',
-        ],
-      },
-    };
-    
-    setAnalysisResult(mockResults[selectedGuide] || mockResults.profile);
-    setIsAnalyzing(false);
+    try {
+      const response = await fetch('/api/analyze-screenshot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          image: uploadedImage,
+          guideType: selectedGuide,
+          language 
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(language === 'id' ? 'Gagal menganalisis screenshot' : 'Failed to analyze screenshot');
+      }
+      
+      const data = await response.json();
+      
+      if (data.result) {
+        setAnalysisResult(data.result);
+      } else {
+        throw new Error(language === 'id' ? 'Tidak ada hasil analisis' : 'No analysis result');
+      }
+    } catch (error: any) {
+      toast({
+        title: language === 'id' ? 'Analisis Gagal' : 'Analysis Failed',
+        description: error.message || (language === 'id' ? 'Tidak bisa menganalisis screenshot' : 'Could not analyze screenshot'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const clearUpload = () => {
