@@ -3098,6 +3098,63 @@ function PlatformSettingsPanel() {
         </CardContent>
       </Card>
 
+      <Card className="border-orange-500/30 mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h3 className="font-bold text-white flex items-center gap-2">
+                🛡️ {t('Platform Protection', 'Proteksi Platform')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('Global limits for API cost control. Shows maintenance when exceeded.', 'Limit global untuk kontrol biaya API. Tampilkan maintenance jika tercapai.')}
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('Token/Day (All Users)', 'Token/Hari (Semua User)')}</Label>
+                <Input
+                  type="number"
+                  value={settings.find(s => s.key === 'global_token_per_day')?.value || '100000'}
+                  onChange={async (e) => {
+                    const newValue = e.target.value;
+                    try {
+                      await fetch('/api/admin/settings/global_token_per_day', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ value: newValue }),
+                      });
+                      setSettings(prev => prev.map(s => s.key === 'global_token_per_day' ? { ...s, value: newValue } : s));
+                    } catch (e) {}
+                  }}
+                  className="w-28 bg-black/50 text-right"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('Token/Request', 'Token/Request')}</Label>
+                <Input
+                  type="number"
+                  value={settings.find(s => s.key === 'global_token_per_request')?.value || '2000'}
+                  onChange={async (e) => {
+                    const newValue = e.target.value;
+                    try {
+                      await fetch('/api/admin/settings/global_token_per_request', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ value: newValue }),
+                      });
+                      setSettings(prev => prev.map(s => s.key === 'global_token_per_request' ? { ...s, value: newValue } : s));
+                    } catch (e) {}
+                  }}
+                  className="w-24 bg-black/50 text-right"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pricing.map((tier) => {
             const editing = isEditing(tier.slug);
