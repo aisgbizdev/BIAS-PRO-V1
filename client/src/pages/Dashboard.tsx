@@ -51,9 +51,9 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="flex-1 bg-[#0A0A0A] text-white flex flex-col">
       {/* Combined Hero + Section Header */}
-      <div className="max-w-7xl mx-auto px-4 pt-6 pb-4">
+      <div className="max-w-7xl mx-auto px-4 pt-6 pb-4 flex-1">
         <div className="text-center mb-6">
           <p className="text-xs text-pink-400 mb-1">{brand.name}</p>
           <h1 className="text-lg sm:text-xl font-medium text-white mb-1">
@@ -116,7 +116,7 @@ export default function Dashboard() {
         </div>
 
         {/* Library Link - With Description */}
-        <Card className="bg-[#141414] border-gray-800 mb-8">
+        <Card className="bg-[#141414] border-gray-800">
           <CardContent className="p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3 flex-1">
