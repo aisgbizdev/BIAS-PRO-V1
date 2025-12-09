@@ -6,6 +6,7 @@ import {
   type TiktokVideo, type InsertTiktokVideo,
   type TiktokComparison, type InsertTiktokComparison,
   type LibraryContribution, type InsertLibraryContribution,
+  type SuccessStory, type InsertSuccessStory,
   type PageView, type InsertPageView,
   type FeatureUsage, type InsertFeatureUsage,
   type AdminSession, type InsertAdminSession,
@@ -16,6 +17,7 @@ import {
   type AppSetting, type PricingTier,
   adminSessions,
   brands,
+  successStories,
   expertKnowledge,
   hooks,
   storytellingFrameworks,
@@ -76,6 +78,15 @@ export interface IStorage {
   removeDeletedLibraryItem(itemId: string): Promise<void>;
   getDeletedLibraryItems(): Promise<string[]>;
   isLibraryItemDeleted(itemId: string): Promise<boolean>;
+
+  // Success stories management
+  createSuccessStory(story: InsertSuccessStory): Promise<SuccessStory>;
+  getSuccessStory(id: string): Promise<SuccessStory | undefined>;
+  getPendingSuccessStories(): Promise<SuccessStory[]>;
+  getApprovedSuccessStories(): Promise<SuccessStory[]>;
+  getFeaturedSuccessStories(): Promise<SuccessStory[]>;
+  updateSuccessStory(id: string, updates: Partial<SuccessStory>): Promise<SuccessStory | undefined>;
+  deleteSuccessStory(id: string): Promise<boolean>;
 
   // Analytics tracking
   trackPageView(pageView: InsertPageView): Promise<PageView>;
@@ -411,6 +422,45 @@ export class MemStorage implements IStorage {
 
   async isLibraryItemDeleted(itemId: string): Promise<boolean> {
     return this.deletedLibraryItems.has(itemId);
+  }
+
+  // Success Stories (using database)
+  async createSuccessStory(story: InsertSuccessStory): Promise<SuccessStory> {
+    const [created] = await db.insert(successStories).values({
+      ...story,
+      status: 'pending',
+      featured: false,
+    }).returning();
+    return created;
+  }
+
+  async getSuccessStory(id: string): Promise<SuccessStory | undefined> {
+    const [s] = await db.select().from(successStories).where(eq(successStories.id, id));
+    return s;
+  }
+
+  async getPendingSuccessStories(): Promise<SuccessStory[]> {
+    return db.select().from(successStories).where(eq(successStories.status, 'pending'));
+  }
+
+  async getApprovedSuccessStories(): Promise<SuccessStory[]> {
+    return db.select().from(successStories).where(eq(successStories.status, 'approved'));
+  }
+
+  async getFeaturedSuccessStories(): Promise<SuccessStory[]> {
+    return db.select().from(successStories).where(
+      and(eq(successStories.status, 'approved'), eq(successStories.featured, true))
+    );
+  }
+
+  async updateSuccessStory(id: string, updates: Partial<SuccessStory>): Promise<SuccessStory | undefined> {
+    const [updated] = await db.update(successStories).set(updates).where(eq(successStories.id, id)).returning();
+    return updated;
+  }
+
+  async deleteSuccessStory(id: string): Promise<boolean> {
+    await db.delete(successStories).where(eq(successStories.id, id));
+    return true;
   }
 
   // Analytics methods
@@ -887,6 +937,35 @@ export class DatabaseStorage implements IStorage {
 
   async isLibraryItemDeleted(itemId: string): Promise<boolean> {
     return this.memStorage.isLibraryItemDeleted(itemId);
+  }
+
+  // Success Stories - delegate to memStorage (which uses DB)
+  async createSuccessStory(story: InsertSuccessStory): Promise<SuccessStory> {
+    return this.memStorage.createSuccessStory(story);
+  }
+
+  async getSuccessStory(id: string): Promise<SuccessStory | undefined> {
+    return this.memStorage.getSuccessStory(id);
+  }
+
+  async getPendingSuccessStories(): Promise<SuccessStory[]> {
+    return this.memStorage.getPendingSuccessStories();
+  }
+
+  async getApprovedSuccessStories(): Promise<SuccessStory[]> {
+    return this.memStorage.getApprovedSuccessStories();
+  }
+
+  async getFeaturedSuccessStories(): Promise<SuccessStory[]> {
+    return this.memStorage.getFeaturedSuccessStories();
+  }
+
+  async updateSuccessStory(id: string, updates: Partial<SuccessStory>): Promise<SuccessStory | undefined> {
+    return this.memStorage.updateSuccessStory(id, updates);
+  }
+
+  async deleteSuccessStory(id: string): Promise<boolean> {
+    return this.memStorage.deleteSuccessStory(id);
   }
 
   async trackPageView(pageView: InsertPageView): Promise<PageView> {

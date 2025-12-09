@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -672,7 +672,7 @@ export default function Library() {
 
       {/* Tabs */}
       <Tabs defaultValue="tiktok" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 gap-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
           <TabsTrigger value="tiktok" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-tiktok">
             <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">TikTok ({filteredTikTok.length})</span>
@@ -687,6 +687,11 @@ export default function Library() {
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">BIAS ({filteredBias.length})</span>
             <span className="sm:hidden">BIAS</span>
+          </TabsTrigger>
+          <TabsTrigger value="stories" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-stories">
+            <Trophy className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">{t('Success', 'Sukses')}</span>
+            <span className="sm:hidden">{t('Sukses', 'Sukses')}</span>
           </TabsTrigger>
           <TabsTrigger value="contribute" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-contribute">
             <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -752,11 +757,415 @@ export default function Library() {
           <PlatformRulesHub search={search} />
         </TabsContent>
 
+        <TabsContent value="stories" className="space-y-6 mt-6">
+          <SuccessStoriesPanel />
+        </TabsContent>
+
         <TabsContent value="contribute" className="space-y-6 mt-6">
           <ContributionForm />
         </TabsContent>
       </Tabs>
     </div>
+    </div>
+  );
+}
+
+interface SuccessStory {
+  id: string;
+  name: string;
+  username: string;
+  platform: string;
+  role: string;
+  story: string;
+  storyId?: string;
+  achievement: string;
+  achievementId?: string;
+  profileUrl?: string;
+  avatarUrl?: string;
+  rating: number;
+  status: string;
+  featured: boolean;
+  createdAt: string;
+}
+
+function SuccessStoriesPanel() {
+  const { t, language } = useLanguage();
+  const { toast } = useToast();
+  const [stories, setStories] = useState<SuccessStory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    username: '',
+    platform: 'tiktok' as 'tiktok' | 'marketing',
+    role: '',
+    story: '',
+    achievement: '',
+    profileUrl: '',
+  });
+
+  useEffect(() => {
+    fetchStories();
+  }, []);
+
+  const fetchStories = async () => {
+    try {
+      const res = await fetch('/api/success-stories/approved');
+      const data = await res.json();
+      setStories(data || []);
+    } catch (error) {
+      console.error('Failed to fetch stories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.username || !formData.story || !formData.achievement) {
+      toast({
+        title: t('Missing Fields', 'Field Kosong'),
+        description: t('Please fill all required fields', 'Mohon isi semua field yang wajib'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await apiRequest('POST', '/api/success-stories', formData);
+      const data = await res.json();
+      if (data.success) {
+        toast({
+          title: t('Story Submitted!', 'Cerita Terkirim!'),
+          description: t(
+            'Your success story will be reviewed and published soon. Thank you for sharing!',
+            'Cerita sukses Anda akan direview dan dipublish segera. Terima kasih sudah berbagi!'
+          ),
+        });
+        setFormData({ name: '', username: '', platform: 'tiktok', role: '', story: '', achievement: '', profileUrl: '' });
+        setShowForm(false);
+      }
+    } catch (error: any) {
+      toast({
+        title: t('Submission Failed', 'Pengiriman Gagal'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-yellow-500" />
+            {t('Success Stories', 'Cerita Sukses')}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('Real stories from BiAS Pro users. Share yours and get featured!', 'Cerita nyata dari pengguna BiAS Pro. Bagikan ceritamu dan tampil di sini!')}
+          </p>
+        </div>
+        <Button onClick={() => setShowForm(!showForm)} variant={showForm ? "outline" : "default"} size="sm">
+          {showForm ? t('Cancel', 'Batal') : (
+            <>
+              <Plus className="w-4 h-4 mr-1" />
+              {t('Share Story', 'Bagikan Cerita')}
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Submit Form */}
+      {showForm && (
+        <Card className="border-2 border-yellow-500/30 bg-yellow-500/5">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-500" />
+              {t('Share Your Success Story', 'Bagikan Cerita Suksesmu')}
+            </CardTitle>
+            <CardDescription>
+              {t('Tell us how BiAS Pro helped you grow. Approved stories get FREE promotion!', 'Ceritakan bagaimana BiAS Pro membantu perkembanganmu. Cerita yang disetujui dapat promosi GRATIS!')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('Your Name', 'Nama Anda')} *</Label>
+                  <Input placeholder={t('e.g. Budi Santoso', 'mis. Budi Santoso')} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Username/Handle', 'Username/Handle')} *</Label>
+                  <Input placeholder="@username" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('Platform', 'Platform')} *</Label>
+                  <select className="w-full p-2 rounded-md border bg-background" value={formData.platform} onChange={(e) => setFormData({ ...formData, platform: e.target.value as 'tiktok' | 'marketing' })}>
+                    <option value="tiktok">TikTok Creator</option>
+                    <option value="marketing">Sales & Marketing</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Your Role', 'Peran Anda')}</Label>
+                  <Input placeholder={t('e.g. Content Creator, Sales Manager', 'mis. Content Creator, Sales Manager')} value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t('Your Achievement', 'Pencapaian Anda')} *</Label>
+                <Input placeholder={t('e.g. Followers increased 200% in 3 months', 'mis. Followers naik 200% dalam 3 bulan')} value={formData.achievement} onChange={(e) => setFormData({ ...formData, achievement: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('Your Story', 'Cerita Anda')} *</Label>
+                <textarea className="w-full p-3 rounded-md border bg-background min-h-[120px] text-sm" placeholder={t('Share how BiAS Pro helped you achieve your goals...', 'Ceritakan bagaimana BiAS Pro membantu Anda mencapai tujuan...')} value={formData.story} onChange={(e) => setFormData({ ...formData, story: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('Profile Link (optional)', 'Link Profil (opsional)')}</Label>
+                <Input placeholder="https://tiktok.com/@username" value={formData.profileUrl} onChange={(e) => setFormData({ ...formData, profileUrl: e.target.value })} />
+              </div>
+              <Button type="submit" disabled={submitting} className="w-full">
+                {submitting ? t('Submitting...', 'Mengirim...') : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    {t('Submit Story', 'Kirim Cerita')}
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Stories List */}
+      {loading ? (
+        <div className="text-center py-8 text-muted-foreground">{t('Loading...', 'Memuat...')}</div>
+      ) : stories.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Trophy className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="font-semibold mb-2">{t('Be the First!', 'Jadilah yang Pertama!')}</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t('No success stories yet. Share yours and inspire others!', 'Belum ada cerita sukses. Bagikan ceritamu dan inspirasi orang lain!')}
+            </p>
+            <Button onClick={() => setShowForm(true)} variant="outline">
+              <Plus className="w-4 h-4 mr-2" />
+              {t('Share Your Story', 'Bagikan Ceritamu')}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {stories.map((story) => (
+            <Card key={story.id} className={`relative overflow-hidden ${story.featured ? 'border-2 border-yellow-500/50' : ''}`}>
+              {story.featured && (
+                <div className="absolute top-0 right-0 bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                  {t('FEATURED', 'UNGGULAN')}
+                </div>
+              )}
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                    {story.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm truncate">{story.name}</h4>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      {story.platform === 'tiktok' ? <SiTiktok className="w-3 h-3" /> : <Megaphone className="w-3 h-3" />}
+                      {story.username}
+                      {story.role && <span className="text-gray-500">• {story.role}</span>}
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 mb-3">
+                  <p className="text-xs font-medium text-green-400 flex items-center gap-1">
+                    <Trophy className="w-3 h-3" />
+                    {language === 'id' && story.achievementId ? story.achievementId : story.achievement}
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  "{language === 'id' && story.storyId ? story.storyId : story.story}"
+                </p>
+                {story.profileUrl && (
+                  <a href={story.profileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2">
+                    <ExternalLink className="w-3 h-3" />
+                    {t('View Profile', 'Lihat Profil')}
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminSuccessStoriesPanel() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [pendingStories, setPendingStories] = useState<SuccessStory[]>([]);
+  const [approvedStories, setApprovedStories] = useState<SuccessStory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllStories();
+  }, []);
+
+  const fetchAllStories = async () => {
+    try {
+      const res = await fetch('/api/success-stories/all');
+      const data = await res.json();
+      setPendingStories(data.pending || []);
+      setApprovedStories(data.approved || []);
+    } catch (error) {
+      console.error('Failed to fetch stories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (id: string, featured: boolean = false) => {
+    try {
+      await apiRequest('POST', `/api/success-stories/${id}/approve`, { featured });
+      toast({ title: t('Story Approved!', 'Cerita Disetujui!') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      await apiRequest('POST', `/api/success-stories/${id}/reject`);
+      toast({ title: t('Story Rejected', 'Cerita Ditolak') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleToggleFeatured = async (id: string, currentFeatured: boolean) => {
+    try {
+      await apiRequest('PUT', `/api/success-stories/${id}`, { featured: !currentFeatured });
+      toast({ title: currentFeatured ? t('Removed from Featured', 'Dihapus dari Unggulan') : t('Added to Featured!', 'Ditambahkan ke Unggulan!') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('Delete this story?', 'Hapus cerita ini?'))) return;
+    try {
+      await apiRequest('DELETE', `/api/success-stories/${id}`);
+      toast({ title: t('Story Deleted', 'Cerita Dihapus') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">{t('Loading...', 'Memuat...')}</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold flex items-center gap-2">
+        <Trophy className="w-5 h-5 text-yellow-500" />
+        {t('Pending Success Stories', 'Cerita Sukses Pending')} ({pendingStories.length})
+      </h2>
+
+      {pendingStories.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            {t('No pending stories', 'Tidak ada cerita pending')}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {pendingStories.map((story) => (
+            <Card key={story.id} className="border-2 border-yellow-500/30">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-semibold">{story.name}</span>
+                      <Badge variant="outline">{story.username}</Badge>
+                      <Badge>{story.platform === 'tiktok' ? 'TikTok' : 'Marketing'}</Badge>
+                    </div>
+                    <div className="bg-green-500/10 border border-green-500/30 rounded p-2 mb-2">
+                      <p className="text-sm text-green-400">{story.achievement}</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">"{story.story}"</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button size="sm" onClick={() => handleApprove(story.id, true)}>
+                      <Star className="w-4 h-4 mr-1" />
+                      {t('Approve Featured', 'Setujui + Unggulan')}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleApprove(story.id, false)}>
+                      <Check className="w-4 h-4 mr-1" />
+                      {t('Approve', 'Setujui')}
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleReject(story.id)}>
+                      <X className="w-4 h-4 mr-1" />
+                      {t('Reject', 'Tolak')}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <h2 className="text-xl font-semibold flex items-center gap-2 mt-8">
+        <CheckCircle className="w-5 h-5 text-green-500" />
+        {t('Approved Stories', 'Cerita Disetujui')} ({approvedStories.length})
+      </h2>
+
+      {approvedStories.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            {t('No approved stories yet', 'Belum ada cerita yang disetujui')}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {approvedStories.map((story) => (
+            <Card key={story.id} className={story.featured ? 'border-2 border-yellow-500' : ''}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <span className="font-semibold">{story.name}</span>
+                    <span className="text-sm text-muted-foreground ml-2">{story.username}</span>
+                  </div>
+                  {story.featured && <Badge className="bg-yellow-500 text-black">{t('FEATURED', 'UNGGULAN')}</Badge>}
+                </div>
+                <p className="text-xs text-green-400 mb-2">{story.achievement}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">"{story.story}"</p>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleToggleFeatured(story.id, story.featured)}>
+                    <Star className={`w-4 h-4 mr-1 ${story.featured ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                    {story.featured ? t('Unfeature', 'Hapus Unggulan') : t('Feature', 'Jadikan Unggulan')}
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(story.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1245,10 +1654,14 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="library" className="gap-2">
             <BookOpen className="w-4 h-4" />
             {t('Library', 'Perpustakaan')}
+          </TabsTrigger>
+          <TabsTrigger value="stories" className="gap-2">
+            <Trophy className="w-4 h-4" />
+            {t('Stories', 'Cerita')}
           </TabsTrigger>
           <TabsTrigger value="brands" className="gap-2">
             <Palette className="w-4 h-4" />
@@ -1480,6 +1893,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           </div>
         )}
       </div>
+        </TabsContent>
+
+        <TabsContent value="stories" className="mt-6">
+          <AdminSuccessStoriesPanel />
         </TabsContent>
 
         <TabsContent value="brands" className="mt-6">

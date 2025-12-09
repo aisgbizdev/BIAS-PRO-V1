@@ -123,6 +123,26 @@ export const libraryContributions = pgTable("library_contributions", {
   approvedAt: timestamp("approved_at"),
 });
 
+// Success Stories - User testimonials with admin approval
+export const successStories = pgTable("success_stories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  username: text("username").notNull(),
+  platform: text("platform").notNull(), // 'tiktok' or 'marketing'
+  role: text("role").notNull(), // 'Creator', 'Influencer', 'Sales Manager', etc.
+  story: text("story").notNull(),
+  storyId: text("story_id"), // Indonesian version
+  achievement: text("achievement").notNull(), // e.g., "Followers naik 50%"
+  achievementId: text("achievement_id"), // Indonesian version  
+  profileUrl: text("profile_url"), // Link to their TikTok/LinkedIn
+  avatarUrl: text("avatar_url"), // Optional profile picture
+  rating: integer("rating").notNull().default(5), // 1-5 stars
+  status: text("status").notNull().default("pending"), // 'pending', 'approved', 'rejected'
+  featured: boolean("featured").notNull().default(false), // Show on homepage
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  approvedAt: timestamp("approved_at"),
+});
+
 // Analytics: Page views tracking
 export const pageViews = pgTable("page_views", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -250,6 +270,7 @@ export const insertTiktokAccountSchema = createInsertSchema(tiktokAccounts).omit
 export const insertTiktokVideoSchema = createInsertSchema(tiktokVideos).omit({ id: true, createdAt: true });
 export const insertTiktokComparisonSchema = createInsertSchema(tiktokComparisons).omit({ id: true, createdAt: true });
 export const insertLibraryContributionSchema = createInsertSchema(libraryContributions).omit({ id: true, createdAt: true, approvedAt: true });
+export const insertSuccessStorySchema = createInsertSchema(successStories).omit({ id: true, createdAt: true, approvedAt: true, featured: true, status: true });
 export const insertPageViewSchema = createInsertSchema(pageViews).omit({ id: true, createdAt: true });
 export const insertFeatureUsageSchema = createInsertSchema(featureUsage).omit({ id: true, createdAt: true });
 export const insertAdminSessionSchema = createInsertSchema(adminSessions).omit({ id: true, createdAt: true });
@@ -564,6 +585,8 @@ export type InsertTiktokComparison = z.infer<typeof insertTiktokComparisonSchema
 export type TiktokComparison = typeof tiktokComparisons.$inferSelect;
 export type InsertLibraryContribution = z.infer<typeof insertLibraryContributionSchema>;
 export type LibraryContribution = typeof libraryContributions.$inferSelect;
+export type InsertSuccessStory = z.infer<typeof insertSuccessStorySchema>;
+export type SuccessStory = typeof successStories.$inferSelect;
 export type InsertPageView = z.infer<typeof insertPageViewSchema>;
 export type PageView = typeof pageViews.$inferSelect;
 export type InsertFeatureUsage = z.infer<typeof insertFeatureUsageSchema>;

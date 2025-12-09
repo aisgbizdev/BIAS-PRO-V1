@@ -1125,6 +1125,123 @@ Status meanings:
     }
   });
 
+  // ============= SUCCESS STORIES =============
+  
+  // Public - Submit Success Story
+  app.post("/api/success-stories", async (req, res) => {
+    try {
+      const story = await storage.createSuccessStory(req.body);
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Public - Get Approved Success Stories
+  app.get("/api/success-stories/approved", async (req, res) => {
+    try {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      const stories = await storage.getApprovedSuccessStories();
+      res.json(stories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Public - Get Featured Success Stories (for homepage)
+  app.get("/api/success-stories/featured", async (req, res) => {
+    try {
+      const stories = await storage.getFeaturedSuccessStories();
+      res.json(stories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Get Pending Success Stories
+  app.get("/api/success-stories/pending", async (req, res) => {
+    try {
+      const stories = await storage.getPendingSuccessStories();
+      res.json(stories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Approve Success Story
+  app.post("/api/success-stories/:id/approve", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { featured } = req.body;
+      const story = await storage.updateSuccessStory(id, {
+        status: 'approved',
+        featured: featured || false,
+        approvedAt: new Date(),
+      });
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Reject Success Story
+  app.post("/api/success-stories/:id/reject", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const story = await storage.updateSuccessStory(id, { status: 'rejected' });
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Update Success Story (toggle featured, edit, etc.)
+  app.put("/api/success-stories/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const story = await storage.updateSuccessStory(id, req.body);
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Delete Success Story
+  app.delete("/api/success-stories/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteSuccessStory(id);
+      if (!deleted) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Get ALL Success Stories (for admin panel)
+  app.get("/api/success-stories/all", async (req, res) => {
+    try {
+      const [pending, approved] = await Promise.all([
+        storage.getPendingSuccessStories(),
+        storage.getApprovedSuccessStories(),
+      ]);
+      res.json({ pending, approved });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Admin - Get ALL Library Content (original + contributions)
   app.get("/api/library/all", async (req, res) => {
     try {
