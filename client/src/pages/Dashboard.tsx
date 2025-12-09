@@ -9,7 +9,7 @@ import { Link } from 'wouter';
 
 export default function Dashboard() {
   const { t } = useLanguage();
-  const { brand, getTagline, getSubtitle } = useBrand();
+  const { brand, getTagline } = useBrand();
 
   const analysisTypes = [
     // FIRST: TikTok Pro
@@ -55,15 +55,12 @@ export default function Dashboard() {
       {/* Hero Section - Minimal */}
       <div className="border-b border-gray-800/30">
         <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-          <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
+          <div className="flex flex-col items-center text-center space-y-2">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
               {brand.name}
             </h1>
-            <p className="text-[10px] sm:text-xs text-gray-400">
+            <p className="text-sm sm:text-base text-gray-400">
               {getTagline()}
-            </p>
-            <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-lg">
-              {getSubtitle()}
             </p>
           </div>
         </div>
