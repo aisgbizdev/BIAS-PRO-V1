@@ -3,7 +3,7 @@ import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, CheckCircle, ArrowRight, BookOpen } from 'lucide-react';
+import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link } from 'wouter';
 
@@ -144,6 +144,19 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Subtle Premium CTA */}
+        <div className="mt-6 text-center py-4 border-t border-gray-800/50">
+          <div className="flex items-center justify-center gap-2 text-gray-500 text-xs mb-2">
+            <Sparkles className="w-3 h-3" />
+            <span>{t('Free daily limit resets every 24 hours', 'Limit gratis harian reset setiap 24 jam')}</span>
+          </div>
+          <Link href="/premium">
+            <span className="text-xs text-gray-400 hover:text-pink-400 transition-colors cursor-pointer">
+              {t('Need more? View Premium plans', 'Butuh lebih? Lihat paket Premium')} →
+            </span>
+          </Link>
+        </div>
       </div>
 
     </div>
