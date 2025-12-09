@@ -3,7 +3,7 @@ import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
+import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles, Zap, Brain, Target, TrendingUp } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link } from 'wouter';
 
@@ -146,6 +146,56 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Promotional Section - Elegant & Impactful */}
+        <div className="mt-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500/10 via-purple-500/5 to-cyan-500/10 border border-pink-500/20 p-6">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-pink-500/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-500/20 to-transparent rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="relative z-10">
+            <div className="text-center mb-6">
+              <Badge className="bg-gradient-to-r from-pink-500/30 to-cyan-500/30 text-white border-pink-500/50 mb-3">
+                <Zap className="w-3 h-3 mr-1" />
+                {t('First in Indonesia', 'Pertama di Indonesia')}
+              </Badge>
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                {t(
+                  'The Only Ai Mentor That Understands Behavior',
+                  'Satu-satunya Ai Mentor yang Memahami Perilaku'
+                )}
+              </h2>
+              <p className="text-gray-400 text-sm max-w-xl mx-auto">
+                {t(
+                  'Not just analytics. Not just Ai chat. BiAS Pro analyzes HOW you communicate and WHY it works — using science-backed behavioral intelligence.',
+                  'Bukan sekadar analitik. Bukan sekadar chat Ai. BiAS Pro menganalisis BAGAIMANA Anda berkomunikasi dan MENGAPA itu berhasil — menggunakan behavioral intelligence berbasis sains.'
+                )}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                <Brain className="w-6 h-6 mx-auto mb-2 text-pink-400" />
+                <p className="text-xs font-medium text-white">{t('8-Layer Analysis', 'Analisis 8 Layer')}</p>
+                <p className="text-[10px] text-gray-500">{t('Deep behavioral insights', 'Insight perilaku mendalam')}</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                <Target className="w-6 h-6 mx-auto mb-2 text-cyan-400" />
+                <p className="text-xs font-medium text-white">{t('Actionable Tips', 'Tips Praktis')}</p>
+                <p className="text-[10px] text-gray-500">{t('Not just data, real guidance', 'Bukan cuma data, panduan nyata')}</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                <TrendingUp className="w-6 h-6 mx-auto mb-2 text-green-400" />
+                <p className="text-xs font-medium text-white">{t('Dual Mode', 'Mode Ganda')}</p>
+                <p className="text-[10px] text-gray-500">{t('TikTok + Marketing Pro', 'TikTok + Marketing Pro')}</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                <Sparkles className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
+                <p className="text-xs font-medium text-white">{t('Bilingual Ai', 'Ai Bilingual')}</p>
+                <p className="text-[10px] text-gray-500">{t('Indonesia + English', 'Indonesia + English')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Subtle Premium CTA */}
         <div className="mt-6 text-center py-4 border-t border-gray-800/50">

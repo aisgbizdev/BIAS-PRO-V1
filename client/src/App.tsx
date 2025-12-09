@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation, Redirect } from "wouter";
+import { Switch, Route, useLocation, Redirect, Link } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,6 +15,8 @@ import SocialMediaPro from "@/pages/social-media-pro";
 import CreatorAnalysis from "@/pages/creator-analysis";
 import Premium from "@/pages/Premium";
 import Help from "@/pages/Help";
+import Privacy from "@/pages/Privacy";
+import Terms from "@/pages/Terms";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 import { trackPageView } from "@/lib/analytics";
@@ -46,6 +48,8 @@ function Router() {
         <Route path="/admin" component={Library} />
         <Route path="/premium" component={Premium} />
         <Route path="/help" component={Help} />
+        <Route path="/privacy" component={Privacy} />
+        <Route path="/terms" component={Terms} />
         
         {/* Redirect malformed admin URLs like /admin/newsmaker to /newsmaker/admin */}
         <Route path="/admin/:brand">
@@ -66,6 +70,8 @@ function Router() {
         <Route path="/:brand/admin" component={Library} />
         <Route path="/:brand/premium" component={Premium} />
         <Route path="/:brand/help" component={Help} />
+        <Route path="/:brand/privacy" component={Privacy} />
+        <Route path="/:brand/terms" component={Terms} />
         
         <Route component={NotFound} />
       </Switch>
@@ -83,13 +89,22 @@ function AppContent() {
         <Router />
       </main>
       <FloatingChatGPT />
-      <footer className="border-t py-4 text-center text-sm text-muted-foreground">
-        <p>
+      <footer className="border-t border-zinc-800 py-4 text-center text-sm text-muted-foreground">
+        <p className="mb-2">
           {brand.shortName} • Behavioral Intelligence Audit System •{' '}
           <span className="font-medium">
             Powered by 8-Layer Framework
           </span>
         </p>
+        <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+          <Link href="/privacy" className="hover:text-pink-400 transition-colors">
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-pink-400 transition-colors">
+            Terms of Service
+          </Link>
+        </div>
       </footer>
     </div>
   );
