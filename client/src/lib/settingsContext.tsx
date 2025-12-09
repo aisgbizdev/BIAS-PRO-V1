@@ -10,6 +10,7 @@ interface PlatformSettings {
   feature_competitor_analysis: boolean;
   feature_thumbnail_generator: boolean;
   free_trial_days: number;
+  beta_end_date: string;
   maintenance_mode: boolean;
 }
 
@@ -47,6 +48,7 @@ const defaultSettings: PlatformSettings = {
   feature_competitor_analysis: true,
   feature_thumbnail_generator: true,
   free_trial_days: 90,
+  beta_end_date: '2025-03-31',
   maintenance_mode: false,
 };
 

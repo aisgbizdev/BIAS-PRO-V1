@@ -110,6 +110,12 @@ export default function Premium() {
             const description = language === 'id' ? plan.descriptionId : plan.descriptionEn;
             const isGratis = plan.slug === 'gratis' || plan.priceIdr === 0;
             
+            const betaDaysLeft = (() => {
+              const betaEnd = settings.beta_end_date;
+              if (!betaEnd) return 90;
+              return Math.max(0, Math.ceil((new Date(betaEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+            })();
+            
             const dynamicFeatures: string[] = [];
             if (plan.chatLimit !== undefined && plan.chatLimit !== null) {
               if (plan.chatLimit === -1) {
@@ -156,8 +162,20 @@ export default function Premium() {
                     </span>
                   </div>
                   <CardDescription className="text-gray-400 mt-2">
-                    {description}
+                    {isGratis 
+                      ? (language === 'id' 
+                          ? `Gratis selama periode beta (${betaDaysLeft} hari)` 
+                          : `Free during beta period (${betaDaysLeft} days)`)
+                      : description
+                    }
                   </CardDescription>
+                  {isGratis && plan.videoLimit && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {language === 'id' 
+                        ? `Limit saat ini: ${plan.videoLimit} analisis video per hari` 
+                        : `Current limit: ${plan.videoLimit} video analysis per day`}
+                    </p>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <ul className="space-y-3">
@@ -189,7 +207,10 @@ export default function Premium() {
             <CardContent className="p-8">
               <Rocket className="w-12 h-12 text-pink-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-2">
-                {t("Beta Period - All Free!", "Periode Beta - Semua Gratis!")}
+                {language === 'id' 
+                  ? `Periode Beta - ${Math.max(0, Math.ceil((new Date(settings.beta_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} Hari Lagi!`
+                  : `Beta Period - ${Math.max(0, Math.ceil((new Date(settings.beta_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} Days Left!`
+                }
               </h3>
               <p className="text-gray-400 mb-4">
                 {t(

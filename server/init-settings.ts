@@ -2,6 +2,7 @@ import { db } from '../db';
 import { appSettings, pricingTiers } from '../shared/schema';
 
 const defaultSettings = [
+  { key: 'beta_end_date', value: '2025-03-31', valueType: 'date', category: 'beta', labelEn: 'Beta End Date', labelId: 'Tanggal Akhir Beta', descriptionEn: 'When the beta period ends (YYYY-MM-DD)', descriptionId: 'Kapan periode beta berakhir (YYYY-MM-DD)', isEditable: true },
   { key: 'daily_video_limit', value: '5', valueType: 'number', category: 'limits', labelEn: 'Daily Video Analysis Limit', labelId: 'Limit Analisis Video Harian', descriptionEn: 'Maximum video/screenshot analysis per day for free users', descriptionId: 'Maksimum analisis video/screenshot per hari untuk user gratis', isEditable: true },
   { key: 'daily_chat_limit', value: '20', valueType: 'number', category: 'limits', labelEn: 'Daily Chat Limit', labelId: 'Limit Chat Harian', descriptionEn: 'Maximum AI chat messages per day for free users', descriptionId: 'Maksimum pesan chat AI per hari untuk user gratis', isEditable: true },
   { key: 'enable_batch_analysis', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Batch Analysis', labelId: 'Batch Analysis', descriptionEn: 'Enable batch video analysis feature', descriptionId: 'Aktifkan fitur analisis batch video', isEditable: true },

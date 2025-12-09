@@ -3053,14 +3053,46 @@ function PlatformSettingsPanel() {
 
       <Card className="bg-gradient-to-r from-pink-500/10 to-cyan-500/10 border-pink-500/30 mb-4">
         <CardContent className="p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h3 className="font-bold text-white flex items-center gap-2">
                 🚀 {t('Beta Period Active', 'Periode Beta Aktif')}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {t('All features unlocked for free users during beta. Adjust limits below.', 'Semua fitur terbuka untuk user gratis selama beta. Atur limit di bawah.')}
+                {t('All features unlocked for free users during beta.', 'Semua fitur terbuka untuk user gratis selama beta.')}
               </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('Beta End Date', 'Tanggal Akhir Beta')}</Label>
+                <Input
+                  type="date"
+                  value={settings.find(s => s.key === 'beta_end_date')?.value || '2025-03-31'}
+                  onChange={async (e) => {
+                    const newValue = e.target.value;
+                    try {
+                      await fetch('/api/admin/settings/beta_end_date', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ value: newValue }),
+                      });
+                      setSettings(prev => prev.map(s => s.key === 'beta_end_date' ? { ...s, value: newValue } : s));
+                    } catch (e) {}
+                  }}
+                  className="w-40 bg-black/50"
+                />
+              </div>
+              {(() => {
+                const betaEnd = settings.find(s => s.key === 'beta_end_date')?.value;
+                if (!betaEnd) return null;
+                const daysLeft = Math.ceil((new Date(betaEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                return (
+                  <Badge className={daysLeft > 30 ? 'bg-green-600' : daysLeft > 7 ? 'bg-yellow-600' : 'bg-red-600'}>
+                    {daysLeft > 0 ? `${daysLeft} ${t('days left', 'hari lagi')}` : t('Beta ended', 'Beta berakhir')}
+                  </Badge>
+                );
+              })()}
             </div>
           </div>
         </CardContent>
