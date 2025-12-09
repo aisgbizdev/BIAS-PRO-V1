@@ -10,7 +10,6 @@ import {
   FileText, 
   Mic, 
   BarChart3,
-  Layers,
   Shield,
   CreditCard,
   ArrowRight,
@@ -66,17 +65,6 @@ export default function Help() {
       descEn: "Use your microphone to input text without typing.",
       descId: "Gunakan mikrofon untuk input teks tanpa mengetik."
     }
-  ];
-
-  const biasLayers = [
-    { code: "VBM", nameEn: "Voice & Body Modulation", nameId: "Modulasi Suara & Tubuh" },
-    { code: "EPM", nameEn: "Emotional Persuasion Mapping", nameId: "Pemetaan Persuasi Emosional" },
-    { code: "NLP", nameEn: "Neuro-Linguistic Programming", nameId: "Pemrograman Neuro-Linguistik" },
-    { code: "ETH", nameEn: "Ethical Communication", nameId: "Komunikasi Etis" },
-    { code: "ECO", nameEn: "Economic Value Proposition", nameId: "Proposisi Nilai Ekonomi" },
-    { code: "SOC", nameEn: "Social Proof & Authority", nameId: "Bukti Sosial & Otoritas" },
-    { code: "COG", nameEn: "Cognitive Load Management", nameId: "Manajemen Beban Kognitif" },
-    { code: "BMIL", nameEn: "Behavioral Motivation & Influence", nameId: "Motivasi & Pengaruh Perilaku" }
   ];
 
   const faqs = [
@@ -196,14 +184,6 @@ export default function Help() {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-center pt-4">
-                <Link href="/social-pro">
-                  <Button className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600">
-                    {t("Start Analyzing", "Mulai Analisis")}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-              </div>
             </CardContent>
           </Card>
 
@@ -227,35 +207,6 @@ export default function Help() {
                     <p className="text-gray-400 text-sm">
                       {language === 'id' ? feature.descId : feature.descEn}
                     </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-zinc-900/50 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Layers className="w-5 h-5 text-pink-500" />
-                {t("8-Layer BIAS Framework", "Framework 8 Layer BIAS")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-400 mb-4">
-                {t(
-                  "Every analysis evaluates your communication across these 8 behavioral layers:",
-                  "Setiap analisis mengevaluasi komunikasi Anda dari 8 layer perilaku ini:"
-                )}
-              </p>
-              <div className="grid md:grid-cols-2 gap-3">
-                {biasLayers.map((layer, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800/50">
-                    <Badge className="bg-gradient-to-r from-pink-500/20 to-cyan-500/20 text-white border-pink-500/30 font-mono">
-                      {layer.code}
-                    </Badge>
-                    <span className="text-gray-300 text-sm">
-                      {language === 'id' ? layer.nameId : layer.nameEn}
-                    </span>
                   </div>
                 ))}
               </div>
