@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { AnalysisInput } from '@/components/AnalysisInput';
@@ -26,70 +26,66 @@ export default function CreatorAnalysis() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <Briefcase className="w-6 h-6 md:w-8 md:h-8 text-purple-500 flex-shrink-0" />
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+      {/* Hero Section - Minimal */}
+      <div className="border-b border-gray-800/30">
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+          <div className="flex items-center gap-2 mb-2">
+            <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-gray-400" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white">
               {t('Marketing Pro', 'Marketing Pro')}
             </h1>
           </div>
-          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
+          <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
             {t(
-              'Ai Coach for sales, pitch, leadership & professional communication. Analyze or create scripts, then discuss with Ai to level up your skills!',
-              'Ai Coach untuk sales, pitch, leadership & komunikasi profesional. Analisis atau buat script, lalu diskusi dengan Ai untuk tingkatkan skill-mu!'
+              'Ai Coach for sales, pitch, leadership & professional communication.',
+              'Ai Coach untuk sales, pitch, leadership & komunikasi profesional.'
             )}
           </p>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-        {/* Input Mode Selector */}
-        <Card className="bg-[#141414] border-gray-800">
-          <CardContent className="pt-6">
-            <Tabs value={inputMode} onValueChange={(v) => {
-              const newMode = v as typeof inputMode;
-              setInputMode(newMode);
-              trackTabSelection('marketing-pro', newMode);
-            }}>
-              <TabsList className="grid w-full grid-cols-4 bg-[#1E1E1E] border border-gray-700 gap-1">
-                <TabsTrigger 
-                  value="coach"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-input-coach"
-                >
-                  <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Ai Coach', 'Ai Coach')}</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="upload"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-input-upload"
-                >
-                  <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Analyze', 'Analisis')}</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="form"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-input-form"
-                >
-                  <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Review', 'Review')}</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="scripts"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-input-scripts"
-                >
-                  <ScrollText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Templates', 'Template')}</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </CardContent>
-        </Card>
+      <div className="max-w-5xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+        {/* Input Mode Selector - Minimal */}
+        <Tabs value={inputMode} onValueChange={(v) => {
+          const newMode = v as typeof inputMode;
+          setInputMode(newMode);
+          trackTabSelection('marketing-pro', newMode);
+        }}>
+          <TabsList className="grid w-full grid-cols-4 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
+            <TabsTrigger 
+              value="coach"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              data-testid="tab-input-coach"
+            >
+              <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Coach', 'Coach')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="upload"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              data-testid="tab-input-upload"
+            >
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Analyze', 'Analisis')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="form"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              data-testid="tab-input-form"
+            >
+              <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Review', 'Review')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="scripts"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              data-testid="tab-input-scripts"
+            >
+              <ScrollText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Templates', 'Template')}</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Ai Coach - Chat Mode */}
         {inputMode === 'coach' && (
