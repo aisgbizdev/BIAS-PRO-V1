@@ -2779,6 +2779,22 @@ interface PricingTier {
   sortOrder: number;
 }
 
+const AVAILABLE_FEATURES = [
+  { key: 'save_history', labelEn: 'Save History', labelId: 'Simpan Riwayat' },
+  { key: 'pdf_export', labelEn: 'PDF Export', labelId: 'Export PDF' },
+  { key: 'batch_analysis', labelEn: 'Batch Analysis', labelId: 'Batch Analysis' },
+  { key: 'ab_tester', labelEn: 'A/B Hook Tester', labelId: 'A/B Hook Tester' },
+  { key: 'voice_input', labelEn: 'Voice Input', labelId: 'Voice Input' },
+  { key: 'competitor_analysis', labelEn: 'Competitor Analysis', labelId: 'Competitor Analysis' },
+  { key: 'thumbnail_generator', labelEn: 'Thumbnail Generator', labelId: 'Thumbnail Generator' },
+  { key: 'priority_support', labelEn: 'Priority Support', labelId: 'Dukungan Prioritas' },
+];
+
+interface TierEditState {
+  tier: PricingTier;
+  enabledFeatures: Set<string>;
+}
+
 function PlatformSettingsPanel() {
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -2787,6 +2803,7 @@ function PlatformSettingsPanel() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'settings' | 'pricing'>('settings');
+  const [editingTiers, setEditingTiers] = useState<Record<string, TierEditState>>({});
 
   useEffect(() => {
     fetchData();
@@ -2815,6 +2832,124 @@ function PlatformSettingsPanel() {
     }
   };
 
+  const extractEnabledFeatures = (tier: PricingTier): Set<string> => {
+    const enabled = new Set<string>();
+    const allFeatures = [...(tier.featuresEn || []), ...(tier.featuresId || [])];
+    for (const feature of AVAILABLE_FEATURES) {
+      const hasIt = allFeatures.some(f => 
+        f.toLowerCase().includes(feature.labelEn.toLowerCase()) || 
+        f.toLowerCase().includes(feature.labelId.toLowerCase())
+      );
+      if (hasIt) enabled.add(feature.key);
+    }
+    return enabled;
+  };
+
+  const startEditing = (tierSlug: string) => {
+    const tier = pricing.find(t => t.slug === tierSlug);
+    if (!tier) return;
+    setEditingTiers(prev => ({
+      ...prev,
+      [tierSlug]: {
+        tier: JSON.parse(JSON.stringify(tier)),
+        enabledFeatures: extractEnabledFeatures(tier),
+      }
+    }));
+  };
+
+  const isEditing = (tierSlug: string) => tierSlug in editingTiers;
+
+  const getEditState = (tierSlug: string) => editingTiers[tierSlug];
+
+  const updateEditField = (tierSlug: string, field: string, value: any) => {
+    setEditingTiers(prev => {
+      if (!prev[tierSlug]) return prev;
+      return {
+        ...prev,
+        [tierSlug]: {
+          ...prev[tierSlug],
+          tier: { ...prev[tierSlug].tier, [field]: value }
+        }
+      };
+    });
+  };
+
+  const toggleEditFeature = (tierSlug: string, featureKey: string) => {
+    setEditingTiers(prev => {
+      if (!prev[tierSlug]) return prev;
+      const newFeatures = new Set(prev[tierSlug].enabledFeatures);
+      if (newFeatures.has(featureKey)) {
+        newFeatures.delete(featureKey);
+      } else {
+        newFeatures.add(featureKey);
+      }
+      return {
+        ...prev,
+        [tierSlug]: { ...prev[tierSlug], enabledFeatures: newFeatures }
+      };
+    });
+  };
+
+  const saveTierChanges = async (tierSlug: string) => {
+    const editState = editingTiers[tierSlug];
+    if (!editState) return;
+    
+    const featuresEn = AVAILABLE_FEATURES
+      .filter(f => editState.enabledFeatures.has(f.key))
+      .map(f => f.labelEn);
+    const featuresId = AVAILABLE_FEATURES
+      .filter(f => editState.enabledFeatures.has(f.key))
+      .map(f => f.labelId);
+    
+    setSaving(tierSlug);
+    try {
+      const response = await fetch(`/api/admin/pricing/${tierSlug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          priceIdr: editState.tier.priceIdr,
+          videoLimit: editState.tier.videoLimit,
+          chatLimit: editState.tier.chatLimit,
+          isPopular: editState.tier.isPopular,
+          isActive: editState.tier.isActive,
+          featuresEn,
+          featuresId,
+        }),
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        setPricing(prev => prev.map(t => t.slug === tierSlug ? updated : t));
+        setEditingTiers(prev => {
+          const { [tierSlug]: _, ...rest } = prev;
+          return rest;
+        });
+        toast({
+          title: t('Saved', 'Tersimpan'),
+          description: t(`${editState.tier.name} pricing updated`, `Harga ${editState.tier.name} diperbarui`),
+        });
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to save changes', 'Gagal menyimpan perubahan'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const cancelTierChanges = (tierSlug: string) => {
+    setEditingTiers(prev => {
+      const { [tierSlug]: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
   const handleUpdateSetting = async (key: string, value: string) => {
     setSaving(key);
     try {
@@ -2839,37 +2974,6 @@ function PlatformSettingsPanel() {
       toast({
         title: t('Error', 'Error'),
         description: t('Failed to update setting', 'Gagal memperbarui pengaturan'),
-        variant: 'destructive',
-      });
-    } finally {
-      setSaving(null);
-    }
-  };
-
-  const handleUpdatePricing = async (slug: string, updates: Partial<PricingTier>) => {
-    setSaving(slug);
-    try {
-      const response = await fetch(`/api/admin/pricing/${slug}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(updates),
-      });
-
-      if (response.ok) {
-        const updated = await response.json();
-        setPricing(prev => prev.map(p => p.slug === slug ? updated : p));
-        toast({
-          title: t('Pricing Updated', 'Harga Diperbarui'),
-          description: t(`${slug} plan has been updated`, `Paket ${slug} sudah diperbarui`),
-        });
-      } else {
-        throw new Error('Failed to update');
-      }
-    } catch (error) {
-      toast({
-        title: t('Error', 'Error'),
-        description: t('Failed to update pricing', 'Gagal memperbarui harga'),
         variant: 'destructive',
       });
     } finally {
@@ -2984,25 +3088,53 @@ function PlatformSettingsPanel() {
 
       {activeTab === 'pricing' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {pricing.map((tier) => (
-            <Card key={tier.slug} className={tier.isPopular ? 'border-primary border-2' : ''}>
+          {pricing.map((tier) => {
+            const editing = isEditing(tier.slug);
+            const editState = getEditState(tier.slug);
+            const displayTier = editing ? editState.tier : tier;
+            const enabledFeatures = editing ? editState.enabledFeatures : extractEnabledFeatures(tier);
+            
+            return (
+            <Card key={tier.slug} className={`${displayTier.isPopular ? 'border-primary border-2' : ''} ${editing ? 'ring-2 ring-yellow-500' : ''}`}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {tier.name}
-                    {tier.isPopular && <Badge className="bg-primary">{t('Popular', 'Populer')}</Badge>}
+                    {displayTier.name}
+                    {displayTier.isPopular && <Badge className="bg-primary">{t('Popular', 'Populer')}</Badge>}
+                    {editing && <Badge variant="outline" className="bg-yellow-500/20 text-yellow-500">{t('Editing', 'Mengedit')}</Badge>}
                   </CardTitle>
-                  <Button
-                    variant={tier.isActive ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => handleUpdatePricing(tier.slug, { isActive: !tier.isActive })}
-                    disabled={saving === tier.slug}
-                  >
-                    {tier.isActive ? t('Active', 'Aktif') : t('Inactive', 'Nonaktif')}
-                  </Button>
+                  <div className="flex gap-2">
+                    {!editing ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEditing(tier.slug)}
+                      >
+                        {t('Edit', 'Edit')}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => cancelTierChanges(tier.slug)}
+                        >
+                          {t('Cancel', 'Batal')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => saveTierChanges(tier.slug)}
+                          disabled={saving === tier.slug}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {saving === tier.slug ? '...' : t('Save', 'Simpan')}
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <CardDescription>
-                  {language === 'id' ? tier.descriptionId : tier.descriptionEn}
+                  {language === 'id' ? displayTier.descriptionId : displayTier.descriptionEn}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -3011,22 +3143,18 @@ function PlatformSettingsPanel() {
                     <Label className="text-xs">{t('Price (IDR)', 'Harga (Rp)')}</Label>
                     <Input
                       type="number"
-                      value={tier.priceIdr}
-                      onChange={(e) => {
-                        setPricing(prev => prev.map(p => p.slug === tier.slug ? { ...p, priceIdr: parseInt(e.target.value) || 0 } : p));
-                      }}
-                      onBlur={(e) => handleUpdatePricing(tier.slug, { priceIdr: parseInt(e.target.value) || 0 })}
+                      value={displayTier.priceIdr}
+                      onChange={(e) => updateEditField(tier.slug, 'priceIdr', parseInt(e.target.value) || 0)}
+                      disabled={!editing}
                     />
                   </div>
                   <div>
                     <Label className="text-xs">{t('Video Limit', 'Limit Video')}</Label>
                     <Input
                       type="number"
-                      value={tier.videoLimit ?? 0}
-                      onChange={(e) => {
-                        setPricing(prev => prev.map(p => p.slug === tier.slug ? { ...p, videoLimit: parseInt(e.target.value) } : p));
-                      }}
-                      onBlur={(e) => handleUpdatePricing(tier.slug, { videoLimit: parseInt(e.target.value) })}
+                      value={displayTier.videoLimit ?? 0}
+                      onChange={(e) => updateEditField(tier.slug, 'videoLimit', parseInt(e.target.value))}
+                      disabled={!editing}
                     />
                     <p className="text-xs text-muted-foreground">-1 = {t('unlimited', 'unlimited')}</p>
                   </div>
@@ -3034,41 +3162,60 @@ function PlatformSettingsPanel() {
                     <Label className="text-xs">{t('Chat Limit', 'Limit Chat')}</Label>
                     <Input
                       type="number"
-                      value={tier.chatLimit ?? 0}
-                      onChange={(e) => {
-                        setPricing(prev => prev.map(p => p.slug === tier.slug ? { ...p, chatLimit: parseInt(e.target.value) } : p));
-                      }}
-                      onBlur={(e) => handleUpdatePricing(tier.slug, { chatLimit: parseInt(e.target.value) })}
+                      value={displayTier.chatLimit ?? 0}
+                      onChange={(e) => updateEditField(tier.slug, 'chatLimit', parseInt(e.target.value))}
+                      disabled={!editing}
                     />
                     <p className="text-xs text-muted-foreground">-1 = {t('unlimited', 'unlimited')}</p>
                   </div>
-                  <div>
-                    <Label className="text-xs">{t('Highlight', 'Sorotan')}</Label>
-                    <Button
-                      variant={tier.isPopular ? 'default' : 'outline'}
-                      size="sm"
-                      className="w-full mt-1"
-                      onClick={() => handleUpdatePricing(tier.slug, { isPopular: !tier.isPopular })}
-                      disabled={saving === tier.slug}
-                    >
-                      {tier.isPopular ? t('★ Featured', '★ Unggulan') : t('☆ Set Featured', '☆ Jadikan Unggulan')}
-                    </Button>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs">{t('Status', 'Status')}</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={displayTier.isActive ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => editing && updateEditField(tier.slug, 'isActive', !displayTier.isActive)}
+                        disabled={!editing}
+                        className="flex-1"
+                      >
+                        {displayTier.isActive ? t('Active', 'Aktif') : t('Inactive', 'Nonaktif')}
+                      </Button>
+                      <Button
+                        variant={displayTier.isPopular ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => editing && updateEditField(tier.slug, 'isPopular', !displayTier.isPopular)}
+                        disabled={!editing}
+                        className="flex-1"
+                      >
+                        {displayTier.isPopular ? '★' : '☆'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 
                 <div>
-                  <Label className="text-xs">{t('Features', 'Fitur')}</Label>
-                  <div className="mt-1 space-y-1">
-                    {(language === 'id' ? tier.featuresId : tier.featuresEn)?.map((feature, i) => (
-                      <Badge key={i} variant="outline" className="mr-1 mb-1 text-xs">
-                        {feature}
-                      </Badge>
-                    ))}
+                  <Label className="text-xs mb-2 block">{t('Features (toggle on/off)', 'Fitur (aktifkan/nonaktifkan)')}</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {AVAILABLE_FEATURES.map((feature) => {
+                      const isEnabled = enabledFeatures.has(feature.key);
+                      return (
+                        <Button
+                          key={feature.key}
+                          variant={isEnabled ? 'default' : 'outline'}
+                          size="sm"
+                          className={`text-xs justify-start ${isEnabled ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                          onClick={() => editing && toggleEditFeature(tier.slug, feature.key)}
+                          disabled={!editing}
+                        >
+                          {isEnabled ? '✓' : '○'} {language === 'id' ? feature.labelId : feature.labelEn}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )})}
         </div>
       )}
 
@@ -3076,8 +3223,8 @@ function PlatformSettingsPanel() {
         <AlertCircle className="w-4 h-4" />
         <AlertDescription>
           {t(
-            'Changes are saved automatically. Settings affect all users immediately. Use with caution!',
-            'Perubahan disimpan otomatis. Pengaturan berlaku untuk semua user langsung. Gunakan dengan hati-hati!'
+            'Click Edit to modify a tier, then Save to apply changes. Settings affect all users immediately.',
+            'Klik Edit untuk mengubah tier, lalu Simpan untuk menerapkan perubahan. Pengaturan berlaku untuk semua user langsung.'
           )}
         </AlertDescription>
       </Alert>
