@@ -49,6 +49,10 @@ The application supports dynamic white-label branding for partners via a path-ba
 - Added 5 new features: PDF Export, Save History, Voice Input, Competitor Analysis, Thumbnail Generator
 - Integrated new analytics tabs (Account, Video, Screenshot, Compare, Thumbnail) into TikTok Pro
 - Fixed Save History auto-refresh using custom event dispatching ('bias-history-updated')
+- **CRITICAL**: Removed all fake/mock/random data generation - platform now shows real data only or clear error messages
+- Added `/api/analyze-video` endpoint using OpenAI Vision for image/video thumbnail analysis
+- Added `/api/analyze-screenshot` endpoint using OpenAI Vision for TikTok screenshot analysis
+- Fixed VideoAnalyzerPanel, ScreenshotAnalyticsPanel, CompetitorAnalysis to use real API calls
 
 ## External Dependencies
 

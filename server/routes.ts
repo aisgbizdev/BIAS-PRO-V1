@@ -349,6 +349,240 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analyze Video Content with AI Vision
+  app.post("/api/analyze-video", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: 'No file uploaded',
+          message: 'Silakan upload file video atau gambar untuk dianalisis.',
+          messageId: 'Silakan upload file video atau gambar untuk dianalisis.',
+        });
+      }
+
+      const description = req.body.description || 'TikTok video content';
+      const mode = req.body.mode || 'tiktok';
+
+      // Convert file to base64 for OpenAI Vision
+      const base64Image = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      
+      // For videos, we analyze the first frame (thumbnail)
+      // For images, we analyze directly
+      const isVideo = mimeType.startsWith('video/');
+      
+      const analysisPrompt = mode === 'tiktok' 
+        ? `Analyze this TikTok ${isVideo ? 'video thumbnail' : 'image'} for content performance. Context: ${description}
+        
+Evaluate and score (0-100) these aspects:
+1. Hook Strength: How attention-grabbing is the opening visual?
+2. Visual Quality: Lighting, composition, color grading
+3. Audio Clarity: Based on visual cues (text overlays, mouth movement clarity)
+4. Engagement Potential: Shareability, relatability, emotional appeal
+5. Retention Score: Will viewers watch till the end?
+
+Also provide:
+- 3 key strengths
+- 3 areas for improvement  
+- 3 specific actionable recommendations
+
+Respond in JSON format:
+{
+  "overallScore": number,
+  "hookStrength": number,
+  "visualQuality": number,
+  "audioClarity": number,
+  "engagement": number,
+  "retention": number,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "improvements": ["improvement1", "improvement2", "improvement3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}`
+        : `Analyze this marketing/presentation content. Context: ${description}
+        
+Evaluate and score (0-100) these aspects:
+1. Hook Strength: How attention-grabbing is the opening?
+2. Visual Quality: Professional appearance, branding
+3. Audio Clarity: Presentation clarity (based on visual cues)
+4. Engagement Potential: Audience interest, persuasiveness
+5. Retention Score: Will audience stay engaged?
+
+Also provide:
+- 3 key strengths
+- 3 areas for improvement
+- 3 specific actionable recommendations
+
+Respond in JSON format:
+{
+  "overallScore": number,
+  "hookStrength": number,
+  "visualQuality": number,
+  "audioClarity": number,
+  "engagement": number,
+  "retention": number,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "improvements": ["improvement1", "improvement2", "improvement3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}`;
+
+      // Use OpenAI Vision API
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const visionResponse = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: analysisPrompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Image}`,
+                  detail: 'low',
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 1000,
+        response_format: { type: 'json_object' },
+      });
+
+      const analysisText = visionResponse.choices[0]?.message?.content || '{}';
+      const analysisResult = JSON.parse(analysisText);
+
+      // Validate required fields
+      if (typeof analysisResult.overallScore !== 'number') {
+        throw new Error('Invalid analysis result');
+      }
+
+      res.json({
+        success: true,
+        result: analysisResult,
+      });
+    } catch (error: any) {
+      console.error('Video analysis error:', error);
+      res.status(500).json({
+        error: 'Analysis failed',
+        message: 'Gagal menganalisis konten. Silakan coba lagi.',
+        messageId: 'Gagal menganalisis konten. Silakan coba lagi.',
+      });
+    }
+  });
+
+  // Analyze Screenshot with AI Vision
+  app.post("/api/analyze-screenshot", async (req, res) => {
+    try {
+      const schema = z.object({
+        image: z.string().min(1),
+        guideType: z.string().optional(),
+        language: z.enum(['en', 'id']).optional(),
+      });
+
+      const data = schema.parse(req.body);
+      const lang = data.language || 'id';
+      const guideType = data.guideType || 'profile';
+
+      // Extract base64 data from data URL
+      const base64Match = data.image.match(/^data:image\/\w+;base64,(.+)$/);
+      if (!base64Match) {
+        return res.status(400).json({
+          error: 'Invalid image format',
+          message: 'Format gambar tidak valid. Gunakan screenshot dari TikTok.',
+          messageId: 'Format gambar tidak valid. Gunakan screenshot dari TikTok.',
+        });
+      }
+
+      const base64Image = base64Match[1];
+
+      const guidePrompts: Record<string, string> = {
+        profile: 'TikTok profile analytics screenshot showing followers, views, engagement metrics',
+        content: 'TikTok content performance screenshot showing video stats, views, likes',
+        followers: 'TikTok follower insights screenshot showing demographics, activity times',
+        live: 'TikTok LIVE analytics screenshot showing viewer count, duration, gifts',
+      };
+
+      const contextDescription = guidePrompts[guideType] || guidePrompts.profile;
+      const langInstruction = lang === 'id' 
+        ? 'Respond in Indonesian (Bahasa Indonesia).'
+        : 'Respond in English.';
+
+      const analysisPrompt = `Analyze this ${contextDescription}. ${langInstruction}
+
+Extract all visible metrics and provide insights. Respond in JSON format:
+{
+  "metrics": [
+    { "name": "Metric Name", "value": "extracted value", "status": "good|average|needs_work" },
+    ...
+  ],
+  "summary": "Brief overall assessment",
+  "insights": ["insight1", "insight2", "insight3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}
+
+Status meanings:
+- good: Above average performance
+- average: Normal performance  
+- needs_work: Below expectations, needs improvement`;
+
+      // Use OpenAI Vision API
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const visionResponse = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: analysisPrompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:image/png;base64,${base64Image}`,
+                  detail: 'high',
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 1500,
+        response_format: { type: 'json_object' },
+      });
+
+      const analysisText = visionResponse.choices[0]?.message?.content || '{}';
+      const analysisResult = JSON.parse(analysisText);
+
+      // Validate result has required fields
+      if (!analysisResult.metrics || !Array.isArray(analysisResult.metrics)) {
+        throw new Error('Invalid analysis result structure');
+      }
+
+      res.json({
+        success: true,
+        result: analysisResult,
+      });
+    } catch (error: any) {
+      console.error('Screenshot analysis error:', error);
+      
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          error: 'Invalid input',
+          message: 'Data screenshot tidak valid.',
+          messageId: 'Data screenshot tidak valid.',
+        });
+      }
+
+      res.status(500).json({
+        error: 'Analysis failed',
+        message: 'Gagal menganalisis screenshot. Pastikan gambar jelas dan coba lagi.',
+        messageId: 'Gagal menganalisis screenshot. Pastikan gambar jelas dan coba lagi.',
+      });
+    }
+  });
+
   // Chat with BIAS
   app.post("/api/chat", async (req, res) => {
     try {
