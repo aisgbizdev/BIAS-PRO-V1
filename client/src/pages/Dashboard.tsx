@@ -102,24 +102,26 @@ export default function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-0">
-                  <div className="space-y-1.5">
-                    {type.features.map((feature, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-gray-400">
-                        <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-400" />
-                        <span>{t(feature.en, feature.id)}</span>
-                      </div>
-                    ))}
+                  <div className="flex items-end justify-between gap-4">
+                    <div className="space-y-1.5 flex-1">
+                      {type.features.map((feature, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-gray-400">
+                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-400" />
+                          <span>{t(feature.en, feature.id)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Link href={type.href} className="flex-shrink-0">
+                      <Button
+                        size="sm"
+                        className="bg-pink-500 hover:bg-pink-600 transition-colors"
+                        data-testid={`button-start-${type.href.slice(1)}`}
+                      >
+                        {t('Start', 'Mulai')}
+                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                      </Button>
+                    </Link>
                   </div>
-
-                  <Link href={type.href}>
-                    <Button
-                      className="w-full bg-pink-500 hover:bg-pink-600 transition-colors text-sm"
-                      data-testid={`button-start-${type.href.slice(1)}`}
-                    >
-                      {t('Start', 'Mulai')}
-                      <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                    </Button>
-                  </Link>
                 </CardContent>
               </Card>
             );
