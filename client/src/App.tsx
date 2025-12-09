@@ -12,6 +12,7 @@ import Dashboard from "@/pages/Dashboard";
 import Library from "@/pages/Library";
 import SocialMediaPro from "@/pages/social-media-pro";
 import CreatorAnalysis from "@/pages/creator-analysis";
+import Premium from "@/pages/Premium";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 import { trackPageView } from "@/lib/analytics";
@@ -41,11 +42,12 @@ function Router() {
         <Route path="/creator" component={CreatorAnalysis} />
         <Route path="/library" component={Library} />
         <Route path="/admin" component={Library} />
+        <Route path="/premium" component={Premium} />
         
         {/* Redirect malformed admin URLs like /admin/newsmaker to /newsmaker/admin */}
         <Route path="/admin/:brand">
           {(params) => {
-            const reservedPaths = ['social-pro', 'creator', 'library', 'admin', 'api'];
+            const reservedPaths = ['social-pro', 'creator', 'library', 'admin', 'api', 'premium'];
             if (reservedPaths.includes(params.brand?.toLowerCase() || '')) {
               return <NotFound />;
             }
@@ -59,6 +61,7 @@ function Router() {
         <Route path="/:brand/creator" component={CreatorAnalysis} />
         <Route path="/:brand/library" component={Library} />
         <Route path="/:brand/admin" component={Library} />
+        <Route path="/:brand/premium" component={Premium} />
         
         <Route component={NotFound} />
       </Switch>

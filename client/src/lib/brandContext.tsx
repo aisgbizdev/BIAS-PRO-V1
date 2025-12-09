@@ -79,7 +79,7 @@ function extractBrandSlugFromPath(pathname: string): string | null {
   
   if (parts.length === 0) return null;
   
-  const reservedPaths = ['social-pro', 'creator', 'library', 'admin', 'api', 'tiktok-pro', 'marketing-pro', 'dashboard'];
+  const reservedPaths = ['social-pro', 'creator', 'library', 'admin', 'api', 'tiktok-pro', 'marketing-pro', 'dashboard', 'premium'];
   const firstPart = parts[0].toLowerCase();
   
   if (reservedPaths.includes(firstPart)) {

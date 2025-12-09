@@ -25,6 +25,7 @@ import {
   Target,
   Lightbulb
 } from 'lucide-react';
+import { canUseVideoAnalysis, incrementVideoUsage, getDailyLimit } from '@/lib/usageLimit';
 
 interface AnalysisResult {
   overallScore: number;
@@ -80,6 +81,18 @@ export function VideoAnalyzerPanel() {
   const analyzeContent = async () => {
     if (!uploadedFile) return;
     
+    if (!canUseVideoAnalysis()) {
+      toast({
+        title: t('Daily limit reached', 'Limit harian tercapai'),
+        description: t(
+          `You've used all ${getDailyLimit()} video analyses for today. Upgrade to Premium for more!`,
+          `Kamu sudah menggunakan ${getDailyLimit()} analisis video hari ini. Upgrade ke Premium untuk lebih banyak!`
+        ),
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsAnalyzing(true);
     
     try {
@@ -111,6 +124,7 @@ export function VideoAnalyzerPanel() {
           improvements: data.result.improvements || [],
           recommendations: data.result.recommendations || [],
         });
+        incrementVideoUsage();
       } else {
         throw new Error(t('Analysis incomplete - please try again', 'Analisis tidak lengkap - silakan coba lagi'));
       }

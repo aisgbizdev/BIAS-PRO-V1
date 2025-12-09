@@ -17,6 +17,7 @@ import {
   Trophy,
   AlertCircle
 } from 'lucide-react';
+import { getRemainingVideoAnalysis, incrementVideoUsage } from '@/lib/usageLimit';
 
 interface VideoFile {
   id: string;
@@ -97,6 +98,19 @@ export function BatchAnalysis() {
       return;
     }
 
+    const remaining = getRemainingVideoAnalysis();
+    if (remaining < videos.length) {
+      toast({
+        title: t('Insufficient daily limit', 'Limit harian tidak cukup'),
+        description: t(
+          `You have ${remaining} analysis left today, but selected ${videos.length} videos. Upgrade to Premium for more!`,
+          `Kamu punya ${remaining} analisis tersisa hari ini, tapi memilih ${videos.length} video. Upgrade ke Premium untuk lebih banyak!`
+        ),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     setProgress(0);
     setBatchResult(null);
@@ -136,6 +150,7 @@ export function BatchAnalysis() {
             strengths: data.result.strengths || [],
             improvements: data.result.improvements || [],
           });
+          incrementVideoUsage();
         }
 
         setProgress(Math.round(((i + 1) / videos.length) * 100));

@@ -10,6 +10,7 @@ import {
   TrendingUp, Users, Eye, Heart, MessageSquare, Share2,
   Clock, Target, Lightbulb, ChevronRight, Image, X
 } from 'lucide-react';
+import { canUseVideoAnalysis, incrementVideoUsage, getDailyLimit } from '@/lib/usageLimit';
 
 interface ScreenshotGuide {
   id: string;
@@ -160,6 +161,18 @@ export function ScreenshotAnalyticsPanel() {
   const analyzeScreenshot = async () => {
     if (!uploadedImage) return;
     
+    if (!canUseVideoAnalysis()) {
+      toast({
+        title: t('Daily limit reached', 'Limit harian tercapai'),
+        description: t(
+          `You've used all ${getDailyLimit()} analyses for today. Upgrade to Premium for more!`,
+          `Kamu sudah menggunakan ${getDailyLimit()} analisis hari ini. Upgrade ke Premium untuk lebih banyak!`
+        ),
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsAnalyzing(true);
     
     try {
@@ -181,6 +194,7 @@ export function ScreenshotAnalyticsPanel() {
       
       if (data.result) {
         setAnalysisResult(data.result);
+        incrementVideoUsage();
       } else {
         throw new Error(language === 'id' ? 'Tidak ada hasil analisis' : 'No analysis result');
       }
