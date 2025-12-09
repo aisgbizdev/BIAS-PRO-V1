@@ -36,8 +36,10 @@ export default function Premium() {
       period: "month",
       descriptionEn: "Beta - try all features free!",
       descriptionId: "Beta - coba semua fitur gratis!",
-      featuresEn: ["20 Ai chat/day", "5 video analysis/day", "All features unlocked", "Limited time beta"],
-      featuresId: ["20 chat Ai/hari", "5 analisis video/hari", "Semua fitur aktif", "Promo beta terbatas"],
+      featuresEn: ["All features unlocked", "Limited time beta"],
+      featuresId: ["Semua fitur aktif", "Promo beta terbatas"],
+      chatLimit: 20,
+      videoLimit: 5,
       isPopular: false,
     },
     {
@@ -47,8 +49,10 @@ export default function Premium() {
       period: "month",
       descriptionEn: "For casual creators",
       descriptionId: "Untuk kreator kasual",
-      featuresEn: ["50 Ai chat/day", "5 video analysis/day", "Save history", "PDF Export"],
-      featuresId: ["50 chat Ai/hari", "5 analisis video/hari", "Simpan riwayat", "Export PDF"],
+      featuresEn: ["Save history", "PDF Export"],
+      featuresId: ["Simpan riwayat", "Export PDF"],
+      chatLimit: 50,
+      videoLimit: 5,
       isPopular: false,
     },
     {
@@ -58,8 +62,10 @@ export default function Premium() {
       period: "month",
       descriptionEn: "For serious creators",
       descriptionId: "Untuk kreator serius",
-      featuresEn: ["Unlimited Ai chat", "15 video analysis/day", "Batch Analysis", "A/B Hook Tester", "Priority support"],
-      featuresId: ["Chat Ai unlimited", "15 analisis video/hari", "Batch Analysis", "A/B Hook Tester", "Dukungan prioritas"],
+      featuresEn: ["Batch Analysis", "A/B Hook Tester", "Priority support"],
+      featuresId: ["Batch Analysis", "A/B Hook Tester", "Dukungan prioritas"],
+      chatLimit: -1,
+      videoLimit: 15,
       isPopular: true,
     },
     {
@@ -69,8 +75,10 @@ export default function Premium() {
       period: "month",
       descriptionEn: "For agencies & teams",
       descriptionId: "Untuk agensi & tim",
-      featuresEn: ["Everything in Pro", "Unlimited video analysis", "API access", "White-label branding", "Dedicated support"],
-      featuresId: ["Semua fitur Pro", "Analisis video unlimited", "Akses API", "White-label branding", "Dukungan khusus"],
+      featuresEn: ["Everything in Pro", "Dedicated support"],
+      featuresId: ["Semua fitur Pro", "Dukungan khusus"],
+      chatLimit: -1,
+      videoLimit: -1,
       isPopular: false,
     },
   ];
@@ -98,9 +106,31 @@ export default function Premium() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {displayPlans.map((plan, index) => {
-            const features = language === 'id' ? plan.featuresId : plan.featuresEn;
+            const storedFeatures = language === 'id' ? plan.featuresId : plan.featuresEn;
             const description = language === 'id' ? plan.descriptionId : plan.descriptionEn;
             const isGratis = plan.slug === 'gratis' || plan.priceIdr === 0;
+            
+            const dynamicFeatures: string[] = [];
+            if (plan.chatLimit !== undefined && plan.chatLimit !== null) {
+              if (plan.chatLimit === -1) {
+                dynamicFeatures.push(language === 'id' ? 'Chat Ai unlimited' : 'Unlimited Ai chat');
+              } else {
+                dynamicFeatures.push(language === 'id' ? `${plan.chatLimit} chat Ai/hari` : `${plan.chatLimit} Ai chat/day`);
+              }
+            }
+            if (plan.videoLimit !== undefined && plan.videoLimit !== null) {
+              if (plan.videoLimit === -1) {
+                dynamicFeatures.push(language === 'id' ? 'Analisis video unlimited' : 'Unlimited video analysis');
+              } else {
+                dynamicFeatures.push(language === 'id' ? `${plan.videoLimit} analisis video/hari` : `${plan.videoLimit} video analysis/day`);
+              }
+            }
+            const filteredStoredFeatures = (storedFeatures || []).filter(f => 
+              !f.toLowerCase().includes('chat') && 
+              !f.toLowerCase().includes('video') && 
+              !f.toLowerCase().includes('analisis')
+            );
+            const features = [...dynamicFeatures, ...filteredStoredFeatures];
             
             return (
               <Card
