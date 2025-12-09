@@ -1,7 +1,7 @@
 import biasConfig from './bias.json';
 import thiConfig from './thi.json';
 import newsmakerConfig from './newsmaker.json';
-import biasLogo from '@assets/bias logo_1762016709581.jpg';
+import biasLogo from '@assets/logo_bias_1765254658375.png';
 
 const logoMap: Record<string, string> = {
   bias: biasLogo,
