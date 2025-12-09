@@ -56,6 +56,8 @@ The application supports dynamic white-label branding for partners via a path-ba
 - Added `/api/analyze-screenshot` endpoint using OpenAI Vision for TikTok screenshot analysis
 - Added `/api/test-hooks` endpoint for A/B Hook testing with GPT-4o-mini
 - Fixed VideoAnalyzerPanel, ScreenshotAnalyticsPanel, CompetitorAnalysis to use real API calls
+- Added daily video analysis limit (5/day) with localStorage tracking for monetization prep
+- Added Premium Coming Soon page (`/premium`) with pricing tiers: Gratis, Basic (Rp 10K), Pro (Rp 25K), Unlimited (Rp 99K)
 
 ## External Dependencies
 
