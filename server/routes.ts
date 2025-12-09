@@ -1526,6 +1526,103 @@ Status meanings:
   });
 
   // ==========================================
+  // A/B HOOK TESTER
+  // ==========================================
+  
+  app.post("/api/test-hooks", async (req, res) => {
+    try {
+      const schema = z.object({
+        hooks: z.array(z.object({
+          id: z.string(),
+          text: z.string().min(1),
+        })).min(2).max(5),
+        language: z.enum(['en', 'id']).optional(),
+      });
+
+      const data = schema.parse(req.body);
+      const lang = data.language || 'id';
+
+      const hooksText = data.hooks.map((h, i) => 
+        `Hook ${String.fromCharCode(65 + i)}: "${h.text}"`
+      ).join('\n');
+
+      const langInstruction = lang === 'id' 
+        ? 'Respond in Indonesian (Bahasa Indonesia).'
+        : 'Respond in English.';
+
+      const prompt = `You are a TikTok viral content expert. Analyze these hook variations and determine which one has the highest viral potential. ${langInstruction}
+
+${hooksText}
+
+For each hook, evaluate:
+1. Attention-grabbing power (curiosity, emotion, relatability)
+2. Clarity and conciseness
+3. Call to action/engagement trigger
+4. Platform fit for TikTok/short-form video
+
+Respond in JSON format:
+{
+  "results": [
+    {
+      "hookId": "id from input",
+      "hookText": "the hook text",
+      "score": number 0-100,
+      "viralPotential": "high" | "medium" | "low",
+      "strengths": ["strength1", "strength2"],
+      "weaknesses": ["weakness1", "weakness2"],
+      "suggestion": "specific improvement suggestion"
+    }
+  ],
+  "winner": "A" or "B" or "C" etc,
+  "winnerScore": number,
+  "comparison": "brief explanation why winner is best"
+}
+
+Be objective and provide actionable feedback.`;
+
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1500,
+        response_format: { type: 'json_object' },
+      });
+
+      const resultText = completion.choices[0]?.message?.content || '{}';
+      const result = JSON.parse(resultText);
+
+      // Map hook IDs back
+      if (result.results) {
+        result.results = result.results.map((r: any, i: number) => ({
+          ...r,
+          hookId: data.hooks[i]?.id || r.hookId,
+          hookText: data.hooks[i]?.text || r.hookText,
+        }));
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      console.error('[HOOK_TESTER] Error:', error);
+      
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          error: 'Invalid input',
+          message: 'Minimal 2 hook diperlukan, maksimal 5.',
+          messageId: 'Minimal 2 hook diperlukan, maksimal 5.',
+        });
+      }
+
+      res.status(500).json({
+        error: 'Analysis failed',
+        message: 'Gagal menganalisis hook. Silakan coba lagi.',
+        messageId: 'Gagal menganalisis hook. Silakan coba lagi.',
+      });
+    }
+  });
+
+  // ==========================================
   // HYBRID CHAT (Local + Ai Fallback)
   // ==========================================
   

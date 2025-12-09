@@ -12,13 +12,15 @@ import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
 import { ThumbnailGenerator } from '@/components/ThumbnailGenerator';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
-import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, Wand2 } from 'lucide-react';
+import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, BarChart3, Wand2 } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeatureUsage, trackTabSelection, trackButtonClick } from '@/lib/analytics';
 import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel, VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel, InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
+import { BatchAnalysis } from '@/components/expert/BatchAnalysis';
+import { ABHookTester } from '@/components/expert/ABHookTester';
 
 // Import cartoon illustrations
 import illustrationEngagement from '@assets/stock_images/cartoon_person_shout_fb92982f.jpg';
@@ -55,7 +57,7 @@ export default function SocialMediaPro() {
   const [photoLoadError, setPhotoLoadError] = useState(false);
   const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('mentor');
   const [skillLevel, setSkillLevel] = useState<'beginner' | 'expert'>('beginner');
-  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail'>('account');
+  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail' | 'batch' | 'hooks'>('account');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   const handleTikTokAnalysisComplete = useCallback((result: BiasAnalysisResult) => {
@@ -266,13 +268,13 @@ export default function SocialMediaPro() {
           setAnalyticsTab(newTab);
           trackTabSelection('tiktok-pro', newTab);
         }}>
-          <TabsList className="grid w-full grid-cols-5 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
+          <TabsList className="grid w-full grid-cols-7 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
             <TabsTrigger 
               value="account"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Account', 'Akun')}</span>
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Akun', 'Akun')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="video"
@@ -280,6 +282,20 @@ export default function SocialMediaPro() {
             >
               <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Video', 'Video')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="batch"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <BarChart3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Batch', 'Batch')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="hooks"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('A/B', 'A/B')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="screenshot"
@@ -293,14 +309,14 @@ export default function SocialMediaPro() {
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <BarChart2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Compare', 'Compare')}</span>
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('VS', 'VS')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="thumbnail"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
             >
               <Wand2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Thumb', 'Thumb')}</span>
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('AI', 'AI')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -406,6 +422,16 @@ export default function SocialMediaPro() {
         {/* Thumbnail Generator Mode */}
         {analyticsTab === 'thumbnail' && (
           <ThumbnailGenerator />
+        )}
+
+        {/* Batch Analysis Mode */}
+        {analyticsTab === 'batch' && (
+          <BatchAnalysis />
+        )}
+
+        {/* A/B Hook Tester Mode */}
+        {analyticsTab === 'hooks' && (
+          <ABHookTester />
         )}
 
         {/* Analysis History */}
