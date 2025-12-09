@@ -36,8 +36,8 @@ export default function Premium() {
       period: "month",
       descriptionEn: "Perfect for trying out",
       descriptionId: "Cocok untuk mencoba",
-      featuresEn: ["10 Ai chats/day", "No video analysis", "Basic knowledge base"],
-      featuresId: ["10 chat Ai/hari", "Tanpa analisis video", "Knowledge base dasar"],
+      featuresEn: ["10 Ai chats/day", "2 video analysis/day", "Basic knowledge base"],
+      featuresId: ["10 chat Ai/hari", "2 analisis video/hari", "Knowledge base dasar"],
       isPopular: false,
     },
     {
