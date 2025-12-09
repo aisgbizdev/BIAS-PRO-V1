@@ -119,7 +119,7 @@ export default function Help() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="flex-1 bg-[#0A0A0A] text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/50 mb-4">

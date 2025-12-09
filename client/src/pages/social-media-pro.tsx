@@ -154,7 +154,7 @@ export default function SocialMediaPro() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="flex-1 bg-[#0A0A0A] text-white">
       {/* Hero Section - Minimal & Clean */}
       <div className="border-b border-gray-800/30">
         <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">

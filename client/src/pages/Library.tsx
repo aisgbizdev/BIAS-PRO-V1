@@ -640,6 +640,7 @@ export default function Library() {
   }
 
   return (
+    <div className="flex-1 bg-[#0A0A0A]">
     <div className="container max-w-6xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="space-y-2 sm:space-y-3">
@@ -755,6 +756,7 @@ export default function Library() {
           <ContributionForm />
         </TabsContent>
       </Tabs>
+    </div>
     </div>
   );
 }
