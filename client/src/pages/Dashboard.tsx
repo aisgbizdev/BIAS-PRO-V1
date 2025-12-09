@@ -1,15 +1,47 @@
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles, Zap, Brain, Target, TrendingUp } from 'lucide-react';
+import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles, Zap, Brain, Target, TrendingUp, Trophy, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link } from 'wouter';
+
+interface SuccessStory {
+  id: string;
+  name: string;
+  username: string;
+  platform: string;
+  role: string;
+  achievement: string;
+  story: string;
+  featured: boolean;
+}
 
 export default function Dashboard() {
   const { t } = useLanguage();
   const { brand, getTagline } = useBrand();
+  const [successStories, setSuccessStories] = useState<SuccessStory[]>([]);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/success-stories')
+      .then(res => res.json())
+      .then(data => {
+        const featured = (data || []).filter((s: SuccessStory) => s.featured).slice(0, 5);
+        setSuccessStories(featured.length > 0 ? featured : (data || []).slice(0, 3));
+      })
+      .catch(() => setSuccessStories([]));
+  }, []);
+
+  const nextStory = () => {
+    setCurrentStoryIndex((prev) => (prev + 1) % successStories.length);
+  };
+
+  const prevStory = () => {
+    setCurrentStoryIndex((prev) => (prev - 1 + successStories.length) % successStories.length);
+  };
 
   const analysisTypes = [
     // FIRST: TikTok Pro
@@ -247,6 +279,64 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Success Stories Carousel - Compact for Mobile */}
+        {successStories.length > 0 && (
+          <div className="mt-6 relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-500/5 via-transparent to-yellow-500/5 border border-yellow-500/20 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-yellow-500" />
+                <span className="text-sm font-medium text-white">{t('Success Stories', 'Cerita Sukses')}</span>
+                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-400">
+                  {successStories.length} {t('stories', 'cerita')}
+                </Badge>
+              </div>
+              {successStories.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={prevStory}>
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <span className="text-xs text-gray-500">{currentStoryIndex + 1}/{successStories.length}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={nextStory}>
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <Quote className="absolute top-0 left-0 w-6 h-6 text-yellow-500/20" />
+              <div className="pl-8">
+                <p className="text-sm text-gray-300 line-clamp-2 mb-2">
+                  "{successStories[currentStoryIndex]?.story}"
+                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-white">{successStories[currentStoryIndex]?.name}</p>
+                    <p className="text-[10px] text-gray-500">{successStories[currentStoryIndex]?.username}</p>
+                  </div>
+                  <div className="text-right">
+                    <Badge className={successStories[currentStoryIndex]?.platform === 'tiktok' ? 'bg-pink-500/20 text-pink-300 text-[10px]' : 'bg-purple-500/20 text-purple-300 text-[10px]'}>
+                      {successStories[currentStoryIndex]?.platform === 'tiktok' ? 'TikTok' : 'Marketing'}
+                    </Badge>
+                    <p className="text-[10px] text-green-400 mt-0.5">{successStories[currentStoryIndex]?.achievement}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-gray-800/50 flex items-center justify-between">
+              <p className="text-[10px] text-gray-500">
+                {t('Have a success story?', 'Punya cerita sukses?')}
+              </p>
+              <Link href="/library">
+                <span className="text-[10px] text-yellow-400 hover:text-yellow-300 cursor-pointer">
+                  {t('Share yours & get featured!', 'Bagikan & tampil di sini!')} →
+                </span>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Subtle Premium CTA */}
         <div className="mt-6 text-center py-4 border-t border-gray-800/50">
