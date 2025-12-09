@@ -44,14 +44,17 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Voice Input**: Web Speech API integration for hands-free text input in analysis forms.
 - **Competitor Analysis**: Compare up to 3 TikTok accounts side-by-side with visual metrics comparison.
 - **Thumbnail Generator**: AI-powered video thumbnail generation integrated into TikTok Pro analytics.
+- **Batch Analysis**: Upload 2-10 videos for AI comparison with best/worst performer detection, average scores, and insights.
+- **A/B Hook Tester**: Compare 2-5 hook variations with AI scoring, showing winner, strengths, weaknesses, and improvement suggestions.
 
 ## Recent Changes (Dec 2024)
-- Added 5 new features: PDF Export, Save History, Voice Input, Competitor Analysis, Thumbnail Generator
-- Integrated new analytics tabs (Account, Video, Screenshot, Compare, Thumbnail) into TikTok Pro
+- Added 7 new features: PDF Export, Save History, Voice Input, Competitor Analysis, Thumbnail Generator, Batch Analysis, A/B Hook Tester
+- Integrated new analytics tabs (Account, Video, Batch, A/B, Screenshot, Compare, Thumbnail) into TikTok Pro
 - Fixed Save History auto-refresh using custom event dispatching ('bias-history-updated')
 - **CRITICAL**: Removed all fake/mock/random data generation - platform now shows real data only or clear error messages
 - Added `/api/analyze-video` endpoint using OpenAI Vision for image/video thumbnail analysis
 - Added `/api/analyze-screenshot` endpoint using OpenAI Vision for TikTok screenshot analysis
+- Added `/api/test-hooks` endpoint for A/B Hook testing with GPT-4o-mini
 - Fixed VideoAnalyzerPanel, ScreenshotAnalyticsPanel, CompetitorAnalysis to use real API calls
 
 ## External Dependencies
