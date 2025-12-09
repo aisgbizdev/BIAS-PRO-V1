@@ -59,6 +59,8 @@ The application supports dynamic white-label branding for partners via a path-ba
 - Added daily video analysis limit (5/day) with localStorage tracking for monetization prep
 - Added Premium Coming Soon page (`/premium`) with pricing tiers: Gratis, Basic (Rp 10K), Pro (Rp 25K), Unlimited (Rp 99K)
 - **Admin-Configurable Settings System**: Added `app_settings` and `pricing_tiers` database tables for dynamic platform configuration. Admin can now manage usage limits, feature toggles, and pricing tiers from the Settings tab without code changes. Frontend uses SettingsProvider context to fetch and cache settings.
+- **Documentation**: Added README_DEVELOPER.md (technical docs) and PANDUAN_PENGGUNA.md (user guide in Indonesian)
+- **Help Page**: Added /help route with interactive guide, feature overview, 8-layer BIAS explanation, FAQ, and privacy info. Help menu accessible from main navigation.
 
 ## External Dependencies
 

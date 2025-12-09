@@ -3,7 +3,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { Globe, BookOpen, Home, Mic, ExternalLink, Menu } from 'lucide-react';
+import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
 import { useState } from 'react';
@@ -22,6 +22,7 @@ export function BiasHeader() {
     { href: '/social-pro', icon: SiTiktok, label: t('TikTok Pro', 'TikTok Pro') },
     { href: '/creator', icon: Mic, label: t('Marketing Pro', 'Marketing Pro') },
     { href: '/library', icon: BookOpen, label: t('Library', 'Library') },
+    { href: '/help', icon: HelpCircle, label: t('Help', 'Bantuan') },
   ];
 
   return (
