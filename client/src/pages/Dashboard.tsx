@@ -147,7 +147,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Promotional Section - Elegant & Impactful */}
+        {/* Promotional Section - Benefit-focused for TikTokers & Marketers */}
         <div className="mt-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500/10 via-purple-500/5 to-cyan-500/10 border border-pink-500/20 p-6">
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-pink-500/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-500/20 to-transparent rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -160,38 +160,89 @@ export default function Dashboard() {
               </Badge>
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
                 {t(
-                  'The Only Ai Mentor That Understands Behavior',
-                  'Satu-satunya Ai Mentor yang Memahami Perilaku'
+                  'Stop Guessing. Start Growing.',
+                  'Berhenti Tebak-tebakan. Mulai Berkembang.'
                 )}
               </h2>
               <p className="text-gray-400 text-sm max-w-xl mx-auto">
                 {t(
-                  'Not just analytics. Not just Ai chat. BiAS Pro analyzes HOW you communicate and WHY it works — using science-backed behavioral intelligence.',
-                  'Bukan sekadar analitik. Bukan sekadar chat Ai. BiAS Pro menganalisis BAGAIMANA Anda berkomunikasi dan MENGAPA itu berhasil — menggunakan behavioral intelligence berbasis sains.'
+                  'Know exactly WHY your content works or fails — and get personalized Ai coaching to fix it instantly.',
+                  'Tahu persis KENAPA kontenmu berhasil atau gagal — dan dapatkan Ai coaching personal untuk memperbaikinya seketika.'
                 )}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
-                <Brain className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-                <p className="text-xs font-medium text-white">{t('8-Layer Analysis', 'Analisis 8 Layer')}</p>
-                <p className="text-[10px] text-gray-500">{t('Deep behavioral insights', 'Insight perilaku mendalam')}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* TikToker Benefits */}
+              <div className="p-4 rounded-xl bg-zinc-900/70 border border-pink-500/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1.5 rounded-lg bg-pink-500/20">
+                    <SiTiktok className="w-4 h-4 text-pink-400" />
+                  </div>
+                  <span className="font-semibold text-white text-sm">{t('For TikTokers', 'Untuk TikTokers')}</span>
+                </div>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
+                    <span>{t('Crack the FYP algorithm — know what hooks work', 'Tembus algoritma FYP — tahu hook mana yang berhasil')}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
+                    <span>{t('Avoid shadowban with content compliance tips', 'Hindari shadowban dengan tips kepatuhan konten')}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
+                    <span>{t('Go viral with proven storytelling frameworks', 'Jadi viral dengan framework storytelling terbukti')}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
+                    <span>{t('Live streaming scripts that boost gifts & engagement', 'Script live streaming yang boost gift & engagement')}</span>
+                  </li>
+                </ul>
               </div>
-              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
-                <Target className="w-6 h-6 mx-auto mb-2 text-cyan-400" />
-                <p className="text-xs font-medium text-white">{t('Actionable Tips', 'Tips Praktis')}</p>
-                <p className="text-[10px] text-gray-500">{t('Not just data, real guidance', 'Bukan cuma data, panduan nyata')}</p>
+
+              {/* Marketer Benefits */}
+              <div className="p-4 rounded-xl bg-zinc-900/70 border border-purple-500/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1.5 rounded-lg bg-purple-500/20">
+                    <Briefcase className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <span className="font-semibold text-white text-sm">{t('For Sales & Marketing', 'Untuk Sales & Marketing')}</span>
+                </div>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
+                    <span>{t('Close more deals with persuasive scripts', 'Closing lebih banyak dengan script persuasif')}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
+                    <span>{t('Handle objections like a pro negotiator', 'Tangani keberatan seperti negosiator pro')}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
+                    <span>{t('Pitch with confidence — Ai reviews your delivery', 'Pitch percaya diri — Ai review cara penyampaianmu')}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs text-gray-300">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
+                    <span>{t('Lead meetings & presentations that convert', 'Pimpin meeting & presentasi yang menghasilkan')}</span>
+                  </li>
+                </ul>
               </div>
-              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
-                <TrendingUp className="w-6 h-6 mx-auto mb-2 text-green-400" />
-                <p className="text-xs font-medium text-white">{t('Dual Mode', 'Mode Ganda')}</p>
-                <p className="text-[10px] text-gray-500">{t('TikTok + Marketing Pro', 'TikTok + Marketing Pro')}</p>
+            </div>
+
+            {/* Bottom Stats */}
+            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-800">
+              <div className="text-center">
+                <p className="text-lg font-bold text-pink-400">8</p>
+                <p className="text-[10px] text-gray-500">{t('Behavioral Layers', 'Layer Perilaku')}</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
-                <Sparkles className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
-                <p className="text-xs font-medium text-white">{t('Bilingual Ai', 'Ai Bilingual')}</p>
-                <p className="text-[10px] text-gray-500">{t('Indonesia + English', 'Indonesia + English')}</p>
+              <div className="text-center">
+                <p className="text-lg font-bold text-cyan-400">2</p>
+                <p className="text-[10px] text-gray-500">{t('Ai Mentors', 'Ai Mentor')}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-purple-400">∞</p>
+                <p className="text-[10px] text-gray-500">{t('Growth Potential', 'Potensi Pertumbuhan')}</p>
               </div>
             </div>
           </div>
