@@ -36,8 +36,8 @@ export default function Premium() {
       period: "month",
       descriptionEn: "Perfect for trying out",
       descriptionId: "Cocok untuk mencoba",
-      featuresEn: ["10 Ai chats/day", "2 video analysis/day", "Basic knowledge base"],
-      featuresId: ["10 chat Ai/hari", "2 analisis video/hari", "Knowledge base dasar"],
+      featuresEn: ["50 Ai chats/day", "20 video analysis/day", "Full knowledge base", "All features unlocked"],
+      featuresId: ["50 chat Ai/hari", "20 analisis video/hari", "Knowledge base lengkap", "Semua fitur aktif"],
       isPopular: false,
     },
     {
@@ -47,8 +47,8 @@ export default function Premium() {
       period: "month",
       descriptionEn: "For casual creators",
       descriptionId: "Untuk kreator kasual",
-      featuresEn: ["Unlimited Ai chats", "10 video analysis/month", "Full knowledge base", "Save history"],
-      featuresId: ["Chat Ai unlimited", "10 analisis video/bulan", "Knowledge base lengkap", "Simpan riwayat"],
+      featuresEn: ["Unlimited Ai chats", "Unlimited video analysis", "Full knowledge base", "Save history"],
+      featuresId: ["Chat Ai unlimited", "Analisis video unlimited", "Knowledge base lengkap", "Simpan riwayat"],
       isPopular: false,
     },
     {
@@ -159,18 +159,18 @@ export default function Premium() {
             <CardContent className="p-8">
               <Rocket className="w-12 h-12 text-pink-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-2">
-                {t("Early Bird Offer", "Penawaran Early Bird")}
+                {t("Beta Period - All Free!", "Periode Beta - Semua Gratis!")}
               </h3>
               <p className="text-gray-400 mb-4">
                 {t(
-                  "Sign up now and get 50% off when premium launches! Limited time offer.",
-                  "Daftar sekarang dan dapatkan diskon 50% saat premium diluncurkan! Penawaran terbatas."
+                  "Enjoy all features free during beta! Premium plans coming soon with more video analysis quota.",
+                  "Nikmati semua fitur gratis selama beta! Paket premium segera hadir dengan kuota analisis video lebih banyak."
                 )}
               </p>
               <div className="flex gap-3 justify-center">
                 <Link href="/">
-                  <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                    {t("Back to App", "Kembali ke Aplikasi")}
+                  <Button className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
+                    {t("Start Using Now", "Mulai Gunakan Sekarang")}
                   </Button>
                 </Link>
               </div>
