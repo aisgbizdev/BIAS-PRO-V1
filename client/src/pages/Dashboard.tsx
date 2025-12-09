@@ -52,28 +52,15 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Hero Section - Minimal */}
-      <div className="border-b border-gray-800/30">
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-          <div className="flex flex-col items-center text-center space-y-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
-              {brand.name}
-            </h1>
-            <p className="text-sm sm:text-base text-gray-400">
-              {getTagline()}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Analysis Types Grid - Clean */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Combined Hero + Section Header */}
+      <div className="max-w-7xl mx-auto px-4 pt-6 pb-4">
         <div className="text-center mb-6">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-medium mb-2 text-white">
-            {t('Choose Analysis Type', 'Pilih Tipe Analisis')}
-          </h2>
-          <p className="text-gray-400 text-xs sm:text-sm">
-            {t('Select the mode that fits your needs', 'Pilih mode sesuai kebutuhan Anda')}
+          <p className="text-xs text-pink-400 mb-1">{brand.name}</p>
+          <h1 className="text-lg sm:text-xl font-medium text-white mb-1">
+            {getTagline()}
+          </h1>
+          <p className="text-gray-500 text-xs">
+            {t('Select mode below', 'Pilih mode di bawah')}
           </p>
         </div>
 
