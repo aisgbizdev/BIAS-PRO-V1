@@ -192,6 +192,45 @@ export const brands = pgTable("brands", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Platform settings for admin control
+export const appSettings = pgTable("app_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  key: text("key").notNull().unique(), // 'daily_video_limit', 'feature_batch_analysis', etc.
+  value: text("value").notNull(), // JSON or string value
+  valueType: text("value_type").notNull().default("string"), // 'string', 'number', 'boolean', 'json'
+  category: text("category").notNull().default("general"), // 'limits', 'features', 'pricing', 'general'
+  labelEn: text("label_en").notNull(), // Human-readable label
+  labelId: text("label_id").notNull(),
+  descriptionEn: text("description_en"),
+  descriptionId: text("description_id"),
+  isEditable: boolean("is_editable").notNull().default(true),
+  updatedBy: text("updated_by"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Pricing tiers for subscription plans
+export const pricingTiers = pgTable("pricing_tiers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(), // 'Gratis', 'Basic', 'Pro', 'Unlimited'
+  slug: text("slug").notNull().unique(), // 'gratis', 'basic', 'pro', 'unlimited'
+  priceIdr: integer("price_idr").notNull().default(0), // Price in IDR
+  priceUsd: real("price_usd").default(0), // Price in USD (optional)
+  period: text("period").notNull().default("month"), // 'month', 'year', 'lifetime'
+  descriptionEn: text("description_en"),
+  descriptionId: text("description_id"),
+  featuresEn: text("features_en").array(), // Array of feature strings
+  featuresId: text("features_id").array(),
+  chatLimit: integer("chat_limit"), // -1 for unlimited
+  videoLimit: integer("video_limit"), // -1 for unlimited
+  isActive: boolean("is_active").notNull().default(true),
+  isPopular: boolean("is_popular").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+  updatedBy: text("updated_by"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Admin audit log for tracking admin actions
 export const adminAuditLog = pgTable("admin_audit_log", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -508,6 +547,8 @@ export const insertLiveStreamingTemplateSchema = createInsertSchema(liveStreamin
 export const insertTrendingDataSchema = createInsertSchema(trendingData).omit({ id: true, createdAt: true });
 export const insertGrowthStageGuideSchema = createInsertSchema(growthStageGuides).omit({ id: true, createdAt: true });
 export const insertResponseTemplateSchema = createInsertSchema(responseTemplates).omit({ id: true, createdAt: true });
+export const insertAppSettingSchema = createInsertSchema(appSettings).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPricingTierSchema = createInsertSchema(pricingTiers).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type InsertSession = z.infer<typeof insertSessionSchema>;
 export type Session = typeof sessions.$inferSelect;
@@ -549,6 +590,10 @@ export type InsertGrowthStageGuide = z.infer<typeof insertGrowthStageGuideSchema
 export type GrowthStageGuide = typeof growthStageGuides.$inferSelect;
 export type InsertResponseTemplate = z.infer<typeof insertResponseTemplateSchema>;
 export type ResponseTemplate = typeof responseTemplates.$inferSelect;
+export type InsertAppSetting = z.infer<typeof insertAppSettingSchema>;
+export type AppSetting = typeof appSettings.$inferSelect;
+export type InsertPricingTier = z.infer<typeof insertPricingTierSchema>;
+export type PricingTier = typeof pricingTiers.$inferSelect;
 
 // BIAS Analysis Result Types
 export interface BiasLayerResult {
