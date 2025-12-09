@@ -225,7 +225,7 @@ export default function SocialMediaPro() {
             </div>
 
             {/* Ai Chat */}
-            <InteractiveCreatorHub />
+            <InteractiveCreatorHub mode="tiktok" />
 
             {/* Quick Actions - Simpler */}
             <div className="flex gap-2">

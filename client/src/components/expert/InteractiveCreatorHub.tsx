@@ -23,7 +23,11 @@ interface GenerateResult {
   isGeneric: boolean;
 }
 
-export function InteractiveCreatorHub() {
+interface InteractiveCreatorHubProps {
+  mode?: 'tiktok' | 'marketing';
+}
+
+export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHubProps) {
   const { language } = useLanguage();
   const t = (en: string, id: string) => language === 'en' ? en : id;
   
@@ -57,11 +61,19 @@ export function InteractiveCreatorHub() {
     }
   }, [input]);
 
-  const quickSuggestions = [
+  const tiktokSuggestions = [
     { text: t('Script VT 60s about...', 'Bikin script VT 60 detik tentang...'), icon: '🎬' },
     { text: t('Live 90 min guide about...', 'Panduan live 90 menit tentang...'), icon: '📺' },
     { text: t('How does FYP algorithm work?', 'Gimana cara kerja algoritma FYP?'), icon: '📈' },
   ];
+
+  const marketingSuggestions = [
+    { text: t('Sales pitch script for...', 'Script sales pitch untuk...'), icon: '💼' },
+    { text: t('Cold call opening for...', 'Pembukaan cold call untuk...'), icon: '📞' },
+    { text: t('How to handle objections?', 'Cara menangani keberatan?'), icon: '🎯' },
+  ];
+
+  const quickSuggestions = mode === 'marketing' ? marketingSuggestions : tiktokSuggestions;
 
   const generateResponse = (userInput: string, ctx: ConversationContext): GenerateResult => {
     const input = userInput.toLowerCase();
@@ -211,13 +223,19 @@ Atau refresh dan coba lagi! 🔄`;
           </div>
           <div>
             <h2 className="text-sm font-medium text-white flex items-center gap-2">
-              BIAS TikTok Mentor
+              {mode === 'marketing' 
+                ? t('BIAS Marketing Coach', 'BIAS Marketing Coach')
+                : t('BIAS TikTok Mentor', 'BIAS TikTok Mentor')
+              }
               <span className="px-1.5 py-0.5 text-[9px] rounded bg-gray-800 text-gray-400">
                 Ai
               </span>
             </h2>
             <p className="text-[10px] text-gray-400">
-              {t('Your TikTok assistant', 'Asisten TikTok pribadimu')}
+              {mode === 'marketing'
+                ? t('Your sales & pitch assistant', 'Asisten sales & pitch pribadimu')
+                : t('Your TikTok assistant', 'Asisten TikTok pribadimu')
+              }
             </p>
           </div>
         </div>
@@ -257,10 +275,15 @@ Atau refresh dan coba lagi! 🔄`;
               {t('What can I help with?', 'Mau dibantu apa?')}
             </h3>
             <p className="text-xs text-gray-400 mb-4 max-w-xs">
-              {t(
-                'Scripts, live guides, algorithm tips, growth strategies.',
-                'Script, panduan live, tips algoritma, strategi growth.'
-              )}
+              {mode === 'marketing' 
+                ? t(
+                    'Sales scripts, pitch templates, objection handling, negotiation tips.',
+                    'Script sales, template pitch, cara handle keberatan, tips negosiasi.'
+                  )
+                : t(
+                    'Scripts, live guides, algorithm tips, growth strategies.',
+                    'Script, panduan live, tips algoritma, strategi growth.'
+                  )}
             </p>
             
             <div className="flex flex-wrap justify-center gap-1.5 max-w-sm">

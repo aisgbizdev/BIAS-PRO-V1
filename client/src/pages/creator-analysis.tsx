@@ -90,7 +90,7 @@ export default function CreatorAnalysis() {
         {/* Ai Coach - Chat Mode */}
         {inputMode === 'coach' && (
           <div className="space-y-4">
-            <InteractiveCreatorHub />
+            <InteractiveCreatorHub mode="marketing" />
             <MotivationalQuote variant="purple" />
           </div>
         )}
