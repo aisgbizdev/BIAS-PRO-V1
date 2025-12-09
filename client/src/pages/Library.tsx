@@ -3043,7 +3043,7 @@ function PlatformSettingsPanel() {
                     <p className="text-xs text-muted-foreground">-1 = {t('unlimited', 'unlimited')}</p>
                   </div>
                   <div>
-                    <Label className="text-xs">{t('Popular', 'Populer')}</Label>
+                    <Label className="text-xs">{t('Highlight', 'Sorotan')}</Label>
                     <Button
                       variant={tier.isPopular ? 'default' : 'outline'}
                       size="sm"
@@ -3051,7 +3051,7 @@ function PlatformSettingsPanel() {
                       onClick={() => handleUpdatePricing(tier.slug, { isPopular: !tier.isPopular })}
                       disabled={saving === tier.slug}
                     >
-                      {tier.isPopular ? '★' : '☆'}
+                      {tier.isPopular ? t('★ Featured', '★ Unggulan') : t('☆ Set Featured', '☆ Jadikan Unggulan')}
                     </Button>
                   </div>
                 </div>
