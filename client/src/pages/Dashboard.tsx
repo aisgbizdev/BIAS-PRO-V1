@@ -278,8 +278,8 @@ export default function Dashboard() {
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleQuickChat()}
               placeholder={chatMode === 'tiktok' 
-                ? t('Ask about TikTok...', 'Tanya tentang TikTok...')
-                : t('Ask about sales...', 'Tanya tentang sales...')
+                ? t('Ex: Script 60s about...', 'Cth: Script 60 detik tentang...')
+                : t('Ex: Pitch script for...', 'Cth: Script pitch untuk...')
               }
               className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-xs placeholder:text-gray-400 focus:outline-none focus:border-gray-600"
             />

@@ -58,10 +58,9 @@ export function InteractiveCreatorHub() {
   }, [input]);
 
   const quickSuggestions = [
-    { text: t('Create 60s video script', 'Bikin script VT 60 detik'), icon: '🎬' },
-    { text: t('Live 90 min education guide', 'Panduan live 90 menit edukasi'), icon: '📺' },
+    { text: t('Script VT 60s about...', 'Bikin script VT 60 detik tentang...'), icon: '🎬' },
+    { text: t('Live 90 min guide about...', 'Panduan live 90 menit tentang...'), icon: '📺' },
     { text: t('How does FYP algorithm work?', 'Gimana cara kerja algoritma FYP?'), icon: '📈' },
-    { text: t('Is tap-tap screen allowed?', 'Emang tap tap layar boleh gak?'), icon: '❓' },
   ];
 
   const generateResponse = (userInput: string, ctx: ConversationContext): GenerateResult => {
@@ -345,7 +344,7 @@ Atau refresh dan coba lagi! 🔄`;
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('Type message...', 'Ketik pesan...')}
+              placeholder={t('Ex: Script 60s about cooking...', 'Cth: Script 60 detik tentang masak...')}
               className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 resize-none text-xs transition-colors"
               rows={1}
               style={{ minHeight: '40px', maxHeight: '100px' }}
