@@ -68,9 +68,9 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
   ];
 
   const marketingSuggestions = [
-    { text: t('Sales pitch script for...', 'Script sales pitch untuk...'), icon: '💼' },
-    { text: t('Cold call opening for...', 'Pembukaan cold call untuk...'), icon: '📞' },
-    { text: t('How to handle objections?', 'Cara menangani keberatan?'), icon: '🎯' },
+    { text: t('How to close more deals?', 'Cara closing lebih banyak?'), icon: '🎯' },
+    { text: t('Tips for confident presentation', 'Tips presentasi percaya diri'), icon: '💪' },
+    { text: t('How to build rapport fast?', 'Cara bangun rapport cepat?'), icon: '🤝' },
   ];
 
   const quickSuggestions = mode === 'marketing' ? marketingSuggestions : tiktokSuggestions;
