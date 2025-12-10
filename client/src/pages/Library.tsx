@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -1666,7 +1666,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="library" className="gap-2">
             <BookOpen className="w-4 h-4" />
             {t('Library', 'Perpustakaan')}
@@ -1678,6 +1678,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           <TabsTrigger value="brands" className="gap-2">
             <Palette className="w-4 h-4" />
             {t('Brands', 'Partner')}
+          </TabsTrigger>
+          <TabsTrigger value="users" className="gap-2">
+            <Users className="w-4 h-4" />
+            {t('Users', 'Pengguna')}
           </TabsTrigger>
           <TabsTrigger value="settings" className="gap-2">
             <Settings className="w-4 h-4" />
@@ -1911,6 +1915,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           <BrandManagement />
         </TabsContent>
 
+        <TabsContent value="users" className="mt-6">
+          <AnalyzedUsersPanel />
+        </TabsContent>
+
         <TabsContent value="settings" className="mt-6">
           <PlatformSettingsPanel />
         </TabsContent>
@@ -1919,6 +1927,143 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           <AnalyticsDashboard />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+interface AnalyzedAccount {
+  id: string;
+  username: string;
+  displayName: string | null;
+  followers: number;
+  following: number;
+  totalLikes: number;
+  totalVideos: number;
+  verified: boolean;
+  engagementRate: number | null;
+  createdAt: string;
+}
+
+function AnalyzedUsersPanel() {
+  const { t } = useLanguage();
+  const [accounts, setAccounts] = useState<AnalyzedAccount[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const loadAccounts = async () => {
+    try {
+      const res = await fetch('/api/admin/analyzed-accounts?limit=200', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load accounts');
+      const data = await res.json();
+      setAccounts(data.accounts);
+      setTotal(data.total);
+    } catch (error) {
+      console.error('Error loading accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Users className="w-6 h-6 text-pink-500" />
+          <div>
+            <h2 className="text-xl font-bold">{t('Analyzed Accounts', 'Akun yang Dianalisis')}</h2>
+            <p className="text-sm text-muted-foreground">
+              {t(`${total} TikTok accounts analyzed`, `${total} akun TikTok yang dianalisis`)}
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" onClick={loadAccounts}>
+          <RefreshCcw className="w-4 h-4 mr-2" />
+          {t('Refresh', 'Refresh')}
+        </Button>
+      </div>
+
+      {accounts.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>{t('No accounts analyzed yet', 'Belum ada akun yang dianalisis')}</p>
+            <p className="text-sm mt-2">{t('Accounts will appear here when users analyze their TikTok profiles', 'Akun akan muncul di sini ketika user menganalisis profil TikTok mereka')}</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3">
+          <div className="grid grid-cols-7 gap-2 px-4 py-2 bg-muted/50 rounded-lg text-xs font-medium text-muted-foreground">
+            <div>{t('Username', 'Username')}</div>
+            <div>{t('Display Name', 'Nama')}</div>
+            <div className="text-right">{t('Followers', 'Followers')}</div>
+            <div className="text-right">{t('Likes', 'Likes')}</div>
+            <div className="text-right">{t('Videos', 'Video')}</div>
+            <div className="text-right">{t('Engagement', 'Engagement')}</div>
+            <div className="text-right">{t('Analyzed', 'Dianalisis')}</div>
+          </div>
+          {accounts.map((account) => (
+            <Card key={account.id} className="hover:bg-muted/20 transition-colors">
+              <CardContent className="p-4">
+                <div className="grid grid-cols-7 gap-2 items-center text-sm">
+                  <div className="flex items-center gap-2">
+                    <a 
+                      href={`https://tiktok.com/@${account.username}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-pink-500 hover:underline font-medium"
+                    >
+                      @{account.username}
+                    </a>
+                    {account.verified && (
+                      <Badge variant="secondary" className="text-[10px] px-1">✓</Badge>
+                    )}
+                  </div>
+                  <div className="text-muted-foreground truncate">
+                    {account.displayName || '-'}
+                  </div>
+                  <div className="text-right font-medium">
+                    {formatNumber(account.followers)}
+                  </div>
+                  <div className="text-right text-muted-foreground">
+                    {formatNumber(account.totalLikes)}
+                  </div>
+                  <div className="text-right text-muted-foreground">
+                    {account.totalVideos}
+                  </div>
+                  <div className="text-right">
+                    {account.engagementRate ? (
+                      <Badge variant={account.engagementRate > 5 ? 'default' : 'secondary'}>
+                        {account.engagementRate.toFixed(1)}%
+                      </Badge>
+                    ) : '-'}
+                  </div>
+                  <div className="text-right text-xs text-muted-foreground">
+                    {new Date(account.createdAt).toLocaleDateString('id-ID')}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
