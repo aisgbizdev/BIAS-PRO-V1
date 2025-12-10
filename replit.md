@@ -68,6 +68,10 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Mobile Optimization**: Added safe-area padding for notched phones, improved touch targets (44px min), prevented zoom on input focus, smooth scrolling, better focus states, reduced motion support.
 - **User Onboarding Flow**: 3-step welcome modal for new users explaining BiAS Pro modes, features, and quick tips. Shows once per device, can be skipped.
 - **Legal Compliance**: Privacy Policy (/privacy) and Terms of Service (/terms) pages for Indonesian market.
+- **Tier Restructuring (Dec 2024)**: Renamed pricing tiers from Gratis/Basic/Pro/Unlimited to Starter/Pro/Agency/Enterprise with user-type focused descriptions. Starter = demo (10 analyses/day, 3 saved history), Pro = PDF Export + unlimited history, Agency = Batch Analysis + A/B Hook Tester, Enterprise = API + White-label.
+- **Usage Indicator**: Added real-time usage limit badge in header showing "X/Y" remaining analyses with link to Premium page. Turns red when ≤2 remaining.
+- **Platform Protection**: Separated global token limits (platform-wide cost control) from per-user tier limits. Admin can set global_token_per_day and global_token_per_request.
+- **What is BIAS Page**: Added /about route with simple explanation of BiAS Pro, 3 key benefits, and use cases.
 
 ## External Dependencies
 
