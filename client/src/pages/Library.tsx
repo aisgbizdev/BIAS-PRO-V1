@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -1949,6 +1949,8 @@ function AnalyzedUsersPanel() {
   const [accounts, setAccounts] = useState<AnalyzedAccount[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     loadAccounts();
@@ -1956,7 +1958,7 @@ function AnalyzedUsersPanel() {
 
   const loadAccounts = async () => {
     try {
-      const res = await fetch('/api/admin/analyzed-accounts?limit=200', { credentials: 'include' });
+      const res = await fetch('/api/admin/analyzed-accounts?limit=500', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to load accounts');
       const data = await res.json();
       setAccounts(data.accounts);
@@ -1973,6 +1975,11 @@ function AnalyzedUsersPanel() {
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toString();
   };
+
+  const totalPages = Math.ceil(accounts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAccounts = accounts.slice(startIndex, endIndex);
 
   if (loading) {
     return (
@@ -1994,7 +2001,7 @@ function AnalyzedUsersPanel() {
             </p>
           </div>
         </div>
-        <Button variant="outline" onClick={loadAccounts}>
+        <Button variant="outline" onClick={() => { setCurrentPage(1); loadAccounts(); }}>
           <RefreshCcw className="w-4 h-4 mr-2" />
           {t('Refresh', 'Refresh')}
         </Button>
@@ -2009,59 +2016,93 @@ function AnalyzedUsersPanel() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-3">
-          <div className="grid grid-cols-7 gap-2 px-4 py-2 bg-muted/50 rounded-lg text-xs font-medium text-muted-foreground">
-            <div>{t('Username', 'Username')}</div>
-            <div>{t('Display Name', 'Nama')}</div>
-            <div className="text-right">{t('Followers', 'Followers')}</div>
-            <div className="text-right">{t('Likes', 'Likes')}</div>
-            <div className="text-right">{t('Videos', 'Video')}</div>
-            <div className="text-right">{t('Engagement', 'Engagement')}</div>
-            <div className="text-right">{t('Analyzed', 'Dianalisis')}</div>
+        <div className="space-y-4">
+          <div className="grid gap-3">
+            <div className="grid grid-cols-7 gap-2 px-4 py-2 bg-muted/50 rounded-lg text-xs font-medium text-muted-foreground">
+              <div>{t('Username', 'Username')}</div>
+              <div>{t('Display Name', 'Nama')}</div>
+              <div className="text-right">{t('Followers', 'Followers')}</div>
+              <div className="text-right">{t('Likes', 'Likes')}</div>
+              <div className="text-right">{t('Videos', 'Video')}</div>
+              <div className="text-right">{t('Engagement', 'Engagement')}</div>
+              <div className="text-right">{t('Analyzed', 'Dianalisis')}</div>
+            </div>
+            {currentAccounts.map((account) => (
+              <Card key={account.id} className="hover:bg-muted/20 transition-colors">
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-7 gap-2 items-center text-sm">
+                    <div className="flex items-center gap-2">
+                      <a 
+                        href={`https://tiktok.com/@${account.username}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-pink-500 hover:underline font-medium"
+                      >
+                        @{account.username}
+                      </a>
+                      {account.verified && (
+                        <Badge variant="secondary" className="text-[10px] px-1">✓</Badge>
+                      )}
+                    </div>
+                    <div className="text-muted-foreground truncate">
+                      {account.displayName || '-'}
+                    </div>
+                    <div className="text-right font-medium">
+                      {formatNumber(account.followers)}
+                    </div>
+                    <div className="text-right text-muted-foreground">
+                      {formatNumber(account.totalLikes)}
+                    </div>
+                    <div className="text-right text-muted-foreground">
+                      {account.totalVideos}
+                    </div>
+                    <div className="text-right">
+                      {account.engagementRate ? (
+                        <Badge variant={account.engagementRate > 5 ? 'default' : 'secondary'}>
+                          {account.engagementRate.toFixed(1)}%
+                        </Badge>
+                      ) : '-'}
+                    </div>
+                    <div className="text-right text-xs text-muted-foreground">
+                      {new Date(account.createdAt).toLocaleDateString('id-ID')}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-          {accounts.map((account) => (
-            <Card key={account.id} className="hover:bg-muted/20 transition-colors">
-              <CardContent className="p-4">
-                <div className="grid grid-cols-7 gap-2 items-center text-sm">
-                  <div className="flex items-center gap-2">
-                    <a 
-                      href={`https://tiktok.com/@${account.username}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-pink-500 hover:underline font-medium"
-                    >
-                      @{account.username}
-                    </a>
-                    {account.verified && (
-                      <Badge variant="secondary" className="text-[10px] px-1">✓</Badge>
-                    )}
-                  </div>
-                  <div className="text-muted-foreground truncate">
-                    {account.displayName || '-'}
-                  </div>
-                  <div className="text-right font-medium">
-                    {formatNumber(account.followers)}
-                  </div>
-                  <div className="text-right text-muted-foreground">
-                    {formatNumber(account.totalLikes)}
-                  </div>
-                  <div className="text-right text-muted-foreground">
-                    {account.totalVideos}
-                  </div>
-                  <div className="text-right">
-                    {account.engagementRate ? (
-                      <Badge variant={account.engagementRate > 5 ? 'default' : 'secondary'}>
-                        {account.engagementRate.toFixed(1)}%
-                      </Badge>
-                    ) : '-'}
-                  </div>
-                  <div className="text-right text-xs text-muted-foreground">
-                    {new Date(account.createdAt).toLocaleDateString('id-ID')}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                {t(`Showing ${startIndex + 1}-${Math.min(endIndex, accounts.length)} of ${accounts.length}`, 
+                   `Menampilkan ${startIndex + 1}-${Math.min(endIndex, accounts.length)} dari ${accounts.length}`)}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  {t('Previous', 'Sebelumnya')}
+                </Button>
+                <span className="text-sm px-3">
+                  {currentPage} / {totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  {t('Next', 'Berikutnya')}
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
