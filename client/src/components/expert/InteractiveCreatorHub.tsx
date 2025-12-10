@@ -367,7 +367,10 @@ Atau refresh dan coba lagi! 🔄`;
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('Ex: Script 60s about cooking...', 'Cth: Script 60 detik tentang masak...')}
+              placeholder={mode === 'marketing' 
+                ? t('Ask me about sales, pitch, negotiation, presentation...', 'Tanya soal sales, pitch, negosiasi, presentasi...')
+                : t('Video topic, style, target audience, problem you want to solve...', 'Topik video, style, target audiens, masalah yang mau diselesaikan...')
+              }
               className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 resize-none text-xs transition-colors"
               rows={1}
               style={{ minHeight: '40px', maxHeight: '100px' }}

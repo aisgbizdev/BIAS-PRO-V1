@@ -178,6 +178,12 @@ export function ABHookTester() {
         <p className="text-gray-400 text-sm">
           {t('Compare hook variations - Ai picks the winner', 'Bandingkan variasi hook - Ai pilih yang terbaik')}
         </p>
+        <p className="text-gray-500 text-xs mt-1">
+          {t(
+            'Know which hook will grab attention before you publish. Stop guessing, start winning.',
+            'Tau hook mana yang akan menarik perhatian sebelum publish. Berhenti nebak, mulai menang.'
+          )}
+        </p>
       </div>
 
       {/* Hook Inputs */}

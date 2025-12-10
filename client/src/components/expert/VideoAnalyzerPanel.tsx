@@ -160,6 +160,12 @@ export function VideoAnalyzerPanel() {
             <Upload className="w-5 h-5 text-cyan-400" />
             {t('Upload Content for Analysis', 'Upload Konten untuk Analisis')}
           </CardTitle>
+          <p className="text-xs text-gray-400 mt-1">
+            {t(
+              'Get AI-powered breakdown: Hook strength, visual quality, engagement potential & personalized tips to boost your content.',
+              'Dapatkan analisis AI: Kekuatan hook, kualitas visual, potensi engagement & tips personal untuk boost kontenmu.'
+            )}
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div

@@ -4,7 +4,7 @@ import { useBrand } from '@/lib/brandContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles, Zap, Brain, Target, TrendingUp, Trophy, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles, Zap, Brain, Target, TrendingUp, Trophy, ChevronLeft, ChevronRight, Quote, Shield, Gauge, MessageCircle, Layers } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link } from 'wouter';
 
@@ -134,12 +134,14 @@ export default function Dashboard() {
                     </div>
                     <Link href={type.href} className="flex-shrink-0">
                       <Button
-                        size="sm"
-                        className="bg-pink-500 hover:bg-pink-600 transition-colors"
+                        className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all text-white font-medium px-6 py-2"
                         data-testid={`button-start-${type.href.slice(1)}`}
                       >
-                        {t('Start', 'Mulai')}
-                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                        {type.href === '/social-pro' 
+                          ? t('Start TikTok Audit', 'Mulai Audit TikTok')
+                          : t('Start Script Review', 'Mulai Review Script')
+                        }
+                        <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </Link>
                   </div>
@@ -147,6 +149,56 @@ export default function Dashboard() {
               </Card>
             );
           })}
+        </div>
+
+        {/* BIAS Signature Features - What Makes Us Different */}
+        <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-gray-900/50 via-pink-500/5 to-gray-900/50 border border-gray-800">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="p-1.5 rounded-lg bg-pink-500/20">
+              <Layers className="w-4 h-4 text-pink-400" />
+            </div>
+            <span className="text-sm font-semibold text-white">{t('BIAS Signature Features', 'Fitur Khas BIAS')}</span>
+            <Badge className="text-[10px] bg-pink-500/20 text-pink-300 border-0">
+              {t('AI-Powered', 'Bertenaga AI')}
+            </Badge>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
+              <Layers className="w-4 h-4 text-pink-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-white">{t('8-Layer Analysis', 'Analisis 8 Layer')}</p>
+                <p className="text-[10px] text-gray-500">{t('Deep behavioral scan', 'Scan perilaku mendalam')}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
+              <Gauge className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-white">{t('Hook Power Score', 'Skor Kekuatan Hook')}</p>
+                <p className="text-[10px] text-gray-500">{t('Viral potential meter', 'Ukur potensi viral')}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
+              <Shield className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-white">{t('Risk Scanner', 'Scanner Risiko')}</p>
+                <p className="text-[10px] text-gray-500">{t('Shadowban prevention', 'Cegah shadowban')}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
+              <MessageCircle className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-white">{t('Tone & Delivery', 'Nada & Penyampaian')}</p>
+                <p className="text-[10px] text-gray-500">{t('Emotional impact map', 'Peta dampak emosi')}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
+              <Brain className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-white">{t('Smart Strategy', 'Strategi Cerdas')}</p>
+                <p className="text-[10px] text-gray-500">{t('Personalized advice', 'Saran personal')}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Library Link - With Description */}

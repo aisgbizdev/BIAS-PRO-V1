@@ -221,6 +221,12 @@ export function BatchAnalysis() {
         <p className="text-gray-400 text-sm">
           {t('Upload multiple videos to compare performance', 'Upload beberapa video untuk bandingkan performa')}
         </p>
+        <p className="text-gray-500 text-xs mt-1">
+          {t(
+            'Find your best performer, spot patterns, get insights to replicate success.',
+            'Temukan konten terbaik, kenali pola, dapat insight untuk duplikasi kesuksesan.'
+          )}
+        </p>
       </div>
 
       {/* Upload Area */}
