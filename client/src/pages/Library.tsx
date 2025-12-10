@@ -3070,15 +3070,24 @@ function PlatformSettingsPanel() {
                   value={settings.find(s => s.key === 'beta_end_date')?.value || '2025-03-31'}
                   onChange={async (e) => {
                     const newValue = e.target.value;
+                    if (!newValue) return;
                     try {
-                      await fetch('/api/admin/settings/beta_end_date', {
+                      const response = await fetch('/api/admin/settings/beta_end_date', {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
                         body: JSON.stringify({ value: newValue }),
                       });
-                      setSettings(prev => prev.map(s => s.key === 'beta_end_date' ? { ...s, value: newValue } : s));
-                    } catch (e) {}
+                      if (response.ok) {
+                        setSettings(prev => prev.map(s => s.key === 'beta_end_date' ? { ...s, value: newValue } : s));
+                        toast({ title: t('Saved', 'Tersimpan'), description: t('Beta end date updated', 'Tanggal beta diupdate') });
+                      } else {
+                        const error = await response.json();
+                        toast({ title: t('Error', 'Error'), description: error.error || 'Failed to save', variant: 'destructive' });
+                      }
+                    } catch (e) {
+                      toast({ title: t('Error', 'Error'), description: 'Network error', variant: 'destructive' });
+                    }
                   }}
                   className="w-40 bg-black/50"
                 />
