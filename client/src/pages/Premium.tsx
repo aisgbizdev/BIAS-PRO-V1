@@ -30,53 +30,53 @@ export default function Premium() {
 
   const fallbackPlans = [
     {
-      name: "Gratis",
+      name: "Starter",
       slug: "gratis",
       priceIdr: 0,
       period: "month",
-      descriptionEn: "Beta - try all features free!",
-      descriptionId: "Beta - coba semua fitur gratis!",
-      featuresEn: ["All features unlocked", "Limited time beta"],
-      featuresId: ["Semua fitur aktif", "Promo beta terbatas"],
-      chatLimit: 20,
-      videoLimit: 5,
-      isPopular: false,
-    },
-    {
-      name: "Basic",
-      slug: "basic",
-      priceIdr: 29000,
-      period: "month",
-      descriptionEn: "For casual creators",
-      descriptionId: "Untuk kreator kasual",
-      featuresEn: ["Save history", "PDF Export"],
-      featuresId: ["Simpan riwayat", "Export PDF"],
-      chatLimit: 50,
-      videoLimit: 5,
+      descriptionEn: "Demo - try all features free!",
+      descriptionId: "Demo - coba semua fitur gratis!",
+      featuresEn: ["10 Ai analyses/day", "Save 3 history items", "Voice input", "Screenshot analytics"],
+      featuresId: ["10 analisa Ai/hari", "Simpan 3 riwayat", "Input suara", "Analitik screenshot"],
+      chatLimit: 10,
+      videoLimit: 10,
       isPopular: false,
     },
     {
       name: "Pro",
       slug: "pro",
+      priceIdr: 29000,
+      period: "month",
+      descriptionEn: "For casual creators",
+      descriptionId: "Untuk kreator kasual",
+      featuresEn: ["50 Ai analyses/day", "Unlimited history", "PDF Export", "Thumbnail generator"],
+      featuresId: ["50 analisa Ai/hari", "Riwayat unlimited", "Export PDF", "Generator thumbnail"],
+      chatLimit: 50,
+      videoLimit: 50,
+      isPopular: false,
+    },
+    {
+      name: "Agency",
+      slug: "agency",
       priceIdr: 79000,
       period: "month",
-      descriptionEn: "For serious creators",
-      descriptionId: "Untuk kreator serius",
-      featuresEn: ["Batch Analysis", "A/B Hook Tester", "Priority support"],
-      featuresId: ["Batch Analysis", "A/B Hook Tester", "Dukungan prioritas"],
+      descriptionEn: "For serious creators & teams",
+      descriptionId: "Untuk kreator serius & tim",
+      featuresEn: ["Unlimited Ai analyses", "Batch Analysis", "A/B Hook Tester", "Priority support"],
+      featuresId: ["Analisa Ai unlimited", "Batch Analysis", "A/B Hook Tester", "Dukungan prioritas"],
       chatLimit: -1,
-      videoLimit: 15,
+      videoLimit: -1,
       isPopular: true,
     },
     {
-      name: "Unlimited",
-      slug: "unlimited",
+      name: "Enterprise",
+      slug: "enterprise",
       priceIdr: 149000,
       period: "month",
-      descriptionEn: "For agencies & teams",
-      descriptionId: "Untuk agensi & tim",
-      featuresEn: ["Everything in Pro", "Dedicated support"],
-      featuresId: ["Semua fitur Pro", "Dukungan khusus"],
+      descriptionEn: "For agencies & large teams",
+      descriptionId: "Untuk agensi & tim besar",
+      featuresEn: ["Everything in Agency", "API access", "White-label branding", "Dedicated support"],
+      featuresId: ["Semua fitur Agency", "Akses API", "White-label branding", "Dukungan khusus"],
       chatLimit: -1,
       videoLimit: -1,
       isPopular: false,
@@ -108,7 +108,7 @@ export default function Premium() {
           {displayPlans.map((plan, index) => {
             const storedFeatures = language === 'id' ? plan.featuresId : plan.featuresEn;
             const description = language === 'id' ? plan.descriptionId : plan.descriptionEn;
-            const isGratis = plan.slug === 'gratis' || plan.priceIdr === 0;
+            const isStarter = plan.slug === 'gratis' || plan.priceIdr === 0;
             
             const betaDaysLeft = (() => {
               const betaEnd = settings.beta_end_date;
@@ -158,22 +158,22 @@ export default function Premium() {
                   <div className="mt-4">
                     <span className="text-3xl font-bold text-white">{formatPrice(plan.priceIdr)}</span>
                     <span className="text-gray-400 text-sm">
-                      {isGratis ? t("forever", " selamanya") : t("/month", "/bulan")}
+                      {isStarter ? t("forever", " selamanya") : t("/month", "/bulan")}
                     </span>
                   </div>
                   <CardDescription className="text-gray-400 mt-2">
-                    {isGratis 
+                    {isStarter 
                       ? (language === 'id' 
                           ? `Gratis selama periode beta (${betaDaysLeft} hari)` 
                           : `Free during beta period (${betaDaysLeft} days)`)
                       : description
                     }
                   </CardDescription>
-                  {isGratis && plan.videoLimit && (
+                  {isStarter && plan.videoLimit && (
                     <p className="text-xs text-gray-500 mt-1">
                       {language === 'id' 
-                        ? `Limit saat ini: ${plan.videoLimit} analisis video per hari` 
-                        : `Current limit: ${plan.videoLimit} video analysis per day`}
+                        ? `Limit: ${plan.videoLimit} analisa Ai per hari` 
+                        : `Limit: ${plan.videoLimit} Ai analyses per day`}
                     </p>
                   )}
                 </CardHeader>
@@ -194,7 +194,7 @@ export default function Premium() {
                     }`}
                     disabled={true}
                   >
-                    {isGratis ? t("Current Plan", "Paket Saat Ini") : t("Coming Soon", "Segera Hadir")}
+                    {isStarter ? t("Current Plan", "Paket Saat Ini") : t("Coming Soon", "Segera Hadir")}
                   </Button>
                 </CardContent>
               </Card>
@@ -232,15 +232,14 @@ export default function Premium() {
         <div className="mt-12 text-center text-gray-500 text-sm">
           <p>
             {t(
-              `Free during beta period (${settings.free_trial_days} days)`,
-              `Gratis selama periode beta (${settings.free_trial_days} hari)`
+              "Upgrade to unlock premium features like PDF Export, Batch Analysis, and more!",
+              "Upgrade untuk buka fitur premium seperti Export PDF, Batch Analysis, dan lainnya!"
             )}
           </p>
-          <p className="mt-1">
-            {t(
-              `Current limit: ${settings.daily_video_limit} video analysis per day`,
-              `Limit saat ini: ${settings.daily_video_limit} analisis video per hari`
-            )}
+          <p className="mt-2">
+            <Link href="/about" className="text-pink-400 hover:text-pink-300 underline">
+              {t("Learn more about BiAS Pro", "Pelajari lebih lanjut tentang BiAS Pro")}
+            </Link>
           </p>
         </div>
       </div>

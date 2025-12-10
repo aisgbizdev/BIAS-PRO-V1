@@ -1,21 +1,41 @@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
+import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle } from 'lucide-react';
+import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { openExternalLink } from '@/lib/external-link-handler';
 import { trackNavigation, trackButtonClick } from '@/lib/analytics';
 
 export function BiasHeader() {
   const { language, toggleLanguage, t } = useLanguage();
   const { brand, getTagline } = useBrand();
+  const { pricing } = useSettings();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const brandLogo = getActiveBrandLogo();
+  
+  const [usageToday, setUsageToday] = useState(0);
+  const starterPlan = pricing.find(p => p.slug === 'gratis');
+  const dailyLimit = starterPlan?.videoLimit || 10;
+  
+  useEffect(() => {
+    const stored = localStorage.getItem('bias-usage-today');
+    if (stored) {
+      const data = JSON.parse(stored);
+      const today = new Date().toDateString();
+      if (data.date === today) {
+        setUsageToday(data.count);
+      }
+    }
+  }, []);
+  
+  const remaining = Math.max(0, dailyLimit - usageToday);
 
   const menuItems = [
     { href: '/', icon: Home, label: t('Home', 'Beranda') },
@@ -141,8 +161,22 @@ export function BiasHeader() {
           })}
         </div>
 
-        {/* Right Side: TikTok + Language */}
+        {/* Right Side: Usage + TikTok + Language */}
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
+          {/* Usage Indicator */}
+          <Link href="/premium">
+            <Badge 
+              variant="outline" 
+              className={`h-7 px-2 gap-1 cursor-pointer hover:bg-accent/50 transition-colors ${
+                remaining <= 2 ? 'border-red-500 text-red-400' : 'border-pink-500/50 text-pink-400'
+              }`}
+              title={t('Daily Ai analyses remaining', 'Sisa analisa Ai hari ini')}
+            >
+              <Zap className="w-3 h-3" />
+              <span className="text-xs font-medium">{remaining}/{dailyLimit}</span>
+            </Badge>
+          </Link>
+
           {/* TikTok Follow - Always Visible */}
           <Button
             onClick={() => {

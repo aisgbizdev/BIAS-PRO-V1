@@ -16,6 +16,7 @@ import SocialMediaPro from "@/pages/social-media-pro";
 import CreatorAnalysis from "@/pages/creator-analysis";
 import Premium from "@/pages/Premium";
 import Help from "@/pages/Help";
+import About from "@/pages/About";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import NotFound from "@/pages/not-found";
@@ -49,6 +50,7 @@ function Router() {
         <Route path="/admin" component={Library} />
         <Route path="/premium" component={Premium} />
         <Route path="/help" component={Help} />
+        <Route path="/about" component={About} />
         <Route path="/privacy" component={Privacy} />
         <Route path="/terms" component={Terms} />
         
@@ -71,6 +73,7 @@ function Router() {
         <Route path="/:brand/admin" component={Library} />
         <Route path="/:brand/premium" component={Premium} />
         <Route path="/:brand/help" component={Help} />
+        <Route path="/:brand/about" component={About} />
         <Route path="/:brand/privacy" component={Privacy} />
         <Route path="/:brand/terms" component={Terms} />
         
