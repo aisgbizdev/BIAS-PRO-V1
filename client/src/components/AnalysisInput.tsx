@@ -237,8 +237,6 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
                 type="button"
                 onClick={() => {
                   setSelectedScriptType(type.key);
-                  const example = t(type.placeholderEn, type.placeholderId);
-                  setContent(`[${t(type.en, type.id)}]\n\n${example}`);
                 }}
                 className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
                   selectedScriptType === type.key
