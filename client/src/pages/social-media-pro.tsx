@@ -56,7 +56,6 @@ export default function SocialMediaPro() {
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
   const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('mentor');
-  const [skillLevel, setSkillLevel] = useState<'beginner' | 'expert'>('beginner');
   const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail' | 'batch' | 'hooks'>('account');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
@@ -202,31 +201,9 @@ export default function SocialMediaPro() {
           </div>
         </div>
 
-        {/* MENTOR HUB - Ai Chat with skill toggle */}
+        {/* MENTOR HUB - Ai Chat */}
         {mainMode === 'mentor' && (
-          <div className="space-y-3">
-            {/* Skill Level Toggle - Compact */}
-            <div className="flex items-center justify-end gap-2">
-              <span className="text-xs text-gray-400">{t('Level', 'Level')}</span>
-              <div className="inline-flex bg-[#141414] rounded-md p-0.5 border border-gray-800">
-                <button
-                  onClick={() => setSkillLevel('beginner')}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'beginner' ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
-                >
-                  {t('Basic', 'Pemula')}
-                </button>
-                <button
-                  onClick={() => setSkillLevel('expert')}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${skillLevel === 'expert' ? 'bg-gray-700 text-white' : 'text-gray-400'}`}
-                >
-                  {t('Expert', 'Expert')}
-                </button>
-              </div>
-            </div>
-
-            {/* Ai Chat */}
-            <InteractiveCreatorHub mode="tiktok" />
-          </div>
+          <InteractiveCreatorHub mode="tiktok" />
         )}
 
         {/* ANALYTICS LAB - Consolidated analytics */}
