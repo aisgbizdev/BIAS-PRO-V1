@@ -62,16 +62,20 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Documentation**: Added README_DEVELOPER.md (technical docs) and PANDUAN_PENGGUNA.md (user guide in Indonesian)
 - **Help Page**: Added /help route with interactive guide, feature overview, 8-layer BIAS explanation, FAQ, and privacy info. Help menu accessible from main navigation.
 - **Mode-Aware InteractiveCreatorHub**: Component now accepts `mode` prop ('tiktok' | 'marketing') to display context-appropriate content. TikTok Pro shows TikTok-specific suggestions (FYP, live streaming, viral hooks), Marketing Pro shows sales-focused suggestions (pitch scripts, cold calls, objection handling).
-- **Auto-Seed Production Database**: Server startup automatically seeds default settings and pricing tiers if database is empty (`server/init-settings.ts`). Uses transaction for atomicity.
+- **Auto-Seed Production Database**: Server startup automatically seeds default settings and pricing tiers if database is empty (`server/init-settings.ts`). Uses transaction for atomicity. Now also adds missing settings even if some already exist.
 - **Success Stories Feature**: User testimonial submission system with admin approval workflow. Users submit stories in Library "Sukses" tab, admin reviews/approves in admin panel "Stories" tab. Featured stories display on homepage carousel.
 - **Homepage Success Stories Carousel**: Compact, mobile-friendly carousel showing approved success stories with navigation, platform badges, and CTA to share.
-- **Mobile Optimization**: Added safe-area padding for notched phones, improved touch targets (44px min), prevented zoom on input focus, smooth scrolling, better focus states, reduced motion support.
+- **Mobile Optimization**: Added safe-area padding for notched phones, improved touch targets (44px min), prevented zoom on input focus, smooth scrolling, better focus states, reduced motion support. Dashboard CTA buttons now full-width and stack on mobile.
 - **User Onboarding Flow**: 3-step welcome modal for new users explaining BiAS Pro modes, features, and quick tips. Shows once per device, can be skipped.
 - **Legal Compliance**: Privacy Policy (/privacy) and Terms of Service (/terms) pages for Indonesian market.
 - **Tier Restructuring (Dec 2024)**: Renamed pricing tiers from Gratis/Basic/Pro/Unlimited to Starter/Pro/Agency/Enterprise with user-type focused descriptions. Starter = demo (10 analyses/day, 3 saved history), Pro = PDF Export + unlimited history, Agency = Batch Analysis + A/B Hook Tester, Enterprise = API + White-label.
 - **Usage Indicator**: Added real-time usage limit badge in header showing "X/Y" remaining analyses with link to Premium page. Turns red when ≤2 remaining.
 - **Platform Protection**: Separated global token limits (platform-wide cost control) from per-user tier limits. Admin can set global_token_per_day and global_token_per_request.
 - **What is BIAS Page**: Added /about route with simple explanation of BiAS Pro, 3 key benefits, and use cases.
+- **Removed Ai Limits Tab**: Consolidated redundant Ai Token Limits tab into Platform Protection settings. Per-user limits now managed through Pricing Tiers.
+- **Removed Level Toggle**: Removed non-functional Basic/Expert skill level toggle from TikTok Pro (backend auto-detects skill level from metrics).
+- **User Tracking System**: TikTok accounts analyzed are now persisted to PostgreSQL database (`tiktok_accounts` table) for marketing/promo purposes. Data includes username, followers, likes, engagement rate, and analysis timestamp.
+- **Admin Users Panel**: New "Users" tab in Admin Panel showing all analyzed TikTok accounts with links to profiles, follower counts, engagement rates, and analysis dates. Useful for promotional outreach.
 
 ## External Dependencies
 
