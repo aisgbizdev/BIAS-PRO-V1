@@ -867,8 +867,11 @@ function SuccessStoriesPanel() {
             <Trophy className="w-5 h-5 text-yellow-500" />
             {t('Success Stories', 'Cerita Sukses')}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('Real stories from BiAS Pro users. Share yours and get featured!', 'Cerita nyata dari pengguna BiAS Pro. Bagikan ceritamu dan tampil di sini!')}
+          <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+            {t(
+              '🎯 Share your wins! Approved stories get: Featured on homepage + TikTok promo + FREE 5 Ai analyses bonus!',
+              '🎯 Ceritakan suksesmu! Cerita disetujui dapat: Tampil di homepage + promo TikTok + BONUS 5 analisa Ai GRATIS!'
+            )}
           </p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} variant={showForm ? "outline" : "default"} size="sm">
@@ -947,16 +950,25 @@ function SuccessStoriesPanel() {
       {loading ? (
         <div className="text-center py-8 text-muted-foreground">{t('Loading...', 'Memuat...')}</div>
       ) : stories.length === 0 ? (
-        <Card>
+        <Card className="border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-transparent">
           <CardContent className="py-12 text-center">
-            <Trophy className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="font-semibold mb-2">{t('Be the First!', 'Jadilah yang Pertama!')}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('No success stories yet. Share yours and inspire others!', 'Belum ada cerita sukses. Bagikan ceritamu dan inspirasi orang lain!')}
+            <Trophy className="w-16 h-16 mx-auto text-yellow-500/50 mb-4" />
+            <h3 className="font-bold text-xl mb-3">{t('🏆 Be the First Creator!', '🏆 Jadi Kreator Pertama!')}</h3>
+            <p className="text-sm text-muted-foreground mb-2 max-w-md mx-auto">
+              {t(
+                'Got more views after using BiAS Pro? Closed a sale with our script templates? Share your wins!',
+                'Views naik setelah pakai BiAS Pro? Closing penjualan dengan template script kami? Ceritakan!'
+              )}
             </p>
-            <Button onClick={() => setShowForm(true)} variant="outline">
+            <p className="text-xs text-yellow-500/80 mb-6">
+              {t(
+                '✨ Approved stories: Featured on homepage + shared to TikTok community + FREE 5 extra Ai analyses!',
+                '✨ Cerita disetujui: Tampil di homepage + dishare ke TikTok + GRATIS 5 analisa Ai tambahan!'
+              )}
+            </p>
+            <Button onClick={() => setShowForm(true)} className="bg-yellow-500 hover:bg-yellow-600 text-black">
               <Plus className="w-4 h-4 mr-2" />
-              {t('Share Your Story', 'Bagikan Ceritamu')}
+              {t('Share My Success', 'Bagikan Suksesku')}
             </Button>
           </CardContent>
         </Card>
