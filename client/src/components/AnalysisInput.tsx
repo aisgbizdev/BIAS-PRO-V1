@@ -56,6 +56,52 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzingProgress, setAnalyzingProgress] = useState<number>(0);
+  const [selectedScriptType, setSelectedScriptType] = useState<string | null>(null);
+
+  const scriptTypes = [
+    { 
+      key: 'sales-pitch',
+      en: '💼 Sales Pitch', 
+      id: '💼 Sales Pitch',
+      placeholderEn: 'Hi [Prospect Name], I noticed your company just expanded to 3 new cities. Congratulations! I\'m reaching out because our solution has helped similar companies reduce operational costs by 40%...',
+      placeholderId: 'Halo Pak [Nama], saya lihat perusahaan Bapak baru expand ke 3 kota baru. Selamat! Saya hubungi karena solusi kami sudah bantu perusahaan serupa hemat biaya operasional 40%...'
+    },
+    { 
+      key: 'cold-call',
+      en: '📞 Cold Call', 
+      id: '📞 Cold Call',
+      placeholderEn: 'Good morning! This is [Name] from [Company]. I\'m calling because I saw your job posting for sales reps. Usually that means you\'re looking to grow revenue. Am I right?',
+      placeholderId: 'Selamat pagi! Saya [Nama] dari [Perusahaan]. Saya telepon karena lihat Bapak baru posting lowongan sales. Biasanya itu artinya lagi mau naikin omzet ya Pak?'
+    },
+    { 
+      key: 'meeting-opening',
+      en: '🤝 Meeting Opening', 
+      id: '🤝 Pembuka Meeting',
+      placeholderEn: 'Thanks everyone for joining today. Before we start, I want to share our agenda: First, we\'ll review last month\'s results. Then, discuss our Q4 strategy...',
+      placeholderId: 'Terima kasih semuanya sudah hadir. Sebelum mulai, saya share agenda kita: Pertama, review hasil bulan lalu. Kedua, bahas strategi Q4...'
+    },
+    { 
+      key: 'presentation',
+      en: '📊 Presentation', 
+      id: '📊 Presentasi',
+      placeholderEn: 'Ladies and gentlemen, imagine a world where your sales team closes 50% more deals. Today I\'m going to show you exactly how to make that happen...',
+      placeholderId: 'Bapak Ibu sekalian, bayangkan tim sales Anda closing 50% lebih banyak. Hari ini saya akan tunjukkan caranya...'
+    },
+    { 
+      key: 'follow-up-wa',
+      en: '💬 Follow-up WA', 
+      id: '💬 Follow-up WA',
+      placeholderEn: 'Hi [Name], following up on our call yesterday. I\'ve attached the proposal we discussed. The special pricing is valid until Friday. Any questions?',
+      placeholderId: 'Halo Pak [Nama], follow up dari telpon kemarin. Saya sudah lampirkan proposal yang kita bahas. Harga spesial berlaku sampai Jumat. Ada pertanyaan Pak?'
+    },
+    { 
+      key: 'public-speaking',
+      en: '🎤 Public Speaking', 
+      id: '🎤 Public Speaking',
+      placeholderEn: '3 years ago, I was exactly where you are now. Struggling, doubting myself. But one decision changed everything...',
+      placeholderId: '3 tahun lalu, saya persis di posisi kalian sekarang. Struggling, ragu sama diri sendiri. Tapi satu keputusan mengubah segalanya...'
+    },
+  ];
 
   // Simulate progressive layer analysis
   useEffect(() => {
@@ -185,19 +231,19 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
         <div className="space-y-2">
           <Label>{t('What kind of script?', 'Jenis script apa?')}</Label>
           <div className="flex flex-wrap gap-2">
-            {[
-              { en: '💼 Sales Pitch', id: '💼 Sales Pitch' },
-              { en: '📞 Cold Call', id: '📞 Cold Call' },
-              { en: '🤝 Meeting Opening', id: '🤝 Pembuka Meeting' },
-              { en: '📊 Presentation', id: '📊 Presentasi' },
-              { en: '💬 Follow-up WA', id: '💬 Follow-up WA' },
-              { en: '🎤 Public Speaking', id: '🎤 Public Speaking' },
-            ].map((type, i) => (
+            {scriptTypes.map((type) => (
               <button
-                key={i}
+                key={type.key}
                 type="button"
-                onClick={() => setContent(prev => prev ? prev : `[${t(type.en, type.id)}]\n\n`)}
-                className="px-3 py-1.5 text-xs rounded-full bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 transition-colors"
+                onClick={() => {
+                  setSelectedScriptType(type.key);
+                  setContent(`[${t(type.en, type.id)}]\n\n`);
+                }}
+                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                  selectedScriptType === type.key
+                    ? 'bg-purple-500 text-white border-purple-500'
+                    : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border-purple-500/20'
+                }`}
               >
                 {t(type.en, type.id)}
               </button>
@@ -265,11 +311,17 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={t(
-              'Example: "Hi [Prospect Name], I noticed your company just expanded to..."',
-              'Contoh: "Halo [Nama Prospek], saya lihat perusahaan Bapak baru saja expand ke..."'
-            )}
-            className="min-h-40 resize-none font-mono text-sm"
+            placeholder={(() => {
+              const selected = scriptTypes.find(s => s.key === selectedScriptType);
+              if (selected) {
+                return t(selected.placeholderEn, selected.placeholderId);
+              }
+              return t(
+                'Select a script type above, then paste or type your script here...',
+                'Pilih jenis script di atas, lalu paste atau ketik script kamu di sini...'
+              );
+            })()}
+            className="min-h-40 resize-none font-mono text-sm placeholder:text-muted-foreground/50 placeholder:italic"
             data-testid="textarea-content"
           />
           <div className="flex items-center justify-between text-xs">
