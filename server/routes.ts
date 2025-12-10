@@ -2099,6 +2099,34 @@ Be objective and provide actionable feedback.`;
     }
   });
 
+  // Admin: Get all analyzed TikTok accounts (for user tracking/promo)
+  app.get("/api/admin/analyzed-accounts", requireAdmin, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
+      const accounts = await storage.getAllAnalyzedAccounts(limit);
+      const totalCount = await storage.getAnalyzedAccountsCount();
+      
+      res.json({
+        accounts: accounts.map(a => ({
+          id: a.id,
+          username: a.username,
+          displayName: a.displayName,
+          followers: a.followers,
+          following: a.following,
+          totalLikes: a.totalLikes,
+          totalVideos: a.totalVideos,
+          verified: a.verified,
+          engagementRate: a.engagementRate,
+          createdAt: a.createdAt,
+        })),
+        total: totalCount,
+      });
+    } catch (error: any) {
+      console.error('[ADMIN_ACCOUNTS] Error getting analyzed accounts:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

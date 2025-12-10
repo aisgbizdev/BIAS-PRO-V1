@@ -26,11 +26,15 @@ import {
   liveStreamingTemplates,
   scriptTemplates,
   appSettings,
-  pricingTiers
+  pricingTiers,
+  tiktokAccounts,
+  libraryContributions,
+  pageViews,
+  featureUsage
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "../db";
-import { eq, lt, and, gt, or, lte, gte, ilike } from "drizzle-orm";
+import { eq, lt, and, gt, or, lte, gte, ilike, desc, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   // Session management
@@ -53,6 +57,8 @@ export interface IStorage {
   getTiktokAccountByUsername(username: string): Promise<TiktokAccount | undefined>;
   getTiktokAccountsBySession(sessionId: string): Promise<TiktokAccount[]>;
   updateTiktokAccount(id: string, updates: Partial<TiktokAccount>): Promise<TiktokAccount | undefined>;
+  getAllAnalyzedAccounts(limit?: number): Promise<TiktokAccount[]>;
+  getAnalyzedAccountsCount(): Promise<number>;
 
   // TikTok video management
   createTiktokVideo(video: InsertTiktokVideo): Promise<TiktokVideo>;
@@ -287,6 +293,16 @@ export class MemStorage implements IStorage {
     };
     this.tiktokAccounts.set(id, updated);
     return updated;
+  }
+
+  async getAllAnalyzedAccounts(limit: number = 100): Promise<TiktokAccount[]> {
+    return Array.from(this.tiktokAccounts.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }
+
+  async getAnalyzedAccountsCount(): Promise<number> {
+    return this.tiktokAccounts.size;
   }
 
   // TikTok Video methods
@@ -852,23 +868,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTiktokAccount(account: InsertTiktokAccount): Promise<TiktokAccount> {
-    return this.memStorage.createTiktokAccount(account);
+    const [inserted] = await db.insert(tiktokAccounts).values(account).returning();
+    return inserted;
   }
 
   async getTiktokAccount(id: string): Promise<TiktokAccount | undefined> {
-    return this.memStorage.getTiktokAccount(id);
+    const [account] = await db.select().from(tiktokAccounts).where(eq(tiktokAccounts.id, id));
+    return account;
   }
 
   async getTiktokAccountByUsername(username: string): Promise<TiktokAccount | undefined> {
-    return this.memStorage.getTiktokAccountByUsername(username);
+    const [account] = await db.select().from(tiktokAccounts)
+      .where(ilike(tiktokAccounts.username, username))
+      .orderBy(desc(tiktokAccounts.createdAt))
+      .limit(1);
+    return account;
   }
 
   async getTiktokAccountsBySession(sessionId: string): Promise<TiktokAccount[]> {
-    return this.memStorage.getTiktokAccountsBySession(sessionId);
+    return db.select().from(tiktokAccounts)
+      .where(eq(tiktokAccounts.sessionId, sessionId))
+      .orderBy(desc(tiktokAccounts.createdAt));
   }
 
   async updateTiktokAccount(id: string, updates: Partial<TiktokAccount>): Promise<TiktokAccount | undefined> {
-    return this.memStorage.updateTiktokAccount(id, updates);
+    const [updated] = await db.update(tiktokAccounts)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(tiktokAccounts.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getAllAnalyzedAccounts(limit: number = 100): Promise<TiktokAccount[]> {
+    return db.select().from(tiktokAccounts)
+      .orderBy(desc(tiktokAccounts.createdAt))
+      .limit(limit);
+  }
+
+  async getAnalyzedAccountsCount(): Promise<number> {
+    const [result] = await db.select({ count: count() }).from(tiktokAccounts);
+    return result?.count || 0;
   }
 
   async createTiktokVideo(video: InsertTiktokVideo): Promise<TiktokVideo> {
