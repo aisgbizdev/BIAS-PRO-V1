@@ -1,22 +1,20 @@
 import { useState, useCallback } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
-import { SalesScriptGenerator } from '@/components/expert/SalesScriptGenerator';
 import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
-import { Video, FileText, Zap, Briefcase, ScrollText, MessageCircle } from 'lucide-react';
+import { FileText, Zap, Briefcase, MessageCircle } from 'lucide-react';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { trackTabSelection } from '@/lib/analytics';
 import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
-  const [inputMode, setInputMode] = useState<'upload' | 'form' | 'scripts' | 'coach'>('coach');
+  const [inputMode, setInputMode] = useState<'upload' | 'form' | 'coach'>('coach');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   const handleAnalysisComplete = useCallback((result: BiasAnalysisResult, inputType: 'text' | 'video' = 'text', preview: string = '') => {
@@ -51,7 +49,7 @@ export default function CreatorAnalysis() {
           setInputMode(newMode);
           trackTabSelection('marketing-pro', newMode);
         }}>
-          <TabsList className="grid w-full grid-cols-4 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
+          <TabsList className="grid w-full grid-cols-3 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
             <TabsTrigger 
               value="coach"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
@@ -76,14 +74,6 @@ export default function CreatorAnalysis() {
               <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Review', 'Review')}</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="scripts"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-              data-testid="tab-input-scripts"
-            >
-              <ScrollText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Templates', 'Template')}</span>
-            </TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -105,13 +95,8 @@ export default function CreatorAnalysis() {
           <VideoUploadAnalyzer onAnalysisComplete={(result) => handleAnalysisComplete(result, 'video', 'Video Analysis')} mode="academic" />
         )}
 
-        {/* Sales Script Templates */}
-        {inputMode === 'scripts' && (
-          <SalesScriptGenerator />
-        )}
-
         {/* Analysis Results */}
-        {currentAnalysis && inputMode !== 'scripts' && (
+        {currentAnalysis && (
           <div data-results-container>
             <AnalysisResults result={currentAnalysis} mode="marketing" />
             
