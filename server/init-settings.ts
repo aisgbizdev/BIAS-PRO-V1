@@ -24,33 +24,37 @@ const defaultPricingTiers = [
 
 export async function initializeDefaultSettings(): Promise<void> {
   try {
-    // Check if settings already exist
+    // Check existing settings and tiers
     const existingSettings = await db.select().from(appSettings);
     const existingTiers = await db.select().from(pricingTiers);
     
-    const needsSettings = existingSettings.length === 0;
-    const needsPricing = existingTiers.length === 0;
+    const existingSettingKeys = new Set(existingSettings.map(s => s.key));
+    const existingTierSlugs = new Set(existingTiers.map(t => t.slug));
     
-    if (!needsSettings && !needsPricing) {
-      return; // Nothing to seed
+    // Find missing settings and tiers
+    const missingSettings = defaultSettings.filter(s => !existingSettingKeys.has(s.key));
+    const missingTiers = defaultPricingTiers.filter(t => !existingTierSlugs.has(t.slug));
+    
+    if (missingSettings.length === 0 && missingTiers.length === 0) {
+      return; // All settings exist
     }
 
-    // Use transaction to ensure atomicity - either all succeed or none
+    // Use transaction to ensure atomicity
     await db.transaction(async (tx) => {
-      if (needsSettings) {
-        console.log('[INIT] No settings found, seeding defaults...');
-        for (const setting of defaultSettings) {
+      if (missingSettings.length > 0) {
+        console.log(`[INIT] Adding ${missingSettings.length} missing settings...`);
+        for (const setting of missingSettings) {
           await tx.insert(appSettings).values(setting).onConflictDoNothing();
         }
-        console.log(`[INIT] ✅ Seeded ${defaultSettings.length} default settings`);
+        console.log(`[INIT] ✅ Added missing settings: ${missingSettings.map(s => s.key).join(', ')}`);
       }
 
-      if (needsPricing) {
-        console.log('[INIT] No pricing tiers found, seeding defaults...');
-        for (const tier of defaultPricingTiers) {
+      if (missingTiers.length > 0) {
+        console.log(`[INIT] Adding ${missingTiers.length} missing pricing tiers...`);
+        for (const tier of missingTiers) {
           await tx.insert(pricingTiers).values(tier).onConflictDoNothing();
         }
-        console.log(`[INIT] ✅ Seeded ${defaultPricingTiers.length} default pricing tiers`);
+        console.log(`[INIT] ✅ Added missing tiers: ${missingTiers.map(t => t.slug).join(', ')}`);
       }
     });
   } catch (error) {
