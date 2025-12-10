@@ -5,7 +5,8 @@ import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap } from 'lucide-react';
+import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
@@ -163,19 +164,56 @@ export function BiasHeader() {
 
         {/* Right Side: Usage + TikTok + Language */}
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
-          {/* Usage Indicator */}
-          <Link href="/premium">
-            <Badge 
-              variant="outline" 
-              className={`h-7 px-2 gap-1 cursor-pointer hover:bg-accent/50 transition-colors ${
-                remaining <= 2 ? 'border-red-500 text-red-400' : 'border-pink-500/50 text-pink-400'
-              }`}
-              title={t('Daily Ai analyses remaining', 'Sisa analisa Ai hari ini')}
-            >
-              <Zap className="w-3 h-3" />
-              <span className="text-xs font-medium">{remaining}/{dailyLimit}</span>
-            </Badge>
-          </Link>
+          {/* Usage Indicator - Prominent with tooltip explanation */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/premium">
+                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer transition-all ${
+                    remaining <= 0 
+                      ? 'bg-orange-500/20 border border-orange-500/50 hover:bg-orange-500/30' 
+                      : remaining <= 2 
+                        ? 'bg-red-500/20 border border-red-500/50 hover:bg-red-500/30' 
+                        : 'bg-pink-500/20 border border-pink-500/50 hover:bg-pink-500/30'
+                  }`}>
+                    <Zap className={`w-4 h-4 ${
+                      remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
+                    }`} />
+                    <span className={`text-sm font-bold ${
+                      remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
+                    }`}>
+                      {remaining}/{dailyLimit}
+                    </span>
+                    <Info className="w-3 h-3 text-muted-foreground" />
+                  </div>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[280px] p-3">
+                <div className="space-y-2">
+                  <p className="font-semibold text-sm">
+                    {t('Ai Token Limit', 'Limit Token Ai')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {remaining > 0 
+                      ? t(
+                          `You have ${remaining} Ai-powered analyses remaining today.`,
+                          `Kamu punya ${remaining} analisa Ai tersisa hari ini.`
+                        )
+                      : t(
+                          'Ai token limit reached! Analysis still works using local knowledge base (without Ai enhancement).',
+                          'Limit token Ai habis! Analisa tetap jalan pakai knowledge base lokal (tanpa Ai enhancement).'
+                        )
+                    }
+                  </p>
+                  {remaining <= 0 && (
+                    <p className="text-xs text-orange-400 font-medium">
+                      {t('Upgrade for more Ai analyses →', 'Upgrade untuk lebih banyak analisa Ai →')}
+                    </p>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           {/* TikTok Follow - Always Visible */}
           <Button
