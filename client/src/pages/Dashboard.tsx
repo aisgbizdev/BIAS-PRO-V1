@@ -123,8 +123,8 @@ export default function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-0">
-                  <div className="flex items-end justify-between gap-4">
-                    <div className="space-y-1.5 flex-1">
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
                       {type.features.map((feature, i) => (
                         <div key={i} className="flex items-start gap-2 text-xs text-gray-400">
                           <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-400" />
@@ -132,9 +132,9 @@ export default function Dashboard() {
                         </div>
                       ))}
                     </div>
-                    <Link href={type.href} className="flex-shrink-0">
+                    <Link href={type.href} className="block">
                       <Button
-                        className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all text-white font-medium px-6 py-2"
+                        className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all text-white font-medium py-2.5"
                         data-testid={`button-start-${type.href.slice(1)}`}
                       >
                         {type.href === '/social-pro' 
@@ -204,30 +204,28 @@ export default function Dashboard() {
         {/* Library Link - With Description */}
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3 flex-1">
-                <div className="p-2 rounded-lg bg-gray-800 flex-shrink-0 mt-0.5">
-                  <BookOpen className="w-5 h-5 text-gray-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium text-white mb-1">
-                    {t('Knowledge Library', 'Knowledge Library')}
-                  </h3>
-                  <p className="text-gray-400 text-xs leading-relaxed">
-                    {t(
-                      'Access glossary of TikTok, Marketing & BIAS terms. Browse community tips, contribute your knowledge, and get free promotion for your content.',
-                      'Akses glosarium istilah TikTok, Marketing & BIAS. Jelajahi tips komunitas, kontribusi pengetahuanmu, dan dapatkan promosi gratis untuk kontenmu.'
-                    )}
-                  </p>
-                </div>
+            <div className="flex items-start gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-gray-800 flex-shrink-0">
+                <BookOpen className="w-5 h-5 text-gray-400" />
               </div>
-              <Link href="/library" className="flex-shrink-0">
-                <Button size="sm" className="bg-gray-800 hover:bg-gray-700 text-gray-300" data-testid="button-go-library">
-                  {t('Browse', 'Jelajahi')}
-                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                </Button>
-              </Link>
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-white mb-1">
+                  {t('Knowledge Library', 'Knowledge Library')}
+                </h3>
+                <p className="text-gray-400 text-xs leading-relaxed">
+                  {t(
+                    'Glossary, community tips, and free promotion for your content.',
+                    'Glosarium, tips komunitas, dan promosi gratis untuk kontenmu.'
+                  )}
+                </p>
+              </div>
             </div>
+            <Link href="/library" className="block">
+              <Button className="w-full bg-gray-800 hover:bg-gray-700 text-gray-300" data-testid="button-go-library">
+                {t('Browse Library', 'Jelajahi Library')}
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 

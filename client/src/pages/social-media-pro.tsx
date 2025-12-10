@@ -226,36 +226,6 @@ export default function SocialMediaPro() {
 
             {/* Ai Chat */}
             <InteractiveCreatorHub mode="tiktok" />
-
-            {/* Quick Actions - Simpler */}
-            <div className="flex gap-2">
-              <button 
-                className="flex-1 px-3 py-2 text-xs bg-[#141414] border border-gray-800 rounded-lg text-gray-400 hover:text-white hover:border-gray-700 transition-colors"
-                onClick={() => {
-                  const chatInput = document.querySelector('textarea');
-                  if (chatInput) {
-                    (chatInput as HTMLTextAreaElement).value = 'Bikin script video 60 detik';
-                    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
-                  }
-                }}
-              >
-                <PlayCircle className="w-3.5 h-3.5 inline mr-1" />
-                {t('Script', 'Script')}
-              </button>
-              <button 
-                className="flex-1 px-3 py-2 text-xs bg-[#141414] border border-gray-800 rounded-lg text-gray-400 hover:text-white hover:border-gray-700 transition-colors"
-                onClick={() => {
-                  const chatInput = document.querySelector('textarea');
-                  if (chatInput) {
-                    (chatInput as HTMLTextAreaElement).value = 'Panduan live 60 menit';
-                    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
-                  }
-                }}
-              >
-                <Radio className="w-3.5 h-3.5 inline mr-1" />
-                {t('Live', 'Live')}
-              </button>
-            </div>
           </div>
         )}
 
