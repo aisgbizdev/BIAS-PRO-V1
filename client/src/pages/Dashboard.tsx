@@ -204,27 +204,27 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* BIAS Signature Features - Horizontal Pills */}
-            <div className="flex flex-wrap justify-center gap-2 mb-5">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/30">
-                <Layers className="w-3.5 h-3.5 text-pink-400" />
-                <span className="text-xs text-white">{t('8-Layer Scan', 'Scan 8 Layer')}</span>
+            {/* BIAS Signature Features - Grid for Mobile */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-5">
+              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-pink-500/10 border border-pink-500/30">
+                <Layers className="w-3.5 h-3.5 text-pink-400 flex-shrink-0" />
+                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('8-Layer', '8 Layer')}</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30">
-                <Gauge className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-xs text-white">{t('Hook Power', 'Kekuatan Hook')}</span>
+              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+                <Gauge className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Hook Power', 'Hook')}</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/30">
-                <Shield className="w-3.5 h-3.5 text-yellow-400" />
-                <span className="text-xs text-white">{t('Risk Scanner', 'Scanner Risiko')}</span>
+              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                <Shield className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
+                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Risk Scan', 'Risiko')}</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
-                <MessageCircle className="w-3.5 h-3.5 text-purple-400" />
-                <span className="text-xs text-white">{t('Tone Analysis', 'Analisis Nada')}</span>
+              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                <MessageCircle className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Tone', 'Nada')}</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30">
-                <Brain className="w-3.5 h-3.5 text-green-400" />
-                <span className="text-xs text-white">{t('Smart Strategy', 'Strategi Cerdas')}</span>
+              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-green-500/10 border border-green-500/30 col-span-2 sm:col-span-1">
+                <Brain className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Strategy', 'Strategi')}</span>
               </div>
             </div>
 

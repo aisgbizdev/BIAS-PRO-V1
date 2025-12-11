@@ -2017,20 +2017,23 @@ function AnalyzedUsersPanel() {
         </Card>
       ) : (
         <div className="space-y-4">
+          {/* Desktop Table Header - Hidden on Mobile */}
+          <div className="hidden md:grid grid-cols-7 gap-2 px-4 py-2 bg-muted/50 rounded-lg text-xs font-medium text-muted-foreground">
+            <div>{t('Username', 'Username')}</div>
+            <div>{t('Display Name', 'Nama')}</div>
+            <div className="text-right">{t('Followers', 'Followers')}</div>
+            <div className="text-right">{t('Likes', 'Likes')}</div>
+            <div className="text-right">{t('Videos', 'Video')}</div>
+            <div className="text-right">{t('Engagement', 'Engagement')}</div>
+            <div className="text-right">{t('Analyzed', 'Dianalisis')}</div>
+          </div>
+
           <div className="grid gap-3">
-            <div className="grid grid-cols-7 gap-2 px-4 py-2 bg-muted/50 rounded-lg text-xs font-medium text-muted-foreground">
-              <div>{t('Username', 'Username')}</div>
-              <div>{t('Display Name', 'Nama')}</div>
-              <div className="text-right">{t('Followers', 'Followers')}</div>
-              <div className="text-right">{t('Likes', 'Likes')}</div>
-              <div className="text-right">{t('Videos', 'Video')}</div>
-              <div className="text-right">{t('Engagement', 'Engagement')}</div>
-              <div className="text-right">{t('Analyzed', 'Dianalisis')}</div>
-            </div>
             {currentAccounts.map((account) => (
               <Card key={account.id} className="hover:bg-muted/20 transition-colors">
                 <CardContent className="p-4">
-                  <div className="grid grid-cols-7 gap-2 items-center text-sm">
+                  {/* Desktop View */}
+                  <div className="hidden md:grid grid-cols-7 gap-2 items-center text-sm">
                     <div className="flex items-center gap-2">
                       <a 
                         href={`https://tiktok.com/@${account.username}`} 
@@ -2067,14 +2070,50 @@ function AnalyzedUsersPanel() {
                       {new Date(account.createdAt).toLocaleDateString('id-ID')}
                     </div>
                   </div>
+
+                  {/* Mobile View - Stacked Layout */}
+                  <div className="md:hidden space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <a 
+                          href={`https://tiktok.com/@${account.username}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-pink-500 hover:underline font-medium text-sm"
+                        >
+                          @{account.username}
+                        </a>
+                        {account.verified && (
+                          <Badge variant="secondary" className="text-[10px] px-1">✓</Badge>
+                        )}
+                      </div>
+                      {account.engagementRate ? (
+                        <Badge variant={account.engagementRate > 5 ? 'default' : 'secondary'}>
+                          {account.engagementRate.toFixed(1)}%
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {account.displayName || '-'}
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex gap-3">
+                        <span><strong>{formatNumber(account.followers)}</strong> followers</span>
+                        <span><strong>{formatNumber(account.totalLikes)}</strong> likes</span>
+                      </div>
+                      <span className="text-muted-foreground">
+                        {new Date(account.createdAt).toLocaleDateString('id-ID')}
+                      </span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
+              <p className="text-sm text-muted-foreground text-center sm:text-left">
                 {t(`Showing ${startIndex + 1}-${Math.min(endIndex, accounts.length)} of ${accounts.length}`, 
                    `Menampilkan ${startIndex + 1}-${Math.min(endIndex, accounts.length)} dari ${accounts.length}`)}
               </p>
@@ -2085,10 +2124,10 @@ function AnalyzedUsersPanel() {
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                 >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  {t('Previous', 'Sebelumnya')}
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1">{t('Previous', 'Sebelumnya')}</span>
                 </Button>
-                <span className="text-sm px-3">
+                <span className="text-sm px-2">
                   {currentPage} / {totalPages}
                 </span>
                 <Button 
@@ -2097,8 +2136,8 @@ function AnalyzedUsersPanel() {
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                 >
-                  {t('Next', 'Berikutnya')}
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <span className="hidden sm:inline mr-1">{t('Next', 'Berikutnya')}</span>
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>
