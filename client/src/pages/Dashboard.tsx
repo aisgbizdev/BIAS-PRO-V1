@@ -206,26 +206,36 @@ export default function Dashboard() {
 
             {/* BIAS Signature Features - Grid for Mobile */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-5">
-              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-pink-500/10 border border-pink-500/30">
-                <Layers className="w-3.5 h-3.5 text-pink-400 flex-shrink-0" />
-                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('8-Layer', '8 Layer')}</span>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
-                <Gauge className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Hook Power', 'Hook')}</span>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-                <Shield className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
-                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Risk Scan', 'Risiko')}</span>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30">
-                <MessageCircle className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Tone', 'Nada')}</span>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-green-500/10 border border-green-500/30 col-span-2 sm:col-span-1">
-                <Brain className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
-                <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Strategy', 'Strategi')}</span>
-              </div>
+              <Link href="/library">
+                <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-pink-500/10 border border-pink-500/30 cursor-pointer hover:bg-pink-500/20 hover:border-pink-500/50 transition-all">
+                  <Layers className="w-3.5 h-3.5 text-pink-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('8-Layer', '8 Layer')}</span>
+                </div>
+              </Link>
+              <Link href="/tiktok-pro">
+                <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 cursor-pointer hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-all">
+                  <Gauge className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Hook Power', 'Hook')}</span>
+                </div>
+              </Link>
+              <Link href="/tiktok-pro">
+                <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 cursor-pointer hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-all">
+                  <Shield className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Risk Scan', 'Risiko')}</span>
+                </div>
+              </Link>
+              <Link href="/marketing-pro">
+                <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 cursor-pointer hover:bg-purple-500/20 hover:border-purple-500/50 transition-all">
+                  <MessageCircle className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Tone', 'Nada')}</span>
+                </div>
+              </Link>
+              <Link href="/marketing-pro">
+                <div className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-green-500/10 border border-green-500/30 col-span-2 sm:col-span-1 cursor-pointer hover:bg-green-500/20 hover:border-green-500/50 transition-all">
+                  <Brain className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white whitespace-nowrap">{t('Strategy', 'Strategi')}</span>
+                </div>
+              </Link>
             </div>
 
             {/* Stats Row */}
