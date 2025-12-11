@@ -151,56 +151,6 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* BIAS Signature Features - What Makes Us Different */}
-        <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-gray-900/50 via-pink-500/5 to-gray-900/50 border border-gray-800">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-pink-500/20">
-              <Layers className="w-4 h-4 text-pink-400" />
-            </div>
-            <span className="text-sm font-semibold text-white">{t('BIAS Signature Features', 'Fitur Khas BIAS')}</span>
-            <Badge className="text-[10px] bg-pink-500/20 text-pink-300 border-0">
-              {t('AI-Powered', 'Bertenaga AI')}
-            </Badge>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
-              <Layers className="w-4 h-4 text-pink-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-medium text-white">{t('8-Layer Analysis', 'Analisis 8 Layer')}</p>
-                <p className="text-[10px] text-gray-500">{t('Deep behavioral scan', 'Scan perilaku mendalam')}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
-              <Gauge className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-medium text-white">{t('Hook Power Score', 'Skor Kekuatan Hook')}</p>
-                <p className="text-[10px] text-gray-500">{t('Viral potential meter', 'Ukur potensi viral')}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
-              <Shield className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-medium text-white">{t('Risk Scanner', 'Scanner Risiko')}</p>
-                <p className="text-[10px] text-gray-500">{t('Shadowban prevention', 'Cegah shadowban')}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
-              <MessageCircle className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-medium text-white">{t('Tone & Delivery', 'Nada & Penyampaian')}</p>
-                <p className="text-[10px] text-gray-500">{t('Emotional impact map', 'Peta dampak emosi')}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-gray-800/50">
-              <Brain className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-medium text-white">{t('Smart Strategy', 'Strategi Cerdas')}</p>
-                <p className="text-[10px] text-gray-500">{t('Personalized advice', 'Saran personal')}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Library Link - With Description */}
         <Card className="bg-[#141414] border-gray-800">
           <CardContent className="p-4">
@@ -229,13 +179,13 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Promotional Section - Benefit-focused for TikTokers & Marketers */}
+        {/* Unified Power Section - Combined BIAS Features + Benefits */}
         <div className="mt-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500/10 via-purple-500/5 to-cyan-500/10 border border-pink-500/20 p-6">
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-pink-500/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-500/20 to-transparent rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
           
           <div className="relative z-10">
-            <div className="text-center mb-6">
+            <div className="text-center mb-5">
               <Badge className="bg-gradient-to-r from-pink-500/30 to-cyan-500/30 text-white border-pink-500/50 mb-3">
                 <Zap className="w-3 h-3 mr-1" />
                 {t('First in Indonesia', 'Pertama di Indonesia')}
@@ -248,82 +198,48 @@ export default function Dashboard() {
               </h2>
               <p className="text-gray-400 text-sm max-w-xl mx-auto">
                 {t(
-                  'Know exactly WHY your content works or fails — and get personalized Ai coaching to fix it instantly.',
-                  'Tahu persis KENAPA kontenmu berhasil atau gagal — dan dapatkan Ai coaching personal untuk memperbaikinya seketika.'
+                  'Science-backed Ai analysis that tells you exactly WHY your content works — or fails.',
+                  'Analisis Ai berbasis sains yang memberitahu persis KENAPA kontenmu berhasil — atau gagal.'
                 )}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              {/* TikToker Benefits */}
-              <div className="p-4 rounded-xl bg-zinc-900/70 border border-pink-500/30">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="p-1.5 rounded-lg bg-pink-500/20">
-                    <SiTiktok className="w-4 h-4 text-pink-400" />
-                  </div>
-                  <span className="font-semibold text-white text-sm">{t('For TikTokers', 'Untuk TikTokers')}</span>
-                </div>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
-                    <span>{t('Crack the FYP algorithm — know what hooks work', 'Tembus algoritma FYP — tahu hook mana yang berhasil')}</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
-                    <span>{t('Avoid shadowban with content compliance tips', 'Hindari shadowban dengan tips kepatuhan konten')}</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
-                    <span>{t('Go viral with proven storytelling frameworks', 'Jadi viral dengan framework storytelling terbukti')}</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-pink-400 flex-shrink-0" />
-                    <span>{t('Live streaming scripts that boost gifts & engagement', 'Script live streaming yang boost gift & engagement')}</span>
-                  </li>
-                </ul>
+            {/* BIAS Signature Features - Horizontal Pills */}
+            <div className="flex flex-wrap justify-center gap-2 mb-5">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/30">
+                <Layers className="w-3.5 h-3.5 text-pink-400" />
+                <span className="text-xs text-white">{t('8-Layer Scan', 'Scan 8 Layer')}</span>
               </div>
-
-              {/* Marketer Benefits */}
-              <div className="p-4 rounded-xl bg-zinc-900/70 border border-purple-500/30">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="p-1.5 rounded-lg bg-purple-500/20">
-                    <Briefcase className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <span className="font-semibold text-white text-sm">{t('For Sales & Marketing', 'Untuk Sales & Marketing')}</span>
-                </div>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
-                    <span>{t('Close more deals with persuasive scripts', 'Closing lebih banyak dengan script persuasif')}</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
-                    <span>{t('Handle objections like a pro negotiator', 'Tangani keberatan seperti negosiator pro')}</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
-                    <span>{t('Pitch with confidence — Ai reviews your delivery', 'Pitch percaya diri — Ai review cara penyampaianmu')}</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-xs text-gray-300">
-                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 text-purple-400 flex-shrink-0" />
-                    <span>{t('Lead meetings & presentations that convert', 'Pimpin meeting & presentasi yang menghasilkan')}</span>
-                  </li>
-                </ul>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30">
+                <Gauge className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-xs text-white">{t('Hook Power', 'Kekuatan Hook')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/30">
+                <Shield className="w-3.5 h-3.5 text-yellow-400" />
+                <span className="text-xs text-white">{t('Risk Scanner', 'Scanner Risiko')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
+                <MessageCircle className="w-3.5 h-3.5 text-purple-400" />
+                <span className="text-xs text-white">{t('Tone Analysis', 'Analisis Nada')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30">
+                <Brain className="w-3.5 h-3.5 text-green-400" />
+                <span className="text-xs text-white">{t('Smart Strategy', 'Strategi Cerdas')}</span>
               </div>
             </div>
 
-            {/* Bottom Stats */}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-800">
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-800/50">
               <div className="text-center">
-                <p className="text-lg font-bold text-pink-400">8</p>
+                <p className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-pink-500 bg-clip-text text-transparent">8</p>
                 <p className="text-[10px] text-gray-500">{t('Behavioral Layers', 'Layer Perilaku')}</p>
               </div>
               <div className="text-center">
-                <p className="text-lg font-bold text-cyan-400">2</p>
+                <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">2</p>
                 <p className="text-[10px] text-gray-500">{t('Ai Mentors', 'Ai Mentor')}</p>
               </div>
               <div className="text-center">
-                <p className="text-lg font-bold text-purple-400">∞</p>
+                <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-500 bg-clip-text text-transparent">∞</p>
                 <p className="text-[10px] text-gray-500">{t('Growth Potential', 'Potensi Pertumbuhan')}</p>
               </div>
             </div>
