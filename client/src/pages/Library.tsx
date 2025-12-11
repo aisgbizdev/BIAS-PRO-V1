@@ -150,7 +150,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Live battle feature where two creators compete for gifts from viewers in real-time',
     definitionId: 'Fitur live battle di mana dua creator berkompetisi untuk mendapat gift dari penonton secara real-time',
     category: 'Live Feature',
-    examples: ['PK vs creator lain', 'Menang PK dapat hadiah', 'Strategi PK untuk engagement tinggi'],
+    examples: ['PK vs other creators', 'Winning PK earns gifts', 'PK strategy for high engagement'],
     examplesId: ['PK vs creator lain', 'Menang PK dapat hadiah', 'Strategi PK untuk engagement tinggi'],
   },
   {
@@ -159,7 +159,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Feature allowing multiple viewers or creators to join live stream simultaneously',
     definitionId: 'Fitur yang memungkinkan beberapa penonton atau creator bergabung ke live stream bersamaan',
     category: 'Live Feature',
-    examples: ['Live multi guest bersama fans', 'Kolaborasi multi guest creator', 'Sesi tanya jawab multi guest'],
+    examples: ['Live multi guest with fans', 'Multi guest creator collab', 'Q&A session multi guest'],
     examplesId: ['Live multi guest bersama fans', 'Kolaborasi multi guest creator', 'Sesi tanya jawab multi guest'],
   },
   {
@@ -168,7 +168,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Viewers who send virtual gifts to creators during live streams, supporting them financially',
     definitionId: 'Penonton yang mengirim gift virtual ke creator saat live, mendukung mereka secara finansial',
     category: 'Live Feature',
-    examples: ['Top gifter minggu ini', 'Ucapan terima kasih untuk gifter', 'Reward khusus untuk gifter setia'],
+    examples: ['Top gifter this week', 'Thank you shoutout to gifters', 'Special rewards for loyal gifters'],
     examplesId: ['Top gifter minggu ini', 'Ucapan terima kasih untuk gifter', 'Reward khusus untuk gifter setia'],
   },
   {
@@ -177,7 +177,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Ranking display showing top 3 gift givers during live stream',
     definitionId: 'Tampilan ranking yang menunjukkan 3 pemberi gift teratas saat live stream',
     category: 'Live Feature',
-    examples: ['Naik ke podium 1', 'Bersaing untuk podium', 'Hadiah untuk yang di podium'],
+    examples: ['Rise to podium #1', 'Compete for podium spot', 'Prizes for podium winners'],
     examplesId: ['Naik ke podium 1', 'Bersaing untuk podium', 'Hadiah untuk yang di podium'],
   },
   {
@@ -186,7 +186,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Practice of following each other back to grow follower count mutually',
     definitionId: 'Praktik saling follow untuk menambah jumlah follower secara bersama-sama',
     category: 'Growth Strategy',
-    examples: ['Yuk mutualan', 'F4F (Follow for Follow)', 'Mutualan aktif komen'],
+    examples: ['Lets be mutuals', 'F4F (Follow for Follow)', 'Active mutuals who comment'],
     examplesId: ['Yuk mutualan', 'F4F (Follow for Follow)', 'Mutualan aktif komen'],
   },
   {
@@ -195,7 +195,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Unofficial penalty where content reach is limited without notification to creator',
     definitionId: 'Penalti tidak resmi di mana jangkauan konten dibatasi tanpa pemberitahuan ke creator',
     category: 'Platform Issue',
-    examples: ['Video kena shadowban', 'FYP views turun drastis', 'Cek apakah ter-shadowban'],
+    examples: ['Video got shadowbanned', 'FYP views dropped drastically', 'Check if shadowbanned'],
     examplesId: ['Video kena shadowban', 'FYP views turun drastis', 'Cek apakah ter-shadowban'],
   },
   {
@@ -218,7 +218,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'First 1-3 seconds of video designed to grab attention and prevent scrolling',
     definitionId: '1-3 detik pertama video untuk menarik perhatian dan mencegah scroll',
     category: 'Content Strategy',
-    examples: ['Viral hook: "Wait for it..."', 'Hook dengan pertanyaan provokatif', 'Visual hook yang menarik'],
+    examples: ['Viral hook: "Wait for it..."', 'Provocative question hook', 'Eye-catching visual hook'],
     examplesId: ['Hook viral: "Tunggu dulu..."', 'Hook dengan pertanyaan provokatif', 'Hook visual yang menarik'],
   },
   {
@@ -234,7 +234,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Feature allowing creators to respond to videos side-by-side with original content',
     definitionId: 'Fitur yang memungkinkan creator merespons video berdampingan dengan konten asli',
     category: 'Platform Feature',
-    examples: ['Duet challenge viral', 'Duet reaction video', 'Duet kolaborasi creator'],
+    examples: ['Viral duet challenge', 'Duet reaction video', 'Duet creator collaboration'],
     examplesId: ['Duet challenge viral', 'Duet reaction video', 'Duet kolaborasi creator'],
   },
   {
@@ -243,7 +243,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Feature to incorporate up to 5 seconds of another video into your own',
     definitionId: 'Fitur untuk memasukkan hingga 5 detik video lain ke dalam video kamu',
     category: 'Platform Feature',
-    examples: ['Stitch untuk reaction', 'Stitch educational content', 'Stitch trending video'],
+    examples: ['Stitch for reactions', 'Stitch educational content', 'Stitch trending videos'],
     examplesId: ['Stitch untuk reaksi', 'Stitch konten edukatif', 'Stitch video trending'],
   },
   {
@@ -252,16 +252,16 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Audio tracks (music, voice, effects) that can be reused across videos',
     definitionId: 'Track audio (musik, suara, efek) yang bisa digunakan ulang di berbagai video',
     category: 'Content Element',
-    examples: ['Trending sound meningkatkan FYP', 'Original sound untuk branding', 'Sound viral challenge'],
+    examples: ['Trending sounds boost FYP', 'Original sound for branding', 'Viral challenge sounds'],
     examplesId: ['Sound trending tingkatkan FYP', 'Sound original untuk branding', 'Sound viral challenge'],
   },
   {
-    term: 'Pelanggaran / Violation',
+    term: 'Violation',
     termId: 'Pelanggaran / Violation',
     definition: 'Content that breaks TikTok Community Guidelines, resulting in removal or account penalties',
     definitionId: 'Konten yang melanggar Panduan Komunitas TikTok, mengakibatkan penghapusan atau penalti akun',
     category: 'Platform Issue',
-    examples: ['Video dihapus karena pelanggaran', 'Warning pelanggaran konten', 'Banding pelanggaran'],
+    examples: ['Video removed for violation', 'Content violation warning', 'Appeal a violation'],
     examplesId: ['Video dihapus karena pelanggaran', 'Peringatan pelanggaran konten', 'Banding pelanggaran'],
   },
   {
@@ -270,7 +270,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Monetization program paying creators based on video views and engagement',
     definitionId: 'Program monetisasi yang membayar creator berdasarkan views dan engagement video',
     category: 'Monetization',
-    examples: ['Syarat Creator Fund', 'Penghasilan dari Creator Fund', 'Tips maksimalkan Creator Fund'],
+    examples: ['Creator Fund requirements', 'Earnings from Creator Fund', 'Tips to maximize Creator Fund'],
     examplesId: ['Syarat Creator Fund', 'Penghasilan dari Creator Fund', 'Tips maksimalkan Creator Fund'],
   },
   {
@@ -279,7 +279,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'E-commerce feature allowing creators to sell products directly through TikTok',
     definitionId: 'Fitur e-commerce yang memungkinkan creator menjual produk langsung melalui TikTok',
     category: 'Monetization',
-    examples: ['Jualan via TikTok Shop', 'Affiliate TikTok Shop', 'Live shopping TikTok Shop'],
+    examples: ['Selling via TikTok Shop', 'TikTok Shop affiliate', 'Live shopping on TikTok'],
     examplesId: ['Jualan via TikTok Shop', 'Affiliate TikTok Shop', 'Live shopping TikTok Shop'],
   },
   {
@@ -288,7 +288,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Content experiencing rapid growth in views, shares, and engagement',
     definitionId: 'Konten yang mengalami pertumbuhan cepat dalam views, shares, dan engagement',
     category: 'Content Strategy',
-    examples: ['Ikut trending challenge', 'Bikin konten viral', 'Strategi trending sound'],
+    examples: ['Join trending challenges', 'Create viral content', 'Trending sound strategy'],
     examplesId: ['Ikut trending challenge', 'Bikin konten viral', 'Strategi trending sound'],
   },
   {
@@ -297,7 +297,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'System determining which content appears on users For You Page based on behavior',
     definitionId: 'Sistem yang menentukan konten mana yang muncul di For You Page berdasarkan perilaku user',
     category: 'Platform Feature',
-    examples: ['Pahami algoritma TikTok', 'Sinyal algoritma: watch time', 'Optimasi untuk algoritma'],
+    examples: ['Understand TikTok algorithm', 'Algorithm signal: watch time', 'Optimize for algorithm'],
     examplesId: ['Pahami algoritma TikTok', 'Sinyal algoritma: watch time', 'Optimasi untuk algoritma'],
   },
   {
@@ -306,7 +306,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Specific content category or audience segment that creator focuses on',
     definitionId: 'Kategori konten atau segmen audiens spesifik yang menjadi fokus creator',
     category: 'Content Strategy',
-    examples: ['Temukan niche kamu', 'Konsisten dengan niche', 'Niche foodie, beauty, gaming'],
+    examples: ['Find your niche', 'Stay consistent with niche', 'Niche: foodie, beauty, gaming'],
     examplesId: ['Temukan niche kamu', 'Konsisten dengan niche', 'Niche foodie, beauty, gaming'],
   },
   {
@@ -315,7 +315,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Profile description introducing creator and linking to other platforms or products',
     definitionId: 'Deskripsi profil yang memperkenalkan creator dan link ke platform lain atau produk',
     category: 'Profile Element',
-    examples: ['Bio menarik perhatian', 'Link di bio', 'CTA di bio'],
+    examples: ['Attention-grabbing bio', 'Link in bio', 'CTA in bio'],
     examplesId: ['Bio menarik perhatian', 'Link di bio', 'CTA di bio'],
   },
   {
@@ -324,7 +324,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Keywords prefixed with # used for content discovery and categorization',
     definitionId: 'Kata kunci dengan awalan # untuk penemuan dan kategorisasi konten',
     category: 'Content Element',
-    examples: ['Hashtag trending', 'Mix hashtag besar & kecil', 'Branded hashtag challenge'],
+    examples: ['Trending hashtags', 'Mix big & small hashtags', 'Branded hashtag challenge'],
     examplesId: ['Hashtag trending', 'Mix hashtag besar & kecil', 'Branded hashtag challenge'],
   },
 ];
