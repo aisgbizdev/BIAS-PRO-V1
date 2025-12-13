@@ -1,6 +1,7 @@
 modules = ["nodejs-20", "web", "postgresql-16"]
 [agent]
 expertMode = true
+integrations = ["javascript_openai:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
@@ -34,25 +35,9 @@ outputType = "webview"
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 33557
-externalPort = 3002
-
-[[ports]]
-localPort = 38039
-externalPort = 3003
-
-[[ports]]
-localPort = 39149
-externalPort = 3000
-
-[[ports]]
-localPort = 44249
-externalPort = 3001
-
 [deployment]
-deploymentTarget = "vm"
-run = ["npm", "start"]
+deploymentTarget = "autoscale"
+run = ["npm", "run", "start"]
 build = ["npm", "run", "build"]
 
 [userenv]

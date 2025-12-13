@@ -11,13 +11,14 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, X, Video, FileVideo, Zap, AlertCircle, CheckCircle2, Presentation, Briefcase, Loader2 } from 'lucide-react';
-import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
+import { SiTiktok } from 'react-icons/si';
 import { apiRequest } from '@/lib/queryClient';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { AnalysisResults } from '@/components/AnalysisResults';
+import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { trackFeatureUsage } from '@/lib/analytics';
 
-type Platform = 'tiktok' | 'instagram' | 'youtube' | 'non-social';
+type Platform = 'tiktok' | 'non-social';
 
 interface VideoFile {
   file: File;
@@ -53,24 +54,10 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
       accept: 'video/mp4,video/quicktime',
       maxSize: 100, // MB
     },
-    instagram: {
-      icon: SiInstagram,
-      color: '#E4405F',
-      name: 'Instagram',
-      accept: 'video/mp4,video/quicktime',
-      maxSize: 100,
-    },
-    youtube: {
-      icon: SiYoutube,
-      color: '#FF0000',
-      name: 'YouTube',
-      accept: 'video/mp4,video/quicktime,video/avi',
-      maxSize: 100,
-    },
     'non-social': {
       icon: Presentation,
       color: '#8B5CF6',
-      name: language === 'id' ? 'Non-Media Sosial' : 'Non-Social Media',
+      name: language === 'id' ? 'Profesional' : 'Professional',
       accept: 'video/mp4,video/quicktime,video/avi,video/webm',
       maxSize: 100,
     },
@@ -281,8 +268,8 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           <CardDescription className="text-gray-400">
             {mode === 'academic' 
               ? t(
-                  'Upload your sales presentations, prospecting calls, or client pitches. Get AI-powered feedback on what to improve for better conversions.',
-                  'Upload presentasi jualan, prospek, atau pitch klien Anda. Dapatkan feedback AI tentang apa yang harus diperbaiki untuk konversi lebih baik.'
+                  'Upload your sales presentations, prospecting calls, or client pitches. Get Ai-powered feedback on what to improve for better conversions.',
+                  'Upload presentasi jualan, prospek, atau pitch klien Anda. Dapatkan feedback Ai tentang apa yang harus diperbaiki untuk konversi lebih baik.'
                 )
               : t(
                   'Upload one or more videos to analyze or compare performance',
@@ -299,7 +286,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                 {t('Select Social Media Platform', 'Pilih Platform Media Sosial')}
               </Label>
               <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
-                <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-4">
+                <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-2">
                   <TabsTrigger 
                     value="tiktok" 
                     className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-2"
@@ -307,22 +294,6 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                   >
                     <SiTiktok className="w-4 h-4" />
                     <span className="hidden sm:inline">TikTok</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="instagram"
-                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-instagram"
-                  >
-                    <SiInstagram className="w-4 h-4" />
-                    <span className="hidden sm:inline">Instagram</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="youtube"
-                    className="data-[state=active]:bg-red-600 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-youtube"
-                  >
-                    <SiYoutube className="w-4 h-4" />
-                    <span className="hidden sm:inline">YouTube</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="non-social"
@@ -437,16 +408,30 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                             <X className="w-4 h-4 text-gray-400 hover:text-red-500" />
                           </Button>
                         </div>
-                        <Textarea
-                          placeholder={t(
-                            'Describe your video content in DETAIL (gaya bicara, gestur, tone, filler words, timestamps jika ada, dll.) - Makin detail description, makin spesifik feedback AI!',
-                            'Deskripsikan konten video dengan DETAIL (gaya bicara, gestur, tone, filler words, timestamps jika ada, dll.) - Makin detail description, makin spesifik feedback AI!'
-                          )}
-                          value={videoFile.description}
-                          onChange={(e) => updateFileDescription(videoFile.id, e.target.value)}
-                          className="bg-[#0A0A0A] border-gray-700 text-white text-sm min-h-[80px]"
-                          data-testid={`textarea-description-${videoFile.id}`}
-                        />
+                        <div className="space-y-1">
+                          <Label className="text-xs text-pink-400 font-medium flex items-center gap-1">
+                            <span className="text-red-500">*</span>
+                            {t('Video Description (REQUIRED for Ai Analysis)', 'Deskripsi Video (WAJIB untuk Analisis Ai)')}
+                          </Label>
+                          <Textarea
+                            placeholder={t(
+                              'EXAMPLE: "In this sales pitch video, I start with a question about their biggest challenge. My voice is energetic at first but gets monotone around 0:30. I say \'eee\' about 5 times. My hand gestures are good when explaining benefits but I fidget when discussing pricing. The closing feels weak..."',
+                              'CONTOH: "Di video sales pitch ini, saya buka dengan pertanyaan soal masalah terbesar mereka. Suara saya energik di awal tapi jadi monoton sekitar 0:30. Saya bilang \'eee\' sekitar 5 kali. Gestur tangan bagus saat jelaskan benefit tapi nervous saat bahas harga. Closing terasa lemah..."'
+                            )}
+                            value={videoFile.description}
+                            onChange={(e) => updateFileDescription(videoFile.id, e.target.value)}
+                            className={`bg-[#0A0A0A] border-gray-700 text-white text-sm min-h-[100px] ${
+                              videoFile.description.length < 50 ? 'border-yellow-500/50' : 'border-green-500/50'
+                            }`}
+                            data-testid={`textarea-description-${videoFile.id}`}
+                          />
+                          <p className={`text-xs ${videoFile.description.length < 50 ? 'text-yellow-400' : 'text-green-400'}`}>
+                            {videoFile.description.length}/50 {t('chars minimum', 'karakter minimum')} 
+                            {videoFile.description.length < 50 
+                              ? ` - ${t('Need more detail!', 'Butuh lebih detail!')}`
+                              : ` - ${t('Good!', 'Bagus!')}`}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -462,15 +447,15 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
               <AlertDescription className="text-white space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">
-                    {t('Deep AI Analysis in Progress...', 'Analisis AI Mendalam Sedang Berlangsung...')}
+                    {t('Deep Ai Analysis in Progress...', 'Analisis Ai Mendalam Sedang Berlangsung...')}
                   </span>
                   <span className="text-sm text-cyan-300">{Math.round(uploadProgress)}%</span>
                 </div>
                 <Progress value={uploadProgress} className="h-2" />
                 <p className="text-xs text-gray-300 mt-1">
                   {t(
-                    'AI is analyzing your content in detail. This may take 15-30 seconds to give specific and actionable feedback.',
-                    'AI sedang menganalisis konten Anda secara detail. Ini mungkin memakan waktu 15-30 detik untuk memberikan feedback spesifik dan aplikatif.'
+                    'Ai is analyzing your content in detail. This may take 15-30 seconds to give specific and actionable feedback.',
+                    'Ai sedang menganalisis konten Anda secara detail. Ini mungkin memakan waktu 15-30 detik untuk memberikan feedback spesifik dan aplikatif.'
                   )}
                 </p>
               </AlertDescription>
@@ -480,7 +465,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           {/* Analyze Button */}
           <Button
             onClick={analyzeVideos}
-            disabled={uploadedFiles.length === 0 || isAnalyzing}
+            disabled={uploadedFiles.length === 0 || isAnalyzing || uploadedFiles.some(f => f.description.length < 50)}
             className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-pink-500/20"
             data-testid="button-analyze-videos"
           >
@@ -499,13 +484,26 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             )}
           </Button>
 
+          {/* Description Requirement Warning */}
+          {uploadedFiles.length > 0 && uploadedFiles.some(f => f.description.length < 50) && (
+            <Alert className="border-yellow-500/30 bg-yellow-500/10">
+              <AlertCircle className="w-4 h-4 text-yellow-400" />
+              <AlertDescription className="text-yellow-300 text-sm">
+                {t(
+                  'Ai cannot watch videos directly. Please describe each video in detail (min 50 chars) including: speaking style, gestures, tone, filler words, timestamps, etc. The more detail you provide, the more specific your feedback will be!',
+                  'Ai tidak bisa langsung menonton video. Mohon deskripsikan setiap video secara detail (min 50 karakter) termasuk: gaya bicara, gestur, tone, filler words, timestamps, dll. Makin detail deskripsimu, makin spesifik feedback yang kamu dapat!'
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Info Alert */}
           <Alert className="border-gray-700 bg-gray-800/50">
             <AlertCircle className="w-4 h-4 text-gray-400" />
             <AlertDescription className="text-gray-400 text-sm">
               {t(
-                'Upload multiple videos to compare their performance side-by-side. Each video will be analyzed using the 8-layer BIAS framework.',
-                'Upload beberapa video untuk membandingkan performa mereka. Setiap video akan dianalisis menggunakan framework BIAS 8-layer.'
+                'Tip: Ai reads your DESCRIPTION, not the video file. Better description = better analysis!',
+                'Tips: Ai membaca DESKRIPSI kamu, bukan file video. Deskripsi lebih detail = analisis lebih akurat!'
               )}
             </AlertDescription>
           </Alert>
@@ -532,6 +530,13 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
               <AnalysisResults result={result} />
             </div>
           ))}
+          
+          {/* Discussion Chat Box - After All Results */}
+          <AnalysisDiscussion 
+            analysisResult={analysisResults[0]} 
+            mode={selectedPlatform === 'tiktok' ? 'tiktok' : 'marketing'} 
+            analysisType="video" 
+          />
         </div>
       )}
     </div>

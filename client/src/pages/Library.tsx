@@ -10,9 +10,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff } from 'lucide-react';
-import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
-import { TIKTOK_RULES, INSTAGRAM_RULES, YOUTUBE_RULES, type PlatformRule } from '@/data/platformRules';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SiTiktok } from 'react-icons/si';
+import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 
 interface GlossaryTerm {
@@ -150,7 +150,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Live battle feature where two creators compete for gifts from viewers in real-time',
     definitionId: 'Fitur live battle di mana dua creator berkompetisi untuk mendapat gift dari penonton secara real-time',
     category: 'Live Feature',
-    examples: ['PK vs creator lain', 'Menang PK dapat hadiah', 'Strategi PK untuk engagement tinggi'],
+    examples: ['PK vs other creators', 'Winning PK earns gifts', 'PK strategy for high engagement'],
     examplesId: ['PK vs creator lain', 'Menang PK dapat hadiah', 'Strategi PK untuk engagement tinggi'],
   },
   {
@@ -159,7 +159,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Feature allowing multiple viewers or creators to join live stream simultaneously',
     definitionId: 'Fitur yang memungkinkan beberapa penonton atau creator bergabung ke live stream bersamaan',
     category: 'Live Feature',
-    examples: ['Live multi guest bersama fans', 'Kolaborasi multi guest creator', 'Sesi tanya jawab multi guest'],
+    examples: ['Live multi guest with fans', 'Multi guest creator collab', 'Q&A session multi guest'],
     examplesId: ['Live multi guest bersama fans', 'Kolaborasi multi guest creator', 'Sesi tanya jawab multi guest'],
   },
   {
@@ -168,7 +168,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Viewers who send virtual gifts to creators during live streams, supporting them financially',
     definitionId: 'Penonton yang mengirim gift virtual ke creator saat live, mendukung mereka secara finansial',
     category: 'Live Feature',
-    examples: ['Top gifter minggu ini', 'Ucapan terima kasih untuk gifter', 'Reward khusus untuk gifter setia'],
+    examples: ['Top gifter this week', 'Thank you shoutout to gifters', 'Special rewards for loyal gifters'],
     examplesId: ['Top gifter minggu ini', 'Ucapan terima kasih untuk gifter', 'Reward khusus untuk gifter setia'],
   },
   {
@@ -177,7 +177,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Ranking display showing top 3 gift givers during live stream',
     definitionId: 'Tampilan ranking yang menunjukkan 3 pemberi gift teratas saat live stream',
     category: 'Live Feature',
-    examples: ['Naik ke podium 1', 'Bersaing untuk podium', 'Hadiah untuk yang di podium'],
+    examples: ['Rise to podium #1', 'Compete for podium spot', 'Prizes for podium winners'],
     examplesId: ['Naik ke podium 1', 'Bersaing untuk podium', 'Hadiah untuk yang di podium'],
   },
   {
@@ -186,7 +186,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Practice of following each other back to grow follower count mutually',
     definitionId: 'Praktik saling follow untuk menambah jumlah follower secara bersama-sama',
     category: 'Growth Strategy',
-    examples: ['Yuk mutualan', 'F4F (Follow for Follow)', 'Mutualan aktif komen'],
+    examples: ['Lets be mutuals', 'F4F (Follow for Follow)', 'Active mutuals who comment'],
     examplesId: ['Yuk mutualan', 'F4F (Follow for Follow)', 'Mutualan aktif komen'],
   },
   {
@@ -195,7 +195,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Unofficial penalty where content reach is limited without notification to creator',
     definitionId: 'Penalti tidak resmi di mana jangkauan konten dibatasi tanpa pemberitahuan ke creator',
     category: 'Platform Issue',
-    examples: ['Video kena shadowban', 'FYP views turun drastis', 'Cek apakah ter-shadowban'],
+    examples: ['Video got shadowbanned', 'FYP views dropped drastically', 'Check if shadowbanned'],
     examplesId: ['Video kena shadowban', 'FYP views turun drastis', 'Cek apakah ter-shadowban'],
   },
   {
@@ -218,7 +218,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'First 1-3 seconds of video designed to grab attention and prevent scrolling',
     definitionId: '1-3 detik pertama video untuk menarik perhatian dan mencegah scroll',
     category: 'Content Strategy',
-    examples: ['Viral hook: "Wait for it..."', 'Hook dengan pertanyaan provokatif', 'Visual hook yang menarik'],
+    examples: ['Viral hook: "Wait for it..."', 'Provocative question hook', 'Eye-catching visual hook'],
     examplesId: ['Hook viral: "Tunggu dulu..."', 'Hook dengan pertanyaan provokatif', 'Hook visual yang menarik'],
   },
   {
@@ -234,7 +234,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Feature allowing creators to respond to videos side-by-side with original content',
     definitionId: 'Fitur yang memungkinkan creator merespons video berdampingan dengan konten asli',
     category: 'Platform Feature',
-    examples: ['Duet challenge viral', 'Duet reaction video', 'Duet kolaborasi creator'],
+    examples: ['Viral duet challenge', 'Duet reaction video', 'Duet creator collaboration'],
     examplesId: ['Duet challenge viral', 'Duet reaction video', 'Duet kolaborasi creator'],
   },
   {
@@ -243,7 +243,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Feature to incorporate up to 5 seconds of another video into your own',
     definitionId: 'Fitur untuk memasukkan hingga 5 detik video lain ke dalam video kamu',
     category: 'Platform Feature',
-    examples: ['Stitch untuk reaction', 'Stitch educational content', 'Stitch trending video'],
+    examples: ['Stitch for reactions', 'Stitch educational content', 'Stitch trending videos'],
     examplesId: ['Stitch untuk reaksi', 'Stitch konten edukatif', 'Stitch video trending'],
   },
   {
@@ -252,16 +252,16 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Audio tracks (music, voice, effects) that can be reused across videos',
     definitionId: 'Track audio (musik, suara, efek) yang bisa digunakan ulang di berbagai video',
     category: 'Content Element',
-    examples: ['Trending sound meningkatkan FYP', 'Original sound untuk branding', 'Sound viral challenge'],
+    examples: ['Trending sounds boost FYP', 'Original sound for branding', 'Viral challenge sounds'],
     examplesId: ['Sound trending tingkatkan FYP', 'Sound original untuk branding', 'Sound viral challenge'],
   },
   {
-    term: 'Pelanggaran / Violation',
+    term: 'Violation',
     termId: 'Pelanggaran / Violation',
     definition: 'Content that breaks TikTok Community Guidelines, resulting in removal or account penalties',
     definitionId: 'Konten yang melanggar Panduan Komunitas TikTok, mengakibatkan penghapusan atau penalti akun',
     category: 'Platform Issue',
-    examples: ['Video dihapus karena pelanggaran', 'Warning pelanggaran konten', 'Banding pelanggaran'],
+    examples: ['Video removed for violation', 'Content violation warning', 'Appeal a violation'],
     examplesId: ['Video dihapus karena pelanggaran', 'Peringatan pelanggaran konten', 'Banding pelanggaran'],
   },
   {
@@ -270,7 +270,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Monetization program paying creators based on video views and engagement',
     definitionId: 'Program monetisasi yang membayar creator berdasarkan views dan engagement video',
     category: 'Monetization',
-    examples: ['Syarat Creator Fund', 'Penghasilan dari Creator Fund', 'Tips maksimalkan Creator Fund'],
+    examples: ['Creator Fund requirements', 'Earnings from Creator Fund', 'Tips to maximize Creator Fund'],
     examplesId: ['Syarat Creator Fund', 'Penghasilan dari Creator Fund', 'Tips maksimalkan Creator Fund'],
   },
   {
@@ -279,7 +279,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'E-commerce feature allowing creators to sell products directly through TikTok',
     definitionId: 'Fitur e-commerce yang memungkinkan creator menjual produk langsung melalui TikTok',
     category: 'Monetization',
-    examples: ['Jualan via TikTok Shop', 'Affiliate TikTok Shop', 'Live shopping TikTok Shop'],
+    examples: ['Selling via TikTok Shop', 'TikTok Shop affiliate', 'Live shopping on TikTok'],
     examplesId: ['Jualan via TikTok Shop', 'Affiliate TikTok Shop', 'Live shopping TikTok Shop'],
   },
   {
@@ -288,7 +288,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Content experiencing rapid growth in views, shares, and engagement',
     definitionId: 'Konten yang mengalami pertumbuhan cepat dalam views, shares, dan engagement',
     category: 'Content Strategy',
-    examples: ['Ikut trending challenge', 'Bikin konten viral', 'Strategi trending sound'],
+    examples: ['Join trending challenges', 'Create viral content', 'Trending sound strategy'],
     examplesId: ['Ikut trending challenge', 'Bikin konten viral', 'Strategi trending sound'],
   },
   {
@@ -297,7 +297,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'System determining which content appears on users For You Page based on behavior',
     definitionId: 'Sistem yang menentukan konten mana yang muncul di For You Page berdasarkan perilaku user',
     category: 'Platform Feature',
-    examples: ['Pahami algoritma TikTok', 'Sinyal algoritma: watch time', 'Optimasi untuk algoritma'],
+    examples: ['Understand TikTok algorithm', 'Algorithm signal: watch time', 'Optimize for algorithm'],
     examplesId: ['Pahami algoritma TikTok', 'Sinyal algoritma: watch time', 'Optimasi untuk algoritma'],
   },
   {
@@ -306,7 +306,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Specific content category or audience segment that creator focuses on',
     definitionId: 'Kategori konten atau segmen audiens spesifik yang menjadi fokus creator',
     category: 'Content Strategy',
-    examples: ['Temukan niche kamu', 'Konsisten dengan niche', 'Niche foodie, beauty, gaming'],
+    examples: ['Find your niche', 'Stay consistent with niche', 'Niche: foodie, beauty, gaming'],
     examplesId: ['Temukan niche kamu', 'Konsisten dengan niche', 'Niche foodie, beauty, gaming'],
   },
   {
@@ -315,7 +315,7 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Profile description introducing creator and linking to other platforms or products',
     definitionId: 'Deskripsi profil yang memperkenalkan creator dan link ke platform lain atau produk',
     category: 'Profile Element',
-    examples: ['Bio menarik perhatian', 'Link di bio', 'CTA di bio'],
+    examples: ['Attention-grabbing bio', 'Link in bio', 'CTA in bio'],
     examplesId: ['Bio menarik perhatian', 'Link di bio', 'CTA di bio'],
   },
   {
@@ -324,311 +324,191 @@ const tiktokTerms: GlossaryTerm[] = [
     definition: 'Keywords prefixed with # used for content discovery and categorization',
     definitionId: 'Kata kunci dengan awalan # untuk penemuan dan kategorisasi konten',
     category: 'Content Element',
-    examples: ['Hashtag trending', 'Mix hashtag besar & kecil', 'Branded hashtag challenge'],
+    examples: ['Trending hashtags', 'Mix big & small hashtags', 'Branded hashtag challenge'],
     examplesId: ['Hashtag trending', 'Mix hashtag besar & kecil', 'Branded hashtag challenge'],
   },
 ];
 
-const instagramTerms: GlossaryTerm[] = [
+const marketingTerms: GlossaryTerm[] = [
   {
-    term: 'Reels',
-    termId: 'Reels',
-    definition: 'Short-form video content (up to 90 seconds) similar to TikTok format',
-    definitionId: 'Konten video pendek (hingga 90 detik) mirip format TikTok',
-    category: 'Content Type',
-    examples: ['Reels viral trending', 'Tutorial di Reels', 'Behind-the-scenes Reels'],
-    examplesId: ['Reels viral trending', 'Tutorial di Reels', 'Behind-the-scenes Reels'],
+    term: 'Call-to-Action (CTA)',
+    termId: 'Call-to-Action (CTA)',
+    definition: 'A prompt encouraging audience to take specific action like buy, subscribe, or click',
+    definitionId: 'Ajakan mendorong audiens melakukan tindakan spesifik seperti beli, subscribe, atau klik',
+    category: 'Marketing Fundamental',
+    examples: ['Buy now', 'Subscribe for more', 'Click the link', 'Comment below'],
+    examplesId: ['Beli sekarang', 'Subscribe untuk lebih banyak', 'Klik link', 'Komentar di bawah'],
   },
   {
-    term: 'Stories',
-    termId: 'Stories',
-    definition: '24-hour temporary content for casual, behind-the-scenes sharing',
-    definitionId: 'Konten sementara 24 jam untuk berbagi casual dan behind-the-scenes',
-    category: 'Content Type',
-    examples: ['Daily stories update', 'Story poll & quiz', 'Swipe up link di story'],
-    examplesId: ['Update story harian', 'Poll & quiz di story', 'Swipe up link di story'],
+    term: 'Copywriting',
+    termId: 'Copywriting',
+    definition: 'The art of writing persuasive text to drive sales or engagement',
+    definitionId: 'Seni menulis teks persuasif untuk mendorong penjualan atau engagement',
+    category: 'Marketing Skill',
+    examples: ['Headlines', 'Sales pages', 'Email subject lines', 'Social captions'],
+    examplesId: ['Headlines', 'Sales pages', 'Subject email', 'Caption sosmed'],
   },
   {
-    term: 'Highlight',
-    termId: 'Highlight',
-    definition: 'Permanent collection of Stories saved to profile for ongoing visibility',
-    definitionId: 'Koleksi permanen Stories yang disimpan di profil untuk visibilitas berkelanjutan',
-    category: 'Profile Element',
-    examples: ['Highlight produk', 'Highlight testimoni', 'Highlight FAQ'],
-    examplesId: ['Highlight produk', 'Highlight testimoni', 'Highlight FAQ'],
+    term: 'Lead Magnet',
+    termId: 'Lead Magnet',
+    definition: 'Free valuable content offered in exchange for contact information',
+    definitionId: 'Konten gratis berharga yang ditawarkan sebagai ganti informasi kontak',
+    category: 'Marketing Strategy',
+    examples: ['Free ebook', 'Webinar', 'Checklist', 'Templates'],
+    examplesId: ['Ebook gratis', 'Webinar', 'Checklist', 'Template'],
   },
   {
-    term: 'Close Friends',
-    termId: 'Close Friends',
-    definition: 'Private Stories list visible only to selected followers for exclusive content',
-    definitionId: 'Daftar Stories privat yang hanya terlihat untuk follower terpilih untuk konten eksklusif',
-    category: 'Platform Feature',
-    examples: ['Konten eksklusif Close Friends', 'Behind-the-scenes untuk Close Friends', 'Promo khusus Close Friends'],
-    examplesId: ['Konten eksklusif Close Friends', 'Behind-the-scenes untuk Close Friends', 'Promo khusus Close Friends'],
+    term: 'Sales Funnel',
+    termId: 'Sales Funnel',
+    definition: 'Customer journey stages from awareness to purchase decision',
+    definitionId: 'Tahapan perjalanan pelanggan dari awareness hingga keputusan pembelian',
+    category: 'Marketing Strategy',
+    examples: ['TOFU (Top of Funnel)', 'MOFU (Middle)', 'BOFU (Bottom)', 'Conversion'],
+    examplesId: ['TOFU (Atas Funnel)', 'MOFU (Tengah)', 'BOFU (Bawah)', 'Konversi'],
   },
   {
-    term: 'Carousel',
-    termId: 'Carousel',
-    definition: 'Multi-image/video posts that users swipe through (up to 10 items)',
-    definitionId: 'Postingan multi-gambar/video yang digeser pengguna (hingga 10 item)',
-    category: 'Content Type',
-    examples: ['Carousel tutorial step-by-step', 'Carousel produk', 'Carousel before-after'],
-    examplesId: ['Carousel tutorial step-by-step', 'Carousel produk', 'Carousel before-after'],
+    term: 'AIDA Model',
+    termId: 'AIDA Model',
+    definition: 'Marketing framework: Attention, Interest, Desire, Action',
+    definitionId: 'Framework marketing: Attention, Interest, Desire, Action',
+    category: 'Marketing Framework',
+    examples: ['Grab attention with hook', 'Build interest', 'Create desire', 'Drive action'],
+    examplesId: ['Tarik perhatian dengan hook', 'Bangun interest', 'Ciptakan desire', 'Dorong action'],
   },
   {
-    term: 'Saves',
-    termId: 'Saves',
-    definition: 'Number of users who bookmark content. Strong signal for Instagram algorithm',
-    definitionId: 'Jumlah pengguna yang bookmark konten. Sinyal kuat untuk algoritma Instagram',
-    category: 'Metric',
-    examples: ['Konten yang banyak di-save', 'Save rate tinggi = algoritma boost', 'Bikin konten yang worth saving'],
-    examplesId: ['Konten yang banyak di-save', 'Save rate tinggi = boost algoritma', 'Bikin konten yang worth saving'],
+    term: 'Unique Selling Proposition (USP)',
+    termId: 'Unique Selling Proposition (USP)',
+    definition: 'What makes your product/service different and better than competitors',
+    definitionId: 'Apa yang membuat produk/jasa Anda berbeda dan lebih baik dari kompetitor',
+    category: 'Marketing Fundamental',
+    examples: ['Fastest delivery', 'Lowest price', 'Best quality', 'Exclusive features'],
+    examplesId: ['Pengiriman tercepat', 'Harga termurah', 'Kualitas terbaik', 'Fitur eksklusif'],
   },
   {
-    term: 'Reach',
-    termId: 'Reach',
-    definition: 'Total unique accounts that saw your content',
-    definitionId: 'Total akun unik yang melihat konten kamu',
-    category: 'Metric',
-    examples: ['Reach vs Impressions', 'Tingkatkan reach organik', 'Reach dari Explore page'],
-    examplesId: ['Reach vs Impressions', 'Tingkatkan reach organik', 'Reach dari Explore page'],
+    term: 'Elevator Pitch',
+    termId: 'Elevator Pitch',
+    definition: '30-60 second summary of who you are and what you offer',
+    definitionId: 'Ringkasan 30-60 detik tentang siapa Anda dan apa yang Anda tawarkan',
+    category: 'Public Speaking',
+    examples: ['Problem you solve', 'Target audience', 'Unique solution', 'Call to action'],
+    examplesId: ['Masalah yang diselesaikan', 'Target audiens', 'Solusi unik', 'Ajakan bertindak'],
   },
   {
-    term: 'Shadowban',
-    termId: 'Shadowban',
-    definition: 'Unofficial penalty limiting content visibility without notification',
-    definitionId: 'Penalti tidak resmi yang membatasi visibilitas konten tanpa pemberitahuan',
-    category: 'Platform Issue',
-    examples: ['Ciri-ciri kena shadowban', 'Cara keluar dari shadowban', 'Hindari trigger shadowban'],
-    examplesId: ['Ciri-ciri kena shadowban', 'Cara keluar dari shadowban', 'Hindari trigger shadowban'],
+    term: 'Body Language',
+    termId: 'Body Language / Bahasa Tubuh',
+    definition: 'Non-verbal communication through posture, gestures, and facial expressions',
+    definitionId: 'Komunikasi non-verbal melalui postur, gestur, dan ekspresi wajah',
+    category: 'Public Speaking',
+    examples: ['Eye contact', 'Hand gestures', 'Open posture', 'Confident stance'],
+    examplesId: ['Kontak mata', 'Gerakan tangan', 'Postur terbuka', 'Sikap percaya diri'],
   },
   {
-    term: 'Link in Bio',
-    termId: 'Link in Bio',
-    definition: 'Clickable URL in profile (only location for external links before Stories)',
-    definitionId: 'URL yang bisa diklik di profil (satu-satunya lokasi link eksternal sebelum Stories)',
-    category: 'Platform Feature',
-    examples: ['Link tree di bio', 'CTA: cek link di bio', 'Update link bio rutin'],
-    examplesId: ['Link tree di bio', 'CTA: cek link di bio', 'Update link bio rutin'],
+    term: 'Storytelling',
+    termId: 'Storytelling',
+    definition: 'Using narrative structure to convey message and connect emotionally',
+    definitionId: 'Menggunakan struktur naratif untuk menyampaikan pesan dan terhubung secara emosional',
+    category: 'Communication Skill',
+    examples: ['Hero journey', 'Before-after-bridge', 'Problem-agitate-solve', 'Case studies'],
+    examplesId: ['Perjalanan hero', 'Before-after-bridge', 'Problem-agitate-solve', 'Studi kasus'],
   },
   {
-    term: 'Explore Page',
-    termId: 'Explore Page / Jelajah',
-    definition: 'Discovery feed showing content from accounts users dont follow based on interests',
-    definitionId: 'Feed discovery yang menampilkan konten dari akun yang tidak di-follow berdasarkan minat',
-    category: 'Platform Feature',
-    examples: ['Masuk Explore page', 'Strategi Explore page', 'Viral dari Explore'],
-    examplesId: ['Masuk Explore page', 'Strategi Explore page', 'Viral dari Explore'],
+    term: 'Objection Handling',
+    termId: 'Objection Handling',
+    definition: 'Techniques to address customer concerns and resistance',
+    definitionId: 'Teknik mengatasi kekhawatiran dan penolakan pelanggan',
+    category: 'Sales Skill',
+    examples: ['Feel-felt-found', 'Acknowledge then redirect', 'Reframe the objection'],
+    examplesId: ['Feel-felt-found', 'Akui lalu arahkan ulang', 'Reframe keberatan'],
   },
   {
-    term: 'Engagement Rate',
-    termId: 'Engagement Rate',
-    definition: '(Likes + Comments + Saves + Shares) / Followers × 100. Measures audience interaction',
-    definitionId: '(Likes + Komentar + Saves + Shares) / Followers × 100. Mengukur interaksi audiens',
-    category: 'Metric',
-    examples: ['ER di atas 3% bagus', 'Cara tingkatkan ER', 'ER penting untuk kolaborasi brand'],
-    examplesId: ['ER di atas 3% bagus', 'Cara tingkatkan ER', 'ER penting untuk kolaborasi brand'],
+    term: 'Closing Techniques',
+    termId: 'Closing Techniques',
+    definition: 'Methods to finalize sales and get commitment from prospects',
+    definitionId: 'Metode untuk menyelesaikan penjualan dan mendapatkan komitmen dari prospek',
+    category: 'Sales Skill',
+    examples: ['Assumptive close', 'Urgency close', 'Summary close', 'Question close'],
+    examplesId: ['Assumptive close', 'Urgency close', 'Summary close', 'Question close'],
   },
   {
-    term: 'Kollab / Collab',
-    termId: 'Kollab / Collab',
-    definition: 'Feature allowing co-authors on posts, sharing content to both profiles',
-    definitionId: 'Fitur yang memungkinkan ko-penulis di postingan, berbagi konten ke kedua profil',
-    category: 'Platform Feature',
-    examples: ['Kollab post dengan brand', 'Cross-promote via kollab', 'Kollab untuk reach lebih luas'],
-    examplesId: ['Kollab post dengan brand', 'Cross-promote via kollab', 'Kollab untuk reach lebih luas'],
+    term: 'Pain Point',
+    termId: 'Pain Point',
+    definition: 'Specific problem or frustration that customers experience',
+    definitionId: 'Masalah atau frustrasi spesifik yang dialami pelanggan',
+    category: 'Marketing Fundamental',
+    examples: ['Time constraints', 'Budget limits', 'Lack of knowledge', 'Fear of failure'],
+    examplesId: ['Keterbatasan waktu', 'Batasan budget', 'Kurang pengetahuan', 'Takut gagal'],
   },
   {
-    term: 'DM (Direct Message)',
-    termId: 'DM (Direct Message)',
-    definition: 'Private messaging feature for one-on-one or group conversations',
-    definitionId: 'Fitur pesan privat untuk percakapan satu-satu atau grup',
-    category: 'Platform Feature',
-    examples: ['Balas DM followers', 'Open DM untuk kerjasama', 'Automation DM'],
-    examplesId: ['Balas DM followers', 'Open DM untuk kerjasama', 'Automation DM'],
+    term: 'Social Proof',
+    termId: 'Social Proof',
+    definition: 'Evidence that others have benefited from your product/service',
+    definitionId: 'Bukti bahwa orang lain telah mendapat manfaat dari produk/jasa Anda',
+    category: 'Marketing Psychology',
+    examples: ['Testimonials', 'Case studies', 'Reviews', 'User count'],
+    examplesId: ['Testimoni', 'Studi kasus', 'Review', 'Jumlah pengguna'],
   },
   {
-    term: 'Feed Post',
-    termId: 'Feed Post',
-    definition: 'Standard permanent post appearing in followers timelines and profile grid',
-    definitionId: 'Postingan permanen standar yang muncul di timeline followers dan grid profil',
-    category: 'Content Type',
-    examples: ['Feed aesthetic', 'Feed planning', 'Feed vs Reels strategy'],
-    examplesId: ['Feed aesthetic', 'Feed planning', 'Strategi feed vs Reels'],
+    term: 'Scarcity & Urgency',
+    termId: 'Scarcity & Urgency',
+    definition: 'Creating limited availability or time pressure to drive action',
+    definitionId: 'Menciptakan ketersediaan terbatas atau tekanan waktu untuk mendorong tindakan',
+    category: 'Marketing Psychology',
+    examples: ['Limited stock', 'Deadline', 'Exclusive offer', 'Early bird pricing'],
+    examplesId: ['Stok terbatas', 'Deadline', 'Penawaran eksklusif', 'Harga early bird'],
   },
   {
-    term: 'Hashtag',
-    termId: 'Hashtag',
-    definition: 'Keywords prefixed with # for content discovery and categorization',
-    definitionId: 'Kata kunci dengan awalan # untuk penemuan dan kategorisasi konten',
+    term: 'Voice Projection',
+    termId: 'Voice Projection',
+    definition: 'Controlling volume, tone, and clarity for effective speaking',
+    definitionId: 'Mengontrol volume, nada, dan kejelasan untuk berbicara efektif',
+    category: 'Public Speaking',
+    examples: ['Diaphragm breathing', 'Vary your pace', 'Strategic pauses', 'Emphasis on keywords'],
+    examplesId: ['Nafas diafragma', 'Variasi kecepatan', 'Jeda strategis', 'Penekanan kata kunci'],
+  },
+  {
+    term: 'Rapport Building',
+    termId: 'Rapport Building',
+    definition: 'Creating connection and trust with audience or prospect',
+    definitionId: 'Menciptakan koneksi dan kepercayaan dengan audiens atau prospek',
+    category: 'Communication Skill',
+    examples: ['Mirroring', 'Finding common ground', 'Active listening', 'Genuine interest'],
+    examplesId: ['Mirroring', 'Mencari kesamaan', 'Mendengarkan aktif', 'Minat genuine'],
+  },
+  {
+    term: 'Value Proposition',
+    termId: 'Value Proposition',
+    definition: 'Clear statement of benefits customer will receive',
+    definitionId: 'Pernyataan jelas tentang manfaat yang akan diterima pelanggan',
+    category: 'Marketing Fundamental',
+    examples: ['Save time', 'Make money', 'Reduce stress', 'Achieve goals'],
+    examplesId: ['Hemat waktu', 'Hasilkan uang', 'Kurangi stres', 'Capai tujuan'],
+  },
+  {
+    term: 'Audience Analysis',
+    termId: 'Audience Analysis',
+    definition: 'Understanding demographics, psychographics, and needs of target audience',
+    definitionId: 'Memahami demografi, psikografi, dan kebutuhan target audiens',
+    category: 'Marketing Strategy',
+    examples: ['Age group', 'Interests', 'Pain points', 'Buying behavior'],
+    examplesId: ['Kelompok usia', 'Minat', 'Pain points', 'Perilaku pembelian'],
+  },
+  {
+    term: 'Hook',
+    termId: 'Hook',
+    definition: 'Opening statement or visual that captures attention immediately',
+    definitionId: 'Pernyataan atau visual pembuka yang menarik perhatian langsung',
     category: 'Content Element',
-    examples: ['Mix hashtag besar & niche', 'Riset hashtag kompetitor', 'Branded hashtag campaign'],
-    examplesId: ['Mix hashtag besar & niche', 'Riset hashtag kompetitor', 'Branded hashtag campaign'],
+    examples: ['Question hook', 'Shocking statement', 'Bold claim', 'Pattern interrupt'],
+    examplesId: ['Hook pertanyaan', 'Pernyataan mengejutkan', 'Klaim berani', 'Pattern interrupt'],
   },
   {
-    term: 'Grid Aesthetic',
-    termId: 'Grid Aesthetic',
-    definition: 'Cohesive visual theme across profile posts for brand consistency',
-    definitionId: 'Tema visual yang kohesif di seluruh postingan profil untuk konsistensi brand',
-    category: 'Content Strategy',
-    examples: ['Grid planning tools', 'Consistent color palette', 'Feed preview sebelum posting'],
-    examplesId: ['Tools planning grid', 'Palet warna konsisten', 'Preview feed sebelum posting'],
-  },
-];
-
-const youtubeTerms: GlossaryTerm[] = [
-  {
-    term: 'Shorts',
-    termId: 'Shorts',
-    definition: 'Vertical short-form videos (up to 60 seconds) competing with TikTok/Reels',
-    definitionId: 'Video pendek vertikal (hingga 60 detik) bersaing dengan TikTok/Reels',
-    category: 'Content Type',
-    examples: ['Shorts viral tips', 'Monetisasi Shorts', 'Hook kuat di 3 detik pertama'],
-    examplesId: ['Tips Shorts viral', 'Monetisasi Shorts', 'Hook kuat di 3 detik pertama'],
-  },
-  {
-    term: 'Subscribe / Lonceng',
-    termId: 'Subscribe / Lonceng',
-    definition: 'Follow feature + notification bell for new content alerts',
-    definitionId: 'Fitur follow + lonceng notifikasi untuk alert konten baru',
-    category: 'Platform Feature',
-    examples: ['CTA: Subscribe & nyalakan lonceng', 'Subscriber count milestone', 'Subscriber loyalty rewards'],
-    examplesId: ['CTA: Subscribe & nyalakan lonceng', 'Milestone subscriber count', 'Reward subscriber setia'],
-  },
-  {
-    term: 'Thumbnail',
-    termId: 'Thumbnail',
-    definition: 'Video preview image that determines click-through rate. Critical for views',
-    definitionId: 'Gambar preview video yang menentukan click-through rate. Krusial untuk views',
-    category: 'Content Element',
-    examples: ['Thumbnail eye-catching', 'Text overlay di thumbnail', 'A/B testing thumbnail'],
-    examplesId: ['Thumbnail eye-catching', 'Text overlay di thumbnail', 'A/B testing thumbnail'],
-  },
-  {
-    term: 'CTR (Click-Through Rate)',
-    termId: 'CTR (Click-Through Rate)',
-    definition: 'Percentage of impressions that resulted in clicks. Measures thumbnail effectiveness',
-    definitionId: 'Persentase impressions yang menghasilkan klik. Mengukur efektivitas thumbnail',
-    category: 'Metric',
-    examples: ['CTR di atas 4% bagus', 'Thumbnail & title optimalkan CTR', 'Tracking CTR per video'],
-    examplesId: ['CTR di atas 4% bagus', 'Thumbnail & title optimalkan CTR', 'Tracking CTR per video'],
-  },
-  {
-    term: 'Watch Time',
-    termId: 'Watch Time',
-    definition: 'Total minutes viewers spend watching content. Primary ranking signal',
-    definitionId: 'Total menit yang dihabiskan penonton menonton konten. Sinyal ranking utama',
-    category: 'Metric',
-    examples: ['4000 jam watch time untuk monetisasi', 'Tingkatkan watch time dengan pacing', 'Watch time vs views'],
-    examplesId: ['4000 jam watch time untuk monetisasi', 'Tingkatkan watch time dengan pacing', 'Watch time vs views'],
-  },
-  {
-    term: 'AVD (Average View Duration)',
-    termId: 'AVD (Average View Duration)',
-    definition: 'Average time viewers watch a video before leaving',
-    definitionId: 'Waktu rata-rata penonton menonton video sebelum pergi',
-    category: 'Metric',
-    examples: ['AVD tinggi = algoritma boost', 'Cek AVD di YouTube Analytics', 'Pattern recognition di drop-off points'],
-    examplesId: ['AVD tinggi = boost algoritma', 'Cek AVD di YouTube Analytics', 'Pattern recognition di drop-off points'],
-  },
-  {
-    term: 'Retention / Retensi',
-    termId: 'Retention / Retensi',
-    definition: 'Percentage of video watched by viewers. Key metric for algorithm',
-    definitionId: 'Persentase video yang ditonton oleh penonton. Metrik kunci untuk algoritma',
-    category: 'Metric',
-    examples: ['Retention graph analysis', 'Hook kuat untuk retention awal', '60% retention adalah target'],
-    examplesId: ['Analisis retention graph', 'Hook kuat untuk retention awal', '60% retention adalah target'],
-  },
-  {
-    term: 'Monetisasi / Monetization',
-    termId: 'Monetisasi / Monetization',
-    definition: 'Earning money from YouTube through ads, memberships, Super Chat, and more',
-    definitionId: 'Menghasilkan uang dari YouTube melalui iklan, membership, Super Chat, dan lainnya',
-    category: 'Monetization',
-    examples: ['Syarat monetisasi: 1000 subs + 4000 jam', 'AdSense setup', 'Multiple revenue streams'],
-    examplesId: ['Syarat monetisasi: 1000 subs + 4000 jam', 'Setup AdSense', 'Multiple revenue streams'],
-  },
-  {
-    term: 'CPM (Cost Per Mille)',
-    termId: 'CPM (Cost Per Mille)',
-    definition: 'Revenue per 1000 ad impressions. Varies by niche and audience location',
-    definitionId: 'Pendapatan per 1000 tayangan iklan. Bervariasi per niche dan lokasi audiens',
-    category: 'Monetization',
-    examples: ['CPM Indonesia vs US', 'Niche dengan CPM tinggi', 'CPM naik saat Q4 (holiday season)'],
-    examplesId: ['CPM Indonesia vs US', 'Niche dengan CPM tinggi', 'CPM naik saat Q4 (holiday season)'],
-  },
-  {
-    term: 'Premiere',
-    termId: 'Premiere',
-    definition: 'Scheduled video release with live chat for real-time engagement',
-    definitionId: 'Rilis video terjadwal dengan live chat untuk engagement real-time',
-    category: 'Platform Feature',
-    examples: ['Premiere untuk buzz building', 'Live chat selama premiere', 'Countdown premiere'],
-    examplesId: ['Premiere untuk buzz building', 'Live chat selama premiere', 'Countdown premiere'],
-  },
-  {
-    term: 'Community Tab',
-    termId: 'Community Tab / Tab Komunitas',
-    definition: 'Text/poll posts for engaging subscribers between video uploads',
-    definitionId: 'Postingan teks/polling untuk engaging subscriber di antara upload video',
-    category: 'Platform Feature',
-    examples: ['Poll di Community Tab', 'Teaser video berikutnya', 'Q&A via Community Tab'],
-    examplesId: ['Poll di Community Tab', 'Teaser video berikutnya', 'Q&A via Community Tab'],
-  },
-  {
-    term: 'Subscriber',
-    termId: 'Subscriber',
-    definition: 'User who opted-in to receive notifications about new content',
-    definitionId: 'Pengguna yang memilih menerima notifikasi tentang konten baru',
-    category: 'Metric',
-    examples: ['1000 subs untuk monetisasi', 'Subscriber loyalty', 'Call-to-action subscribe'],
-    examplesId: ['1000 subs untuk monetisasi', 'Loyalitas subscriber', 'Call-to-action subscribe'],
-  },
-  {
-    term: 'Algorithm / Algoritma',
-    termId: 'Algorithm / Algoritma',
-    definition: 'System recommending videos based on watch time, CTR, and engagement signals',
-    definitionId: 'Sistem yang merekomendasikan video berdasarkan watch time, CTR, dan sinyal engagement',
-    category: 'Platform Feature',
-    examples: ['Pahami algoritma YouTube', 'Sinyal algoritma: CTR + AVD', 'Optimasi untuk recommended'],
-    examplesId: ['Pahami algoritma YouTube', 'Sinyal algoritma: CTR + AVD', 'Optimasi untuk recommended'],
-  },
-  {
-    term: 'Playlist',
-    termId: 'Playlist',
-    definition: 'Curated collection of videos for binge-watching and improved watch time',
-    definitionId: 'Koleksi video yang dikurasi untuk binge-watching dan meningkatkan watch time',
-    category: 'Content Strategy',
-    examples: ['Serial video dalam playlist', 'Playlist meningkatkan session time', 'Organize content by topic'],
-    examplesId: ['Serial video dalam playlist', 'Playlist meningkatkan session time', 'Organize konten by topik'],
-  },
-  {
-    term: 'End Screen',
-    termId: 'End Screen',
-    definition: 'Interactive elements at video end promoting other videos, playlists, or subscribe',
-    definitionId: 'Elemen interaktif di akhir video yang mempromosikan video lain, playlist, atau subscribe',
-    category: 'Content Element',
-    examples: ['End screen untuk video berikutnya', 'CTA subscribe di end screen', 'Playlist suggestion'],
-    examplesId: ['End screen untuk video berikutnya', 'CTA subscribe di end screen', 'Saran playlist'],
-  },
-  {
-    term: 'Description & Tags',
-    termId: 'Description & Tags / Deskripsi & Tag',
-    definition: 'Video metadata helping YouTube understand content for search and recommendations',
-    definitionId: 'Metadata video yang membantu YouTube memahami konten untuk pencarian dan rekomendasi',
-    category: 'Content Element',
-    examples: ['Keyword-rich description', 'Relevant tags untuk SEO', 'Timestamp di description'],
-    examplesId: ['Deskripsi kaya keyword', 'Tag relevan untuk SEO', 'Timestamp di deskripsi'],
-  },
-  {
-    term: 'Live Stream',
-    termId: 'Live Stream',
-    definition: 'Real-time video broadcast with chat interaction and Super Chat donations',
-    definitionId: 'Siaran video real-time dengan interaksi chat dan donasi Super Chat',
-    category: 'Content Type',
-    examples: ['Live gaming stream', 'Q&A live stream', 'Super Chat revenue'],
-    examplesId: ['Live gaming stream', 'Live stream Q&A', 'Revenue Super Chat'],
+    term: 'Presentation Skills',
+    termId: 'Presentation Skills',
+    definition: 'Ability to deliver information effectively to an audience',
+    definitionId: 'Kemampuan menyampaikan informasi secara efektif kepada audiens',
+    category: 'Public Speaking',
+    examples: ['Slide design', 'Speaking flow', 'Q&A handling', 'Engagement techniques'],
+    examplesId: ['Desain slide', 'Alur bicara', 'Penanganan Q&A', 'Teknik engagement'],
   },
 ];
 
@@ -668,10 +548,8 @@ export default function Library() {
   }, []);
 
   // Convert approved contributions to GlossaryTerm format
-  const contributedTerms: { tiktok: GlossaryTerm[]; instagram: GlossaryTerm[]; youtube: GlossaryTerm[] } = {
+  const contributedTerms: { tiktok: GlossaryTerm[] } = {
     tiktok: [],
-    instagram: [],
-    youtube: [],
   };
 
   approvedContributions.forEach((contrib) => {
@@ -685,7 +563,9 @@ export default function Library() {
       examplesId: contrib.exampleId ? [contrib.exampleId] : [],
       contributor: contrib.username, // Add contributor info
     };
-    contributedTerms[contrib.platform as 'tiktok' | 'instagram' | 'youtube'].push(term);
+    if (contrib.platform === 'tiktok') {
+      contributedTerms.tiktok.push(term);
+    }
   });
   
   console.log('[LIBRARY] Contributed terms by platform:', contributedTerms);
@@ -695,10 +575,7 @@ export default function Library() {
     ...biasTerms,
     ...tiktokTerms,
     ...contributedTerms.tiktok,
-    ...instagramTerms,
-    ...contributedTerms.instagram,
-    ...youtubeTerms,
-    ...contributedTerms.youtube,
+    ...marketingTerms,
   ];
 
   // Filter terms based on search
@@ -715,8 +592,7 @@ export default function Library() {
 
   const filteredBias = filterTerms(biasTerms);
   const filteredTikTok = filterTerms([...contributedTerms.tiktok, ...tiktokTerms]);
-  const filteredInstagram = filterTerms([...contributedTerms.instagram, ...instagramTerms]);
-  const filteredYouTube = filterTerms([...contributedTerms.youtube, ...youtubeTerms]);
+  const filteredMarketing = filterTerms(marketingTerms);
 
   const TermCard = ({ term }: { term: GlossaryTerm }) => (
     <Card>
@@ -764,6 +640,7 @@ export default function Library() {
   }
 
   return (
+    <div className="flex-1 bg-[#0A0A0A]">
     <div className="container max-w-6xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="space-y-2 sm:space-y-3">
@@ -775,8 +652,8 @@ export default function Library() {
         </div>
         <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
           {t(
-            'Complete community-powered glossary of BIAS framework and social media terminology. Join our library, contribute new terms, and promote your TikTok, Instagram, or YouTube account for FREE!',
-            'Glosarium lengkap yang dikembangkan komunitas untuk framework BIAS dan terminologi media sosial. Bergabunglah dengan library kami, kontribusi istilah baru, dan promosikan akun TikTok, Instagram, atau YouTube Anda GRATIS!'
+            'Complete glossary of TikTok, Marketing, and BIAS framework terminology. Learn essential terms for TikTok mastery, sales, public speaking, and behavioral communication.',
+            'Glosarium lengkap terminologi TikTok, Marketing, dan framework BIAS. Pelajari istilah penting untuk penguasaan TikTok, penjualan, public speaking, dan komunikasi perilaku.'
           )}
         </p>
       </div>
@@ -801,20 +678,20 @@ export default function Library() {
             <span className="hidden sm:inline">TikTok ({filteredTikTok.length})</span>
             <span className="sm:hidden">TikTok</span>
           </TabsTrigger>
-          <TabsTrigger value="instagram" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-instagram">
-            <SiInstagram className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Instagram ({filteredInstagram.length})</span>
-            <span className="sm:hidden">IG</span>
-          </TabsTrigger>
-          <TabsTrigger value="youtube" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-youtube">
-            <SiYoutube className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">YouTube ({filteredYouTube.length})</span>
-            <span className="sm:hidden">YT</span>
+          <TabsTrigger value="marketing" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-marketing">
+            <Megaphone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Marketing ({filteredMarketing.length})</span>
+            <span className="sm:hidden">Marketing</span>
           </TabsTrigger>
           <TabsTrigger value="bias" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-bias">
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">BIAS ({filteredBias.length})</span>
             <span className="sm:hidden">BIAS</span>
+          </TabsTrigger>
+          <TabsTrigger value="stories" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-stories">
+            <Trophy className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">{t('Success', 'Sukses')}</span>
+            <span className="sm:hidden">{t('Sukses', 'Sukses')}</span>
           </TabsTrigger>
           <TabsTrigger value="contribute" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-contribute">
             <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -860,8 +737,8 @@ export default function Library() {
           )}
         </TabsContent>
 
-        <TabsContent value="instagram" className="space-y-4 mt-6">
-          {filteredInstagram.length === 0 ? (
+        <TabsContent value="marketing" className="space-y-4 mt-6">
+          {filteredMarketing.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
                 {t('No terms found', 'Tidak ada istilah ditemukan')}
@@ -869,23 +746,7 @@ export default function Library() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {filteredInstagram.map((term, i) => (
-                <TermCard key={i} term={term} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="youtube" className="space-y-4 mt-6">
-          {filteredYouTube.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                {t('No terms found', 'Tidak ada istilah ditemukan')}
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {filteredYouTube.map((term, i) => (
+              {filteredMarketing.map((term, i) => (
                 <TermCard key={i} term={term} />
               ))}
             </div>
@@ -896,10 +757,427 @@ export default function Library() {
           <PlatformRulesHub search={search} />
         </TabsContent>
 
+        <TabsContent value="stories" className="space-y-6 mt-6">
+          <SuccessStoriesPanel />
+        </TabsContent>
+
         <TabsContent value="contribute" className="space-y-6 mt-6">
           <ContributionForm />
         </TabsContent>
       </Tabs>
+    </div>
+    </div>
+  );
+}
+
+interface SuccessStory {
+  id: string;
+  name: string;
+  username: string;
+  platform: string;
+  role: string;
+  story: string;
+  storyId?: string;
+  achievement: string;
+  achievementId?: string;
+  profileUrl?: string;
+  avatarUrl?: string;
+  rating: number;
+  status: string;
+  featured: boolean;
+  createdAt: string;
+}
+
+function SuccessStoriesPanel() {
+  const { t, language } = useLanguage();
+  const { toast } = useToast();
+  const [stories, setStories] = useState<SuccessStory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    username: '',
+    platform: 'tiktok' as 'tiktok' | 'marketing',
+    role: '',
+    story: '',
+    achievement: '',
+    profileUrl: '',
+  });
+
+  useEffect(() => {
+    fetchStories();
+  }, []);
+
+  const fetchStories = async () => {
+    try {
+      const res = await fetch('/api/success-stories/approved');
+      const data = await res.json();
+      setStories(data || []);
+    } catch (error) {
+      console.error('Failed to fetch stories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.username || !formData.story || !formData.achievement) {
+      toast({
+        title: t('Missing Fields', 'Field Kosong'),
+        description: t('Please fill all required fields', 'Mohon isi semua field yang wajib'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await apiRequest('POST', '/api/success-stories', formData);
+      const data = await res.json();
+      if (data.success) {
+        toast({
+          title: t('Story Submitted!', 'Cerita Terkirim!'),
+          description: t(
+            'Your success story will be reviewed and published soon. Thank you for sharing!',
+            'Cerita sukses Anda akan direview dan dipublish segera. Terima kasih sudah berbagi!'
+          ),
+        });
+        setFormData({ name: '', username: '', platform: 'tiktok', role: '', story: '', achievement: '', profileUrl: '' });
+        setShowForm(false);
+      }
+    } catch (error: any) {
+      toast({
+        title: t('Submission Failed', 'Pengiriman Gagal'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-yellow-500" />
+            {t('Success Stories', 'Cerita Sukses')}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+            {t(
+              '🎯 Share your wins! Approved stories get: Featured on homepage + TikTok promo + FREE 5 Ai analyses bonus!',
+              '🎯 Ceritakan suksesmu! Cerita disetujui dapat: Tampil di homepage + promo TikTok + BONUS 5 analisa Ai GRATIS!'
+            )}
+          </p>
+        </div>
+        <Button onClick={() => setShowForm(!showForm)} variant={showForm ? "outline" : "default"} size="sm">
+          {showForm ? t('Cancel', 'Batal') : (
+            <>
+              <Plus className="w-4 h-4 mr-1" />
+              {t('Share Story', 'Bagikan Cerita')}
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Submit Form */}
+      {showForm && (
+        <Card className="border-2 border-yellow-500/30 bg-yellow-500/5">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-500" />
+              {t('Share Your Success Story', 'Bagikan Cerita Suksesmu')}
+            </CardTitle>
+            <CardDescription>
+              {t('Tell us how BiAS Pro helped you grow. Approved stories get FREE promotion!', 'Ceritakan bagaimana BiAS Pro membantu perkembanganmu. Cerita yang disetujui dapat promosi GRATIS!')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('Your Name', 'Nama Anda')} *</Label>
+                  <Input placeholder={t('e.g. Budi Santoso', 'mis. Budi Santoso')} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Username/Handle', 'Username/Handle')} *</Label>
+                  <Input placeholder="@username" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('Platform', 'Platform')} *</Label>
+                  <select className="w-full p-2 rounded-md border bg-background" value={formData.platform} onChange={(e) => setFormData({ ...formData, platform: e.target.value as 'tiktok' | 'marketing' })}>
+                    <option value="tiktok">TikTok Creator</option>
+                    <option value="marketing">Sales & Marketing</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('Your Role', 'Peran Anda')}</Label>
+                  <Input placeholder={t('e.g. Content Creator, Sales Manager', 'mis. Content Creator, Sales Manager')} value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t('Your Achievement', 'Pencapaian Anda')} *</Label>
+                <Input placeholder={t('e.g. Followers increased 200% in 3 months', 'mis. Followers naik 200% dalam 3 bulan')} value={formData.achievement} onChange={(e) => setFormData({ ...formData, achievement: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('Your Story', 'Cerita Anda')} *</Label>
+                <textarea className="w-full p-3 rounded-md border bg-background min-h-[120px] text-sm" placeholder={t('Share how BiAS Pro helped you achieve your goals...', 'Ceritakan bagaimana BiAS Pro membantu Anda mencapai tujuan...')} value={formData.story} onChange={(e) => setFormData({ ...formData, story: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('Profile Link (optional)', 'Link Profil (opsional)')}</Label>
+                <Input placeholder="https://tiktok.com/@username" value={formData.profileUrl} onChange={(e) => setFormData({ ...formData, profileUrl: e.target.value })} />
+              </div>
+              <Button type="submit" disabled={submitting} className="w-full">
+                {submitting ? t('Submitting...', 'Mengirim...') : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    {t('Submit Story', 'Kirim Cerita')}
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Stories List */}
+      {loading ? (
+        <div className="text-center py-8 text-muted-foreground">{t('Loading...', 'Memuat...')}</div>
+      ) : stories.length === 0 ? (
+        <Card className="border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-transparent">
+          <CardContent className="py-12 text-center">
+            <Trophy className="w-16 h-16 mx-auto text-yellow-500/50 mb-4" />
+            <h3 className="font-bold text-xl mb-3">{t('🏆 Be the First Creator!', '🏆 Jadi Kreator Pertama!')}</h3>
+            <p className="text-sm text-muted-foreground mb-2 max-w-md mx-auto">
+              {t(
+                'Got more views after using BiAS Pro? Closed a sale with our script templates? Share your wins!',
+                'Views naik setelah pakai BiAS Pro? Closing penjualan dengan template script kami? Ceritakan!'
+              )}
+            </p>
+            <p className="text-xs text-yellow-500/80 mb-6">
+              {t(
+                '✨ Approved stories: Featured on homepage + shared to TikTok community + FREE 5 extra Ai analyses!',
+                '✨ Cerita disetujui: Tampil di homepage + dishare ke TikTok + GRATIS 5 analisa Ai tambahan!'
+              )}
+            </p>
+            <Button onClick={() => setShowForm(true)} className="bg-yellow-500 hover:bg-yellow-600 text-black">
+              <Plus className="w-4 h-4 mr-2" />
+              {t('Share My Success', 'Bagikan Suksesku')}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {stories.map((story) => (
+            <Card key={story.id} className={`relative overflow-hidden ${story.featured ? 'border-2 border-yellow-500/50' : ''}`}>
+              {story.featured && (
+                <div className="absolute top-0 right-0 bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                  {t('FEATURED', 'UNGGULAN')}
+                </div>
+              )}
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                    {story.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm truncate">{story.name}</h4>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      {story.platform === 'tiktok' ? <SiTiktok className="w-3 h-3" /> : <Megaphone className="w-3 h-3" />}
+                      {story.username}
+                      {story.role && <span className="text-gray-500">• {story.role}</span>}
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 mb-3">
+                  <p className="text-xs font-medium text-green-400 flex items-center gap-1">
+                    <Trophy className="w-3 h-3" />
+                    {language === 'id' && story.achievementId ? story.achievementId : story.achievement}
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  "{language === 'id' && story.storyId ? story.storyId : story.story}"
+                </p>
+                {story.profileUrl && (
+                  <a href={story.profileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2">
+                    <ExternalLink className="w-3 h-3" />
+                    {t('View Profile', 'Lihat Profil')}
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminSuccessStoriesPanel() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [pendingStories, setPendingStories] = useState<SuccessStory[]>([]);
+  const [approvedStories, setApprovedStories] = useState<SuccessStory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllStories();
+  }, []);
+
+  const fetchAllStories = async () => {
+    try {
+      const res = await fetch('/api/success-stories/all');
+      const data = await res.json();
+      setPendingStories(data.pending || []);
+      setApprovedStories(data.approved || []);
+    } catch (error) {
+      console.error('Failed to fetch stories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (id: string, featured: boolean = false) => {
+    try {
+      await apiRequest('POST', `/api/success-stories/${id}/approve`, { featured });
+      toast({ title: t('Story Approved!', 'Cerita Disetujui!') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      await apiRequest('POST', `/api/success-stories/${id}/reject`);
+      toast({ title: t('Story Rejected', 'Cerita Ditolak') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleToggleFeatured = async (id: string, currentFeatured: boolean) => {
+    try {
+      await apiRequest('PUT', `/api/success-stories/${id}`, { featured: !currentFeatured });
+      toast({ title: currentFeatured ? t('Removed from Featured', 'Dihapus dari Unggulan') : t('Added to Featured!', 'Ditambahkan ke Unggulan!') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('Delete this story?', 'Hapus cerita ini?'))) return;
+    try {
+      await apiRequest('DELETE', `/api/success-stories/${id}`);
+      toast({ title: t('Story Deleted', 'Cerita Dihapus') });
+      fetchAllStories();
+    } catch (error: any) {
+      toast({ title: t('Error', 'Error'), description: error.message, variant: 'destructive' });
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">{t('Loading...', 'Memuat...')}</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold flex items-center gap-2">
+        <Trophy className="w-5 h-5 text-yellow-500" />
+        {t('Pending Success Stories', 'Cerita Sukses Pending')} ({pendingStories.length})
+      </h2>
+
+      {pendingStories.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            {t('No pending stories', 'Tidak ada cerita pending')}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {pendingStories.map((story) => (
+            <Card key={story.id} className="border-2 border-yellow-500/30">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-semibold">{story.name}</span>
+                      <Badge variant="outline">{story.username}</Badge>
+                      <Badge>{story.platform === 'tiktok' ? 'TikTok' : 'Marketing'}</Badge>
+                    </div>
+                    <div className="bg-green-500/10 border border-green-500/30 rounded p-2 mb-2">
+                      <p className="text-sm text-green-400">{story.achievement}</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">"{story.story}"</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button size="sm" onClick={() => handleApprove(story.id, true)}>
+                      <Star className="w-4 h-4 mr-1" />
+                      {t('Approve Featured', 'Setujui + Unggulan')}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleApprove(story.id, false)}>
+                      <Check className="w-4 h-4 mr-1" />
+                      {t('Approve', 'Setujui')}
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleReject(story.id)}>
+                      <X className="w-4 h-4 mr-1" />
+                      {t('Reject', 'Tolak')}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <h2 className="text-xl font-semibold flex items-center gap-2 mt-8">
+        <CheckCircle className="w-5 h-5 text-green-500" />
+        {t('Approved Stories', 'Cerita Disetujui')} ({approvedStories.length})
+      </h2>
+
+      {approvedStories.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            {t('No approved stories yet', 'Belum ada cerita yang disetujui')}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {approvedStories.map((story) => (
+            <Card key={story.id} className={story.featured ? 'border-2 border-yellow-500' : ''}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <span className="font-semibold">{story.name}</span>
+                    <span className="text-sm text-muted-foreground ml-2">{story.username}</span>
+                  </div>
+                  {story.featured && <Badge className="bg-yellow-500 text-black">{t('FEATURED', 'UNGGULAN')}</Badge>}
+                </div>
+                <p className="text-xs text-green-400 mb-2">{story.achievement}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">"{story.story}"</p>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleToggleFeatured(story.id, story.featured)}>
+                    <Star className={`w-4 h-4 mr-1 ${story.featured ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                    {story.featured ? t('Unfeature', 'Hapus Unggulan') : t('Feature', 'Jadikan Unggulan')}
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(story.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -911,7 +1189,7 @@ function ContributionForm() {
   const [formData, setFormData] = useState({
     termId: '',
     definitionId: '',
-    platform: 'tiktok' as 'tiktok' | 'instagram' | 'youtube',
+    platform: 'tiktok' as 'tiktok',
     username: '',
   });
 
@@ -988,8 +1266,8 @@ function ContributionForm() {
           </CardTitle>
           <CardDescription>
             {t(
-              'Add new terms and get your TikTok, Instagram, or YouTube account listed in our library for FREE exposure! Your username will be displayed on every term you contribute. Example: "@yourname contributed this term" - instant visibility!',
-              'Tambahkan istilah baru dan dapatkan akun TikTok, Instagram, atau YouTube kamu terdaftar di library kami untuk promosi GRATIS! Username kamu akan ditampilkan di setiap istilah yang kamu kontribusi. Contoh: "@namakamu mengontribusi istilah ini" - langsung terlihat!'
+              'Add new TikTok terms and get your account listed in our library for FREE exposure! Your username will be displayed on every term you contribute. Example: "@yourname contributed this term" - instant visibility!',
+              'Tambahkan istilah TikTok baru dan dapatkan akun kamu terdaftar di library kami untuk promosi GRATIS! Username kamu akan ditampilkan di setiap istilah yang kamu kontribusi. Contoh: "@namakamu mengontribusi istilah ini" - langsung terlihat!'
             )}
           </CardDescription>
         </CardHeader>
@@ -1006,19 +1284,12 @@ function ContributionForm() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="platform">{t('Platform', 'Platform')} *</Label>
-              <select
-                id="platform"
-                value={formData.platform}
-                onChange={(e) => setFormData({ ...formData, platform: e.target.value as any })}
-                className="w-full h-10 px-3 rounded-md border border-input bg-background"
-                data-testid="select-platform"
-                required
-              >
-                <option value="tiktok">TikTok</option>
-                <option value="instagram">Instagram</option>
-                <option value="youtube">YouTube</option>
-              </select>
+              <Label htmlFor="platform">{t('Platform', 'Platform')}</Label>
+              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-background/50">
+                <SiTiktok className="w-4 h-4" />
+                <span>TikTok</span>
+              </div>
+              <input type="hidden" name="platform" value="tiktok" />
             </div>
 
             <div className="space-y-2">
@@ -1069,8 +1340,8 @@ function ContributionForm() {
               />
               <p className="text-xs text-primary font-medium">
                 {t(
-                  '✨ This account will be displayed publicly! Example: "Contributed by @yourname" - Free exposure for your TikTok, Instagram, or YouTube!',
-                  '✨ Akun ini akan ditampilkan secara publik! Contoh: "Dikontribusi oleh @namakamu" - Promosi gratis untuk TikTok, Instagram, atau YouTube kamu!'
+                  '✨ This TikTok account will be displayed publicly! Example: "Contributed by @yourname" - Free exposure for your TikTok!',
+                  '✨ Akun TikTok ini akan ditampilkan secara publik! Contoh: "Dikontribusi oleh @namakamu" - Promosi gratis untuk TikTok kamu!'
                 )}
               </p>
             </div>
@@ -1395,14 +1666,26 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="library" className="gap-2">
             <BookOpen className="w-4 h-4" />
             {t('Library', 'Perpustakaan')}
           </TabsTrigger>
+          <TabsTrigger value="stories" className="gap-2">
+            <Trophy className="w-4 h-4" />
+            {t('Stories', 'Cerita')}
+          </TabsTrigger>
           <TabsTrigger value="brands" className="gap-2">
             <Palette className="w-4 h-4" />
             {t('Brands', 'Partner')}
+          </TabsTrigger>
+          <TabsTrigger value="users" className="gap-2">
+            <Users className="w-4 h-4" />
+            {t('Users', 'Pengguna')}
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2">
+            <Settings className="w-4 h-4" />
+            {t('Settings', 'Pengaturan')}
           </TabsTrigger>
           <TabsTrigger value="analytics" className="gap-2">
             <BarChart3 className="w-4 h-4" />
@@ -1624,14 +1907,243 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
         </TabsContent>
 
+        <TabsContent value="stories" className="mt-6">
+          <AdminSuccessStoriesPanel />
+        </TabsContent>
+
         <TabsContent value="brands" className="mt-6">
           <BrandManagement />
+        </TabsContent>
+
+        <TabsContent value="users" className="mt-6">
+          <AnalyzedUsersPanel />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <PlatformSettingsPanel />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
           <AnalyticsDashboard />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+interface AnalyzedAccount {
+  id: string;
+  username: string;
+  displayName: string | null;
+  followers: number;
+  following: number;
+  totalLikes: number;
+  totalVideos: number;
+  verified: boolean;
+  engagementRate: number | null;
+  createdAt: string;
+}
+
+function AnalyzedUsersPanel() {
+  const { t } = useLanguage();
+  const [accounts, setAccounts] = useState<AnalyzedAccount[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const loadAccounts = async () => {
+    try {
+      const res = await fetch('/api/admin/analyzed-accounts?limit=500', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load accounts');
+      const data = await res.json();
+      setAccounts(data.accounts);
+      setTotal(data.total);
+    } catch (error) {
+      console.error('Error loading accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
+
+  const totalPages = Math.ceil(accounts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAccounts = accounts.slice(startIndex, endIndex);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Users className="w-6 h-6 text-pink-500" />
+          <div>
+            <h2 className="text-xl font-bold">{t('Analyzed Accounts', 'Akun yang Dianalisis')}</h2>
+            <p className="text-sm text-muted-foreground">
+              {t(`${total} TikTok accounts analyzed`, `${total} akun TikTok yang dianalisis`)}
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" onClick={() => { setCurrentPage(1); loadAccounts(); }}>
+          <RefreshCcw className="w-4 h-4 mr-2" />
+          {t('Refresh', 'Refresh')}
+        </Button>
+      </div>
+
+      {accounts.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>{t('No accounts analyzed yet', 'Belum ada akun yang dianalisis')}</p>
+            <p className="text-sm mt-2">{t('Accounts will appear here when users analyze their TikTok profiles', 'Akun akan muncul di sini ketika user menganalisis profil TikTok mereka')}</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {/* Desktop Table Header - Hidden on Mobile */}
+          <div className="hidden md:grid grid-cols-7 gap-2 px-4 py-2 bg-muted/50 rounded-lg text-xs font-medium text-muted-foreground">
+            <div>{t('Username', 'Username')}</div>
+            <div>{t('Display Name', 'Nama')}</div>
+            <div className="text-right">{t('Followers', 'Followers')}</div>
+            <div className="text-right">{t('Likes', 'Likes')}</div>
+            <div className="text-right">{t('Videos', 'Video')}</div>
+            <div className="text-right">{t('Engagement', 'Engagement')}</div>
+            <div className="text-right">{t('Analyzed', 'Dianalisis')}</div>
+          </div>
+
+          <div className="grid gap-3">
+            {currentAccounts.map((account) => (
+              <Card key={account.id} className="hover:bg-muted/20 transition-colors">
+                <CardContent className="p-4">
+                  {/* Desktop View */}
+                  <div className="hidden md:grid grid-cols-7 gap-2 items-center text-sm">
+                    <div className="flex items-center gap-2">
+                      <a 
+                        href={`https://tiktok.com/@${account.username}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-pink-500 hover:underline font-medium"
+                      >
+                        @{account.username}
+                      </a>
+                      {account.verified && (
+                        <Badge variant="secondary" className="text-[10px] px-1">✓</Badge>
+                      )}
+                    </div>
+                    <div className="text-muted-foreground truncate">
+                      {account.displayName || '-'}
+                    </div>
+                    <div className="text-right font-medium">
+                      {formatNumber(account.followers)}
+                    </div>
+                    <div className="text-right text-muted-foreground">
+                      {formatNumber(account.totalLikes)}
+                    </div>
+                    <div className="text-right text-muted-foreground">
+                      {account.totalVideos}
+                    </div>
+                    <div className="text-right">
+                      {account.engagementRate ? (
+                        <Badge variant={account.engagementRate > 5 ? 'default' : 'secondary'}>
+                          {account.engagementRate.toFixed(1)}%
+                        </Badge>
+                      ) : '-'}
+                    </div>
+                    <div className="text-right text-xs text-muted-foreground">
+                      {new Date(account.createdAt).toLocaleDateString('id-ID')}
+                    </div>
+                  </div>
+
+                  {/* Mobile View - Stacked Layout */}
+                  <div className="md:hidden space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <a 
+                          href={`https://tiktok.com/@${account.username}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-pink-500 hover:underline font-medium text-sm"
+                        >
+                          @{account.username}
+                        </a>
+                        {account.verified && (
+                          <Badge variant="secondary" className="text-[10px] px-1">✓</Badge>
+                        )}
+                      </div>
+                      {account.engagementRate ? (
+                        <Badge variant={account.engagementRate > 5 ? 'default' : 'secondary'}>
+                          {account.engagementRate.toFixed(1)}%
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {account.displayName || '-'}
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex gap-3">
+                        <span><strong>{formatNumber(account.followers)}</strong> followers</span>
+                        <span><strong>{formatNumber(account.totalLikes)}</strong> likes</span>
+                      </div>
+                      <span className="text-muted-foreground">
+                        {new Date(account.createdAt).toLocaleDateString('id-ID')}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
+              <p className="text-sm text-muted-foreground text-center sm:text-left">
+                {t(`Showing ${startIndex + 1}-${Math.min(endIndex, accounts.length)} of ${accounts.length}`, 
+                   `Menampilkan ${startIndex + 1}-${Math.min(endIndex, accounts.length)} dari ${accounts.length}`)}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1">{t('Previous', 'Sebelumnya')}</span>
+                </Button>
+                <span className="text-sm px-2">
+                  {currentPage} / {totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  <span className="hidden sm:inline mr-1">{t('Next', 'Berikutnya')}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1952,7 +2464,7 @@ function BrandManagement() {
                   <Input
                     value={formData.subtitleEn}
                     onChange={(e) => setFormData({ ...formData, subtitleEn: e.target.value })}
-                    placeholder="AI-Powered Analysis"
+                    placeholder="Ai-Powered Analysis"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1960,7 +2472,7 @@ function BrandManagement() {
                   <Input
                     value={formData.subtitleId}
                     onChange={(e) => setFormData({ ...formData, subtitleId: e.target.value })}
-                    placeholder="Analisis AI"
+                    placeholder="Analisis Ai"
                   />
                 </div>
               </div>
@@ -2102,12 +2614,6 @@ function BrandManagement() {
                           {brand.tiktokHandle}
                         </Badge>
                       )}
-                      {brand.instagramHandle && (
-                        <Badge variant="outline" className="text-xs">
-                          <SiInstagram className="w-3 h-3 mr-1" />
-                          {brand.instagramHandle}
-                        </Badge>
-                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -2140,15 +2646,8 @@ function BrandManagement() {
 
 function PlatformRulesHub({ search }: { search: string }) {
   const { t, language } = useLanguage();
-  const [selectedPlatform, setSelectedPlatform] = useState<'tiktok' | 'instagram' | 'youtube'>('tiktok');
 
-  const platformData = {
-    tiktok: TIKTOK_RULES,
-    instagram: INSTAGRAM_RULES,
-    youtube: YOUTUBE_RULES,
-  };
-
-  const currentRules = platformData[selectedPlatform];
+  const currentRules = TIKTOK_RULES;
 
   const filteredCategories = currentRules.map(category => ({
     ...category,
@@ -2210,44 +2709,10 @@ function PlatformRulesHub({ search }: { search: string }) {
 
   return (
     <div className="space-y-6">
-      {/* Platform Selector */}
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={() => setSelectedPlatform('tiktok')}
-          data-testid="button-rules-tiktok"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover-elevate active-elevate-2 ${
-            selectedPlatform === 'tiktok'
-              ? 'bg-[#FE2C55]/10 border-[#FE2C55]/20 text-[#FE2C55]'
-              : 'bg-card border-border'
-          }`}
-        >
-          <SiTiktok className="w-5 h-5" />
-          <span className="font-medium">TikTok</span>
-        </button>
-        <button
-          onClick={() => setSelectedPlatform('instagram')}
-          data-testid="button-rules-instagram"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover-elevate active-elevate-2 ${
-            selectedPlatform === 'instagram'
-              ? 'bg-pink-500/10 border-pink-500/20 text-pink-500'
-              : 'bg-card border-border'
-          }`}
-        >
-          <SiInstagram className="w-5 h-5" />
-          <span className="font-medium">Instagram</span>
-        </button>
-        <button
-          onClick={() => setSelectedPlatform('youtube')}
-          data-testid="button-rules-youtube"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover-elevate active-elevate-2 ${
-            selectedPlatform === 'youtube'
-              ? 'bg-red-500/10 border-red-500/20 text-red-500'
-              : 'bg-card border-border'
-          }`}
-        >
-          <SiYoutube className="w-5 h-5" />
-          <span className="font-medium">YouTube</span>
-        </button>
+      {/* TikTok Guidelines Header */}
+      <div className="flex items-center gap-3 p-3 bg-[#FE2C55]/10 border border-[#FE2C55]/20 rounded-lg">
+        <SiTiktok className="w-6 h-6 text-[#FE2C55]" />
+        <span className="font-semibold text-[#FE2C55]">{t('TikTok Community Guidelines', 'Panduan Komunitas TikTok')}</span>
       </div>
 
       {/* Rules Display */}
@@ -2305,6 +2770,568 @@ function PlatformRulesHub({ search }: { search: string }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+interface AppSetting {
+  id: string;
+  key: string;
+  value: string;
+  valueType: string;
+  category: string;
+  labelEn: string;
+  labelId: string;
+  descriptionEn?: string;
+  descriptionId?: string;
+  isEditable: boolean;
+  updatedBy?: string;
+  updatedAt: string;
+}
+
+interface PricingTier {
+  id: string;
+  name: string;
+  slug: string;
+  priceIdr: number;
+  priceUsd?: number;
+  period: string;
+  descriptionEn?: string;
+  descriptionId?: string;
+  featuresEn?: string[];
+  featuresId?: string[];
+  chatLimit?: number;
+  videoLimit?: number;
+  isActive: boolean;
+  isPopular: boolean;
+  sortOrder: number;
+}
+
+const AVAILABLE_FEATURES = [
+  { key: 'save_history', labelEn: 'Save History', labelId: 'Simpan Riwayat' },
+  { key: 'pdf_export', labelEn: 'PDF Export', labelId: 'Export PDF' },
+  { key: 'batch_analysis', labelEn: 'Batch Analysis', labelId: 'Batch Analysis' },
+  { key: 'ab_tester', labelEn: 'A/B Hook Tester', labelId: 'A/B Hook Tester' },
+  { key: 'voice_input', labelEn: 'Voice Input', labelId: 'Voice Input' },
+  { key: 'competitor_analysis', labelEn: 'Competitor Analysis', labelId: 'Competitor Analysis' },
+  { key: 'thumbnail_generator', labelEn: 'Thumbnail Generator', labelId: 'Thumbnail Generator' },
+  { key: 'priority_support', labelEn: 'Priority Support', labelId: 'Dukungan Prioritas' },
+];
+
+interface TierEditState {
+  tier: PricingTier;
+  enabledFeatures: Set<string>;
+}
+
+function PlatformSettingsPanel() {
+  const { t, language } = useLanguage();
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<AppSetting[]>([]);
+  const [originalSettings, setOriginalSettings] = useState<AppSetting[]>([]);
+  const [pricing, setPricing] = useState<PricingTier[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'settings' | 'pricing'>('settings');
+  const [editingTiers, setEditingTiers] = useState<Record<string, TierEditState>>({});
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [settingsRes, pricingRes] = await Promise.all([
+        fetch('/api/admin/settings', { credentials: 'include' }),
+        fetch('/api/admin/pricing', { credentials: 'include' }),
+      ]);
+
+      if (settingsRes.ok) {
+        const data = await settingsRes.json();
+        setSettings(data);
+        setOriginalSettings(JSON.parse(JSON.stringify(data)));
+      }
+      if (pricingRes.ok) {
+        const data = await pricingRes.json();
+        setPricing(data);
+      }
+    } catch (error) {
+      console.error('Error fetching platform settings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const extractEnabledFeatures = (tier: PricingTier): Set<string> => {
+    const enabled = new Set<string>();
+    const allFeatures = [...(tier.featuresEn || []), ...(tier.featuresId || [])];
+    for (const feature of AVAILABLE_FEATURES) {
+      const hasIt = allFeatures.some(f => 
+        f.toLowerCase().includes(feature.labelEn.toLowerCase()) || 
+        f.toLowerCase().includes(feature.labelId.toLowerCase())
+      );
+      if (hasIt) enabled.add(feature.key);
+    }
+    return enabled;
+  };
+
+  const startEditing = (tierSlug: string) => {
+    const tier = pricing.find(t => t.slug === tierSlug);
+    if (!tier) return;
+    setEditingTiers(prev => ({
+      ...prev,
+      [tierSlug]: {
+        tier: JSON.parse(JSON.stringify(tier)),
+        enabledFeatures: extractEnabledFeatures(tier),
+      }
+    }));
+  };
+
+  const isEditing = (tierSlug: string) => tierSlug in editingTiers;
+
+  const getEditState = (tierSlug: string) => editingTiers[tierSlug];
+
+  const updateEditField = (tierSlug: string, field: string, value: any) => {
+    setEditingTiers(prev => {
+      if (!prev[tierSlug]) return prev;
+      return {
+        ...prev,
+        [tierSlug]: {
+          ...prev[tierSlug],
+          tier: { ...prev[tierSlug].tier, [field]: value }
+        }
+      };
+    });
+  };
+
+  const toggleEditFeature = (tierSlug: string, featureKey: string) => {
+    setEditingTiers(prev => {
+      if (!prev[tierSlug]) return prev;
+      const newFeatures = new Set(prev[tierSlug].enabledFeatures);
+      if (newFeatures.has(featureKey)) {
+        newFeatures.delete(featureKey);
+      } else {
+        newFeatures.add(featureKey);
+      }
+      return {
+        ...prev,
+        [tierSlug]: { ...prev[tierSlug], enabledFeatures: newFeatures }
+      };
+    });
+  };
+
+  const saveTierChanges = async (tierSlug: string) => {
+    const editState = editingTiers[tierSlug];
+    if (!editState) return;
+    
+    const featuresEn = AVAILABLE_FEATURES
+      .filter(f => editState.enabledFeatures.has(f.key))
+      .map(f => f.labelEn);
+    const featuresId = AVAILABLE_FEATURES
+      .filter(f => editState.enabledFeatures.has(f.key))
+      .map(f => f.labelId);
+    
+    setSaving(tierSlug);
+    try {
+      const response = await fetch(`/api/admin/pricing/${tierSlug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          priceIdr: editState.tier.priceIdr,
+          videoLimit: editState.tier.videoLimit,
+          chatLimit: editState.tier.chatLimit,
+          isPopular: editState.tier.isPopular,
+          isActive: editState.tier.isActive,
+          featuresEn,
+          featuresId,
+        }),
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        setPricing(prev => prev.map(t => t.slug === tierSlug ? updated : t));
+        setEditingTiers(prev => {
+          const { [tierSlug]: _, ...rest } = prev;
+          return rest;
+        });
+        toast({
+          title: t('Saved', 'Tersimpan'),
+          description: t(`${editState.tier.name} pricing updated`, `Harga ${editState.tier.name} diperbarui`),
+        });
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to save changes', 'Gagal menyimpan perubahan'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const cancelTierChanges = (tierSlug: string) => {
+    setEditingTiers(prev => {
+      const { [tierSlug]: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const startEditingCategory = (category: string) => {
+    setEditingCategory(category);
+  };
+
+  const cancelCategoryChanges = (category: string) => {
+    setSettings(prev => prev.map(s => {
+      if (s.category !== category) return s;
+      const original = originalSettings.find(o => o.key === s.key);
+      return original ? { ...original } : s;
+    }));
+    setEditingCategory(null);
+  };
+
+  const updateSettingValue = (key: string, value: string) => {
+    setSettings(prev => prev.map(s => s.key === key ? { ...s, value } : s));
+  };
+
+  const saveCategorySettings = async (category: string) => {
+    const categorySettings = settings.filter(s => s.category === category);
+    const originalCategory = originalSettings.filter(s => s.category === category);
+    
+    const changedSettings = categorySettings.filter(s => {
+      const orig = originalCategory.find(o => o.key === s.key);
+      return orig && orig.value !== s.value;
+    });
+
+    if (changedSettings.length === 0) {
+      setEditingCategory(null);
+      return;
+    }
+
+    setSaving(category);
+    try {
+      for (const setting of changedSettings) {
+        const response = await fetch(`/api/admin/settings/${setting.key}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ value: setting.value }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to update ${setting.key}`);
+        }
+
+        const updated = await response.json();
+        setOriginalSettings(prev => prev.map(s => s.key === setting.key ? updated : s));
+      }
+
+      toast({
+        title: t('Saved', 'Tersimpan'),
+        description: t('Settings updated successfully', 'Pengaturan berhasil diperbarui'),
+      });
+      setEditingCategory(null);
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to save settings', 'Gagal menyimpan pengaturan'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  const groupedSettings = settings.reduce((acc, setting) => {
+    // Skip 'features' category - now controlled per-tier in Pricing tab
+    if (setting.category === 'features') return acc;
+    if (!acc[setting.category]) acc[setting.category] = [];
+    acc[setting.category].push(setting);
+    return acc;
+  }, {} as Record<string, AppSetting[]>);
+
+  const categoryLabels: Record<string, { en: string; id: string }> = {
+    limits: { en: 'Usage Limits', id: 'Limit Penggunaan' },
+    general: { en: 'General Settings', id: 'Pengaturan Umum' },
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <ShoppingCart className="w-6 h-6 text-primary" />
+        <div>
+          <h2 className="text-xl font-bold">{t('Pricing & Limits', 'Harga & Limit')}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t('Control pricing tiers, limits, and features per plan', 'Kontrol paket harga, limit, dan fitur per tier')}
+          </p>
+        </div>
+      </div>
+
+      <Card className="bg-gradient-to-r from-pink-500/10 to-cyan-500/10 border-pink-500/30 mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h3 className="font-bold text-white flex items-center gap-2">
+                🚀 {t('Beta Period Active', 'Periode Beta Aktif')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('All features unlocked for free users during beta.', 'Semua fitur terbuka untuk user gratis selama beta.')}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('Beta End Date', 'Tanggal Akhir Beta')}</Label>
+                <Input
+                  type="date"
+                  value={settings.find(s => s.key === 'beta_end_date')?.value || '2025-03-31'}
+                  onChange={async (e) => {
+                    const newValue = e.target.value;
+                    if (!newValue) return;
+                    try {
+                      const response = await fetch('/api/admin/settings/beta_end_date', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ value: newValue }),
+                      });
+                      if (response.ok) {
+                        setSettings(prev => prev.map(s => s.key === 'beta_end_date' ? { ...s, value: newValue } : s));
+                        toast({ title: t('Saved', 'Tersimpan'), description: t('Beta end date updated', 'Tanggal beta diupdate') });
+                      } else {
+                        const error = await response.json();
+                        toast({ title: t('Error', 'Error'), description: error.error || 'Failed to save', variant: 'destructive' });
+                      }
+                    } catch (e) {
+                      toast({ title: t('Error', 'Error'), description: 'Network error', variant: 'destructive' });
+                    }
+                  }}
+                  className="w-40 bg-black/50"
+                />
+              </div>
+              {(() => {
+                const betaEnd = settings.find(s => s.key === 'beta_end_date')?.value;
+                if (!betaEnd) return null;
+                const daysLeft = Math.ceil((new Date(betaEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                return (
+                  <Badge className={daysLeft > 30 ? 'bg-green-600' : daysLeft > 7 ? 'bg-yellow-600' : 'bg-red-600'}>
+                    {daysLeft > 0 ? `${daysLeft} ${t('days left', 'hari lagi')}` : t('Beta ended', 'Beta berakhir')}
+                  </Badge>
+                );
+              })()}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-orange-500/30 mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h3 className="font-bold text-white flex items-center gap-2">
+                🛡️ {t('Platform Protection', 'Proteksi Platform')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('Global limits for API cost control. Shows maintenance when exceeded.', 'Limit global untuk kontrol biaya API. Tampilkan maintenance jika tercapai.')}
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('Token/Day (All Users)', 'Token/Hari (Semua User)')}</Label>
+                <Input
+                  type="number"
+                  value={settings.find(s => s.key === 'global_token_per_day')?.value || '100000'}
+                  onChange={async (e) => {
+                    const newValue = e.target.value;
+                    try {
+                      await fetch('/api/admin/settings/global_token_per_day', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ value: newValue }),
+                      });
+                      setSettings(prev => prev.map(s => s.key === 'global_token_per_day' ? { ...s, value: newValue } : s));
+                    } catch (e) {}
+                  }}
+                  className="w-28 bg-black/50 text-right"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('Token/Request', 'Token/Request')}</Label>
+                <Input
+                  type="number"
+                  value={settings.find(s => s.key === 'global_token_per_request')?.value || '2000'}
+                  onChange={async (e) => {
+                    const newValue = e.target.value;
+                    try {
+                      await fetch('/api/admin/settings/global_token_per_request', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ value: newValue }),
+                      });
+                      setSettings(prev => prev.map(s => s.key === 'global_token_per_request' ? { ...s, value: newValue } : s));
+                    } catch (e) {}
+                  }}
+                  className="w-24 bg-black/50 text-right"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {pricing.map((tier) => {
+            const editing = isEditing(tier.slug);
+            const editState = getEditState(tier.slug);
+            const displayTier = editing ? editState.tier : tier;
+            const enabledFeatures = editing ? editState.enabledFeatures : extractEnabledFeatures(tier);
+            
+            return (
+            <Card key={tier.slug} className={`${displayTier.isPopular ? 'border-primary border-2' : ''} ${editing ? 'ring-2 ring-yellow-500' : ''}`}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {displayTier.name}
+                    {displayTier.isPopular && <Badge className="bg-primary">{t('Popular', 'Populer')}</Badge>}
+                    {editing && <Badge variant="outline" className="bg-yellow-500/20 text-yellow-500">{t('Editing', 'Mengedit')}</Badge>}
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    {!editing ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEditing(tier.slug)}
+                      >
+                        {t('Edit', 'Edit')}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => cancelTierChanges(tier.slug)}
+                        >
+                          {t('Cancel', 'Batal')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => saveTierChanges(tier.slug)}
+                          disabled={saving === tier.slug}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {saving === tier.slug ? '...' : t('Save', 'Simpan')}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <CardDescription>
+                  {language === 'id' ? displayTier.descriptionId : displayTier.descriptionEn}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">{t('Price (IDR)', 'Harga (Rp)')}</Label>
+                    <Input
+                      type="number"
+                      value={displayTier.priceIdr}
+                      onChange={(e) => updateEditField(tier.slug, 'priceIdr', parseInt(e.target.value) || 0)}
+                      disabled={!editing}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">{t('Video Limit', 'Limit Video')}</Label>
+                    <Input
+                      type="number"
+                      value={displayTier.videoLimit ?? 0}
+                      onChange={(e) => updateEditField(tier.slug, 'videoLimit', parseInt(e.target.value))}
+                      disabled={!editing}
+                    />
+                    <p className="text-xs text-muted-foreground">-1 = {t('unlimited', 'unlimited')}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs">{t('Chat Limit', 'Limit Chat')}</Label>
+                    <Input
+                      type="number"
+                      value={displayTier.chatLimit ?? 0}
+                      onChange={(e) => updateEditField(tier.slug, 'chatLimit', parseInt(e.target.value))}
+                      disabled={!editing}
+                    />
+                    <p className="text-xs text-muted-foreground">-1 = {t('unlimited', 'unlimited')}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs">{t('Status', 'Status')}</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={displayTier.isActive ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => editing && updateEditField(tier.slug, 'isActive', !displayTier.isActive)}
+                        disabled={!editing}
+                        className="flex-1"
+                      >
+                        {displayTier.isActive ? t('Active', 'Aktif') : t('Inactive', 'Nonaktif')}
+                      </Button>
+                      <Button
+                        variant={displayTier.isPopular ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => editing && updateEditField(tier.slug, 'isPopular', !displayTier.isPopular)}
+                        disabled={!editing}
+                        className="flex-1"
+                      >
+                        {displayTier.isPopular ? '★' : '☆'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <Label className="text-xs mb-2 block">{t('Features (toggle on/off)', 'Fitur (aktifkan/nonaktifkan)')}</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {AVAILABLE_FEATURES.map((feature) => {
+                      const isEnabled = enabledFeatures.has(feature.key);
+                      return (
+                        <Button
+                          key={feature.key}
+                          variant={isEnabled ? 'default' : 'outline'}
+                          size="sm"
+                          className={`text-xs justify-start ${isEnabled ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                          onClick={() => editing && toggleEditFeature(tier.slug, feature.key)}
+                          disabled={!editing}
+                        >
+                          {isEnabled ? '✓' : '○'} {language === 'id' ? feature.labelId : feature.labelEn}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )})}
+        </div>
+
+      <Alert>
+        <AlertCircle className="w-4 h-4" />
+        <AlertDescription>
+          {t(
+            'Click Edit to modify a tier, then Save to apply changes. Settings affect all users immediately.',
+            'Klik Edit untuk mengubah tier, lalu Simpan untuk menerapkan perubahan. Pengaturan berlaku untuk semua user langsung.'
+          )}
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }

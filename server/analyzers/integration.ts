@@ -191,7 +191,7 @@ export async function analyzeVideo(input: {
   };
 }
 
-// Analyze text/speech/script with AI Deep Analysis
+// Analyze text/speech/script with Ai Deep Analysis
 export async function analyzeText(input: {
   content: string;
   mode: 'creator' | 'academic' | 'hybrid';
@@ -199,56 +199,67 @@ export async function analyzeText(input: {
   platform?: 'tiktok' | 'instagram' | 'youtube' | 'non-social';
 }): Promise<BiasAnalysisResult> {
   
-  // 🚀 NEW: Use AI Deep Analysis for video/audio content
+  // 🚀 Use Ai Deep Analysis for ALL content types (video, audio, AND text)
   // This provides SPECIFIC, ACTIONABLE feedback with concrete examples
-  if (input.inputType === 'video' || input.inputType === 'audio') {
+  // Only skip Ai if content is too short (less than 20 chars)
+  const shouldUseAI = input.content && input.content.length >= 20;
+  
+  if (shouldUseAI) {
     try {
-      console.log('🤖 Initiating AI Deep Analysis for', input.inputType, 'content...');
+      console.log('🤖 Initiating Ai Deep Analysis for', input.inputType, 'content...');
       
-      const deepLayers = await deepAnalyzeWithAI({
+      const deepResult = await deepAnalyzeWithAI({
         content: input.content,
         mode: input.mode,
         inputType: input.inputType,
         platform: input.platform,
       });
 
-      // Convert deep analysis to BiasLayerResult format
-      const layers: BiasLayerResult[] = deepLayers.map(dl => ({
-        layer: dl.layer,
-        score: Math.round(dl.score / 10), // Convert 0-100 to 1-10
-        feedback: dl.feedback,
-        feedbackId: dl.feedbackId,
-      }));
+      // FIX: deepAnalyzeWithAI returns { layers: [], rateLimitInfo?, tokensUsed? }
+      const deepLayers = deepResult.layers;
+      
+      // Check if we got valid Ai analysis (not rate limited fallback)
+      if (deepLayers && deepLayers.length > 0) {
+        // Convert deep analysis to BiasLayerResult format
+        const layers: BiasLayerResult[] = deepLayers.map(dl => ({
+          layer: dl.layer,
+          score: Math.round(dl.score / 10), // Convert 0-100 to 1-10
+          feedback: dl.feedback,
+          feedbackId: dl.feedbackId,
+        }));
 
-      const overallScore = Math.round(
-        deepLayers.reduce((sum, l) => sum + l.score, 0) / deepLayers.length
-      );
+        const overallScore = Math.round(
+          deepLayers.reduce((sum, l) => sum + l.score, 0) / deepLayers.length
+        );
 
-      // Extract all actionable recommendations
-      const allRecommendations = deepLayers.flatMap(dl => 
-        dl.actionableRecommendations || []
-      ).filter(Boolean);
+        // Extract all actionable recommendations
+        const allRecommendations = deepLayers.flatMap(dl => 
+          dl.actionableRecommendations || []
+        ).filter(Boolean);
 
-      // Generate comprehensive summary
-      const summary = generateDeepSummary(deepLayers, overallScore, input.mode);
+        // Generate comprehensive summary
+        const summary = generateDeepSummary(deepLayers, overallScore, input.mode);
 
-      return {
-        mode: input.mode,
-        overallScore,
-        layers,
-        summary,
-        summaryId: summary,
-        recommendations: allRecommendations.slice(0, 10), // Top 10 recommendations
-        recommendationsId: allRecommendations.slice(0, 10),
-      };
-
+        console.log('✅ Ai Deep Analysis completed successfully');
+        
+        return {
+          mode: input.mode,
+          overallScore,
+          layers,
+          summary,
+          summaryId: summary,
+          recommendations: allRecommendations.slice(0, 10),
+          recommendationsId: allRecommendations.slice(0, 10),
+        };
+      }
     } catch (error) {
-      console.error('⚠️ AI Deep Analysis failed, falling back to standard analysis:', error);
-      // Fall through to standard analysis
+      console.error('⚠️ Ai Deep Analysis failed, falling back to standard analysis:', error);
     }
   }
   
-  // Standard analysis for text content or if AI fails
+  // Fallback: Standard template-based analysis (only when Ai fails or content too short)
+  console.log('📝 Using standard template-based analysis (Ai unavailable or content too short)');
+  
   const analyzer = new TextAnalyzer({
     content: input.content,
     mode: input.mode,

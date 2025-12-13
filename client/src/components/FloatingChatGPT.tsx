@@ -9,9 +9,19 @@ import { useLanguage } from '@/lib/languageContext';
  * 
  * Gradient styling: pink→purple→cyan (matches brand)
  * Opens external ChatGPT in system browser (Cordova-aware)
+ * 
+ * HIDDEN: Set to true to hide the button (still keep code for future use)
+ * To show again, change HIDDEN_CHATGPT_BUTTON to false
  */
+const HIDDEN_CHATGPT_BUTTON = true; // Toggle this to show/hide
+
 export function FloatingChatGPT() {
   const { t } = useLanguage();
+
+  // Hidden by config - return null to hide button
+  if (HIDDEN_CHATGPT_BUTTON) {
+    return null;
+  }
 
   const handleClick = () => {
     openExternalLink(

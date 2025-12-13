@@ -169,8 +169,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error(`❌ [${requestId}] Analysis engine failed:`, analysisError);
         return res.status(500).json({
           error: 'Analysis failed',
-          message: 'Our AI analysis engine encountered an error. This could be due to high load or API timeout. Please try again.',
-          messageId: 'Analisis AI mengalami error. Ini bisa karena server load tinggi atau timeout. Silakan coba lagi.',
+          message: 'Our Ai analysis engine encountered an error. This could be due to high load or API timeout. Please try again.',
+          messageId: 'Analisis Ai mengalami error. Ini bisa karena server load tinggi atau timeout. Silakan coba lagi.',
           details: process.env.NODE_ENV === 'development' ? analysisError.message : undefined,
         });
       }
@@ -220,8 +220,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userMessage = 'Analysis timed out. Please try with shorter content or try again later.';
         userMessageId = 'Analisis timeout. Coba dengan konten lebih pendek atau coba lagi nanti.';
       } else if (error.message?.includes('OpenAI') || error.message?.includes('API')) {
-        userMessage = 'AI service temporarily unavailable. Please try again in a few moments.';
-        userMessageId = 'Layanan AI sedang tidak tersedia. Silakan coba lagi dalam beberapa saat.';
+        userMessage = 'Ai service temporarily unavailable. Please try again in a few moments.';
+        userMessageId = 'Layanan Ai sedang tidak tersedia. Silakan coba lagi dalam beberapa saat.';
       }
       
       res.status(500).json({ 
@@ -349,6 +349,240 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analyze Video Content with AI Vision
+  app.post("/api/analyze-video", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: 'No file uploaded',
+          message: 'Silakan upload file video atau gambar untuk dianalisis.',
+          messageId: 'Silakan upload file video atau gambar untuk dianalisis.',
+        });
+      }
+
+      const description = req.body.description || 'TikTok video content';
+      const mode = req.body.mode || 'tiktok';
+
+      // Convert file to base64 for OpenAI Vision
+      const base64Image = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      
+      // For videos, we analyze the first frame (thumbnail)
+      // For images, we analyze directly
+      const isVideo = mimeType.startsWith('video/');
+      
+      const analysisPrompt = mode === 'tiktok' 
+        ? `Analyze this TikTok ${isVideo ? 'video thumbnail' : 'image'} for content performance. Context: ${description}
+        
+Evaluate and score (0-100) these aspects:
+1. Hook Strength: How attention-grabbing is the opening visual?
+2. Visual Quality: Lighting, composition, color grading
+3. Audio Clarity: Based on visual cues (text overlays, mouth movement clarity)
+4. Engagement Potential: Shareability, relatability, emotional appeal
+5. Retention Score: Will viewers watch till the end?
+
+Also provide:
+- 3 key strengths
+- 3 areas for improvement  
+- 3 specific actionable recommendations
+
+Respond in JSON format:
+{
+  "overallScore": number,
+  "hookStrength": number,
+  "visualQuality": number,
+  "audioClarity": number,
+  "engagement": number,
+  "retention": number,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "improvements": ["improvement1", "improvement2", "improvement3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}`
+        : `Analyze this marketing/presentation content. Context: ${description}
+        
+Evaluate and score (0-100) these aspects:
+1. Hook Strength: How attention-grabbing is the opening?
+2. Visual Quality: Professional appearance, branding
+3. Audio Clarity: Presentation clarity (based on visual cues)
+4. Engagement Potential: Audience interest, persuasiveness
+5. Retention Score: Will audience stay engaged?
+
+Also provide:
+- 3 key strengths
+- 3 areas for improvement
+- 3 specific actionable recommendations
+
+Respond in JSON format:
+{
+  "overallScore": number,
+  "hookStrength": number,
+  "visualQuality": number,
+  "audioClarity": number,
+  "engagement": number,
+  "retention": number,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "improvements": ["improvement1", "improvement2", "improvement3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}`;
+
+      // Use OpenAI Vision API
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const visionResponse = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: analysisPrompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Image}`,
+                  detail: 'low',
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 1000,
+        response_format: { type: 'json_object' },
+      });
+
+      const analysisText = visionResponse.choices[0]?.message?.content || '{}';
+      const analysisResult = JSON.parse(analysisText);
+
+      // Validate required fields
+      if (typeof analysisResult.overallScore !== 'number') {
+        throw new Error('Invalid analysis result');
+      }
+
+      res.json({
+        success: true,
+        result: analysisResult,
+      });
+    } catch (error: any) {
+      console.error('Video analysis error:', error);
+      res.status(500).json({
+        error: 'Analysis failed',
+        message: 'Gagal menganalisis konten. Silakan coba lagi.',
+        messageId: 'Gagal menganalisis konten. Silakan coba lagi.',
+      });
+    }
+  });
+
+  // Analyze Screenshot with AI Vision
+  app.post("/api/analyze-screenshot", async (req, res) => {
+    try {
+      const schema = z.object({
+        image: z.string().min(1),
+        guideType: z.string().optional(),
+        language: z.enum(['en', 'id']).optional(),
+      });
+
+      const data = schema.parse(req.body);
+      const lang = data.language || 'id';
+      const guideType = data.guideType || 'profile';
+
+      // Extract base64 data from data URL
+      const base64Match = data.image.match(/^data:image\/\w+;base64,(.+)$/);
+      if (!base64Match) {
+        return res.status(400).json({
+          error: 'Invalid image format',
+          message: 'Format gambar tidak valid. Gunakan screenshot dari TikTok.',
+          messageId: 'Format gambar tidak valid. Gunakan screenshot dari TikTok.',
+        });
+      }
+
+      const base64Image = base64Match[1];
+
+      const guidePrompts: Record<string, string> = {
+        profile: 'TikTok profile analytics screenshot showing followers, views, engagement metrics',
+        content: 'TikTok content performance screenshot showing video stats, views, likes',
+        followers: 'TikTok follower insights screenshot showing demographics, activity times',
+        live: 'TikTok LIVE analytics screenshot showing viewer count, duration, gifts',
+      };
+
+      const contextDescription = guidePrompts[guideType] || guidePrompts.profile;
+      const langInstruction = lang === 'id' 
+        ? 'Respond in Indonesian (Bahasa Indonesia).'
+        : 'Respond in English.';
+
+      const analysisPrompt = `Analyze this ${contextDescription}. ${langInstruction}
+
+Extract all visible metrics and provide insights. Respond in JSON format:
+{
+  "metrics": [
+    { "name": "Metric Name", "value": "extracted value", "status": "good|average|needs_work" },
+    ...
+  ],
+  "summary": "Brief overall assessment",
+  "insights": ["insight1", "insight2", "insight3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}
+
+Status meanings:
+- good: Above average performance
+- average: Normal performance  
+- needs_work: Below expectations, needs improvement`;
+
+      // Use OpenAI Vision API
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const visionResponse = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: analysisPrompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:image/png;base64,${base64Image}`,
+                  detail: 'high',
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 1500,
+        response_format: { type: 'json_object' },
+      });
+
+      const analysisText = visionResponse.choices[0]?.message?.content || '{}';
+      const analysisResult = JSON.parse(analysisText);
+
+      // Validate result has required fields
+      if (!analysisResult.metrics || !Array.isArray(analysisResult.metrics)) {
+        throw new Error('Invalid analysis result structure');
+      }
+
+      res.json({
+        success: true,
+        result: analysisResult,
+      });
+    } catch (error: any) {
+      console.error('Screenshot analysis error:', error);
+      
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          error: 'Invalid input',
+          message: 'Data screenshot tidak valid.',
+          messageId: 'Data screenshot tidak valid.',
+        });
+      }
+
+      res.status(500).json({
+        error: 'Analysis failed',
+        message: 'Gagal menganalisis screenshot. Pastikan gambar jelas dan coba lagi.',
+        messageId: 'Gagal menganalisis screenshot. Pastikan gambar jelas dan coba lagi.',
+      });
+    }
+  });
+
   // Chat with BIAS
   app.post("/api/chat", async (req, res) => {
     try {
@@ -382,7 +616,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: data.message,
       });
       
-      // Generate response using CASCADE AI: OpenAI → Gemini → BIAS
+      // Generate response using CASCADE Ai: OpenAI → Gemini → BIAS
       const { response, isOnTopic, provider } = await generateAICascadeResponse(data.message, data.mode);
       console.log(`Chat response from ${provider.toUpperCase()}`);
       
@@ -891,6 +1125,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============= SUCCESS STORIES =============
+  
+  // Public - Submit Success Story
+  app.post("/api/success-stories", async (req, res) => {
+    try {
+      const story = await storage.createSuccessStory(req.body);
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Public - Get Approved Success Stories
+  app.get("/api/success-stories/approved", async (req, res) => {
+    try {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      const stories = await storage.getApprovedSuccessStories();
+      res.json(stories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Public - Get Featured Success Stories (for homepage)
+  app.get("/api/success-stories/featured", async (req, res) => {
+    try {
+      const stories = await storage.getFeaturedSuccessStories();
+      res.json(stories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Get Pending Success Stories
+  app.get("/api/success-stories/pending", requireAdmin, async (req, res) => {
+    try {
+      const stories = await storage.getPendingSuccessStories();
+      res.json(stories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Approve Success Story
+  app.post("/api/success-stories/:id/approve", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { featured } = req.body;
+      const story = await storage.updateSuccessStory(id, {
+        status: 'approved',
+        featured: featured || false,
+        approvedAt: new Date(),
+      });
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Reject Success Story
+  app.post("/api/success-stories/:id/reject", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const story = await storage.updateSuccessStory(id, { status: 'rejected' });
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Update Success Story (toggle featured, edit, etc.)
+  app.put("/api/success-stories/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const story = await storage.updateSuccessStory(id, req.body);
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true, story });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Delete Success Story
+  app.delete("/api/success-stories/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteSuccessStory(id);
+      if (!deleted) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin - Get ALL Success Stories (for admin panel)
+  app.get("/api/success-stories/all", requireAdmin, async (req, res) => {
+    try {
+      const [pending, approved] = await Promise.all([
+        storage.getPendingSuccessStories(),
+        storage.getApprovedSuccessStories(),
+      ]);
+      res.json({ pending, approved });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Admin - Get ALL Library Content (original + contributions)
   app.get("/api/library/all", async (req, res) => {
     try {
@@ -1212,13 +1563,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         featureUsageStats,
         uniqueSessions,
         totalPageViews,
-        totalFeatureUsage
+        totalFeatureUsage,
+        navigationBreakdown,
+        tabBreakdown,
+        buttonClickBreakdown
       ] = await Promise.all([
         storage.getPageViewStats(daysNum),
         storage.getFeatureUsageStats(daysNum),
         storage.getUniqueSessionsCount(daysNum),
         storage.getTotalPageViews(daysNum),
         storage.getTotalFeatureUsage(daysNum),
+        storage.getNavigationBreakdown(daysNum),
+        storage.getTabBreakdown(daysNum),
+        storage.getButtonClickBreakdown(daysNum),
       ]);
       
       res.json({
@@ -1230,9 +1587,542 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         pageViews: pageViewStats,
         featureUsage: featureUsageStats,
+        navigationBreakdown,
+        tabBreakdown,
+        buttonClickBreakdown,
       });
     } catch (error: any) {
       console.error('[ANALYTICS] Error getting stats:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==========================================
+  // THUMBNAIL GENERATOR (Concept Preview)
+  // Returns a reference image for thumbnail design ideas
+  // ==========================================
+  
+  app.post("/api/generate-thumbnail", async (req, res) => {
+    try {
+      const { topic, style, aspectRatio } = req.body;
+      
+      if (!topic) {
+        return res.status(400).json({ 
+          error: 'Topic is required',
+          message: 'Topik diperlukan untuk membuat preview',
+          messageId: 'Topik diperlukan untuk membuat preview',
+        });
+      }
+
+      const dimensions = {
+        '16:9': '1280x720',
+        '9:16': '720x1280',
+        '1:1': '720x720',
+      };
+
+      const dim = dimensions[aspectRatio as keyof typeof dimensions] || '1280x720';
+      
+      // Generate concept preview with topic and style
+      const displayText = `${topic.substring(0, 25)}`;
+      const previewUrl = `https://placehold.co/${dim}/1a1a1a/ff0050?text=${encodeURIComponent(displayText)}&font=roboto`;
+
+      res.json({
+        success: true,
+        imageUrl: previewUrl,
+        prompt: `${topic} - ${style}`,
+        type: 'concept-preview',
+      });
+    } catch (error: any) {
+      console.error('[THUMBNAIL] Error:', error);
+      res.status(500).json({ 
+        error: error.message,
+        message: 'Gagal membuat preview thumbnail',
+        messageId: 'Gagal membuat preview thumbnail',
+      });
+    }
+  });
+
+  // ==========================================
+  // A/B HOOK TESTER
+  // ==========================================
+  
+  app.post("/api/test-hooks", async (req, res) => {
+    try {
+      const schema = z.object({
+        hooks: z.array(z.object({
+          id: z.string(),
+          text: z.string().min(1),
+        })).min(2).max(5),
+        language: z.enum(['en', 'id']).optional(),
+      });
+
+      const data = schema.parse(req.body);
+      const lang = data.language || 'id';
+
+      const hooksText = data.hooks.map((h, i) => 
+        `Hook ${String.fromCharCode(65 + i)}: "${h.text}"`
+      ).join('\n');
+
+      const langInstruction = lang === 'id' 
+        ? 'Respond in Indonesian (Bahasa Indonesia).'
+        : 'Respond in English.';
+
+      const prompt = `You are a TikTok viral content expert. Analyze these hook variations and determine which one has the highest viral potential. ${langInstruction}
+
+${hooksText}
+
+For each hook, evaluate:
+1. Attention-grabbing power (curiosity, emotion, relatability)
+2. Clarity and conciseness
+3. Call to action/engagement trigger
+4. Platform fit for TikTok/short-form video
+
+Respond in JSON format:
+{
+  "results": [
+    {
+      "hookId": "id from input",
+      "hookText": "the hook text",
+      "score": number 0-100,
+      "viralPotential": "high" | "medium" | "low",
+      "strengths": ["strength1", "strength2"],
+      "weaknesses": ["weakness1", "weakness2"],
+      "suggestion": "specific improvement suggestion"
+    }
+  ],
+  "winner": "A" or "B" or "C" etc,
+  "winnerScore": number,
+  "comparison": "brief explanation why winner is best"
+}
+
+Be objective and provide actionable feedback.`;
+
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1500,
+        response_format: { type: 'json_object' },
+      });
+
+      const resultText = completion.choices[0]?.message?.content || '{}';
+      const result = JSON.parse(resultText);
+
+      // Map hook IDs back
+      if (result.results) {
+        result.results = result.results.map((r: any, i: number) => ({
+          ...r,
+          hookId: data.hooks[i]?.id || r.hookId,
+          hookText: data.hooks[i]?.text || r.hookText,
+        }));
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      console.error('[HOOK_TESTER] Error:', error);
+      
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          error: 'Invalid input',
+          message: 'Minimal 2 hook diperlukan, maksimal 5.',
+          messageId: 'Minimal 2 hook diperlukan, maksimal 5.',
+        });
+      }
+
+      res.status(500).json({
+        error: 'Analysis failed',
+        message: 'Gagal menganalisis hook. Silakan coba lagi.',
+        messageId: 'Gagal menganalisis hook. Silakan coba lagi.',
+      });
+    }
+  });
+
+  // ==========================================
+  // HYBRID CHAT (Local + Ai Fallback)
+  // ==========================================
+  
+  app.post("/api/chat/hybrid", async (req, res) => {
+    try {
+      const { message, sessionId } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+      
+      const { hybridChat } = await import('./chat/hybrid-chat');
+      const result = await hybridChat({ 
+        message, 
+        sessionId: sessionId || 'anonymous' 
+      });
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error('[HYBRID_CHAT] Error:', error);
+      res.status(500).json({ 
+        response: 'Maaf bro, ada error. Coba lagi ya!',
+        source: 'local',
+        error: error.message 
+      });
+    }
+  });
+
+  // Learning Library Stats (Admin)
+  app.get("/api/admin/learning-stats", requireAdmin, async (req, res) => {
+    try {
+      const { getLearningStats } = await import('./utils/learning-system');
+      const stats = await getLearningStats();
+      res.json(stats);
+    } catch (error: any) {
+      console.error('[LEARNING_STATS] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==========================================
+  // Ai TOKEN LIMIT SETTINGS (Admin Only)
+  // ==========================================
+  
+  app.get("/api/admin/ai-settings", requireAdmin, async (req, res) => {
+    try {
+      const { getConfig, getUsageStats } = await import('./utils/ai-rate-limiter');
+      const config = getConfig();
+      res.json({ config });
+    } catch (error: any) {
+      console.error('[AI_SETTINGS] Error getting config:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.put("/api/admin/ai-settings", requireAdmin, async (req, res) => {
+    try {
+      const { updateConfig, getConfig } = await import('./utils/ai-rate-limiter');
+      const newConfig = req.body;
+      
+      // Validate input
+      const validKeys = ['maxRequestsPerHour', 'maxRequestsPerDay', 'maxTokensPerDay', 'maxTokensPerRequest'];
+      const updates: any = {};
+      
+      for (const key of validKeys) {
+        if (newConfig[key] !== undefined) {
+          const value = parseInt(newConfig[key]);
+          if (isNaN(value) || value < 0) {
+            return res.status(400).json({ error: `Invalid value for ${key}` });
+          }
+          updates[key] = value;
+        }
+      }
+      
+      updateConfig(updates);
+      res.json({ success: true, config: getConfig() });
+    } catch (error: any) {
+      console.error('[AI_SETTINGS] Error updating config:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/admin/ai-usage", requireAdmin, async (req, res) => {
+    try {
+      const { getConfig } = await import('./utils/ai-rate-limiter');
+      res.json({ 
+        config: getConfig(),
+        note: 'Per-session usage stats reset on server restart',
+      });
+    } catch (error: any) {
+      console.error('[AI_USAGE] Error getting usage:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==========================================
+  // EXPERT KNOWLEDGE BASE API ROUTES
+  // ==========================================
+
+  // Get all expert knowledge entries (with optional filtering)
+  app.get("/api/expert-knowledge", async (req, res) => {
+    try {
+      const { category, subcategory, level, search } = req.query;
+      const entries = await storage.getExpertKnowledge({
+        category: category as string,
+        subcategory: subcategory as string,
+        level: level as string,
+        search: search as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[EXPERT_KNOWLEDGE] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get all hooks (with optional filtering)
+  app.get("/api/hooks", async (req, res) => {
+    try {
+      const { hookType, category, search } = req.query;
+      const entries = await storage.getHooks({
+        hookType: hookType as string,
+        category: category as string,
+        search: search as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[HOOKS] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get all storytelling frameworks
+  app.get("/api/storytelling-frameworks", async (req, res) => {
+    try {
+      const entries = await storage.getStorytellingFrameworks();
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[STORYTELLING] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get growth stage guide by follower count
+  app.get("/api/growth-guides", async (req, res) => {
+    try {
+      const { followers } = req.query;
+      const followerCount = followers ? parseInt(followers as string) : undefined;
+      const entries = await storage.getGrowthStageGuides(followerCount);
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[GROWTH_GUIDES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get specific growth stage guide
+  app.get("/api/growth-guides/:stage", async (req, res) => {
+    try {
+      const { stage } = req.params;
+      const entry = await storage.getGrowthStageGuideByStage(stage);
+      if (!entry) {
+        return res.status(404).json({ error: 'Growth stage not found' });
+      }
+      res.json(entry);
+    } catch (error: any) {
+      console.error('[GROWTH_GUIDES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get response templates
+  app.get("/api/response-templates", async (req, res) => {
+    try {
+      const { category } = req.query;
+      const entries = await storage.getResponseTemplates(category as string);
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[RESPONSE_TEMPLATES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get live streaming templates
+  app.get("/api/live-streaming-templates", async (req, res) => {
+    try {
+      const { format, duration } = req.query;
+      const entries = await storage.getLiveStreamingTemplates({
+        format: format as string,
+        duration: duration as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[LIVE_STREAMING] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get script templates
+  app.get("/api/script-templates", async (req, res) => {
+    try {
+      const { category, duration, goal, level } = req.query;
+      const entries = await storage.getScriptTemplates({
+        category: category as string,
+        duration: duration as string,
+        goal: goal as string,
+        level: level as string,
+      });
+      res.json(entries);
+    } catch (error: any) {
+      console.error('[SCRIPT_TEMPLATES] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==========================================
+  // PLATFORM SETTINGS API ROUTES
+  // ==========================================
+
+  // Public: Get all active settings (for frontend consumption)
+  app.get("/api/settings/public", async (req, res) => {
+    try {
+      const settings = await storage.getPublicSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('[SETTINGS] Error getting public settings:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Public: Get active pricing tiers (no auth required)
+  app.get("/api/pricing", async (req, res) => {
+    try {
+      const tiers = await storage.getActivePricingTiers();
+      res.json(tiers);
+    } catch (error: any) {
+      console.error('[PRICING] Error getting pricing:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Get all settings
+  app.get("/api/admin/settings", requireAdmin, async (req, res) => {
+    try {
+      const settings = await storage.getAllSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('[ADMIN_SETTINGS] Error getting settings:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Update a setting with validation
+  app.put("/api/admin/settings/:key", requireAdmin, async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value } = req.body;
+      const adminUser = (req as any).adminUser;
+      
+      if (value === undefined) {
+        return res.status(400).json({ error: 'Value is required' });
+      }
+      
+      const existingSetting = await storage.getSetting(key);
+      if (!existingSetting) {
+        return res.status(404).json({ error: 'Setting not found' });
+      }
+      
+      if (!existingSetting.isEditable) {
+        return res.status(403).json({ error: 'This setting cannot be modified' });
+      }
+      
+      let validatedValue = String(value);
+      if (existingSetting.valueType === 'number') {
+        const numVal = parseFloat(value);
+        if (isNaN(numVal)) {
+          return res.status(400).json({ error: 'Value must be a valid number' });
+        }
+        validatedValue = String(numVal);
+      } else if (existingSetting.valueType === 'boolean') {
+        if (value !== 'true' && value !== 'false' && value !== true && value !== false) {
+          return res.status(400).json({ error: 'Value must be true or false' });
+        }
+        validatedValue = String(value === true || value === 'true');
+      }
+      
+      const setting = await storage.updateSetting(key, validatedValue, adminUser);
+      res.json(setting);
+    } catch (error: any) {
+      console.error('[ADMIN_SETTINGS] Error updating setting:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Get all pricing tiers
+  app.get("/api/admin/pricing", requireAdmin, async (req, res) => {
+    try {
+      const tiers = await storage.getAllPricingTiers();
+      res.json(tiers);
+    } catch (error: any) {
+      console.error('[ADMIN_PRICING] Error getting pricing:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Update a pricing tier with validation
+  app.put("/api/admin/pricing/:slug", requireAdmin, async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const updates = req.body;
+      const adminUser = (req as any).adminUser;
+      
+      const existingTier = await storage.getPricingTier(slug);
+      if (!existingTier) {
+        return res.status(404).json({ error: 'Pricing tier not found' });
+      }
+      
+      const validatedUpdates: any = {};
+      
+      if (updates.priceIdr !== undefined) {
+        const price = parseInt(updates.priceIdr);
+        if (isNaN(price) || price < 0) {
+          return res.status(400).json({ error: 'Price must be a valid non-negative number' });
+        }
+        validatedUpdates.priceIdr = price;
+      }
+      
+      if (updates.videoLimit !== undefined) {
+        const limit = parseInt(updates.videoLimit);
+        if (isNaN(limit)) {
+          return res.status(400).json({ error: 'Video limit must be a valid number' });
+        }
+        validatedUpdates.videoLimit = limit;
+      }
+      
+      if (updates.chatLimit !== undefined) {
+        const limit = parseInt(updates.chatLimit);
+        if (isNaN(limit)) {
+          return res.status(400).json({ error: 'Chat limit must be a valid number' });
+        }
+        validatedUpdates.chatLimit = limit;
+      }
+      
+      if (updates.isActive !== undefined) {
+        validatedUpdates.isActive = updates.isActive === true || updates.isActive === 'true';
+      }
+      
+      if (updates.isPopular !== undefined) {
+        validatedUpdates.isPopular = updates.isPopular === true || updates.isPopular === 'true';
+      }
+      
+      const tier = await storage.updatePricingTier(slug, validatedUpdates, adminUser);
+      res.json(tier);
+    } catch (error: any) {
+      console.error('[ADMIN_PRICING] Error updating pricing:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Get all analyzed TikTok accounts (for user tracking/promo)
+  app.get("/api/admin/analyzed-accounts", requireAdmin, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
+      const accounts = await storage.getAllAnalyzedAccounts(limit);
+      const totalCount = await storage.getAnalyzedAccountsCount();
+      
+      res.json({
+        accounts: accounts.map(a => ({
+          id: a.id,
+          username: a.username,
+          displayName: a.displayName,
+          followers: a.followers,
+          following: a.following,
+          totalLikes: a.totalLikes,
+          totalVideos: a.totalVideos,
+          verified: a.verified,
+          engagementRate: a.engagementRate,
+          createdAt: a.createdAt,
+        })),
+        total: totalCount,
+      });
+    } catch (error: any) {
+      console.error('[ADMIN_ACCOUNTS] Error getting analyzed accounts:', error);
       res.status(500).json({ error: error.message });
     }
   });

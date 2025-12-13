@@ -5,9 +5,10 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, Share2, Link2, Check } from 'lucide-react';
+import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, Share2, Link2, Check, FileDown, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
+import { exportAnalysisToPDF } from '@/lib/pdfExport';
 import type { BiasAnalysisResult } from '@shared/schema';
 
 const LAYER_TOOLTIPS: Record<string, { en: string; id: string }> = {
@@ -48,15 +49,17 @@ const LAYER_TOOLTIPS: Record<string, { en: string; id: string }> = {
 interface AnalysisResultsProps {
   result: BiasAnalysisResult | null;
   onDiscussLayer?: (layerName: string) => void;
+  mode?: 'tiktok' | 'marketing';
 }
 
-export function AnalysisResults({ result, onDiscussLayer }: AnalysisResultsProps) {
+export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: AnalysisResultsProps) {
   const { language, t } = useLanguage();
   const { toast } = useToast();
   const [animatedScore, setAnimatedScore] = useState(0);
   const [animatedLayers, setAnimatedLayers] = useState<Record<number, number>>({});
   const [isAnimating, setIsAnimating] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
 
   // Animate overall score on result change
   useEffect(() => {
@@ -131,6 +134,27 @@ export function AnalysisResults({ result, onDiscussLayer }: AnalysisResultsProps
     window.open(whatsappUrl, '_blank');
   };
 
+  const handleExportPDF = async () => {
+    if (!result) return;
+    setIsExportingPDF(true);
+    try {
+      await exportAnalysisToPDF(result, { language: language as 'en' | 'id', mode });
+      toast({
+        title: t('PDF Downloaded!', 'PDF Terunduh!'),
+        description: t('Your analysis has been saved as PDF', 'Analisis kamu sudah tersimpan sebagai PDF'),
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: t('Export Failed', 'Export Gagal'),
+        description: t('Please try again', 'Silakan coba lagi'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExportingPDF(false);
+    }
+  };
+
   if (!result) {
     return (
       <Card className="border-dashed border-2">
@@ -156,7 +180,7 @@ export function AnalysisResults({ result, onDiscussLayer }: AnalysisResultsProps
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-              {t('AI-powered analysis', 'Analisis bertenaga AI')}
+              {t('Ai-powered analysis', 'Analisis bertenaga Ai')}
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
@@ -223,6 +247,21 @@ export function AnalysisResults({ result, onDiscussLayer }: AnalysisResultsProps
             >
               <Share2 className="w-3.5 h-3.5" />
               <span className="text-xs">WhatsApp</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPDF}
+              disabled={isExportingPDF}
+              className="gap-2 bg-pink-500/10 hover:bg-pink-500/20 border-pink-500/30"
+              data-testid="button-export-pdf"
+            >
+              {isExportingPDF ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <FileDown className="w-3.5 h-3.5" />
+              )}
+              <span className="text-xs">{t('PDF', 'PDF')}</span>
             </Button>
           </div>
         </CardHeader>

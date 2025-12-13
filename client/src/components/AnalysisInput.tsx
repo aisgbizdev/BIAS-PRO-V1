@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@/lib/sessionContext';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Sparkles, CheckCircle2, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { VoiceInputButton } from '@/components/VoiceInputButton';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { trackFeatureUsage } from '@/lib/analytics';
 
@@ -55,6 +56,52 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzingProgress, setAnalyzingProgress] = useState<number>(0);
+  const [selectedScriptType, setSelectedScriptType] = useState<string | null>(null);
+
+  const scriptTypes = [
+    { 
+      key: 'sales-pitch',
+      en: '💼 Sales Pitch', 
+      id: '💼 Sales Pitch',
+      placeholderEn: 'Hi [Prospect Name], I noticed your company just expanded to 3 new cities. Congratulations! I\'m reaching out because our solution has helped similar companies reduce operational costs by 40%...',
+      placeholderId: 'Halo Pak [Nama], saya lihat perusahaan Bapak baru expand ke 3 kota baru. Selamat! Saya hubungi karena solusi kami sudah bantu perusahaan serupa hemat biaya operasional 40%...'
+    },
+    { 
+      key: 'cold-call',
+      en: '📞 Cold Call', 
+      id: '📞 Cold Call',
+      placeholderEn: 'Good morning! This is [Name] from [Company]. I\'m calling because I saw your job posting for sales reps. Usually that means you\'re looking to grow revenue. Am I right?',
+      placeholderId: 'Selamat pagi! Saya [Nama] dari [Perusahaan]. Saya telepon karena lihat Bapak baru posting lowongan sales. Biasanya itu artinya lagi mau naikin omzet ya Pak?'
+    },
+    { 
+      key: 'meeting-opening',
+      en: '🤝 Meeting Opening', 
+      id: '🤝 Pembuka Meeting',
+      placeholderEn: 'Thanks everyone for joining today. Before we start, I want to share our agenda: First, we\'ll review last month\'s results. Then, discuss our Q4 strategy...',
+      placeholderId: 'Terima kasih semuanya sudah hadir. Sebelum mulai, saya share agenda kita: Pertama, review hasil bulan lalu. Kedua, bahas strategi Q4...'
+    },
+    { 
+      key: 'presentation',
+      en: '📊 Presentation', 
+      id: '📊 Presentasi',
+      placeholderEn: 'Ladies and gentlemen, imagine a world where your sales team closes 50% more deals. Today I\'m going to show you exactly how to make that happen...',
+      placeholderId: 'Bapak Ibu sekalian, bayangkan tim sales Anda closing 50% lebih banyak. Hari ini saya akan tunjukkan caranya...'
+    },
+    { 
+      key: 'follow-up-wa',
+      en: '💬 Follow-up WA', 
+      id: '💬 Follow-up WA',
+      placeholderEn: 'Hi [Name], following up on our call yesterday. I\'ve attached the proposal we discussed. The special pricing is valid until Friday. Any questions?',
+      placeholderId: 'Halo Pak [Nama], follow up dari telpon kemarin. Saya sudah lampirkan proposal yang kita bahas. Harga spesial berlaku sampai Jumat. Ada pertanyaan Pak?'
+    },
+    { 
+      key: 'public-speaking',
+      en: '🎤 Public Speaking', 
+      id: '🎤 Public Speaking',
+      placeholderEn: '3 years ago, I was exactly where you are now. Struggling, doubting myself. But one decision changed everything...',
+      placeholderId: '3 tahun lalu, saya persis di posisi kalian sekarang. Struggling, ragu sama diri sendiri. Tapi satu keputusan mengubah segalanya...'
+    },
+  ];
 
   // Simulate progressive layer analysis
   useEffect(() => {
@@ -169,26 +216,49 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          {t('New Analysis', 'Analisis Baru')}
+          <Sparkles className="w-5 h-5 text-purple-500" />
+          {t('Script Analysis & Review', 'Analisis & Review Script')}
         </CardTitle>
         <CardDescription>
           {t(
-            'Analyze your communication patterns with 8-layer BIAS framework',
-            'Analisis pola komunikasi kamu dengan framework BIAS 8-layer'
+            'Paste your script (sales pitch, meeting opening, cold call, presentation) and get Ai feedback to improve it!',
+            'Paste script kamu (sales pitch, pembuka meeting, cold call, presentasi) dan dapatkan feedback Ai untuk improve!'
           )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Input Type - Simplified to Text/Document Only */}
+        {/* Script Type Selector */}
+        <div className="space-y-2">
+          <Label>{t('What kind of script?', 'Jenis script apa?')}</Label>
+          <div className="flex flex-wrap gap-2">
+            {scriptTypes.map((type) => (
+              <button
+                key={type.key}
+                type="button"
+                onClick={() => {
+                  setSelectedScriptType(type.key);
+                }}
+                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                  selectedScriptType === type.key
+                    ? 'bg-purple-500 text-white border-purple-500'
+                    : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border-purple-500/20'
+                }`}
+              >
+                {t(type.en, type.id)}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Content Input Label */}
         <div className="space-y-2">
           <Label htmlFor="content-input">
-            {t('Content to Analyze', 'Konten yang Akan Dianalisis')}
+            {t('Your Script / Text', 'Script / Teks Kamu')}
           </Label>
           <p className="text-xs text-muted-foreground">
             {t(
-              'Upload document (doc/pdf/txt/script) OR write your description below',
-              'Upload dokumen (doc/pdf/txt/script) ATAU tulis deskripsi di bawah'
+              'Paste your script below — Ai will analyze and give specific improvement tips',
+              'Paste script kamu di bawah — Ai akan analisis dan kasih tips perbaikan spesifik'
             )}
           </p>
         </div>
@@ -222,18 +292,35 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
 
         {/* Text Description Input */}
         <div className="space-y-2">
-          <Label htmlFor="content">
-            {t('Description / Text Content', 'Deskripsi / Konten Teks')}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="content">
+              {t('Script Content', 'Konten Script')}
+            </Label>
+            <VoiceInputButton 
+              onTranscript={(text, append) => {
+                if (append) {
+                  setContent(prev => prev ? `${prev} ${text}` : text);
+                } else {
+                  setContent(text);
+                }
+              }}
+            />
+          </div>
           <Textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={t(
-              'Paste your speech script, conversation, presentation text, or describe your communication style in detail...',
-              'Paste skrip pidato, percakapan, teks presentasi, atau deskripsikan gaya komunikasi Anda secara detail...'
-            )}
-            className="min-h-32 resize-none"
+            placeholder={(() => {
+              const selected = scriptTypes.find(s => s.key === selectedScriptType);
+              if (selected) {
+                return t(selected.placeholderEn, selected.placeholderId);
+              }
+              return t(
+                'Select a script type above, then paste or type your script here...',
+                'Pilih jenis script di atas, lalu paste atau ketik script kamu di sini...'
+              );
+            })()}
+            className="min-h-40 resize-none font-mono text-sm placeholder:text-muted-foreground/50 placeholder:italic"
             data-testid="textarea-content"
           />
           <div className="flex items-center justify-between text-xs">
@@ -295,7 +382,10 @@ export function AnalysisInput({ onAnalysisComplete }: AnalysisInputProps) {
               {t('Analyzing...', 'Menganalisis...')}
             </>
           ) : (
-            t('Analyze with BIAS', 'Analisis dengan BIAS')
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              {t('Review My Script', 'Review Script Saya')}
+            </>
           )}
         </Button>
       </CardFooter>

@@ -1,13 +1,21 @@
-// Deep Video Analyzer - AI-Powered Specific & Actionable Analysis
+// Deep Video Analyzer - Ai-Powered Specific & Actionable Analysis
 // Provides CONCRETE feedback with timestamps, specific observations, and practical recommendations
 
 import OpenAI from 'openai';
+import { checkRateLimit, recordUsage, RateLimitResult } from '../utils/ai-rate-limiter';
 
 interface DeepAnalysisInput {
   content: string;
   mode: 'creator' | 'academic' | 'hybrid';
   inputType: 'text' | 'video' | 'photo' | 'audio';
   platform?: 'tiktok' | 'instagram' | 'youtube' | 'non-social';
+  sessionId?: string;
+}
+
+export interface DeepAnalysisResult {
+  layers: DeepLayerAnalysis[];
+  rateLimitInfo?: RateLimitResult;
+  tokensUsed?: number;
 }
 
 interface DeepLayerAnalysis {
@@ -70,12 +78,23 @@ Setiap layer:
 
 INGAT: User frustasi dengan generic advice. Berikan VALUE MAKSIMAL - specific observations + actionable steps!`;
 
-export async function deepAnalyzeWithAI(input: DeepAnalysisInput): Promise<DeepLayerAnalysis[]> {
+export async function deepAnalyzeWithAI(input: DeepAnalysisInput): Promise<DeepAnalysisResult> {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const sessionId = input.sessionId || 'anonymous';
 
   if (!process.env.OPENAI_API_KEY) {
     console.warn('⚠️ OpenAI API key not found - falling back to basic analysis');
-    return generateBasicAnalysis(input);
+    return { layers: generateBasicAnalysis(input) };
+  }
+
+  // Check rate limit before making API call
+  const rateLimitCheck = checkRateLimit(sessionId);
+  if (!rateLimitCheck.allowed) {
+    console.warn(`⚠️ Rate limit exceeded for session ${sessionId}: ${rateLimitCheck.reason}`);
+    return { 
+      layers: generateBasicAnalysis(input),
+      rateLimitInfo: rateLimitCheck,
+    };
   }
 
   try {
@@ -142,25 +161,33 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
     const responseContent = completion.choices[0]?.message?.content;
     
     if (!responseContent) {
-      throw new Error('Empty AI response');
+      throw new Error('Empty Ai response');
     }
 
-    // Parse AI response
+    // Parse Ai response
     const parsedResponse = JSON.parse(responseContent);
     
     // Handle both array and object with "layers" key
     const layers = Array.isArray(parsedResponse) ? parsedResponse : (parsedResponse.layers || []);
     
     if (!layers || layers.length === 0) {
-      throw new Error('No layers in AI response');
+      throw new Error('No layers in Ai response');
     }
 
-    return layers as DeepLayerAnalysis[];
+    // Record token usage (approximate based on response length)
+    const tokensUsed = completion.usage?.total_tokens || Math.ceil(responseContent.length / 4);
+    recordUsage(sessionId, tokensUsed);
+
+    return { 
+      layers: layers as DeepLayerAnalysis[], 
+      rateLimitInfo: rateLimitCheck,
+      tokensUsed,
+    };
 
   } catch (error) {
-    console.error('❌ Deep AI Analysis Error:', error);
+    console.error('❌ Deep Ai Analysis Error:', error);
     console.log('📊 Falling back to basic analysis...');
-    return generateBasicAnalysis(input);
+    return { layers: generateBasicAnalysis(input) };
   }
 }
 
@@ -227,7 +254,7 @@ function getPlatformContext(platform?: string): string {
 }
 
 function generateBasicAnalysis(input: DeepAnalysisInput): DeepLayerAnalysis[] {
-  // Fallback basic analysis if AI fails
+  // Fallback basic analysis if Ai fails - show clear message that deep analysis requires video file
   const layers = [
     'VBM (Visual Behavior Mapping)',
     'EPM (Emotional Processing Metric)',
@@ -241,26 +268,25 @@ function generateBasicAnalysis(input: DeepAnalysisInput): DeepLayerAnalysis[] {
 
   return layers.map((layer, idx) => ({
     layer,
-    score: 65 + Math.floor(Math.random() * 25),  // 65-90 range
+    score: 0,  // No score available without actual analysis
     specificObservations: [
-      `Analisis berdasarkan content description yang diberikan`,
-      `Detail observasi memerlukan actual video/audio file untuk analisis maksimal`,
-      `Gunakan mode upload video untuk mendapatkan feedback yang lebih spesifik`
+      `⚠️ Deep analysis memerlukan upload video/audio file`,
+      `Analisis berbasis teks tidak dapat memberikan skor akurat`,
+      `Upload file untuk mendapatkan observasi spesifik`
     ],
     strengths: [
-      `Konten memiliki potensi yang baik untuk platform ${input.platform || 'digital'}`,
+      `Konten memiliki potensi untuk platform ${input.platform || 'digital'}`,
       `Approach komunikasi sesuai dengan mode ${input.mode}`
     ],
     weaknesses: [
-      `Analisis terbatas tanpa access ke actual video/audio content`,
-      `Untuk feedback yang lebih aplikatif, upload actual file untuk AI deep analysis`
+      `Tidak dapat menganalisis tanpa actual video/audio content`,
+      `Upload file untuk mendapatkan feedback yang aplikatif`
     ],
     actionableRecommendations: [
-      `Week 1: Upload actual video file untuk mendapatkan analisis timestamp-specific`,
-      `Week 2-3: Implement recommendations dari deep AI analysis`,
-      `Month 1: Track improvement metrics dan iterate based on performance data`
+      `Upload actual video/audio file untuk analisis detail`,
+      `Gunakan mode upload untuk mendapatkan skor dan feedback konkret`
     ],
-    feedback: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. AI deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`,
-    feedbackId: `⚠️ Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. AI deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`
+    feedback: `⚠️ SKOR TIDAK TERSEDIA - Analisis ini berbasis description text saja. Untuk mendapatkan skor dan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file.`,
+    feedbackId: `⚠️ SKOR TIDAK TERSEDIA - Analisis ini berbasis description text saja. Untuk mendapatkan skor dan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file.`
   }));
 }

@@ -5,7 +5,7 @@ export const TikTokKnowledge = {
   // ALGORITHM & FYP SECRETS
   algorithm: {
     fyp: {
-      howItWorks: "TikTok FYP (For You Page) menggunakan AI untuk recommend video yang cocok dengan minat user. Semakin banyak interaksi (watch time, like, share), semakin sering video kamu muncul.",
+      howItWorks: "TikTok FYP (For You Page) menggunakan Ai untuk recommend video yang cocok dengan minat user. Semakin banyak interaksi (watch time, like, share), semakin sering video kamu muncul.",
       
       rankingFactors: [
         {

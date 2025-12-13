@@ -1,87 +1,87 @@
 # BiAS²³ Pro - Behavioral Intelligence Audit System
 
 ## Overview
-BiAS²³ Pro is a bilingual (English-Indonesian) AI-powered web application designed to analyze behavioral communication patterns using an 8-layer framework. It evaluates communicators and professionals across dimensions like visual behavior, emotional processing, and ethical compliance. The system offers two primary modes: Social Media Pro (for TikTok/Instagram/YouTube account analytics) and Communication (for analyzing speaking and presentation patterns). Its core purpose is to deliver premium, detailed, and actionable behavioral assessments to help users build influence through improved communication.
+BiAS²³ Pro is an AI-powered, bilingual (English-Indonesian) web application designed to analyze behavioral communication patterns using an 8-layer framework. It assesses communicators and professionals, providing detailed and actionable behavioral insights to improve communication and influence. The system operates in two main modes: TikTok Pro (for TikTok account analytics with an Expert Knowledge Base) and Marketing Pro (for analyzing sales presentations, pitches, and marketing videos). The project aims to deliver premium behavioral assessments, leveraging AI to counter misinformation and provide science-backed guidance.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
-The frontend is built with React and TypeScript (Vite), utilizing a component-based structure with functional components and hooks. Wouter manages routing, and TanStack React Query handles server state. UI components are crafted with Shadcn/ui on Radix UI, styled using Tailwind CSS, adhering to a Material Design-inspired aesthetic. Key features include language context switching, responsive design, and Inter/JetBrains Mono typography.
+### Frontend
+The frontend uses React and TypeScript (Vite), featuring a component-based architecture with functional components and hooks. Wouter handles routing, and TanStack React Query manages server state. UI components are built with Shadcn/ui on Radix UI, styled with Tailwind CSS, following a Material Design-inspired aesthetic. It supports language context switching, responsive design, and integrates PWA capabilities. The application features a premium dark theme (`#0A0A0A`) with pink/cyan gradients and glass-morphism effects.
 
-### Backend Architecture
-The backend is an Express.js and TypeScript RESTful API. It incorporates a rule-based behavioral analysis engine (`bias-engine.ts`) that implements an 8-layer evaluation framework (VBM, EPM, NLP, ETH, ECO, SOC, COG, BMIL) with mode-specific logic. Core API endpoints manage sessions and analysis requests. The system currently uses in-memory storage, with a planned migration to Drizzle ORM and PostgreSQL. Authentication is session-based. An adaptive analysis system tailors recommendations based on user skill levels, and a warmth detection system analyzes communication tone.
+### Backend
+The backend is an Express.js and TypeScript RESTful API. It includes a rule-based behavioral analysis engine (`bias-engine.ts`) implementing an 8-layer evaluation framework (VBM, EPM, NLP, ETH, ECO, SOC, COG, BMIL) with mode-specific logic. Core API endpoints manage sessions and analysis requests. The system currently uses in-memory storage for transient data and PostgreSQL for persistent public/shared data. An adaptive analysis system tailors recommendations based on user skill levels, and a warmth detection system analyzes communication tone.
 
-### Data Storage Solutions
-BiAS²³ Pro employs a privacy-first, disposable data model. Chat history and analysis results are temporary (RAM-based, cleared on server restart). A PostgreSQL database is used only for public/shared data such as Library contributions, rate limiting, and admin panel data, along with basic session metadata. No persistent user analysis data is stored. User sessions are isolated with unique UUIDs. A planned PDF export feature will allow users to download results locally, with the server generating PDFs on-demand without saving files.
+### Data Storage & Privacy
+BiAS²³ Pro employs a privacy-first, disposable data model. Chat history and analysis results are temporary (RAM-based, cleared on server restart). A PostgreSQL database is used only for public/shared data (e.g., Library contributions, rate limiting, admin panel data, session metadata). No persistent user analysis data is stored. User sessions are isolated with unique UUIDs. A planned PDF export feature will generate reports on-demand without server-side storage.
 
 ### Authentication and Authorization
-The application uses cookieless session tracking with client-generated session IDs stored in browser localStorage. Each session is isolated, ensuring anonymity and privacy. There is no user authentication system, as the app is designed to be fully anonymous. Admin authentication uses secure session-based authentication with HttpOnly cookies for managing the analytics dashboard and library.
-
-### UI/UX Decisions
-The application features a premium dark theme (#0A0A0A) with pink/cyan gradients and glass-morphism effects. It includes metric cards with gradient text, progress bars, trend indicators, and circular progress components. Dashboards offer comprehensive analytics, including radar chart visualizations. The header is mobile-responsive with a hamburger menu and PWA capabilities are integrated for an installable app experience with custom branding.
+The application uses cookieless session tracking with client-generated session IDs for anonymous user sessions. There is no user authentication system. Admin authentication uses secure session-based authentication with HttpOnly cookies for managing the analytics dashboard and library.
 
 ### White-Label Branding System
-BiAS²³ Pro supports dynamic white-label branding for partners and resellers using a path-based routing system with database-backed brand management.
+The application supports dynamic white-label branding for partners via a path-based routing system with database-backed brand management. Brands are stored in a PostgreSQL `brands` table and dynamically loaded based on the URL path.
 
-**Architecture:**
-- **Path-based Routing**: Partners access branded versions via URL paths (e.g., `/newsmaker`, `/thi`)
-- **Database-backed**: Brands stored in PostgreSQL `brands` table with full CRUD operations
-- **Dynamic Loading**: BrandContext fetches brand data on route changes via `/api/brands/slug/:slug`
-- **Fallback**: Defaults to BiAS²³ Pro branding when no brand slug detected or brand not found
+### Key Features
+- **Dual AI Mentor System**: TikTok Pro (FYP secrets, viral hooks, live streaming) and Marketing Pro (sales, pitch, leadership, negotiation).
+- **Analysis Discussion**: Post-analysis chat box for discussing results with AI mentor (mode-specific context).
+- **Comprehensive Analyzer**: Provides narrative diagnoses, context, impact, motivational framing, and actionable recommendations.
+- **Video & Script Analysis**: Supports multi-file video uploads, URL pasting (TikTok), and text-based script review.
+- **Script Review Tool**: Quick script type selection (Sales Pitch, Cold Call, Meeting Opening, Presentation, Follow-up, Public Speaking).
+- **Sales Script Generator**: Ready-to-use templates for Cold Calls, Sales Pitches, Objection Handling, Follow-up Messages, and Elevator Pitches with bilingual content and quick personalization.
+- **Expert Knowledge Base**: Science-backed knowledge system with 8 panels, including research-backed tips, hook templates, storytelling frameworks, script templates, live streaming templates, trending data, growth stage guides, and response templates.
+- **Interactive Creator Hub**: A conversational AI interface (ChatGPT-like) acting as a TikTok mentor, replacing traditional wizards.
+- **Hybrid Chat System**: Prioritizes responses from local templates, then a self-learning library, and finally falls back to OpenAI API for new unique questions.
+- **Cross-Domain Knowledge**: Marketing Pro can access relevant TikTok knowledge (voice, emotion, ethics) when applicable.
+- **Adaptive Analysis**: Tailors recommendations based on user skill levels.
+- **Warmth Detection System**: Analyzes communication tone and calculates a Warmth Index.
+- **Platform Rules Hub**: A searchable, bilingual database of official TikTok community guidelines.
+- **Library Glossary**: Categorized glossary for TikTok, Marketing, BIAS terms.
+- **Admin Analytics Dashboard**: Real-time, privacy-first analytics for administrators.
+- **PDF Export**: Download analysis results as styled PDF reports using jspdf and html2canvas.
+- **Save History**: LocalStorage-based privacy-first analysis history with auto-refresh on save via custom events.
+- **Voice Input**: Web Speech API integration for hands-free text input in analysis forms.
+- **Competitor Analysis**: Compare up to 3 TikTok accounts side-by-side with visual metrics comparison.
+- **Thumbnail Generator**: AI-powered video thumbnail generation integrated into TikTok Pro analytics.
+- **Batch Analysis**: Upload 2-10 videos for AI comparison with best/worst performer detection, average scores, and insights.
+- **A/B Hook Tester**: Compare 2-5 hook variations with AI scoring, showing winner, strengths, weaknesses, and improvement suggestions.
 
-**Key Files:**
-- `shared/schema.ts` - `brands` table schema with Drizzle ORM
-- `server/routes.ts` - Brand CRUD API endpoints (admin-protected)
-- `client/src/lib/brandContext.tsx` - Dynamic brand loading with route change detection
-- `client/src/pages/Library.tsx` - Admin UI for brand management (Brands tab)
-
-**Adding New Partners (Admin UI):**
-1. Navigate to `/admin` and login (superadmin / ADMIN_PASSWORD env)
-2. Go to "Brands" tab
-3. Click "Add Brand" and fill in required fields
-4. Set slug (e.g., `newsmaker`) - this becomes the URL path
-5. Configure bilingual taglines, colors, social links
-6. Activate the brand when ready
-
-**Brand API Endpoints:**
-- `GET /api/brands/slug/:slug` - Get brand by slug (public)
-- `GET /api/brands/active` - List active brands (public)
-- `GET /api/brands` - List all brands (admin)
-- `POST /api/brands` - Create brand (admin)
-- `PUT /api/brands/:id` - Update brand (admin)
-- `DELETE /api/brands/:id` - Delete brand (admin)
-
-**Brand Config Fields:**
-- `slug` - URL path identifier (lowercase, no spaces)
-- `name`, `shortName` - Brand names
-- `taglineEn/Id`, `subtitleEn/Id`, `descriptionEn/Id` - Bilingual text
-- `colorPrimary`, `colorSecondary` - Tailwind gradient classes
-- `logoUrl` - External logo image URL
-- `tiktokHandle/Url`, `instagramHandle/Url` - Social media links
-- `isActive` - Toggle brand visibility
-
-### Feature Specifications
-- **Modes**: Two primary modes: Social Media Pro (TikTok, Instagram, YouTube account analytics) and Communication (sales pitches, presentations, marketing videos).
-- **Comprehensive Analyzer**: Provides narrative diagnoses with context, impact, motivational framing, and actionable recommendations.
-- **Account Analyzer (Social Media Pro)**: Displays profile cards and six comprehensive analytics cards: Engagement Rate Analysis, Follower Growth Strategy, Content Strategy Analysis, Monetization Potential, Audience Quality Analysis, and Posting Optimization.
-- **Video Upload & Comparison**: Supports multi-file video uploads and URL pasting (TikTok, Instagram, YouTube) for analysis and comparison.
-- **Platform Rules Hub**: A searchable, bilingual database of official community guidelines for social media platforms.
-- **Adaptive Analysis**: Detects user skill levels to provide tailored recommendations.
-- **Warmth Detection System**: Analyzes communication tone, calculating a Warmth Index.
-- **File-Based Analysis**: Supports link-based and description-based analysis for various content types.
-- **Intelligent Keyword Detection**: Expanded keyword coverage for comprehensive analysis across various communication aspects.
-- **Chat System**: Features a floating button for direct access to a custom ChatGPT for free-form conversations, replacing a less accurate internal chat.
-- **Analytics Dashboard**: Real-time, privacy-first analytics dashboard for administrators to track page views, feature usage, platform distribution, and language statistics.
-- **Admin Authentication System**: Secure session-based authentication for administrative access to the analytics dashboard and library management.
+## Recent Changes (Dec 2024)
+- Added 7 new features: PDF Export, Save History, Voice Input, Competitor Analysis, Thumbnail Generator, Batch Analysis, A/B Hook Tester
+- Integrated new analytics tabs (Account, Video, Batch, A/B, Screenshot, Compare, Thumbnail) into TikTok Pro
+- Fixed Save History auto-refresh using custom event dispatching ('bias-history-updated')
+- **CRITICAL**: Removed all fake/mock/random data generation - platform now shows real data only or clear error messages
+- Added `/api/analyze-video` endpoint using OpenAI Vision for image/video thumbnail analysis
+- Added `/api/analyze-screenshot` endpoint using OpenAI Vision for TikTok screenshot analysis
+- Added `/api/test-hooks` endpoint for A/B Hook testing with GPT-4o-mini
+- Fixed VideoAnalyzerPanel, ScreenshotAnalyticsPanel, CompetitorAnalysis to use real API calls
+- Added daily video analysis limit (5/day) with localStorage tracking for monetization prep
+- Added Premium Coming Soon page (`/premium`) with pricing tiers: Gratis, Basic (Rp 10K), Pro (Rp 25K), Unlimited (Rp 99K)
+- **Admin-Configurable Settings System**: Added `app_settings` and `pricing_tiers` database tables for dynamic platform configuration. Admin can now manage usage limits, feature toggles, and pricing tiers from the Settings tab without code changes. Frontend uses SettingsProvider context to fetch and cache settings.
+- **Documentation**: Added README_DEVELOPER.md (technical docs) and PANDUAN_PENGGUNA.md (user guide in Indonesian)
+- **Help Page**: Added /help route with interactive guide, feature overview, 8-layer BIAS explanation, FAQ, and privacy info. Help menu accessible from main navigation.
+- **Mode-Aware InteractiveCreatorHub**: Component now accepts `mode` prop ('tiktok' | 'marketing') to display context-appropriate content. TikTok Pro shows TikTok-specific suggestions (FYP, live streaming, viral hooks), Marketing Pro shows sales-focused suggestions (pitch scripts, cold calls, objection handling).
+- **Auto-Seed Production Database**: Server startup automatically seeds default settings and pricing tiers if database is empty (`server/init-settings.ts`). Uses transaction for atomicity. Now also adds missing settings even if some already exist.
+- **Success Stories Feature**: User testimonial submission system with admin approval workflow. Users submit stories in Library "Sukses" tab, admin reviews/approves in admin panel "Stories" tab. Featured stories display on homepage carousel.
+- **Homepage Success Stories Carousel**: Compact, mobile-friendly carousel showing approved success stories with navigation, platform badges, and CTA to share.
+- **Mobile Optimization**: Added safe-area padding for notched phones, improved touch targets (44px min), prevented zoom on input focus, smooth scrolling, better focus states, reduced motion support. Dashboard CTA buttons now full-width and stack on mobile.
+- **User Onboarding Flow**: 3-step welcome modal for new users explaining BiAS Pro modes, features, and quick tips. Shows once per device, can be skipped.
+- **Legal Compliance**: Privacy Policy (/privacy) and Terms of Service (/terms) pages for Indonesian market.
+- **Tier Restructuring (Dec 2024)**: Renamed pricing tiers from Gratis/Basic/Pro/Unlimited to Starter/Pro/Agency/Enterprise with user-type focused descriptions. Starter = demo (10 analyses/day, 3 saved history), Pro = PDF Export + unlimited history, Agency = Batch Analysis + A/B Hook Tester, Enterprise = API + White-label.
+- **Usage Indicator**: Added real-time usage limit badge in header showing "X/Y" remaining analyses with link to Premium page. Turns red when ≤2 remaining.
+- **Platform Protection**: Separated global token limits (platform-wide cost control) from per-user tier limits. Admin can set global_token_per_day and global_token_per_request.
+- **What is BIAS Page**: Added /about route with simple explanation of BiAS Pro, 3 key benefits, and use cases.
+- **Removed Ai Limits Tab**: Consolidated redundant Ai Token Limits tab into Platform Protection settings. Per-user limits now managed through Pricing Tiers.
+- **Removed Level Toggle**: Removed non-functional Basic/Expert skill level toggle from TikTok Pro (backend auto-detects skill level from metrics).
+- **User Tracking System**: TikTok accounts analyzed are now persisted to PostgreSQL database (`tiktok_accounts` table) for marketing/promo purposes. Data includes username, followers, likes, engagement rate, and analysis timestamp.
+- **Admin Users Panel**: New "Users" tab in Admin Panel showing all analyzed TikTok accounts with links to profiles, follower counts, engagement rates, and analysis dates. Useful for promotional outreach.
 
 ## External Dependencies
 
 ### Third-Party Services
-- **Database**: Neon PostgreSQL (serverless) for Library contributions, rate limiting, and admin data.
-- **AI Services**: OpenAI GPT-4o-mini (primary), Google Gemini 1.5 Flash (fallback), BIAS Library (rule-based). Features cascading through tiers and strict guardrails.
+- **Database**: Neon PostgreSQL (serverless) for public/shared data.
+- **AI Services**: OpenAI GPT-4o-mini (primary), Google Gemini 1.5 Flash (fallback).
 - **ChatGPT**: Custom GPT integration for external free-form user conversations.
 
 ### Key NPM Packages
@@ -90,5 +90,5 @@ BiAS²³ Pro supports dynamic white-label branding for partners and resellers us
 - **Development**: `vite`, `tsx`, `esbuild`, `@replit/vite-plugin-*`.
 
 ### Platform Integrations
-- **Social Media APIs (Referenced)**: TikTok API, Instagram API, YouTube API.
+- **Social Media APIs**: TikTok API (primary focus).
 - **Behavioral Framework Files**: Knowledge base in `attached_assets/` for 8-layer analysis, community guidelines, and specialized modules.

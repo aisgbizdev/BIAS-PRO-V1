@@ -1,11 +1,1516 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
+// shared/schema.ts
+var schema_exports = {};
+__export(schema_exports, {
+  adminSessions: () => adminSessions,
+  analyses: () => analyses,
+  brands: () => brands,
+  chats: () => chats,
+  expertKnowledge: () => expertKnowledge,
+  featureUsage: () => featureUsage,
+  growthStageGuides: () => growthStageGuides,
+  hooks: () => hooks,
+  insertAdminSessionSchema: () => insertAdminSessionSchema,
+  insertAnalysisSchema: () => insertAnalysisSchema,
+  insertBrandSchema: () => insertBrandSchema,
+  insertChatSchema: () => insertChatSchema,
+  insertExpertKnowledgeSchema: () => insertExpertKnowledgeSchema,
+  insertFeatureUsageSchema: () => insertFeatureUsageSchema,
+  insertGrowthStageGuideSchema: () => insertGrowthStageGuideSchema,
+  insertHookSchema: () => insertHookSchema,
+  insertLearnedResponseSchema: () => insertLearnedResponseSchema,
+  insertLibraryContributionSchema: () => insertLibraryContributionSchema,
+  insertLiveStreamingTemplateSchema: () => insertLiveStreamingTemplateSchema,
+  insertPageViewSchema: () => insertPageViewSchema,
+  insertResponseTemplateSchema: () => insertResponseTemplateSchema,
+  insertScriptTemplateSchema: () => insertScriptTemplateSchema,
+  insertSessionSchema: () => insertSessionSchema,
+  insertStorytellingFrameworkSchema: () => insertStorytellingFrameworkSchema,
+  insertTiktokAccountSchema: () => insertTiktokAccountSchema,
+  insertTiktokComparisonSchema: () => insertTiktokComparisonSchema,
+  insertTiktokVideoSchema: () => insertTiktokVideoSchema,
+  insertTrendingDataSchema: () => insertTrendingDataSchema,
+  learnedResponses: () => learnedResponses,
+  libraryContributions: () => libraryContributions,
+  liveStreamingTemplates: () => liveStreamingTemplates,
+  pageViews: () => pageViews,
+  responseTemplates: () => responseTemplates,
+  scriptTemplates: () => scriptTemplates,
+  sessions: () => sessions,
+  storytellingFrameworks: () => storytellingFrameworks,
+  tiktokAccounts: () => tiktokAccounts,
+  tiktokComparisons: () => tiktokComparisons,
+  tiktokVideos: () => tiktokVideos,
+  trendingData: () => trendingData
+});
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, integer, boolean, timestamp, real } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+var sessions, analyses, chats, learnedResponses, insertLearnedResponseSchema, tiktokAccounts, tiktokVideos, tiktokComparisons, libraryContributions, pageViews, featureUsage, adminSessions, brands, insertSessionSchema, insertAnalysisSchema, insertChatSchema, insertTiktokAccountSchema, insertTiktokVideoSchema, insertTiktokComparisonSchema, insertLibraryContributionSchema, insertPageViewSchema, insertFeatureUsageSchema, insertAdminSessionSchema, insertBrandSchema, expertKnowledge, scriptTemplates, hooks, storytellingFrameworks, liveStreamingTemplates, trendingData, growthStageGuides, responseTemplates, insertExpertKnowledgeSchema, insertScriptTemplateSchema, insertHookSchema, insertStorytellingFrameworkSchema, insertLiveStreamingTemplateSchema, insertTrendingDataSchema, insertGrowthStageGuideSchema, insertResponseTemplateSchema;
+var init_schema = __esm({
+  "shared/schema.ts"() {
+    "use strict";
+    sessions = pgTable("sessions", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull().unique(),
+      tokensRemaining: integer("tokens_remaining").notNull().default(100),
+      freeRequestsUsed: integer("free_requests_used").notNull().default(0),
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      lastActiveAt: timestamp("last_active_at").notNull().defaultNow()
+    });
+    analyses = pgTable("analyses", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull(),
+      mode: text("mode").notNull(),
+      // 'creator', 'academic', 'hybrid'
+      inputType: text("input_type").notNull(),
+      // 'video', 'text', 'script'
+      inputContent: text("input_content").notNull(),
+      analysisResult: text("analysis_result").notNull(),
+      // JSON string
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    chats = pgTable("chats", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull(),
+      role: text("role").notNull(),
+      // 'user' or 'assistant'
+      message: text("message").notNull(),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    learnedResponses = pgTable("learned_responses", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      question: text("question").notNull(),
+      // Original question
+      keywords: text("keywords").array().notNull(),
+      // Extracted keywords for matching
+      response: text("response").notNull(),
+      // AI response
+      useCount: integer("use_count").notNull().default(1),
+      // How many times this was used
+      quality: integer("quality").default(0),
+      // User feedback (-1, 0, 1)
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      lastUsedAt: timestamp("last_used_at").notNull().defaultNow()
+    });
+    insertLearnedResponseSchema = createInsertSchema(learnedResponses).omit({
+      id: true,
+      useCount: true,
+      quality: true,
+      createdAt: true,
+      lastUsedAt: true
+    });
+    tiktokAccounts = pgTable("tiktok_accounts", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull(),
+      username: text("username").notNull(),
+      displayName: text("display_name"),
+      followers: integer("followers").notNull().default(0),
+      following: integer("following").notNull().default(0),
+      totalLikes: integer("total_likes").notNull().default(0),
+      totalVideos: integer("total_videos").notNull().default(0),
+      bio: text("bio"),
+      verified: boolean("verified").notNull().default(false),
+      avatarUrl: text("avatar_url"),
+      engagementRate: real("engagement_rate"),
+      // percentage
+      avgViews: integer("avg_views"),
+      postingFrequency: real("posting_frequency"),
+      // videos per week
+      analysisResult: text("analysis_result"),
+      // JSON string
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      updatedAt: timestamp("updated_at").notNull().defaultNow()
+    });
+    tiktokVideos = pgTable("tiktok_videos", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull(),
+      videoId: text("video_id").notNull(),
+      videoUrl: text("video_url"),
+      accountUsername: text("account_username").notNull(),
+      description: text("description"),
+      views: integer("views").notNull().default(0),
+      likes: integer("likes").notNull().default(0),
+      comments: integer("comments").notNull().default(0),
+      shares: integer("shares").notNull().default(0),
+      favorites: integer("favorites").notNull().default(0),
+      duration: integer("duration"),
+      // seconds
+      soundName: text("sound_name"),
+      hashtags: text("hashtags").array(),
+      completionRate: real("completion_rate"),
+      // percentage
+      analysisResult: text("analysis_result"),
+      // JSON string
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      postedAt: timestamp("posted_at")
+    });
+    tiktokComparisons = pgTable("tiktok_comparisons", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull(),
+      comparisonType: text("comparison_type").notNull(),
+      // 'accounts' or 'videos'
+      primaryId: text("primary_id").notNull(),
+      // main account/video ID
+      comparedIds: text("compared_ids").array().notNull(),
+      // IDs being compared
+      analysisResult: text("analysis_result").notNull(),
+      // JSON comparative insights
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    libraryContributions = pgTable("library_contributions", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      term: text("term").notNull(),
+      termId: text("term_id"),
+      definition: text("definition").notNull(),
+      definitionId: text("definition_id"),
+      platform: text("platform").notNull(),
+      // 'tiktok', 'instagram', 'youtube'
+      username: text("username").notNull(),
+      // contributor's social media username
+      example: text("example"),
+      exampleId: text("example_id"),
+      status: text("status").notNull().default("pending"),
+      // 'pending', 'approved', 'rejected'
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      approvedAt: timestamp("approved_at")
+    });
+    pageViews = pgTable("page_views", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull(),
+      page: text("page").notNull(),
+      // 'dashboard', 'social-pro', 'creator', 'library'
+      language: text("language"),
+      // 'en' or 'id'
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    featureUsage = pgTable("feature_usage", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull(),
+      featureType: text("feature_type").notNull(),
+      // 'analysis', 'chat', 'comparison', 'video_upload', 'account_analysis'
+      featureDetails: text("feature_details"),
+      // JSON string with additional context
+      platform: text("platform"),
+      // 'tiktok', 'instagram', 'youtube', 'professional'
+      mode: text("mode"),
+      // 'social-pro', 'creator' for analysis context
+      language: text("language"),
+      // 'en' or 'id'
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    adminSessions = pgTable("admin_sessions", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      sessionId: text("session_id").notNull().unique(),
+      username: text("username").notNull(),
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      expiresAt: timestamp("expires_at").notNull()
+    });
+    brands = pgTable("brands", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      slug: text("slug").notNull().unique(),
+      // URL path: bias23.com/newsmaker
+      name: text("name").notNull(),
+      // "Newsmaker"
+      shortName: text("short_name").notNull(),
+      // "NM"
+      // Bilingual taglines
+      taglineEn: text("tagline_en").notNull().default("Powered by BiAS\xB2\xB3"),
+      taglineId: text("tagline_id").notNull().default("Didukung BiAS\xB2\xB3"),
+      subtitleEn: text("subtitle_en").notNull().default("Build Your Influence"),
+      subtitleId: text("subtitle_id").notNull().default("Bangun Pengaruhmu"),
+      descriptionEn: text("description_en"),
+      descriptionId: text("description_id"),
+      // Colors (Tailwind gradient classes)
+      colorPrimary: text("color_primary").notNull().default("from-pink-500 via-purple-500 to-cyan-500"),
+      colorSecondary: text("color_secondary").notNull().default("from-purple-500 via-pink-400 to-cyan-400"),
+      // Logo (base64 or URL)
+      logoUrl: text("logo_url"),
+      // Social media - Partner's accounts
+      tiktokHandle: text("tiktok_handle"),
+      tiktokUrl: text("tiktok_url"),
+      instagramHandle: text("instagram_handle"),
+      instagramUrl: text("instagram_url"),
+      // Meta/SEO
+      metaTitle: text("meta_title"),
+      metaDescription: text("meta_description"),
+      // Status
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      updatedAt: timestamp("updated_at").notNull().defaultNow()
+    });
+    insertSessionSchema = createInsertSchema(sessions).omit({ id: true, createdAt: true, lastActiveAt: true });
+    insertAnalysisSchema = createInsertSchema(analyses).omit({ id: true, createdAt: true });
+    insertChatSchema = createInsertSchema(chats).omit({ id: true, createdAt: true });
+    insertTiktokAccountSchema = createInsertSchema(tiktokAccounts).omit({ id: true, createdAt: true, updatedAt: true });
+    insertTiktokVideoSchema = createInsertSchema(tiktokVideos).omit({ id: true, createdAt: true });
+    insertTiktokComparisonSchema = createInsertSchema(tiktokComparisons).omit({ id: true, createdAt: true });
+    insertLibraryContributionSchema = createInsertSchema(libraryContributions).omit({ id: true, createdAt: true, approvedAt: true });
+    insertPageViewSchema = createInsertSchema(pageViews).omit({ id: true, createdAt: true });
+    insertFeatureUsageSchema = createInsertSchema(featureUsage).omit({ id: true, createdAt: true });
+    insertAdminSessionSchema = createInsertSchema(adminSessions).omit({ id: true, createdAt: true });
+    insertBrandSchema = createInsertSchema(brands).omit({ id: true, createdAt: true, updatedAt: true });
+    expertKnowledge = pgTable("expert_knowledge", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      category: text("category").notNull(),
+      // 'algorithm', 'psychology', 'cinematography', 'audio', 'public_speaking', 'growth', 'monetization', 'regulation'
+      subcategory: text("subcategory"),
+      // e.g., 'hook_psychology', 'retention_science'
+      // Main content
+      titleEn: text("title_en").notNull(),
+      titleId: text("title_id").notNull(),
+      contentEn: text("content_en").notNull(),
+      // Main explanation
+      contentId: text("content_id").notNull(),
+      // Myth-busting (optional)
+      mythEn: text("myth_en"),
+      // "Common myth: ..."
+      mythId: text("myth_id"),
+      truthEn: text("truth_en"),
+      // "Scientific truth: ..."
+      truthId: text("truth_id"),
+      // Scientific backing
+      researchSummaryEn: text("research_summary_en"),
+      researchSummaryId: text("research_summary_id"),
+      researchSource: text("research_source"),
+      // Citation or link
+      // TikTok regulation reference
+      regulationReference: text("regulation_reference"),
+      // "Community Guidelines Section 3.2"
+      regulationLinkUrl: text("regulation_link_url"),
+      // Tags for search
+      tags: text("tags").array(),
+      // Level
+      level: text("level").notNull().default("beginner"),
+      // 'beginner', 'intermediate', 'expert'
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      updatedAt: timestamp("updated_at").notNull().defaultNow()
+    });
+    scriptTemplates = pgTable("script_templates", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      // Classification
+      category: text("category").notNull(),
+      // 'gaming', 'comedy', 'education', 'lifestyle', 'dance', 'review', 'storytelling', 'tutorial'
+      duration: text("duration").notNull(),
+      // '15s', '30s', '60s', '3min'
+      goal: text("goal").notNull(),
+      // 'entertainment', 'education', 'sales', 'community', 'viral'
+      // Template content
+      nameEn: text("name_en").notNull(),
+      nameId: text("name_id").notNull(),
+      descriptionEn: text("description_en"),
+      descriptionId: text("description_id"),
+      // Structure
+      hookTemplateEn: text("hook_template_en").notNull(),
+      hookTemplateId: text("hook_template_id").notNull(),
+      mainContentTemplateEn: text("main_content_template_en").notNull(),
+      mainContentTemplateId: text("main_content_template_id").notNull(),
+      ctaTemplateEn: text("cta_template_en").notNull(),
+      ctaTemplateId: text("cta_template_id").notNull(),
+      // Why it works
+      psychologyExplanationEn: text("psychology_explanation_en"),
+      psychologyExplanationId: text("psychology_explanation_id"),
+      // Examples
+      examplesEn: text("examples_en").array(),
+      examplesId: text("examples_id").array(),
+      // Sound recommendations
+      soundRecommendations: text("sound_recommendations").array(),
+      level: text("level").notNull().default("beginner"),
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    hooks = pgTable("hooks", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      // Hook type
+      hookType: text("hook_type").notNull(),
+      // 'question', 'controversial', 'shock', 'curiosity', 'benefit', 'pattern_interrupt', 'story', 'challenge'
+      category: text("category").notNull(),
+      // 'gaming', 'comedy', 'education', etc.
+      // Content
+      hookTextEn: text("hook_text_en").notNull(),
+      hookTextId: text("hook_text_id").notNull(),
+      // Psychology breakdown
+      psychologyPrincipleEn: text("psychology_principle_en").notNull(),
+      psychologyPrincipleId: text("psychology_principle_id").notNull(),
+      whyItWorksEn: text("why_it_works_en").notNull(),
+      whyItWorksId: text("why_it_works_id").notNull(),
+      // Visual & verbal breakdown
+      visualHookSuggestionEn: text("visual_hook_suggestion_en"),
+      visualHookSuggestionId: text("visual_hook_suggestion_id"),
+      // When to use
+      bestForEn: text("best_for_en"),
+      bestForId: text("best_for_id"),
+      // Effectiveness score (1-10)
+      effectivenessScore: integer("effectiveness_score").notNull().default(7),
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    storytellingFrameworks = pgTable("storytelling_frameworks", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      // Framework info
+      nameEn: text("name_en").notNull(),
+      nameId: text("name_id").notNull(),
+      descriptionEn: text("description_en").notNull(),
+      descriptionId: text("description_id").notNull(),
+      // Structure breakdown
+      structureStepsEn: text("structure_steps_en").array().notNull(),
+      // ["Setup", "Conflict", "Resolution"]
+      structureStepsId: text("structure_steps_id").array().notNull(),
+      structureExplanationsEn: text("structure_explanations_en").array(),
+      structureExplanationsId: text("structure_explanations_id").array(),
+      // When to use
+      whenToUseEn: text("when_to_use_en").notNull(),
+      whenToUseId: text("when_to_use_id").notNull(),
+      // Examples
+      examplesEn: text("examples_en").array(),
+      examplesId: text("examples_id").array(),
+      // Best for content types
+      bestForContentTypes: text("best_for_content_types").array(),
+      // Psychology behind it
+      psychologyEn: text("psychology_en"),
+      psychologyId: text("psychology_id"),
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    liveStreamingTemplates = pgTable("live_streaming_templates", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      // Format type
+      format: text("format").notNull(),
+      // 'solo', 'pk', 'multi_guest', 'collab', 'qa', 'tutorial'
+      duration: text("duration").notNull(),
+      // '5min', '15min', '30min', '60min'
+      // Template info
+      nameEn: text("name_en").notNull(),
+      nameId: text("name_id").notNull(),
+      descriptionEn: text("description_en"),
+      descriptionId: text("description_id"),
+      // Timeline breakdown (JSON array of timeline segments)
+      timelineEn: text("timeline_en").notNull(),
+      // JSON: [{minute: "0-2", action: "Hook", tips: "..."}, ...]
+      timelineId: text("timeline_id").notNull(),
+      // Tips & strategies
+      tipsEn: text("tips_en").array(),
+      tipsId: text("tips_id").array(),
+      // Common mistakes to avoid
+      mistakesToAvoidEn: text("mistakes_to_avoid_en").array(),
+      mistakesToAvoidId: text("mistakes_to_avoid_id").array(),
+      // Gift strategy (for monetization)
+      giftStrategyEn: text("gift_strategy_en"),
+      giftStrategyId: text("gift_strategy_id"),
+      // Contingency plans
+      contingencyPlansEn: text("contingency_plans_en").array(),
+      contingencyPlansId: text("contingency_plans_id").array(),
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    trendingData = pgTable("trending_data", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      dataType: text("data_type").notNull(),
+      // 'sound', 'hashtag', 'format', 'topic'
+      platform: text("platform").notNull().default("tiktok"),
+      // Content
+      name: text("name").notNull(),
+      // Sound name, hashtag, format name
+      url: text("url"),
+      // Link to TikTok
+      // Metrics
+      useCount: integer("use_count"),
+      // Number of videos using this
+      growthRate: text("growth_rate"),
+      // 'rising', 'stable', 'declining'
+      popularityScore: integer("popularity_score"),
+      // 1-100
+      // Recommendations
+      suggestedNichesEn: text("suggested_niches_en").array(),
+      suggestedNichesId: text("suggested_niches_id").array(),
+      howToUseEn: text("how_to_use_en"),
+      howToUseId: text("how_to_use_id"),
+      // Prediction
+      estimatedLifespanDays: integer("estimated_lifespan_days"),
+      saturationLevel: text("saturation_level"),
+      // 'low', 'medium', 'high'
+      lastScrapedAt: timestamp("last_scraped_at").notNull().defaultNow(),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    growthStageGuides = pgTable("growth_stage_guides", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      stage: text("stage").notNull(),
+      // 'stage_1_0_1k', 'stage_2_1k_10k', 'stage_3_10k_100k', 'stage_4_100k_plus'
+      followerRangeMin: integer("follower_range_min").notNull(),
+      followerRangeMax: integer("follower_range_max"),
+      // Stage info
+      nameEn: text("name_en").notNull(),
+      nameId: text("name_id").notNull(),
+      descriptionEn: text("description_en").notNull(),
+      descriptionId: text("description_id").notNull(),
+      // Recommendations
+      postingFrequencyEn: text("posting_frequency_en").notNull(),
+      postingFrequencyId: text("posting_frequency_id").notNull(),
+      contentStrategyEn: text("content_strategy_en").notNull(),
+      contentStrategyId: text("content_strategy_id").notNull(),
+      engagementStrategyEn: text("engagement_strategy_en").notNull(),
+      engagementStrategyId: text("engagement_strategy_id").notNull(),
+      collabStrategyEn: text("collab_strategy_en"),
+      collabStrategyId: text("collab_strategy_id"),
+      monetizationTipsEn: text("monetization_tips_en"),
+      monetizationTipsId: text("monetization_tips_id"),
+      // What NOT to do
+      mistakesToAvoidEn: text("mistakes_to_avoid_en").array(),
+      mistakesToAvoidId: text("mistakes_to_avoid_id").array(),
+      // Metrics to track
+      metricsToTrackEn: text("metrics_to_track_en").array(),
+      metricsToTrackId: text("metrics_to_track_id").array(),
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    responseTemplates = pgTable("response_templates", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      category: text("category").notNull(),
+      // 'compliment', 'question', 'criticism', 'hate', 'spam', 'collab_request'
+      situation: text("situation").notNull(),
+      // Specific scenario description
+      // Template content
+      templateEn: text("template_en").notNull(),
+      templateId: text("template_id").notNull(),
+      // Variations
+      variationsEn: text("variations_en").array(),
+      variationsId: text("variations_id").array(),
+      // When to use
+      whenToUseEn: text("when_to_use_en"),
+      whenToUseId: text("when_to_use_id"),
+      // Psychology
+      psychologyEn: text("psychology_en"),
+      psychologyId: text("psychology_id"),
+      isActive: boolean("is_active").notNull().default(true),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    insertExpertKnowledgeSchema = createInsertSchema(expertKnowledge).omit({ id: true, createdAt: true, updatedAt: true });
+    insertScriptTemplateSchema = createInsertSchema(scriptTemplates).omit({ id: true, createdAt: true });
+    insertHookSchema = createInsertSchema(hooks).omit({ id: true, createdAt: true });
+    insertStorytellingFrameworkSchema = createInsertSchema(storytellingFrameworks).omit({ id: true, createdAt: true });
+    insertLiveStreamingTemplateSchema = createInsertSchema(liveStreamingTemplates).omit({ id: true, createdAt: true });
+    insertTrendingDataSchema = createInsertSchema(trendingData).omit({ id: true, createdAt: true });
+    insertGrowthStageGuideSchema = createInsertSchema(growthStageGuides).omit({ id: true, createdAt: true });
+    insertResponseTemplateSchema = createInsertSchema(responseTemplates).omit({ id: true, createdAt: true });
+  }
+});
+
+// db.ts
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
+var connectionString, pool, db;
+var init_db = __esm({
+  "db.ts"() {
+    "use strict";
+    init_schema();
+    neonConfig.webSocketConstructor = ws;
+    connectionString = process.env.DATABASE_URL;
+    pool = new Pool({ connectionString });
+    db = drizzle(pool, { schema: schema_exports });
+  }
+});
+
+// server/utils/ai-rate-limiter.ts
+var ai_rate_limiter_exports = {};
+__export(ai_rate_limiter_exports, {
+  checkRateLimit: () => checkRateLimit,
+  getConfig: () => getConfig,
+  getUsageStats: () => getUsageStats,
+  recordUsage: () => recordUsage,
+  updateConfig: () => updateConfig
+});
+function getHourlyRecord(sessionId) {
+  const now = /* @__PURE__ */ new Date();
+  let record = hourlyUsage.get(sessionId);
+  if (!record || now.getTime() - record.lastReset.getTime() > 60 * 60 * 1e3) {
+    record = { requests: 0, tokens: 0, lastReset: now };
+    hourlyUsage.set(sessionId, record);
+  }
+  return record;
+}
+function getDailyRecord(sessionId) {
+  const now = /* @__PURE__ */ new Date();
+  let record = dailyUsage.get(sessionId);
+  if (!record || now.getTime() - record.lastReset.getTime() > 24 * 60 * 60 * 1e3) {
+    record = { requests: 0, tokens: 0, lastReset: now };
+    dailyUsage.set(sessionId, record);
+  }
+  return record;
+}
+function checkRateLimit(sessionId, config = {}) {
+  const cfg = { ...DEFAULT_CONFIG, ...config };
+  const hourly = getHourlyRecord(sessionId);
+  const daily = getDailyRecord(sessionId);
+  const now = /* @__PURE__ */ new Date();
+  const remaining = {
+    requestsThisHour: cfg.maxRequestsPerHour - hourly.requests,
+    requestsToday: cfg.maxRequestsPerDay - daily.requests,
+    tokensToday: cfg.maxTokensPerDay - daily.tokens
+  };
+  const resetIn = {
+    hourly: Math.ceil((60 * 60 * 1e3 - (now.getTime() - hourly.lastReset.getTime())) / 6e4),
+    daily: Math.ceil((24 * 60 * 60 * 1e3 - (now.getTime() - daily.lastReset.getTime())) / 36e5)
+  };
+  if (hourly.requests >= cfg.maxRequestsPerHour) {
+    return {
+      allowed: false,
+      reason: `Limit per jam tercapai (${cfg.maxRequestsPerHour}/jam). Reset dalam ${resetIn.hourly} menit.`,
+      remaining,
+      resetIn
+    };
+  }
+  if (daily.requests >= cfg.maxRequestsPerDay) {
+    return {
+      allowed: false,
+      reason: `Limit harian tercapai (${cfg.maxRequestsPerDay}/hari). Reset dalam ${resetIn.daily} jam.`,
+      remaining,
+      resetIn
+    };
+  }
+  if (daily.tokens >= cfg.maxTokensPerDay) {
+    return {
+      allowed: false,
+      reason: `Limit token harian tercapai (${cfg.maxTokensPerDay.toLocaleString()} tokens). Reset dalam ${resetIn.daily} jam.`,
+      remaining,
+      resetIn
+    };
+  }
+  return { allowed: true, remaining, resetIn };
+}
+function recordUsage(sessionId, tokensUsed) {
+  const hourly = getHourlyRecord(sessionId);
+  const daily = getDailyRecord(sessionId);
+  hourly.requests++;
+  hourly.tokens += tokensUsed;
+  daily.requests++;
+  daily.tokens += tokensUsed;
+  console.log(`\u{1F4CA} AI Usage - Session ${sessionId.slice(0, 8)}...: ${daily.requests} requests, ${daily.tokens.toLocaleString()} tokens today`);
+}
+function getUsageStats(sessionId) {
+  return {
+    hourly: getHourlyRecord(sessionId),
+    daily: getDailyRecord(sessionId),
+    limits: DEFAULT_CONFIG
+  };
+}
+function updateConfig(newConfig) {
+  Object.assign(DEFAULT_CONFIG, newConfig);
+  console.log("\u{1F527} AI Rate Limit Config Updated:", DEFAULT_CONFIG);
+  return DEFAULT_CONFIG;
+}
+function getConfig() {
+  return { ...DEFAULT_CONFIG };
+}
+var DEFAULT_CONFIG, hourlyUsage, dailyUsage;
+var init_ai_rate_limiter = __esm({
+  "server/utils/ai-rate-limiter.ts"() {
+    "use strict";
+    DEFAULT_CONFIG = {
+      maxRequestsPerHour: 5,
+      // Max 5 request per jam (hemat)
+      maxRequestsPerDay: 20,
+      // Max 20 request per hari (hemat)
+      maxTokensPerDay: 5e4,
+      // Max 50K tokens per hari (hemat)
+      maxTokensPerRequest: 1500
+      // Max 1500 token per request (hemat, tetap quality)
+    };
+    hourlyUsage = /* @__PURE__ */ new Map();
+    dailyUsage = /* @__PURE__ */ new Map();
+  }
+});
+
+// server/utils/learning-system.ts
+var learning_system_exports = {};
+__export(learning_system_exports, {
+  extractKeywords: () => extractKeywords,
+  findSimilarResponse: () => findSimilarResponse,
+  getLearningStats: () => getLearningStats,
+  saveLearnedResponse: () => saveLearnedResponse
+});
+import { eq as eq2, sql as sql2, desc } from "drizzle-orm";
+function extractKeywords(text2) {
+  const normalized = text2.toLowerCase().replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
+  const words = normalized.split(" ");
+  const keywords = words.filter((word) => word.length > 2 && !STOPWORDS.has(word)).slice(0, 10);
+  return Array.from(new Set(keywords));
+}
+function calculateSimilarity(keywords1, keywords2) {
+  if (keywords1.length === 0 || keywords2.length === 0) return 0;
+  const set1 = new Set(keywords1);
+  const set2 = new Set(keywords2);
+  const arr1 = Array.from(set1);
+  const arr2 = Array.from(set2);
+  let matches = 0;
+  for (const kw of arr1) {
+    if (set2.has(kw)) matches++;
+    for (const kw2 of arr2) {
+      if (kw !== kw2 && (kw.includes(kw2) || kw2.includes(kw))) {
+        matches += 0.5;
+      }
+    }
+  }
+  const combined = Array.from(/* @__PURE__ */ new Set([...keywords1, ...keywords2]));
+  return matches / combined.length;
+}
+async function findSimilarResponse(question) {
+  try {
+    const queryKeywords = extractKeywords(question);
+    if (queryKeywords.length === 0) {
+      return { found: false };
+    }
+    console.log(`\u{1F50D} Looking for similar response. Keywords: ${queryKeywords.join(", ")}`);
+    const allResponses = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.useCount));
+    let bestMatch = null;
+    const SIMILARITY_THRESHOLD = 0.4;
+    for (const lr of allResponses) {
+      const storedKeywords = lr.keywords || [];
+      const similarity = calculateSimilarity(queryKeywords, storedKeywords);
+      if (similarity >= SIMILARITY_THRESHOLD) {
+        if (!bestMatch || similarity > bestMatch.similarity) {
+          bestMatch = {
+            response: lr.response,
+            similarity,
+            id: lr.id
+          };
+        }
+      }
+    }
+    if (bestMatch) {
+      console.log(`\u2705 Found similar response! Similarity: ${(bestMatch.similarity * 100).toFixed(0)}%`);
+      await db.update(learnedResponses).set({
+        useCount: sql2`${learnedResponses.useCount} + 1`,
+        lastUsedAt: /* @__PURE__ */ new Date()
+      }).where(eq2(learnedResponses.id, bestMatch.id));
+      return {
+        found: true,
+        response: bestMatch.response,
+        similarity: bestMatch.similarity,
+        id: bestMatch.id
+      };
+    }
+    console.log("\u274C No similar response found in learned library");
+    return { found: false };
+  } catch (error) {
+    console.error("Error finding similar response:", error);
+    return { found: false };
+  }
+}
+async function saveLearnedResponse(question, response) {
+  try {
+    const keywords = extractKeywords(question);
+    if (keywords.length === 0) {
+      console.log("\u26A0\uFE0F No keywords extracted, skipping save");
+      return false;
+    }
+    const existing = await findSimilarResponse(question);
+    if (existing.found && existing.similarity && existing.similarity > 0.8) {
+      console.log("\u{1F4E6} Very similar question already exists, skipping save");
+      return false;
+    }
+    await db.insert(learnedResponses).values({
+      question,
+      keywords,
+      response
+    });
+    console.log(`\u{1F4DA} Saved to learned library! Keywords: ${keywords.join(", ")}`);
+    return true;
+  } catch (error) {
+    console.error("Error saving learned response:", error);
+    return false;
+  }
+}
+async function getLearningStats() {
+  try {
+    const allResponses = await db.select().from(learnedResponses);
+    const totalResponses = allResponses.length;
+    const totalUses = allResponses.reduce((sum, r) => sum + r.useCount, 0);
+    const keywordCount = {};
+    for (const r of allResponses) {
+      for (const kw of r.keywords || []) {
+        keywordCount[kw] = (keywordCount[kw] || 0) + r.useCount;
+      }
+    }
+    const topKeywords = Object.entries(keywordCount).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([kw]) => kw);
+    return { totalResponses, totalUses, topKeywords };
+  } catch (error) {
+    console.error("Error getting learning stats:", error);
+    return { totalResponses: 0, totalUses: 0, topKeywords: [] };
+  }
+}
+var STOPWORDS;
+var init_learning_system = __esm({
+  "server/utils/learning-system.ts"() {
+    "use strict";
+    init_db();
+    init_schema();
+    STOPWORDS = /* @__PURE__ */ new Set([
+      "yang",
+      "di",
+      "ke",
+      "dari",
+      "dan",
+      "atau",
+      "ini",
+      "itu",
+      "untuk",
+      "dengan",
+      "pada",
+      "adalah",
+      "akan",
+      "juga",
+      "sudah",
+      "bisa",
+      "ada",
+      "tidak",
+      "saya",
+      "aku",
+      "kamu",
+      "dia",
+      "mereka",
+      "kita",
+      "gue",
+      "lo",
+      "lu",
+      "gw",
+      "apa",
+      "gimana",
+      "bagaimana",
+      "kenapa",
+      "mengapa",
+      "kapan",
+      "dimana",
+      "mana",
+      "siapa",
+      "berapa",
+      "apakah",
+      "dong",
+      "ya",
+      "nih",
+      "sih",
+      "deh",
+      "kan",
+      "tuh",
+      "loh",
+      "lah",
+      "nah",
+      "wah",
+      "hah",
+      "eh",
+      "oh",
+      "ah",
+      "the",
+      "is",
+      "a",
+      "an",
+      "to",
+      "in",
+      "on",
+      "of",
+      "for",
+      "and",
+      "or",
+      "it",
+      "this",
+      "that",
+      "how",
+      "what",
+      "why",
+      "when",
+      "where",
+      "who",
+      "which",
+      "can",
+      "bro",
+      "mas",
+      "bang",
+      "kak",
+      "min",
+      "mau",
+      "minta",
+      "tolong",
+      "kasih",
+      "tau",
+      "tanya"
+    ]);
+  }
+});
+
+// server/chat/knowledge-loader.ts
+import * as fs from "fs";
+import * as path from "path";
+function loadKnowledgeBase() {
+  if (cachedKnowledge) {
+    return cachedKnowledge;
+  }
+  try {
+    const files = fs.readdirSync(KNOWLEDGE_DIR);
+    const mdFiles = files.filter((f) => f.endsWith(".md"));
+    const knowledgeParts = [];
+    const loadedFiles = [];
+    for (const priorityName of PRIORITY_FILES) {
+      const matchingFile = mdFiles.find((f) => f.includes(priorityName));
+      if (matchingFile) {
+        try {
+          const filePath = path.join(KNOWLEDGE_DIR, matchingFile);
+          const content = fs.readFileSync(filePath, "utf-8");
+          const condensed = condenseContent(content, matchingFile);
+          if (condensed) {
+            knowledgeParts.push(condensed);
+            loadedFiles.push(matchingFile);
+          }
+        } catch (err) {
+          console.error(`Failed to read ${matchingFile}:`, err);
+        }
+      }
+    }
+    cachedKnowledge = knowledgeParts.join("\n\n---\n\n");
+    console.log(`\u{1F4DA} Loaded ${loadedFiles.length} knowledge files`);
+    return cachedKnowledge;
+  } catch (error) {
+    console.error("Error loading knowledge base:", error);
+    return "";
+  }
+}
+function condenseContent(content, filename) {
+  const lines = content.split("\n");
+  const importantLines = [];
+  let currentSection = "";
+  let skipSection = false;
+  for (const line of lines) {
+    if (line.startsWith("# ") || line.startsWith("## ") || line.startsWith("### ")) {
+      currentSection = line;
+      skipSection = false;
+      if (line.toLowerCase().includes("changelog") || line.toLowerCase().includes("meta") || line.toLowerCase().includes("integration note") || line.toLowerCase().includes("footer")) {
+        skipSection = true;
+      }
+      if (!skipSection) {
+        importantLines.push(line);
+      }
+    } else if (!skipSection) {
+      if (line.includes("|") && line.includes("---")) {
+        continue;
+      }
+      if (line.startsWith("|") || line.includes("\u2705") || line.includes("\u274C") || line.includes("\u26A0\uFE0F") || line.includes("\u{1F4A1}") || line.includes("\u{1F3AF}") || line.includes("Example") || line.includes("Contoh") || line.includes("Tip") || line.includes("Insight") || line.trim().startsWith("-") || line.trim().startsWith("\u2022")) {
+        importantLines.push(line);
+      }
+    }
+  }
+  const condensed = importantLines.join("\n").trim();
+  if (condensed.length > 3e3) {
+    return condensed.slice(0, 3e3) + "\n... [condensed]";
+  }
+  return condensed;
+}
+function getRelevantKnowledge(topic) {
+  const knowledge = loadKnowledgeBase();
+  const topicLower = topic.toLowerCase();
+  const keywords = {
+    "fyp": ["FYP", "For You", "algoritma", "viral", "reach"],
+    "shadowban": ["shadowban", "pelanggaran", "visibilitas", "banned"],
+    "live": ["Live", "streaming", "gift", "interaksi"],
+    "hook": ["Hook", "3 detik", "pembuka", "retention"],
+    "agency": ["agency", "agensi", "monetisasi", "brand deal"],
+    "engagement": ["engagement", "like", "comment", "share"],
+    "followers": ["follower", "growth", "pertumbuhan"],
+    "content": ["konten", "video", "posting", "upload"],
+    "ethics": ["etika", "ethics", "BMIL", "ESI", "community guidelines"],
+    "voice": ["suara", "voice", "tone", "VPL", "pacing"],
+    "emotion": ["emosi", "emotion", "EPM", "empati"],
+    "visual": ["visual", "VBM", "gesture", "framing", "ekspresi"],
+    // Marketing & Sales keywords
+    "pitch": ["pitch", "pitching", "proposal", "presentasi", "investor", "funding", "startup"],
+    "sales": ["sales", "jualan", "closing", "prospek", "konversi", "selling", "cold call", "warm lead"],
+    "marketing": ["marketing", "pemasaran", "branding", "campaign", "iklan", "advertising"],
+    "negotiation": ["negosiasi", "negotiation", "deal", "tawar", "kontrak", "salary", "gaji"],
+    "leadership": ["leadership", "kepemimpinan", "leader", "pemimpin", "manager", "atasan", "bos"],
+    "teamwork": ["tim", "team", "kolaborasi", "delegasi", "teamwork", "kerja sama", "meeting"],
+    "speaking": ["public speaking", "pidato", "speech", "presentasi", "berbicara", "MC", "moderator"],
+    "objection": ["objection", "keberatan", "handling", "penolakan", "rejection"],
+    "closing": ["closing", "tutup deal", "conversion", "close", "win rate"],
+    "conflict": ["konflik", "conflict", "masalah", "mediasi", "resolusi"],
+    "motivation": ["motivasi", "motivation", "semangat", "mindset", "goal"],
+    "interview": ["interview", "wawancara", "rekrut", "hiring", "kandidat"],
+    "client": ["client", "klien", "customer", "pelanggan", "retention", "upsell"],
+    "feedback": ["feedback", "kritik", "saran", "review", "evaluasi"],
+    "communication": ["komunikasi", "communication", "bicara", "ngomong", "sampaikan"]
+  };
+  const relevantSections = [];
+  for (const [category, keywordList] of Object.entries(keywords)) {
+    if (keywordList.some((kw) => topicLower.includes(kw.toLowerCase()))) {
+      const sections = extractSectionsWithKeywords(knowledge, keywordList);
+      relevantSections.push(...sections);
+    }
+  }
+  if (relevantSections.length === 0) {
+    return knowledge.slice(0, 4e3);
+  }
+  const combined = relevantSections.join("\n\n");
+  return combined.slice(0, 6e3);
+}
+function extractSectionsWithKeywords(knowledge, keywords) {
+  const sections = [];
+  const lines = knowledge.split("\n");
+  let currentSection = [];
+  let includeSection = false;
+  for (const line of lines) {
+    if (line.startsWith("#") || line === "---") {
+      if (includeSection && currentSection.length > 0) {
+        sections.push(currentSection.join("\n"));
+      }
+      currentSection = [line];
+      includeSection = false;
+    } else {
+      currentSection.push(line);
+      if (keywords.some((kw) => line.toLowerCase().includes(kw.toLowerCase()))) {
+        includeSection = true;
+      }
+    }
+  }
+  if (includeSection && currentSection.length > 0) {
+    sections.push(currentSection.join("\n"));
+  }
+  return sections;
+}
+var KNOWLEDGE_DIR, PRIORITY_FILES, cachedKnowledge;
+var init_knowledge_loader = __esm({
+  "server/chat/knowledge-loader.ts"() {
+    "use strict";
+    KNOWLEDGE_DIR = path.join(process.cwd(), "attached_assets");
+    PRIORITY_FILES = [
+      "bias_master_reality_tik_tok_v_3_3",
+      "BIAS_Creator_Intelligence_Core",
+      "BIAS_VoiceEmotion_Core",
+      "BIAS_Full_Core",
+      "VBM_AudioVisual",
+      "EPM_Psychology",
+      "BMIL_Ethics",
+      "ESI_EthicalSensitivity",
+      "NLP_Storytelling",
+      "MarketingPitch",
+      "Leadership",
+      "PublicSpeaking",
+      "TeamBuilding",
+      "BIAS_ModeSwitch",
+      "BIAS_Greeting"
+    ];
+    cachedKnowledge = null;
+  }
+});
+
+// server/chat/hybrid-chat.ts
+var hybrid_chat_exports = {};
+__export(hybrid_chat_exports, {
+  hybridChat: () => hybridChat
+});
+import OpenAI3 from "openai";
+async function hybridChat(request) {
+  const sessionId = request.sessionId || "anonymous";
+  try {
+    const learned = await findSimilarResponse(request.message);
+    if (learned.found && learned.response) {
+      console.log(`\u{1F4DA} Found in learning library! Similarity: ${((learned.similarity || 0) * 100).toFixed(0)}%`);
+      return {
+        response: learned.response,
+        source: "local",
+        // Counts as local since it's from our library
+        rateLimitInfo: checkRateLimit(sessionId)
+      };
+    }
+  } catch (error) {
+    console.log("\u26A0\uFE0F Learning library check failed, continuing to AI");
+  }
+  const rateLimitCheck = checkRateLimit(sessionId);
+  if (!rateLimitCheck.allowed) {
+    return {
+      response: `\u26A0\uFE0F **Limit tercapai bro!**
+
+${rateLimitCheck.reason}
+
+Sementara itu, kamu masih bisa:
+\u2022 Gunakan fitur template (Live Generator, Video Script)
+\u2022 Baca knowledge base di panel Expert
+\u2022 Coba lagi nanti setelah limit reset
+
+\u{1F4A1} **Tip:** Template gak pakai quota, jadi bebas pakai!`,
+      source: "local",
+      rateLimitInfo: rateLimitCheck
+    };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return {
+      response: `\u{1F527} **OpenAI belum dikonfigurasi**
+
+Untuk mengaktifkan AI chat, admin perlu setup OpenAI API key.
+
+Sementara itu, kamu bisa pakai:
+\u2022 Template Live Generator
+\u2022 Template Video Script  
+\u2022 Knowledge Base di Expert Mode`,
+      source: "local"
+    };
+  }
+  try {
+    const openai = new OpenAI3({ apiKey: process.env.OPENAI_API_KEY });
+    const mode = request.mode || "home";
+    let modeContext = "";
+    let basePrompt = TIKTOK_MENTOR_PROMPT;
+    if (mode === "marketing") {
+      basePrompt = MARKETING_MENTOR_PROMPT;
+      console.log(`\u{1F4CA} Using MARKETING_MENTOR_PROMPT for mode: ${mode}`);
+    } else if (mode === "expert") {
+      modeContext = `
+
+\u{1F393} MODE: EXPERT
+User ini udah berpengalaman. Berikan:
+- Insight lebih mendalam dengan data/statistik
+- Strategi advanced (monetisasi, brand deals, scaling)
+- Tetap pakai format section bernomor + tabel informatif
+- Reference "BIAS Core analysis" untuk depth`;
+    } else if (mode === "beginner") {
+      modeContext = `
+
+\u{1F331} MODE: PEMULA
+User ini baru mulai. Penyesuaian:
+- Penjelasan lebih simpel, tapi tetap profesional
+- Semua istilah wajib dijelasin inline
+- Maksimal 3 section, jangan overwhelming
+- Ekstra encouragement dan apresiasi
+- Tetap pakai format section bernomor, tapi lebih singkat`;
+    }
+    const fullPrompt = basePrompt + modeContext;
+    const relevantKnowledge = getRelevantKnowledge(request.message);
+    console.log(`\u{1F4DA} Loaded ${relevantKnowledge.length} chars of relevant knowledge`);
+    console.log(`\u{1F916} Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
+    const startTime = Date.now();
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: fullPrompt },
+        {
+          role: "system",
+          content: `\u{1F4DA} KNOWLEDGE BASE (gunakan untuk menjawab dengan akurat):
+
+${relevantKnowledge}`
+        },
+        { role: "user", content: request.message }
+      ],
+      temperature: 0.7,
+      max_tokens: mode === "expert" ? 2e3 : 1500
+    });
+    const duration = Date.now() - startTime;
+    const tokensUsed = completion.usage?.total_tokens || 0;
+    console.log(`\u2705 OpenAI chat completed in ${(duration / 1e3).toFixed(1)}s, ${tokensUsed} tokens`);
+    recordUsage(sessionId, tokensUsed);
+    const response = completion.choices[0]?.message?.content || "Maaf bro, ada error. Coba lagi ya!";
+    saveLearnedResponse(request.message, response).catch((err) => {
+      console.error("Failed to save to learning library:", err);
+    });
+    return {
+      response,
+      source: "ai",
+      tokensUsed,
+      rateLimitInfo: rateLimitCheck
+    };
+  } catch (error) {
+    console.error("\u274C OpenAI Chat Error:", error);
+    return {
+      response: `\u26A0\uFE0F **Ada gangguan bro!**
+
+Gue gak bisa connect ke AI sekarang. Error: ${error.message || "Unknown error"}
+
+Coba:
+\u2022 Refresh dan tanya lagi
+\u2022 Pakai template yang tersedia
+\u2022 Hubungi admin kalau terus error`,
+      source: "local"
+    };
+  }
+}
+var TIKTOK_MENTOR_PROMPT, MARKETING_MENTOR_PROMPT;
+var init_hybrid_chat = __esm({
+  "server/chat/hybrid-chat.ts"() {
+    "use strict";
+    init_ai_rate_limiter();
+    init_learning_system();
+    init_knowledge_loader();
+    TIKTOK_MENTOR_PROMPT = `\u{1F9E0} BIAS Pro \u2013 Behavioral Intelligence System v3.2.\u03B1 (Fusion Compact Build)
+(Adaptive Coaching + TikTok Action + Dashboard Mode)
+
+\u{1F9E9} SYSTEM ROLE
+You are BIAS Pro \u2013 Behavioral Intelligence Audit System,
+a bilingual behavioral mentor analyzing creators' tone, emotion, clarity, and authenticity.
+
+\u{1F3AF} Purpose:
+Menganalisa perilaku komunikasi dari sisi visual, emosional, linguistik, dan etika 
+berdasarkan 8-Layer Framework: VBM \u2013 EPM \u2013 NLP \u2013 BMIL (sekarang dalam satu inti VoiceEmotion Core).
+
+Kamu punya akses ke knowledge base lengkap:
+- BIAS_MasterReality_TikTok_v3.3.md
+- BIAS_Creator_Intelligence_Core_v3.1.md
+- BIAS_VoiceEmotion_Core.md
+- BMIL_Ethics.md
+- ESI_EthicalSensitivity.md
+- NLP_Storytelling.md
+- Dan file knowledge lainnya
+
+---
+
+\u2699\uFE0F BEHAVIORAL FRAMEWORK
+
+Gunakan struktur 8-Layer BIAS (Fusion Compact):
+
+**VBM\u2013EPM\u2013VPL** \u2192 digabung menjadi VoiceEmotion Core
+Menganalisa Visual Behavior (gesture, tone, pacing), Voice Personality, dan Emotional Psychology.
+
+**NLP Layer** \u2192 Narrative Linguistics (clarity, structure)
+**BMIL Layer** \u2192 Behavioral Morality (integrity, ethics)
+**ESI Layer** \u2192 Ethical Sensitivity & Authenticity
+**VPL Layer** \u2192 Voice Pacing Layer (dalam VoiceEmotion Core)
+**VPM Layer** \u2192 Audience Persuasion Mapping
+
+---
+
+\u{1F9ED} AUTO-MODE DETECTION
+Keyword | Mode | Fokus
+---------|-------|-------
+TikTok, Video, FYP | Creator | Visual + Engagement
+Speaking | Speaker | Voice + Clarity
+Leadership | Leader | Empathy + Authority
+Marketing, Pitch | Pitch | Persuasion + CTA
+Prospek, Jualan | Prospek | Komunikasi jualan & follow-up
+Emotional | Reflective | Self-reflection + Confidence
+hoax, fakta, rumor, algoritma, shadowban, viral, agency | MasterReality | Edukatif + Myth-busting
+
+---
+
+\u{1F4AC} RESPONSE STYLE
+
+Gunakan bilingual tone (Indonesian empathy + English clarity).
+Style: calm, empatik, structured, authoritative tapi approachable.
+
+Contoh opening:
+"\u{1F525} Wah bro\u2026 ini pertanyaan kelas 'inside creator' banget \u2014 dan lo benar-benar peka terhadap sistem real di balik TikTok."
+
+Contoh mid-response:
+"Bro, tone kamu udah mantap \u2014 tapi pacing agak cepat.
+Tambahin jeda biar audiens sempat mencerna."
+
+---
+
+\u{1F4DD} FORMAT JAWABAN (WAJIB IKUTI!)
+
+\u{1F525} OPENING (2-3 kalimat powerful)
+- Validasi pertanyaan dengan antusias
+- Kasih "teaser" jawaban
+- "Jawaban jujurnya: \u27A1\uFE0F [jawaban singkat]. Tapi dengan catatan penting..."
+
+\u{1F9E0} SECTION BERNOMOR dengan emoji (\u{1F9ED} 1\uFE0F\u20E3, \u2699\uFE0F 2\uFE0F\u20E3, \u{1F9E0} 3\uFE0F\u20E3, \u{1F9E9} 4\uFE0F\u20E3, \u{1F4AC} 5\uFE0F\u20E3, \u{1F9E9} 6\uFE0F\u20E3)
+Setiap section:
+- Punya JUDUL yang menarik
+- Penjelasan NARATIF kayak cerita
+- Kalau ada data, WAJIB pakai TABEL
+- Reference framework: "seperti yang dijelaskan di BIAS MasterReality v3.3..."
+
+\u{1F4CA} TABEL WAJIB DIPAKAI untuk:
+- Sistem internal TikTok
+- Perbandingan "buku vs realita"
+- Timeline/durasi
+- Langkah aksi
+
+\u{1F4AC} CONTOH NYATA wajib ada:
+"\u{1F4AC} Contoh nyata: Kamu bisa tidak melanggar satu pun guideline, tapi tetap kena visibility restriction..."
+
+\u{1F4D6} REFERENSI FRAMEWORK:
+- "Mari kita bongkar pakai kerangka BIAS MasterReality v3.3 + Creator Core v3.1..."
+- "Di BIAS Reality Pack v3.3 disebut jelas: [quote]"
+- "...tercatat di catatan BIAS Core..."
+
+\u{1F9ED} KESIMPULAN dari BIAS
+Ringkasan dalam 1-2 kalimat powerful.
+
+\u2728 SINGKATNYA (bullet summary)
+3-4 poin key takeaway
+
+\u{1F4AC} CLOSING dengan PENAWARAN SPESIFIK:
+"Kalau lo mau, gue bisa bantu [action spesifik]..."
+"Mau gue breakdown lebih detail, bro?"
+
+---
+
+\u{1F527} SISTEM INTERNAL TIKTOK (REFERENSI)
+
+Kamu tahu tentang sistem tersembunyi TikTok:
+- Integrity Engine: menilai kelayakan konten (visual, audio, teks) \u2014 Internal-only
+- Trust & Safety Scoring: menyimpan riwayat perilaku akun (cache) \u2014 Tidak diumumkan
+- Visibility Balancer (VB): mengatur jangkauan dinamis \u2014 Tidak dipublikasikan
+- Behavioral Cache Memory: Trust Score akun
+- Emotion Detection Layer: deteksi emosi dalam konten
+- Comment Toxicity Filter: filter komentar beracun
+- Interaction Integrity Scanner: scanner integritas interaksi
+
+---
+
+\u2699\uFE0F BEHAVIOR LOGIC
+
+Match user energy \xB110%
+Prioritize: empathy \u2192 analysis \u2192 correction
+Gunakan reflective tone untuk konteks emosional.
+
+---
+
+\u26A0\uFE0F HINDARI
+\u274C Format script breakdown teknis (timing 0-5s, Hook, Problem, Solution)
+\u274C Bullet list panjang tanpa narasi
+\u274C Jawaban pendek tanpa depth
+\u274C Generic advice tanpa framework reference
+
+\u26D4 JANGAN PERNAH SARANIN
+- Beli followers/likes/views
+- Engagement bait ("tap 5x biar FYP")
+- Konten clickbait menipu
+- Konten sensual buat views
+
+---
+
+\u{1F308} ETHICS & FOOTER
+
+Selalu jaga integritas & privasi user.
+
+\u26A0\uFE0F WAJIB: Akhiri SETIAP response dengan footer berikut (TIDAK BOLEH LUPA):
+
+---
+**Powered by BIAS\u2122 \u2013 Behavioral Intelligence for Creators**
+*Designed by NM23 Ai | Supported by Newsmaker.id Labs*
+
+---
+
+\u{1F9E9} MASTERREALITY MODULE (Auto-trigger)
+
+Aktif otomatis ketika user menyebut: hoax, fakta, rumor, algoritma, FYP, agency, shadowban, viral
+Response tone: Bilingual \u2013 calm, netral, edukatif
+Integration layer: NLP + BMIL + ESI
+
+Kamu adalah BIAS Pro \u2014 expert behavioral intelligence dengan akses ke framework lengkap.
+Jawab dengan DEPTH, AUTHORITY, dan WARMTH. Bikin user merasa dapat insight berharga dari orang dalam! \u{1F525}`;
+    MARKETING_MENTOR_PROMPT = `\u{1F9E0} BIAS Pro \u2013 Behavioral Intelligence System v3.2.\u03B1 (Marketing & Professional Edition)
+(Adaptive Coaching for Sales, Leadership, Public Speaking & Professional Communication)
+
+\u{1F9E9} SYSTEM ROLE
+You are BIAS Pro \u2013 Behavioral Intelligence Audit System,
+a bilingual behavioral mentor specializing in ALL aspects of professional communication:
+- Sales & Marketing (pitch, closing, objection handling)
+- Leadership & Team Building (authority, empathy, delegation)
+- Public Speaking (confidence, delivery, stage presence)
+- Negotiation (win-win, BATNA, leverage)
+- Client Communication (trust building, follow-up)
+- Presentation Skills (slide design, storytelling, impact)
+
+\u{1F3AF} Purpose:
+Menganalisa dan meningkatkan SELURUH aspek komunikasi profesional dari sisi persuasi, emosi, narasi, dan etika
+berdasarkan 8-Layer Framework: VBM \u2013 EPM \u2013 NLP \u2013 BMIL \u2013 ESI \u2013 SOC \u2013 COG \u2013 VPL.
+
+Kamu punya akses ke FULL knowledge base:
+- MarketingPitch.md - Teknik pitching dan persuasi
+- Leadership.md - Komunikasi kepemimpinan & team building
+- PublicSpeaking.md - Public speaking mastery
+- TeamBuilding.md - Dinamika tim dan kolaborasi
+- NLP_Storytelling.md - Narrative & storytelling frameworks
+- BMIL_Ethics.md - Ethical communication principles
+- ESI_EthicalSensitivity.md - Sensitivity & authenticity
+- BIAS_VoiceEmotion_Core.md - Voice & emotion analysis
+- BIAS_Creator_Intelligence_Core.md - Behavioral patterns (bisa diterapkan di semua konteks)
+
+---
+
+\u2699\uFE0F BEHAVIORAL FRAMEWORK (Marketing Focus)
+
+Gunakan struktur 8-Layer BIAS:
+
+**VBM Layer** \u2192 Visual Behavior (gestur, body language dalam presentasi)
+**EPM Layer** \u2192 Emotional Psychology (trigger emosi audiens/klien)
+**NLP Layer** \u2192 Narrative Linguistics (struktur pitch, storytelling)
+**VPL Layer** \u2192 Voice Pacing Layer (intonasi, pacing, power pause)
+**BMIL Layer** \u2192 Behavioral Morality (integritas dalam sales)
+**ESI Layer** \u2192 Ethical Sensitivity (kepekaan & autentisitas)
+**SOC Layer** \u2192 Social Intelligence (baca audiens, adaptasi)
+**COG Layer** \u2192 Cognitive Load (kejelasan pesan, memorable points)
+
+---
+
+\u{1F9ED} AUTO-MODE DETECTION (Comprehensive)
+Keyword | Mode | Fokus
+---------|-------|-------
+Sales, Jualan, Closing, Deal | Sales | Persuasi + Objection handling + Closing techniques
+Pitch, Proposal, Investor, Funding | Pitch | CTA + Value proposition + Investor psychology
+Presentasi, Meeting, Slide | Presentation | Clarity + Impact + Visual storytelling
+Leadership, Pemimpin, Manager | Leadership | Authority + Empathy + Decision making
+Tim, Team, Kolaborasi, Delegasi | Team Building | Trust + Delegation + Accountability
+Negosiasi, Deal, Kontrak | Negotiation | Win-win + BATNA + Leverage
+Prospek, Follow-up, Cold Call | Prospecting | Trust building + Conversion + CRM
+Public Speaking, Pidato, MC | Speaking | Confidence + Delivery + Stage presence
+Konflik, Masalah Tim, HR | Conflict | Resolution + Mediation + Communication
+Motivasi, Semangat, Mindset | Motivation | Encouragement + Goal setting + Resilience
+Interview, Wawancara, Rekrut | Interview | Impression + Storytelling + Negotiation
+Client, Klien, Customer | Client Mgmt | Relationship + Retention + Upselling
+
+---
+
+\u{1F4AC} RESPONSE STYLE
+
+Gunakan bilingual tone (Indonesian empathy + English clarity).
+Style: calm, empatik, structured, authoritative tapi approachable.
+
+Contoh opening:
+"\u{1F525} Bro, pertanyaan ini penting banget \u2014 karena banyak yang salah paham soal cara pitch yang efektif."
+
+Contoh mid-response:
+"Nah, yang bikin pitch kamu memorable bukan cuma apa yang kamu bilang,
+tapi BAGAIMANA kamu menyampaikannya \u2014 intonasi, timing, dan eye contact."
+
+---
+
+\u{1F4DD} FORMAT JAWABAN (WAJIB IKUTI!)
+
+\u{1F525} OPENING (2-3 kalimat powerful)
+- Validasi pertanyaan dengan antusias
+- Kasih "teaser" jawaban
+- "Jawaban jujurnya: \u27A1\uFE0F [jawaban singkat]. Tapi ada strategi penting..."
+
+\u{1F9E0} SECTION BERNOMOR dengan emoji (\u{1F9ED} 1\uFE0F\u20E3, \u2699\uFE0F 2\uFE0F\u20E3, \u{1F9E0} 3\uFE0F\u20E3, \u{1F9E9} 4\uFE0F\u20E3, \u{1F4AC} 5\uFE0F\u20E3, \u{1F9E9} 6\uFE0F\u20E3)
+Setiap section:
+- Punya JUDUL yang menarik
+- Penjelasan NARATIF kayak cerita
+- Kalau ada data, WAJIB pakai TABEL
+- Reference framework: "seperti yang dijelaskan di BIAS Marketing Framework..."
+
+\u{1F4CA} TABEL WAJIB DIPAKAI untuk:
+- Perbandingan teknik efektif vs tidak efektif
+- Struktur pitch/presentasi
+- Timeline follow-up
+- Langkah aksi
+
+\u{1F4AC} CONTOH NYATA wajib ada:
+"\u{1F4AC} Contoh nyata: Saat pitch ke investor, 90% keputusan diambil di 30 detik pertama..."
+
+\u{1F4D6} REFERENSI FRAMEWORK:
+- "Mari kita breakdown pakai kerangka BIAS Marketing Framework..."
+- "Di BIAS Pitching Module dijelaskan: [quote]"
+- "...sesuai prinsip NLP Storytelling..."
+
+\u{1F9ED} KESIMPULAN dari BIAS
+Ringkasan dalam 1-2 kalimat powerful.
+
+\u2728 SINGKATNYA (bullet summary)
+3-4 poin key takeaway
+
+\u{1F4AC} CLOSING dengan PENAWARAN SPESIFIK:
+"Kalau lo mau, gue bisa bantu [script pitch, opening statement, objection handling]..."
+"Mau gue breakdown lebih detail, bro?"
+
+---
+
+\u{1F3AF} COMPREHENSIVE PROFESSIONAL EXPERTISE
+
+**SALES & MARKETING:**
+- Opening statement yang powerful (hook dalam 7 detik)
+- Storytelling untuk pitch (Hero's Journey for Business)
+- Objection handling (Feel-Felt-Found, Boomerang, Reframe)
+- Closing techniques (Assumptive, Alternative, Urgency, Trial Close)
+- Follow-up sequences (3-touch, 7-touch methods)
+- Pricing psychology (anchoring, charm pricing, bundling, decoy)
+- Cold calling & prospecting frameworks
+
+**LEADERSHIP & MANAGEMENT:**
+- Situational leadership (Hersey-Blanchard model)
+- Delegation framework (SMART, accountability, trust)
+- Feedback techniques (SBI model, radical candor)
+- Conflict resolution (mediation, win-win, active listening)
+- Team motivation (intrinsic vs extrinsic, recognition)
+- Decision making (RAPID, consensus building)
+- Servant leadership principles
+
+**PUBLIC SPEAKING & PRESENTATION:**
+- Body language for impact (power poses, eye contact, movement)
+- Voice modulation (pitch, pace, pause, power)
+- Slide design principles (1 idea per slide, visual hierarchy)
+- Opening hooks (question, story, statistic, quote)
+- Stage presence & confidence building
+- Q&A handling techniques
+- Virtual presentation best practices
+
+**NEGOTIATION & DEAL-MAKING:**
+- BATNA & ZOPA analysis
+- Win-win framing & creative solutions
+- Anchoring & counter-anchoring
+- Concession strategies
+- Contract negotiation basics
+- Salary & compensation negotiation
+
+**CLIENT & RELATIONSHIP MANAGEMENT:**
+- Trust building framework (credibility, reliability, intimacy)
+- Active listening & empathy mapping
+- Upselling & cross-selling ethically
+- Client retention strategies
+- Difficult conversation handling
+
+---
+
+\u26A0\uFE0F HINDARI
+\u274C Format script breakdown teknis tanpa narasi
+\u274C Bullet list panjang tanpa context
+\u274C Jawaban pendek tanpa depth
+\u274C Generic advice tanpa framework reference
+
+\u26D4 JANGAN PERNAH SARANIN
+- Teknik manipulatif atau menipu
+- High-pressure sales tactics yang tidak etis
+- Janji palsu ke klien/investor
+- Fake urgency atau scarcity yang tidak jujur
+
+---
+
+\u{1F308} ETHICS & FOOTER
+
+Selalu jaga integritas & komunikasi yang etis.
+Persuasi BUKAN manipulasi \u2014 bangun trust, bukan exploit.
+
+\u26A0\uFE0F WAJIB: Akhiri SETIAP response dengan footer berikut (TIDAK BOLEH LUPA):
+
+---
+**Powered by BIAS\u2122 \u2013 Behavioral Intelligence for Professionals**
+*Designed by NM23 Ai | Supported by Newsmaker.id Labs*
+
+---
+
+Kamu adalah BIAS Pro \u2014 expert behavioral intelligence untuk komunikasi profesional.
+Jawab dengan DEPTH, AUTHORITY, dan WARMTH. Bikin user merasa dapat insight berharga dari mentor bisnis terpercaya! \u{1F525}`;
+  }
+});
+
 // server/index.ts
 import express2 from "express";
+import cookieParser from "cookie-parser";
 
 // server/routes.ts
 import { createServer } from "http";
 
 // server/storage.ts
+init_schema();
+init_db();
 import { randomUUID } from "crypto";
+import { eq, lt, and, gt, or, lte, ilike } from "drizzle-orm";
 var MemStorage = class {
   sessions;
   analyses;
@@ -15,6 +1520,10 @@ var MemStorage = class {
   tiktokComparisons;
   libraryContributions;
   deletedLibraryItems;
+  pageViews;
+  featureUsages;
+  adminSessions;
+  brandsMap;
   constructor() {
     this.sessions = /* @__PURE__ */ new Map();
     this.analyses = /* @__PURE__ */ new Map();
@@ -24,6 +1533,10 @@ var MemStorage = class {
     this.tiktokComparisons = /* @__PURE__ */ new Map();
     this.libraryContributions = /* @__PURE__ */ new Map();
     this.deletedLibraryItems = /* @__PURE__ */ new Set();
+    this.pageViews = /* @__PURE__ */ new Map();
+    this.featureUsages = /* @__PURE__ */ new Map();
+    this.adminSessions = /* @__PURE__ */ new Map();
+    this.brandsMap = /* @__PURE__ */ new Map();
   }
   // Session methods
   async getSession(sessionId) {
@@ -239,11 +1752,488 @@ var MemStorage = class {
   async isLibraryItemDeleted(itemId) {
     return this.deletedLibraryItems.has(itemId);
   }
+  // Analytics methods
+  async trackPageView(insertPageView) {
+    const id = randomUUID();
+    const pageView = {
+      sessionId: insertPageView.sessionId,
+      page: insertPageView.page,
+      language: insertPageView.language ?? null,
+      id,
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.pageViews.set(id, pageView);
+    return pageView;
+  }
+  async trackFeatureUsage(insertUsage) {
+    const id = randomUUID();
+    const usage = {
+      sessionId: insertUsage.sessionId,
+      featureType: insertUsage.featureType,
+      featureDetails: insertUsage.featureDetails ?? null,
+      platform: insertUsage.platform ?? null,
+      mode: insertUsage.mode ?? null,
+      language: insertUsage.language ?? null,
+      id,
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.featureUsages.set(id, usage);
+    return usage;
+  }
+  async getPageViewStats(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const views = Array.from(this.pageViews.values()).filter((v) => v.createdAt >= cutoff);
+    const stats = /* @__PURE__ */ new Map();
+    views.forEach((v) => {
+      const key = `${v.page}|${v.language || "unknown"}`;
+      const existing = stats.get(key) || { count: 0, language: v.language || void 0 };
+      stats.set(key, { count: existing.count + 1, language: v.language || void 0 });
+    });
+    return Array.from(stats.entries()).map(([key, data]) => ({
+      page: key.split("|")[0],
+      count: data.count,
+      language: data.language
+    }));
+  }
+  async getFeatureUsageStats(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const usages = Array.from(this.featureUsages.values()).filter((u) => u.createdAt >= cutoff);
+    const stats = /* @__PURE__ */ new Map();
+    usages.forEach((u) => {
+      const key = `${u.featureType}|${u.platform || "unknown"}`;
+      const existing = stats.get(key) || { count: 0, platform: u.platform || void 0 };
+      stats.set(key, { count: existing.count + 1, platform: u.platform || void 0 });
+    });
+    return Array.from(stats.entries()).map(([key, data]) => ({
+      featureType: key.split("|")[0],
+      count: data.count,
+      platform: data.platform
+    }));
+  }
+  async getUniqueSessionsCount(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const uniqueSessions = new Set(
+      Array.from(this.pageViews.values()).filter((v) => v.createdAt >= cutoff).map((v) => v.sessionId)
+    );
+    return uniqueSessions.size;
+  }
+  async getTotalPageViews(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return Array.from(this.pageViews.values()).filter((v) => v.createdAt >= cutoff).length;
+  }
+  async getTotalFeatureUsage(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return Array.from(this.featureUsages.values()).filter((u) => u.createdAt >= cutoff).length;
+  }
+  // Admin session methods
+  async createAdminSession(sessionId, username) {
+    const now = /* @__PURE__ */ new Date();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1e3);
+    const session = {
+      sessionId,
+      username,
+      createdAt: now,
+      expiresAt
+    };
+    this.adminSessions.set(sessionId, session);
+    return session;
+  }
+  async getAdminSession(sessionId) {
+    const session = this.adminSessions.get(sessionId);
+    if (!session) return void 0;
+    if (session.expiresAt < /* @__PURE__ */ new Date()) {
+      this.adminSessions.delete(sessionId);
+      return void 0;
+    }
+    return session;
+  }
+  async deleteAdminSession(sessionId) {
+    this.adminSessions.delete(sessionId);
+  }
+  async cleanExpiredAdminSessions() {
+    const now = /* @__PURE__ */ new Date();
+    Array.from(this.adminSessions.entries()).forEach(([sessionId, session]) => {
+      if (session.expiresAt < now) {
+        this.adminSessions.delete(sessionId);
+      }
+    });
+  }
+  // Brand management methods
+  async createBrand(insertBrand) {
+    const id = randomUUID();
+    const now = /* @__PURE__ */ new Date();
+    const brand = {
+      id,
+      slug: insertBrand.slug,
+      name: insertBrand.name,
+      shortName: insertBrand.shortName,
+      taglineEn: insertBrand.taglineEn ?? "Powered by BiAS\xB2\xB3",
+      taglineId: insertBrand.taglineId ?? "Didukung BiAS\xB2\xB3",
+      subtitleEn: insertBrand.subtitleEn ?? "Build Your Influence",
+      subtitleId: insertBrand.subtitleId ?? "Bangun Pengaruhmu",
+      descriptionEn: insertBrand.descriptionEn ?? null,
+      descriptionId: insertBrand.descriptionId ?? null,
+      colorPrimary: insertBrand.colorPrimary ?? "from-pink-500 via-purple-500 to-cyan-500",
+      colorSecondary: insertBrand.colorSecondary ?? "from-purple-500 via-pink-400 to-cyan-400",
+      logoUrl: insertBrand.logoUrl ?? null,
+      tiktokHandle: insertBrand.tiktokHandle ?? null,
+      tiktokUrl: insertBrand.tiktokUrl ?? null,
+      instagramHandle: insertBrand.instagramHandle ?? null,
+      instagramUrl: insertBrand.instagramUrl ?? null,
+      metaTitle: insertBrand.metaTitle ?? null,
+      metaDescription: insertBrand.metaDescription ?? null,
+      isActive: insertBrand.isActive ?? true,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.brandsMap.set(id, brand);
+    return brand;
+  }
+  async getBrand(id) {
+    return this.brandsMap.get(id);
+  }
+  async getBrandBySlug(slug) {
+    return Array.from(this.brandsMap.values()).find((b) => b.slug === slug);
+  }
+  async getAllBrands() {
+    return Array.from(this.brandsMap.values());
+  }
+  async getActiveBrands() {
+    return Array.from(this.brandsMap.values()).filter((b) => b.isActive);
+  }
+  async updateBrand(id, updates) {
+    const brand = this.brandsMap.get(id);
+    if (!brand) return void 0;
+    const updated = {
+      ...brand,
+      ...updates,
+      updatedAt: /* @__PURE__ */ new Date()
+    };
+    this.brandsMap.set(id, updated);
+    return updated;
+  }
+  async deleteBrand(id) {
+    return this.brandsMap.delete(id);
+  }
+  // Expert Knowledge Base stub methods (MemStorage - returns empty arrays)
+  async getExpertKnowledge(_filters) {
+    return [];
+  }
+  async getHooks(_filters) {
+    return [];
+  }
+  async getStorytellingFrameworks() {
+    return [];
+  }
+  async getGrowthStageGuides(_followerCount) {
+    return [];
+  }
+  async getGrowthStageGuideByStage(_stage) {
+    return void 0;
+  }
+  async getResponseTemplates(_category) {
+    return [];
+  }
+  async getLiveStreamingTemplates(_filters) {
+    return [];
+  }
+  async getScriptTemplates(_filters) {
+    return [];
+  }
 };
-var storage = new MemStorage();
+var DatabaseStorage = class {
+  memStorage;
+  constructor() {
+    this.memStorage = new MemStorage();
+  }
+  async getSession(sessionId) {
+    return this.memStorage.getSession(sessionId);
+  }
+  async createSession(session) {
+    return this.memStorage.createSession(session);
+  }
+  async updateSession(sessionId, updates) {
+    return this.memStorage.updateSession(sessionId, updates);
+  }
+  async createAnalysis(analysis) {
+    return this.memStorage.createAnalysis(analysis);
+  }
+  async getAnalysesBySession(sessionId) {
+    return this.memStorage.getAnalysesBySession(sessionId);
+  }
+  async createChat(chat) {
+    return this.memStorage.createChat(chat);
+  }
+  async getChatsBySession(sessionId) {
+    return this.memStorage.getChatsBySession(sessionId);
+  }
+  async clearChatsBySession(sessionId) {
+    return this.memStorage.clearChatsBySession(sessionId);
+  }
+  async createTiktokAccount(account) {
+    return this.memStorage.createTiktokAccount(account);
+  }
+  async getTiktokAccount(id) {
+    return this.memStorage.getTiktokAccount(id);
+  }
+  async getTiktokAccountByUsername(username) {
+    return this.memStorage.getTiktokAccountByUsername(username);
+  }
+  async getTiktokAccountsBySession(sessionId) {
+    return this.memStorage.getTiktokAccountsBySession(sessionId);
+  }
+  async updateTiktokAccount(id, updates) {
+    return this.memStorage.updateTiktokAccount(id, updates);
+  }
+  async createTiktokVideo(video) {
+    return this.memStorage.createTiktokVideo(video);
+  }
+  async getTiktokVideo(id) {
+    return this.memStorage.getTiktokVideo(id);
+  }
+  async getTiktokVideosBySession(sessionId) {
+    return this.memStorage.getTiktokVideosBySession(sessionId);
+  }
+  async getTiktokVideosByAccount(accountUsername) {
+    return this.memStorage.getTiktokVideosByAccount(accountUsername);
+  }
+  async createTiktokComparison(comparison) {
+    return this.memStorage.createTiktokComparison(comparison);
+  }
+  async getTiktokComparison(id) {
+    return this.memStorage.getTiktokComparison(id);
+  }
+  async getTiktokComparisonsBySession(sessionId) {
+    return this.memStorage.getTiktokComparisonsBySession(sessionId);
+  }
+  async createLibraryContribution(contribution) {
+    return this.memStorage.createLibraryContribution(contribution);
+  }
+  async getLibraryContribution(id) {
+    return this.memStorage.getLibraryContribution(id);
+  }
+  async getPendingContributions() {
+    return this.memStorage.getPendingContributions();
+  }
+  async getApprovedContributions() {
+    return this.memStorage.getApprovedContributions();
+  }
+  async updateLibraryContribution(id, updates) {
+    return this.memStorage.updateLibraryContribution(id, updates);
+  }
+  async deleteLibraryContribution(id) {
+    return this.memStorage.deleteLibraryContribution(id);
+  }
+  async addDeletedLibraryItem(itemId) {
+    return this.memStorage.addDeletedLibraryItem(itemId);
+  }
+  async removeDeletedLibraryItem(itemId) {
+    return this.memStorage.removeDeletedLibraryItem(itemId);
+  }
+  async getDeletedLibraryItems() {
+    return this.memStorage.getDeletedLibraryItems();
+  }
+  async isLibraryItemDeleted(itemId) {
+    return this.memStorage.isLibraryItemDeleted(itemId);
+  }
+  async trackPageView(pageView) {
+    return this.memStorage.trackPageView(pageView);
+  }
+  async trackFeatureUsage(usage) {
+    return this.memStorage.trackFeatureUsage(usage);
+  }
+  async getPageViewStats(days = 7) {
+    return this.memStorage.getPageViewStats(days);
+  }
+  async getFeatureUsageStats(days = 7) {
+    return this.memStorage.getFeatureUsageStats(days);
+  }
+  async getUniqueSessionsCount(days = 7) {
+    return this.memStorage.getUniqueSessionsCount(days);
+  }
+  async getTotalPageViews(days = 7) {
+    return this.memStorage.getTotalPageViews(days);
+  }
+  async getTotalFeatureUsage(days = 7) {
+    return this.memStorage.getTotalFeatureUsage(days);
+  }
+  async createAdminSession(sessionId, username) {
+    const now = /* @__PURE__ */ new Date();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1e3);
+    const [inserted] = await db.insert(adminSessions).values({
+      sessionId,
+      username,
+      expiresAt
+    }).returning();
+    return {
+      sessionId: inserted.sessionId,
+      username: inserted.username,
+      createdAt: inserted.createdAt,
+      expiresAt: inserted.expiresAt
+    };
+  }
+  async getAdminSession(sessionId) {
+    const now = /* @__PURE__ */ new Date();
+    const [session] = await db.select().from(adminSessions).where(
+      and(
+        eq(adminSessions.sessionId, sessionId),
+        gt(adminSessions.expiresAt, now)
+      )
+    ).limit(1);
+    if (!session) return void 0;
+    return {
+      sessionId: session.sessionId,
+      username: session.username,
+      createdAt: session.createdAt,
+      expiresAt: session.expiresAt
+    };
+  }
+  async deleteAdminSession(sessionId) {
+    await db.delete(adminSessions).where(eq(adminSessions.sessionId, sessionId));
+  }
+  async cleanExpiredAdminSessions() {
+    const now = /* @__PURE__ */ new Date();
+    await db.delete(adminSessions).where(lt(adminSessions.expiresAt, now));
+  }
+  // Brand management methods (database-backed for persistence)
+  async createBrand(insertBrand) {
+    const [inserted] = await db.insert(brands).values(insertBrand).returning();
+    return inserted;
+  }
+  async getBrand(id) {
+    const [brand] = await db.select().from(brands).where(eq(brands.id, id)).limit(1);
+    return brand;
+  }
+  async getBrandBySlug(slug) {
+    const [brand] = await db.select().from(brands).where(eq(brands.slug, slug)).limit(1);
+    return brand;
+  }
+  async getAllBrands() {
+    return db.select().from(brands);
+  }
+  async getActiveBrands() {
+    return db.select().from(brands).where(eq(brands.isActive, true));
+  }
+  async updateBrand(id, updates) {
+    const [updated] = await db.update(brands).set({ ...updates, updatedAt: /* @__PURE__ */ new Date() }).where(eq(brands.id, id)).returning();
+    return updated;
+  }
+  async deleteBrand(id) {
+    const result = await db.delete(brands).where(eq(brands.id, id)).returning();
+    return result.length > 0;
+  }
+  // ==========================================
+  // EXPERT KNOWLEDGE BASE METHODS
+  // ==========================================
+  async getExpertKnowledge(filters) {
+    let query = db.select().from(expertKnowledge).where(eq(expertKnowledge.isActive, true));
+    const conditions = [eq(expertKnowledge.isActive, true)];
+    if (filters?.category) {
+      conditions.push(eq(expertKnowledge.category, filters.category));
+    }
+    if (filters?.subcategory) {
+      conditions.push(eq(expertKnowledge.subcategory, filters.subcategory));
+    }
+    if (filters?.level) {
+      conditions.push(eq(expertKnowledge.level, filters.level));
+    }
+    if (filters?.search) {
+      conditions.push(
+        or(
+          ilike(expertKnowledge.titleEn, `%${filters.search}%`),
+          ilike(expertKnowledge.titleId, `%${filters.search}%`),
+          ilike(expertKnowledge.contentEn, `%${filters.search}%`),
+          ilike(expertKnowledge.contentId, `%${filters.search}%`)
+        )
+      );
+    }
+    return db.select().from(expertKnowledge).where(and(...conditions));
+  }
+  async getHooks(filters) {
+    const conditions = [eq(hooks.isActive, true)];
+    if (filters?.hookType) {
+      conditions.push(eq(hooks.hookType, filters.hookType));
+    }
+    if (filters?.category) {
+      conditions.push(eq(hooks.category, filters.category));
+    }
+    if (filters?.search) {
+      conditions.push(
+        or(
+          ilike(hooks.hookTextEn, `%${filters.search}%`),
+          ilike(hooks.hookTextId, `%${filters.search}%`)
+        )
+      );
+    }
+    return db.select().from(hooks).where(and(...conditions));
+  }
+  async getStorytellingFrameworks() {
+    return db.select().from(storytellingFrameworks).where(eq(storytellingFrameworks.isActive, true));
+  }
+  async getGrowthStageGuides(followerCount) {
+    if (followerCount !== void 0) {
+      return db.select().from(growthStageGuides).where(
+        and(
+          eq(growthStageGuides.isActive, true),
+          lte(growthStageGuides.followerRangeMin, followerCount)
+        )
+      );
+    }
+    return db.select().from(growthStageGuides).where(eq(growthStageGuides.isActive, true));
+  }
+  async getGrowthStageGuideByStage(stage) {
+    const [guide] = await db.select().from(growthStageGuides).where(
+      and(
+        eq(growthStageGuides.stage, stage),
+        eq(growthStageGuides.isActive, true)
+      )
+    ).limit(1);
+    return guide;
+  }
+  async getResponseTemplates(category) {
+    const conditions = [eq(responseTemplates.isActive, true)];
+    if (category) {
+      conditions.push(eq(responseTemplates.category, category));
+    }
+    return db.select().from(responseTemplates).where(and(...conditions));
+  }
+  async getLiveStreamingTemplates(filters) {
+    const conditions = [eq(liveStreamingTemplates.isActive, true)];
+    if (filters?.format) {
+      conditions.push(eq(liveStreamingTemplates.format, filters.format));
+    }
+    if (filters?.duration) {
+      conditions.push(eq(liveStreamingTemplates.duration, filters.duration));
+    }
+    return db.select().from(liveStreamingTemplates).where(and(...conditions));
+  }
+  async getScriptTemplates(filters) {
+    const conditions = [eq(scriptTemplates.isActive, true)];
+    if (filters?.category) {
+      conditions.push(eq(scriptTemplates.category, filters.category));
+    }
+    if (filters?.duration) {
+      conditions.push(eq(scriptTemplates.duration, filters.duration));
+    }
+    if (filters?.goal) {
+      conditions.push(eq(scriptTemplates.goal, filters.goal));
+    }
+    if (filters?.level) {
+      conditions.push(eq(scriptTemplates.level, filters.level));
+    }
+    return db.select().from(scriptTemplates).where(and(...conditions));
+  }
+};
+var storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
 
 // server/routes.ts
 import multer from "multer";
+import { randomUUID as randomUUID2, timingSafeEqual } from "crypto";
 
 // server/analyzers/behavioral-insights.ts
 var WARMTH_WORDS = [
@@ -284,8 +2274,8 @@ var PRESSURE_WORDS = [
   "must",
   "need to"
 ];
-function analyzeWarmthIndex(text) {
-  const lowerText = text.toLowerCase();
+function analyzeWarmthIndex(text2) {
+  const lowerText = text2.toLowerCase();
   const warmthCount = WARMTH_WORDS.filter((word) => lowerText.includes(word)).length;
   const pressureCount = PRESSURE_WORDS.filter((word) => lowerText.includes(word)).length;
   let score = 50 + warmthCount * 10 - pressureCount * 15;
@@ -726,6 +2716,7 @@ var TextAnalyzer = class {
 };
 
 // server/analyzers/deep-video-analyzer.ts
+init_ai_rate_limiter();
 import OpenAI from "openai";
 var DEEP_ANALYSIS_PROMPT = `Kamu BIAS\xB2\xB3 Pro Analyzer - kasih analisis SUPER SPESIFIK untuk video/audio/presentasi user. JANGAN GENERIC!
 
@@ -777,9 +2768,18 @@ Setiap layer:
 INGAT: User frustasi dengan generic advice. Berikan VALUE MAKSIMAL - specific observations + actionable steps!`;
 async function deepAnalyzeWithAI(input) {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const sessionId = input.sessionId || "anonymous";
   if (!process.env.OPENAI_API_KEY) {
     console.warn("\u26A0\uFE0F OpenAI API key not found - falling back to basic analysis");
-    return generateBasicAnalysis(input);
+    return { layers: generateBasicAnalysis(input) };
+  }
+  const rateLimitCheck = checkRateLimit(sessionId);
+  if (!rateLimitCheck.allowed) {
+    console.warn(`\u26A0\uFE0F Rate limit exceeded for session ${sessionId}: ${rateLimitCheck.reason}`);
+    return {
+      layers: generateBasicAnalysis(input),
+      rateLimitInfo: rateLimitCheck
+    };
   }
   try {
     const modeContext = getModeContext(input.mode);
@@ -848,11 +2848,17 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
     if (!layers || layers.length === 0) {
       throw new Error("No layers in AI response");
     }
-    return layers;
+    const tokensUsed = completion.usage?.total_tokens || Math.ceil(responseContent.length / 4);
+    recordUsage(sessionId, tokensUsed);
+    return {
+      layers,
+      rateLimitInfo: rateLimitCheck,
+      tokensUsed
+    };
   } catch (error) {
     console.error("\u274C Deep AI Analysis Error:", error);
     console.log("\u{1F4CA} Falling back to basic analysis...");
-    return generateBasicAnalysis(input);
+    return { layers: generateBasicAnalysis(input) };
   }
 }
 function getModeContext(mode) {
@@ -947,8 +2953,8 @@ function generateBasicAnalysis(input) {
 }
 
 // server/analyzers/text-formatter.ts
-function simplifyDiagnosis(text) {
-  let result = text;
+function simplifyDiagnosis(text2) {
+  let result = text2;
   result = result.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, "");
   result = result.replace(/\blo\b/gi, "Anda");
   result = result.replace(/\bLo\b/g, "Anda");
@@ -994,43 +3000,48 @@ function convertToLegacyFormat(insights) {
   });
 }
 async function analyzeText(input) {
-  if (input.inputType === "video" || input.inputType === "audio") {
+  const shouldUseAI = input.content && input.content.length >= 20;
+  if (shouldUseAI) {
     try {
       console.log("\u{1F916} Initiating AI Deep Analysis for", input.inputType, "content...");
-      const deepLayers = await deepAnalyzeWithAI({
+      const deepResult = await deepAnalyzeWithAI({
         content: input.content,
         mode: input.mode,
         inputType: input.inputType,
         platform: input.platform
       });
-      const layers2 = deepLayers.map((dl) => ({
-        layer: dl.layer,
-        score: Math.round(dl.score / 10),
-        // Convert 0-100 to 1-10
-        feedback: dl.feedback,
-        feedbackId: dl.feedbackId
-      }));
-      const overallScore = Math.round(
-        deepLayers.reduce((sum, l) => sum + l.score, 0) / deepLayers.length
-      );
-      const allRecommendations = deepLayers.flatMap(
-        (dl) => dl.actionableRecommendations || []
-      ).filter(Boolean);
-      const summary = generateDeepSummary(deepLayers, overallScore, input.mode);
-      return {
-        mode: input.mode,
-        overallScore,
-        layers: layers2,
-        summary,
-        summaryId: summary,
-        recommendations: allRecommendations.slice(0, 10),
-        // Top 10 recommendations
-        recommendationsId: allRecommendations.slice(0, 10)
-      };
+      const deepLayers = deepResult.layers;
+      if (deepLayers && deepLayers.length > 0) {
+        const layers2 = deepLayers.map((dl) => ({
+          layer: dl.layer,
+          score: Math.round(dl.score / 10),
+          // Convert 0-100 to 1-10
+          feedback: dl.feedback,
+          feedbackId: dl.feedbackId
+        }));
+        const overallScore = Math.round(
+          deepLayers.reduce((sum, l) => sum + l.score, 0) / deepLayers.length
+        );
+        const allRecommendations = deepLayers.flatMap(
+          (dl) => dl.actionableRecommendations || []
+        ).filter(Boolean);
+        const summary = generateDeepSummary(deepLayers, overallScore, input.mode);
+        console.log("\u2705 AI Deep Analysis completed successfully");
+        return {
+          mode: input.mode,
+          overallScore,
+          layers: layers2,
+          summary,
+          summaryId: summary,
+          recommendations: allRecommendations.slice(0, 10),
+          recommendationsId: allRecommendations.slice(0, 10)
+        };
+      }
     } catch (error) {
       console.error("\u26A0\uFE0F AI Deep Analysis failed, falling back to standard analysis:", error);
     }
   }
+  console.log("\u{1F4DD} Using standard template-based analysis (AI unavailable or content too short)");
   const analyzer = new TextAnalyzer({
     content: input.content,
     mode: input.mode,
@@ -3430,68 +5441,109 @@ async function generateChatResponse(message, mode) {
     isOnTopic: hasOnTopicKeyword
   };
 }
-var BIAS_SYSTEM_PROMPT = `You are BIAS\xB2\xB3 Pro AI Assistant - THE COMPLETE KNOWLEDGE SOURCE for this behavioral intelligence analysis platform. You are an expert in BOTH the application itself AND behavioral analysis/social media strategy.
+var BIAS_SYSTEM_PROMPT = `\u{1F9E0} BIAS Pro \u2013 Behavioral Intelligence System v3.2.\u03B1 (Fusion Compact Build)
+(Adaptive Coaching + TikTok Action + Dashboard Mode)
 
-**\u2705 ALWAYS ANSWER - YOU ARE THE EXPERT ON:**
+\u{1F9E9} SYSTEM ROLE
+You are BIAS Pro \u2013 Behavioral Intelligence Audit System,
+a bilingual behavioral mentor analyzing creators' tone, emotion, clarity, and authenticity.
 
-**1. BiAS\xB2\xB3 Pro Application (PRIORITY - Answer ALL App Questions!):**
-- What each mode does (Social Media Pro, Communication, Academic, Hybrid)
-- How to use features (Account Analysis, Video Upload, Comparison, Platform Rules)
-- What the 8 layers mean (VBM, EPM, NLP, ETH, ECO, SOC, COG, BMIL) - explain in detail
-- Troubleshooting ("kenapa video failed?", "kenapa score rendah?", "bagaimana cara...")
-- Feature explanations (Warmth Index, Adaptive Analysis, platform-specific checks)
-- How analysis works (AI Deep Analysis, what it checks, why certain scores)
-- Platform differences (TikTok vs Instagram vs YouTube analysis)
-- How to interpret results, recommendations, actionable steps
+\u{1F3AF} Purpose:
+Menganalisa perilaku komunikasi dari sisi visual, emosional, linguistik, dan etika 
+berdasarkan 8-Layer Framework: VBM \u2013 EPM \u2013 NLP \u2013 BMIL (sekarang dalam satu inti VoiceEmotion Core).
 
-**2. Social Media & Communication Strategy:**
-- TikTok/Instagram/YouTube: FYP tips, viral formula, algorithm hacks, content optimization
-- Communication & presentation: body language, tone, voice, confidence, public speaking
-- Content creation: hooks, storytelling, pacing, editing, captions, hashtags
-- Behavioral analysis: emotional intelligence, audience psychology, engagement patterns
-- Creator growth: analytics interpretation, posting strategy, trend analysis
+Kamu punya akses ke knowledge base lengkap:
+- BIAS_MasterReality_TikTok_v3.3.md
+- BIAS_Creator_Intelligence_Core_v3.1.md
+- BIAS_VoiceEmotion_Core.md
+- BMIL_Ethics.md
+- ESI_EthicalSensitivity.md
+- NLP_Storytelling.md
 
-**3. BIAS Framework Deep Dive:**
-- Explain each layer with examples (VBM = Visual Behavior, EPM = Emotional Processing, etc.)
-- How layers connect (e.g., good VBM + weak EPM = stiff presentation)
-- Why certain behaviors score low/high
-- What community guidelines check for (misinformation, hate speech, nudity)
-- Academic rigor criteria (citations, logical structure, methodology)
+---
 
-**\u274C NEVER DISCUSS & SAFETY GUARDRAILS:**
+\u2699\uFE0F BEHAVIORAL FRAMEWORK
 
-**Off-Topic (Politely Decline):**
-- Politics, religion, romance/dating advice (unrelated to content strategy)
-- Medical diagnosis, legal advice, financial investment advice
-- Topics with NO connection to communication, behavior, or the app
+Gunakan struktur 8-Layer BIAS (Fusion Compact):
 
-**PROHIBITED CONTENT (MUST REFUSE):**
-- Misinformation, fake news, conspiracy theories
-- Hate speech, discrimination, harassment based on race/religion/gender/sexuality
-- Violence, self-harm, dangerous challenges, illegal activities
-- Adult/sexual content, nudity, explicit material
-- Bullying, doxxing, personal attacks
-- Scams, fraud, deceptive practices
+**VBM\u2013EPM\u2013VPL** \u2192 digabung menjadi VoiceEmotion Core
+**NLP Layer** \u2192 Narrative Linguistics (clarity, structure)
+**BMIL Layer** \u2192 Behavioral Morality (integrity, ethics)
+**ESI Layer** \u2192 Ethical Sensitivity & Authenticity
+**VPL Layer** \u2192 Voice Pacing Layer
+**VPM Layer** \u2192 Audience Persuasion Mapping
 
-**IF PROHIBITED:** Firmly refuse: "I cannot provide guidance on that topic as it violates community safety standards and platform policies. Let's focus on constructive behavioral analysis and ethical communication strategies instead."
+---
 
-**IF OFF-TOPIC:** Politely redirect: "BIAS cuma fokus ke komunikasi, behavioral analysis, dan social media strategy. Ada yang mau ditanyain soal cara viral di TikTok, improve presentasi, atau content strategy?"
+\u{1F9ED} AUTO-MODE DETECTION
+Keyword | Mode | Fokus
+---------|-------|-------
+TikTok, Video, FYP | Creator | Visual + Engagement
+Speaking | Speaker | Voice + Clarity
+Leadership | Leader | Empathy + Authority
+Marketing, Pitch | Pitch | Persuasion + CTA
+hoax, fakta, rumor, algoritma, shadowban, viral, agency | MasterReality | Edukatif + Myth-busting
 
-**RESPONSE STYLE - AWAM & PRAKTIS:**
-1. **BAHASA ORANG BIASA** - Bukan teori! Praktis, langsung to the point
-2. Mix Indonesian-English casual ("bro", "kamu", "lo", "gue") - friendly
-3. **ACTIONABLE STEPS** - Selalu kasih "TOMORROW: lakuin X. Week 1: target Y. Expected: hasil Z"
-4. **CONTOH KONKRET** - Jangan "improve skills" \u2192 HARUS "Record 3x practice, fokus kurangi 'eee' dari 7x jadi 2x"
-5. **TROUBLESHOOTING** - Langsung kasih solusi: "Video failed? (1) Cek size <50MB, (2) Format MP4, (3) Coba ulang. Masih gagal? Screenshot error-nya"
+---
 
-**CONTOH JAWABAN BAGUS:**
-Q: "Gimana cara viral di TikTok?"  
-A: "TOMORROW: Bikin video 15-30 detik. Hook di 1-3 detik pertama (tanya / shocking statement). Week 1: Post 1 video/hari jam 6-9 PM. Use trending sound < 48 jam. Expected: 500+ views dalam 7 hari."
+\u{1F4AC} RESPONSE STYLE
 
-Q: "Gesture saya kaku gimana?"
-A: "STARTING NOW: Record diri lu 5x (30 detik each). Run 1: gerakkin tangan pas bilang key point. Run 2: point ke objek pas jelasin data. Run 3: open palm pas ajak audience. Pilih yang paling natural. Practice 10 menit/hari. Week 2: gesture lebih confident."
+Gunakan bilingual tone (Indonesian empathy + English clarity).
+Style: calm, empatik, structured, authoritative tapi approachable.
 
-**JANGAN TEORITIKAL!** User butuh praktik, bukan kuliah!`;
+Contoh opening:
+"\u{1F525} Wah bro\u2026 ini pertanyaan kelas 'inside creator' banget \u2014 dan lo benar-benar peka terhadap sistem real di balik TikTok."
+
+---
+
+\u{1F4DD} FORMAT JAWABAN (WAJIB IKUTI!)
+
+\u{1F525} OPENING (2-3 kalimat powerful)
+- Validasi pertanyaan dengan antusias
+- "Jawaban jujurnya: \u27A1\uFE0F [jawaban singkat]. Tapi dengan catatan penting..."
+
+\u{1F9E0} SECTION BERNOMOR dengan emoji (\u{1F9ED} 1\uFE0F\u20E3, \u2699\uFE0F 2\uFE0F\u20E3, \u{1F9E0} 3\uFE0F\u20E3, \u{1F9E9} 4\uFE0F\u20E3)
+Setiap section:
+- Punya JUDUL yang menarik
+- Penjelasan NARATIF kayak cerita
+- Kalau ada data, WAJIB pakai TABEL
+- Reference framework: "seperti yang dijelaskan di BIAS MasterReality v3.3..."
+
+\u{1F4CA} TABEL WAJIB DIPAKAI untuk:
+- Sistem internal TikTok
+- Perbandingan
+- Timeline/durasi
+- Langkah aksi
+
+\u{1F4AC} CONTOH NYATA wajib ada
+
+\u{1F9ED} KESIMPULAN dari BIAS
+Ringkasan dalam 1-2 kalimat powerful.
+
+\u2728 SINGKATNYA (bullet summary)
+3-4 poin key takeaway
+
+---
+
+\u26A0\uFE0F HINDARI
+\u274C Format script breakdown teknis (timing 0-5s, Hook, Problem, Solution)
+\u274C Bullet list panjang tanpa narasi
+\u274C Jawaban pendek tanpa depth
+\u274C Generic advice tanpa framework reference
+
+\u26D4 JANGAN PERNAH SARANIN
+- Beli followers/likes/views
+- Engagement bait ("tap 5x biar FYP")
+- Konten clickbait menipu
+- Konten sensual buat views
+
+---
+
+\u26A0\uFE0F WAJIB: Akhiri SETIAP response dengan footer berikut (TIDAK BOLEH LUPA):
+
+---
+**Powered by BIAS\u2122 \u2013 Behavioral Intelligence for Creators**
+*Designed by NM23 Ai | Supported by Newsmaker.id Labs*`;
 async function generateAICascadeResponse(message, mode) {
   console.log(`
 \u{1F680} Chat Request: "${message}"`);
@@ -3938,7 +5990,7 @@ setInterval(() => {
     }
   }
 }, 5 * 60 * 1e3);
-function checkRateLimit(identifier, config = { windowMs: 6e4, maxRequests: 10 }) {
+function checkRateLimit2(identifier, config = { windowMs: 6e4, maxRequests: 10 }) {
   const now = Date.now();
   const entry = rateLimitStore.get(identifier);
   if (!entry || now > entry.resetAt) {
@@ -4518,6 +6570,20 @@ var upload = multer({
     // 100MB limit
   }
 });
+async function requireAdmin(req, res, next) {
+  const adminSessionId = req.cookies?.bias_admin;
+  if (!adminSessionId) {
+    res.clearCookie("bias_admin");
+    return res.status(401).json({ error: "Unauthorized - Admin login required" });
+  }
+  const session = await storage.getAdminSession(adminSessionId);
+  if (!session) {
+    res.clearCookie("bias_admin");
+    return res.status(401).json({ error: "Unauthorized - Invalid or expired session" });
+  }
+  req.adminUser = session.username;
+  next();
+}
 async function registerRoutes(app2) {
   app2.post("/api/session", async (req, res) => {
     try {
@@ -4689,7 +6755,7 @@ async function registerRoutes(app2) {
         });
       }
       const clientIp = req.ip || "unknown";
-      const rateLimit = checkRateLimit(`analyze-account:${clientIp}`, {
+      const rateLimit = checkRateLimit2(`analyze-account:${clientIp}`, {
         windowMs: 6e4,
         maxRequests: 10
       });
@@ -4822,8 +6888,8 @@ async function registerRoutes(app2) {
   app2.get("/api/chats/:sessionId", async (req, res) => {
     try {
       const { sessionId } = req.params;
-      const chats = await storage.getChatsBySession(sessionId);
-      res.json(chats);
+      const chats2 = await storage.getChatsBySession(sessionId);
+      res.json(chats2);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -4840,8 +6906,8 @@ async function registerRoutes(app2) {
   app2.get("/api/analyses/:sessionId", async (req, res) => {
     try {
       const { sessionId } = req.params;
-      const analyses = await storage.getAnalysesBySession(sessionId);
-      res.json(analyses);
+      const analyses2 = await storage.getAnalysesBySession(sessionId);
+      res.json(analyses2);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -5051,6 +7117,67 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: error.message });
     }
   });
+  app2.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password required" });
+      }
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      const adminUsername = process.env.ADMIN_USERNAME || "superadmin";
+      if (!adminPassword) {
+        return res.status(500).json({ error: "Admin credentials not configured" });
+      }
+      const passwordMatch = Buffer.from(password).length === Buffer.from(adminPassword).length && timingSafeEqual(
+        Buffer.from(password),
+        Buffer.from(adminPassword)
+      );
+      const usernameMatch = username === adminUsername;
+      if (!usernameMatch || !passwordMatch) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      const sessionId = randomUUID2();
+      const session = await storage.createAdminSession(sessionId, adminUsername);
+      await storage.cleanExpiredAdminSessions();
+      const isProduction = process.env.NODE_ENV === "production";
+      res.cookie("bias_admin", sessionId, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1e3
+        // 24 hours
+      });
+      res.json({
+        success: true,
+        username: adminUsername,
+        expiresAt: session.expiresAt
+      });
+    } catch (error) {
+      console.error("[ADMIN] Login error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.post("/api/admin/logout", async (req, res) => {
+    try {
+      const sessionId = req.cookies?.bias_admin;
+      if (sessionId) {
+        await storage.deleteAdminSession(sessionId);
+      }
+      res.clearCookie("bias_admin");
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[ADMIN] Logout error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/admin/me", requireAdmin, async (req, res) => {
+    try {
+      const username = req.adminUser;
+      res.json({ authenticated: true, username });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
   app2.get("/api/library/contributions/pending", async (req, res) => {
     try {
       const contributions = await storage.getPendingContributions();
@@ -5226,20 +7353,384 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: error.message });
     }
   });
+  app2.post("/api/analytics/pageview", async (req, res) => {
+    try {
+      const { sessionId, page, language } = req.body;
+      if (!sessionId || !page) {
+        return res.status(400).json({ error: "sessionId and page are required" });
+      }
+      await storage.trackPageView({
+        sessionId,
+        page,
+        language: language || null
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[ANALYTICS] Error tracking page view:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.post("/api/analytics/feature", async (req, res) => {
+    try {
+      const { sessionId, featureType, platform, mode, language, featureDetails } = req.body;
+      if (!sessionId || !featureType) {
+        return res.status(400).json({ error: "sessionId and featureType are required" });
+      }
+      await storage.trackFeatureUsage({
+        sessionId,
+        featureType,
+        platform: platform || null,
+        mode: mode || null,
+        language: language || null,
+        featureDetails: featureDetails || null
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[ANALYTICS] Error tracking feature usage:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/brands/slug/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const brand = await storage.getBrandBySlug(slug);
+      if (!brand || !brand.isActive) {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+      res.json(brand);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/brands/active", async (req, res) => {
+    try {
+      const activeBrands = await storage.getActiveBrands();
+      res.json(activeBrands);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/brands", requireAdmin, async (req, res) => {
+    try {
+      const allBrands = await storage.getAllBrands();
+      res.json(allBrands);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.post("/api/brands", requireAdmin, async (req, res) => {
+    try {
+      const schema = z.object({
+        slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with dashes"),
+        name: z.string().min(1).max(100),
+        shortName: z.string().min(1).max(20),
+        taglineEn: z.string().optional(),
+        taglineId: z.string().optional(),
+        subtitleEn: z.string().optional(),
+        subtitleId: z.string().optional(),
+        descriptionEn: z.string().optional(),
+        descriptionId: z.string().optional(),
+        colorPrimary: z.string().optional(),
+        colorSecondary: z.string().optional(),
+        logoUrl: z.string().optional(),
+        tiktokHandle: z.string().optional(),
+        tiktokUrl: z.string().optional(),
+        instagramHandle: z.string().optional(),
+        instagramUrl: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        isActive: z.boolean().optional()
+      });
+      const data = schema.parse(req.body);
+      const existing = await storage.getBrandBySlug(data.slug);
+      if (existing) {
+        return res.status(400).json({ error: "Slug sudah digunakan" });
+      }
+      const brand = await storage.createBrand(data);
+      res.status(201).json(brand);
+    } catch (error) {
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.put("/api/brands/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const schema = z.object({
+        slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/).optional(),
+        name: z.string().min(1).max(100).optional(),
+        shortName: z.string().min(1).max(20).optional(),
+        taglineEn: z.string().optional(),
+        taglineId: z.string().optional(),
+        subtitleEn: z.string().optional(),
+        subtitleId: z.string().optional(),
+        descriptionEn: z.string().optional(),
+        descriptionId: z.string().optional(),
+        colorPrimary: z.string().optional(),
+        colorSecondary: z.string().optional(),
+        logoUrl: z.string().optional(),
+        tiktokHandle: z.string().optional(),
+        tiktokUrl: z.string().optional(),
+        instagramHandle: z.string().optional(),
+        instagramUrl: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        isActive: z.boolean().optional()
+      });
+      const data = schema.parse(req.body);
+      if (data.slug) {
+        const existing = await storage.getBrandBySlug(data.slug);
+        if (existing && existing.id !== id) {
+          return res.status(400).json({ error: "Slug sudah digunakan" });
+        }
+      }
+      const updated = await storage.updateBrand(id, data);
+      if (!updated) {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.delete("/api/brands/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteBrand(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/analytics/stats", requireAdmin, async (req, res) => {
+    try {
+      const { days } = req.query;
+      const daysNum = days ? parseInt(days) : 7;
+      const [
+        pageViewStats,
+        featureUsageStats,
+        uniqueSessions,
+        totalPageViews,
+        totalFeatureUsage
+      ] = await Promise.all([
+        storage.getPageViewStats(daysNum),
+        storage.getFeatureUsageStats(daysNum),
+        storage.getUniqueSessionsCount(daysNum),
+        storage.getTotalPageViews(daysNum),
+        storage.getTotalFeatureUsage(daysNum)
+      ]);
+      res.json({
+        period: `${daysNum} days`,
+        overview: {
+          uniqueSessions,
+          totalPageViews,
+          totalFeatureUsage
+        },
+        pageViews: pageViewStats,
+        featureUsage: featureUsageStats
+      });
+    } catch (error) {
+      console.error("[ANALYTICS] Error getting stats:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.post("/api/chat/hybrid", async (req, res) => {
+    try {
+      const { message, sessionId } = req.body;
+      if (!message || typeof message !== "string") {
+        return res.status(400).json({ error: "Message is required" });
+      }
+      const { hybridChat: hybridChat2 } = await Promise.resolve().then(() => (init_hybrid_chat(), hybrid_chat_exports));
+      const result = await hybridChat2({
+        message,
+        sessionId: sessionId || "anonymous"
+      });
+      res.json(result);
+    } catch (error) {
+      console.error("[HYBRID_CHAT] Error:", error);
+      res.status(500).json({
+        response: "Maaf bro, ada error. Coba lagi ya!",
+        source: "local",
+        error: error.message
+      });
+    }
+  });
+  app2.get("/api/admin/learning-stats", requireAdmin, async (req, res) => {
+    try {
+      const { getLearningStats: getLearningStats2 } = await Promise.resolve().then(() => (init_learning_system(), learning_system_exports));
+      const stats = await getLearningStats2();
+      res.json(stats);
+    } catch (error) {
+      console.error("[LEARNING_STATS] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/admin/ai-settings", requireAdmin, async (req, res) => {
+    try {
+      const { getConfig: getConfig2, getUsageStats: getUsageStats2 } = await Promise.resolve().then(() => (init_ai_rate_limiter(), ai_rate_limiter_exports));
+      const config = getConfig2();
+      res.json({ config });
+    } catch (error) {
+      console.error("[AI_SETTINGS] Error getting config:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.put("/api/admin/ai-settings", requireAdmin, async (req, res) => {
+    try {
+      const { updateConfig: updateConfig2, getConfig: getConfig2 } = await Promise.resolve().then(() => (init_ai_rate_limiter(), ai_rate_limiter_exports));
+      const newConfig = req.body;
+      const validKeys = ["maxRequestsPerHour", "maxRequestsPerDay", "maxTokensPerDay", "maxTokensPerRequest"];
+      const updates = {};
+      for (const key of validKeys) {
+        if (newConfig[key] !== void 0) {
+          const value = parseInt(newConfig[key]);
+          if (isNaN(value) || value < 0) {
+            return res.status(400).json({ error: `Invalid value for ${key}` });
+          }
+          updates[key] = value;
+        }
+      }
+      updateConfig2(updates);
+      res.json({ success: true, config: getConfig2() });
+    } catch (error) {
+      console.error("[AI_SETTINGS] Error updating config:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/admin/ai-usage", requireAdmin, async (req, res) => {
+    try {
+      const { getConfig: getConfig2 } = await Promise.resolve().then(() => (init_ai_rate_limiter(), ai_rate_limiter_exports));
+      res.json({
+        config: getConfig2(),
+        note: "Per-session usage stats reset on server restart"
+      });
+    } catch (error) {
+      console.error("[AI_USAGE] Error getting usage:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/expert-knowledge", async (req, res) => {
+    try {
+      const { category, subcategory, level, search } = req.query;
+      const entries = await storage.getExpertKnowledge({
+        category,
+        subcategory,
+        level,
+        search
+      });
+      res.json(entries);
+    } catch (error) {
+      console.error("[EXPERT_KNOWLEDGE] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/hooks", async (req, res) => {
+    try {
+      const { hookType, category, search } = req.query;
+      const entries = await storage.getHooks({
+        hookType,
+        category,
+        search
+      });
+      res.json(entries);
+    } catch (error) {
+      console.error("[HOOKS] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/storytelling-frameworks", async (req, res) => {
+    try {
+      const entries = await storage.getStorytellingFrameworks();
+      res.json(entries);
+    } catch (error) {
+      console.error("[STORYTELLING] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/growth-guides", async (req, res) => {
+    try {
+      const { followers } = req.query;
+      const followerCount = followers ? parseInt(followers) : void 0;
+      const entries = await storage.getGrowthStageGuides(followerCount);
+      res.json(entries);
+    } catch (error) {
+      console.error("[GROWTH_GUIDES] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/growth-guides/:stage", async (req, res) => {
+    try {
+      const { stage } = req.params;
+      const entry = await storage.getGrowthStageGuideByStage(stage);
+      if (!entry) {
+        return res.status(404).json({ error: "Growth stage not found" });
+      }
+      res.json(entry);
+    } catch (error) {
+      console.error("[GROWTH_GUIDES] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/response-templates", async (req, res) => {
+    try {
+      const { category } = req.query;
+      const entries = await storage.getResponseTemplates(category);
+      res.json(entries);
+    } catch (error) {
+      console.error("[RESPONSE_TEMPLATES] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/live-streaming-templates", async (req, res) => {
+    try {
+      const { format, duration } = req.query;
+      const entries = await storage.getLiveStreamingTemplates({
+        format,
+        duration
+      });
+      res.json(entries);
+    } catch (error) {
+      console.error("[LIVE_STREAMING] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/script-templates", async (req, res) => {
+    try {
+      const { category, duration, goal, level } = req.query;
+      const entries = await storage.getScriptTemplates({
+        category,
+        duration,
+        goal,
+        level
+      });
+      res.json(entries);
+    } catch (error) {
+      console.error("[SCRIPT_TEMPLATES] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
   const httpServer = createServer(app2);
   return httpServer;
 }
 
 // server/vite.ts
 import express from "express";
-import fs from "fs";
-import path2 from "path";
+import fs2 from "fs";
+import path3 from "path";
 import { createServer as createViteServer, createLogger } from "vite";
 
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
+import path2 from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 var vite_config_default = defineConfig({
   plugins: [
@@ -5256,14 +7747,14 @@ var vite_config_default = defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets")
+      "@": path2.resolve(import.meta.dirname, "client", "src"),
+      "@shared": path2.resolve(import.meta.dirname, "shared"),
+      "@assets": path2.resolve(import.meta.dirname, "attached_assets")
     }
   },
-  root: path.resolve(import.meta.dirname, "client"),
+  root: path2.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path2.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true
   },
   server: {
@@ -5309,13 +7800,13 @@ async function setupVite(app2, server) {
   app2.use("*", async (req, res, next) => {
     const url = req.originalUrl;
     try {
-      const clientTemplate = path2.resolve(
+      const clientTemplate = path3.resolve(
         import.meta.dirname,
         "..",
         "client",
         "index.html"
       );
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      let template = await fs2.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
@@ -5329,20 +7820,21 @@ async function setupVite(app2, server) {
   });
 }
 function serveStatic(app2) {
-  const distPath = path2.resolve(import.meta.dirname, "public");
-  if (!fs.existsSync(distPath)) {
+  const distPath = path3.resolve(import.meta.dirname, "public");
+  if (!fs2.existsSync(distPath)) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
   app2.use(express.static(distPath));
   app2.use("*", (_req, res) => {
-    res.sendFile(path2.resolve(distPath, "index.html"));
+    res.sendFile(path3.resolve(distPath, "index.html"));
   });
 }
 
 // server/index.ts
 var app = express2();
+app.use(cookieParser());
 app.use(express2.json({
   verify: (req, _res, buf) => {
     req.rawBody = buf;
@@ -5352,7 +7844,7 @@ app.use(express2.urlencoded({ extended: false }));
 app.use(express2.static("public"));
 app.use((req, res, next) => {
   const start = Date.now();
-  const path3 = req.path;
+  const path4 = req.path;
   let capturedJsonResponse = void 0;
   const originalResJson = res.json;
   res.json = function(bodyJson, ...args) {
@@ -5361,8 +7853,8 @@ app.use((req, res, next) => {
   };
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path3.startsWith("/api")) {
-      let logLine = `${req.method} ${path3} ${res.statusCode} in ${duration}ms`;
+    if (path4.startsWith("/api")) {
+      let logLine = `${req.method} ${path4} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }

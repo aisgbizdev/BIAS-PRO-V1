@@ -1,0 +1,63 @@
+import { db } from '../db';
+import { appSettings, pricingTiers } from '../shared/schema';
+
+const defaultSettings = [
+  { key: 'beta_end_date', value: '2025-03-31', valueType: 'date', category: 'beta', labelEn: 'Beta End Date', labelId: 'Tanggal Akhir Beta', descriptionEn: 'When the beta period ends (YYYY-MM-DD)', descriptionId: 'Kapan periode beta berakhir (YYYY-MM-DD)', isEditable: true },
+  { key: 'global_token_per_day', value: '100000', valueType: 'number', category: 'protection', labelEn: 'Daily Token Limit (All Users)', labelId: 'Limit Token Harian (Semua User)', descriptionEn: 'Maximum tokens per day for entire platform. Shows maintenance when exceeded.', descriptionId: 'Maksimum token per hari untuk seluruh platform. Tampilkan maintenance jika tercapai.', isEditable: true },
+  { key: 'global_token_per_request', value: '2000', valueType: 'number', category: 'protection', labelEn: 'Token per Request', labelId: 'Token per Request', descriptionEn: 'Maximum tokens per single AI request.', descriptionId: 'Maksimum token per satu request AI.', isEditable: true },
+  { key: 'enable_batch_analysis', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Batch Analysis', labelId: 'Batch Analysis', descriptionEn: 'Enable batch video analysis feature', descriptionId: 'Aktifkan fitur analisis batch video', isEditable: true },
+  { key: 'enable_ab_testing', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'A/B Hook Tester', labelId: 'A/B Hook Tester', descriptionEn: 'Enable A/B hook testing feature', descriptionId: 'Aktifkan fitur A/B hook testing', isEditable: true },
+  { key: 'enable_screenshot_analytics', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Screenshot Analytics', labelId: 'Screenshot Analytics', descriptionEn: 'Enable screenshot analytics feature', descriptionId: 'Aktifkan fitur analitik screenshot', isEditable: true },
+  { key: 'enable_competitor_analysis', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Competitor Analysis', labelId: 'Competitor Analysis', descriptionEn: 'Enable competitor analysis feature', descriptionId: 'Aktifkan fitur analisis kompetitor', isEditable: true },
+  { key: 'enable_thumbnail_generator', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Thumbnail Generator', labelId: 'Thumbnail Generator', descriptionEn: 'Enable AI thumbnail generator', descriptionId: 'Aktifkan generator thumbnail AI', isEditable: true },
+  { key: 'enable_voice_input', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Voice Input', labelId: 'Voice Input', descriptionEn: 'Enable voice input for analysis forms', descriptionId: 'Aktifkan input suara untuk form analisis', isEditable: true },
+  { key: 'enable_pdf_export', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'PDF Export', labelId: 'PDF Export', descriptionEn: 'Enable PDF export for analysis results', descriptionId: 'Aktifkan ekspor PDF untuk hasil analisis', isEditable: true },
+  { key: 'enable_save_history', value: 'true', valueType: 'boolean', category: 'features', labelEn: 'Save History', labelId: 'Save History', descriptionEn: 'Enable save analysis history to localStorage', descriptionId: 'Aktifkan simpan riwayat analisis ke localStorage', isEditable: true },
+];
+
+const defaultPricingTiers = [
+  { slug: 'gratis', name: 'Gratis', priceIdr: 0, period: 'month', descriptionEn: 'Beta - try all features free!', descriptionId: 'Beta - coba semua fitur gratis!', videoLimit: 5, chatLimit: 20, featuresEn: ['20 Ai chat/day', '5 video analysis/day', 'All features unlocked', 'Limited time beta'], featuresId: ['20 chat Ai/hari', '5 analisis video/hari', 'Semua fitur aktif', 'Promo beta terbatas'], isPopular: false, isActive: true, sortOrder: 1 },
+  { slug: 'basic', name: 'Basic', priceIdr: 29000, period: 'month', descriptionEn: 'For casual creators', descriptionId: 'Untuk kreator kasual', videoLimit: 5, chatLimit: 50, featuresEn: ['50 Ai chat/day', '5 video analysis/day', 'Save history', 'PDF Export'], featuresId: ['50 chat Ai/hari', '5 analisis video/hari', 'Simpan riwayat', 'Export PDF'], isPopular: false, isActive: true, sortOrder: 2 },
+  { slug: 'pro', name: 'Pro', priceIdr: 79000, period: 'month', descriptionEn: 'For serious creators', descriptionId: 'Untuk kreator serius', videoLimit: 15, chatLimit: -1, featuresEn: ['Unlimited Ai chat', '15 video analysis/day', 'Batch Analysis', 'A/B Hook Tester', 'Priority support'], featuresId: ['Chat Ai unlimited', '15 analisis video/hari', 'Batch Analysis', 'A/B Hook Tester', 'Dukungan prioritas'], isPopular: true, isActive: true, sortOrder: 3 },
+  { slug: 'unlimited', name: 'Unlimited', priceIdr: 149000, period: 'month', descriptionEn: 'For agencies & teams', descriptionId: 'Untuk agensi & tim', videoLimit: -1, chatLimit: -1, featuresEn: ['Everything in Pro', 'Unlimited video analysis', 'API access', 'White-label branding', 'Dedicated support'], featuresId: ['Semua fitur Pro', 'Analisis video unlimited', 'Akses API', 'White-label branding', 'Dukungan khusus'], isPopular: false, isActive: true, sortOrder: 4 },
+];
+
+export async function initializeDefaultSettings(): Promise<void> {
+  try {
+    // Check existing settings and tiers
+    const existingSettings = await db.select().from(appSettings);
+    const existingTiers = await db.select().from(pricingTiers);
+    
+    const existingSettingKeys = new Set(existingSettings.map(s => s.key));
+    const existingTierSlugs = new Set(existingTiers.map(t => t.slug));
+    
+    // Find missing settings and tiers
+    const missingSettings = defaultSettings.filter(s => !existingSettingKeys.has(s.key));
+    const missingTiers = defaultPricingTiers.filter(t => !existingTierSlugs.has(t.slug));
+    
+    if (missingSettings.length === 0 && missingTiers.length === 0) {
+      return; // All settings exist
+    }
+
+    // Use transaction to ensure atomicity
+    await db.transaction(async (tx) => {
+      if (missingSettings.length > 0) {
+        console.log(`[INIT] Adding ${missingSettings.length} missing settings...`);
+        for (const setting of missingSettings) {
+          await tx.insert(appSettings).values(setting).onConflictDoNothing();
+        }
+        console.log(`[INIT] ✅ Added missing settings: ${missingSettings.map(s => s.key).join(', ')}`);
+      }
+
+      if (missingTiers.length > 0) {
+        console.log(`[INIT] Adding ${missingTiers.length} missing pricing tiers...`);
+        for (const tier of missingTiers) {
+          await tx.insert(pricingTiers).values(tier).onConflictDoNothing();
+        }
+        console.log(`[INIT] ✅ Added missing tiers: ${missingTiers.map(t => t.slug).join(', ')}`);
+      }
+    });
+  } catch (error) {
+    console.error('[INIT] Error initializing settings:', error);
+  }
+}

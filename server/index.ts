@@ -3,6 +3,7 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeDefaultSettings } from "./init-settings";
 
 const app = express();
 
@@ -55,6 +56,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize default settings if database is empty
+  await initializeDefaultSettings();
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
-import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
+import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
+import { ThumbnailGenerator } from '@/components/ThumbnailGenerator';
+import { AnalysisHistory } from '@/components/AnalysisHistory';
+import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, BarChart3, Wand2 } from 'lucide-react';
+import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
-import { trackFeatureUsage } from '@/lib/analytics';
+import { trackFeatureUsage, trackTabSelection, trackButtonClick } from '@/lib/analytics';
+import { saveAnalysisToHistory } from '@/lib/analysisHistory';
+import { ExpertKnowledgePanel, HookMasterPanel, GrowthRoadmapPanel, ScriptGeneratorPanel, LiveCoachPanel, StorytellingPanel, VideoAnalyzerPanel, MonetizationGuidePanel, VideoCreatorWizard, LiveStreamingWizard, ScreenshotAnalyticsPanel, InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
+import { BatchAnalysis } from '@/components/expert/BatchAnalysis';
+import { ABHookTester } from '@/components/expert/ABHookTester';
 
 // Import cartoon illustrations
 import illustrationEngagement from '@assets/stock_images/cartoon_person_shout_fb92982f.jpg';
@@ -41,32 +48,21 @@ function formatMetric(value: number): string {
 export default function SocialMediaPro() {
   const { language, t } = useLanguage();
   const { toast } = useToast();
-  const [platform, setPlatform] = useState<'tiktok' | 'instagram' | 'youtube'>('tiktok');
+  const [platform, setPlatform] = useState<'tiktok'>('tiktok');
   const [username, setUsername] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysisMode, setAnalysisMode] = useState<'account' | 'video'>('account');
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
+  const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('mentor');
+  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail' | 'batch' | 'hooks'>('account');
+  const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
-  const mockData = {
-    followers: 60900,
-    following: 304,
-    likes: 81900,
-    videos: 159,
-    engagementRate: 0.8,
-    avgViews: 3200,
-    layers: [
-      { layer: 'VBM Visual Branding', score: 7, feedback: 'Visual quality strong', feedbackId: 'Kualitas visual kuat' },
-      { layer: 'EPM Emotional Processing', score: 5, feedback: 'Emotional engagement low', feedbackId: 'Engagement emosional rendah' },
-      { layer: 'NLP Narrative & Language', score: 6, feedback: 'Narrative decent', feedbackId: 'Narasi cukup baik' },
-      { layer: 'ETH Ethical Communication', score: 9, feedback: 'Ethics excellent', feedbackId: 'Etika sangat baik' },
-      { layer: 'ECO Ecosystem Awareness', score: 7, feedback: 'Good platform understanding', feedbackId: 'Pemahaman platform baik' },
-      { layer: 'SOC Social Intelligence', score: 4, feedback: 'Interaction needs work', feedbackId: 'Interaksi perlu ditingkatkan' },
-      { layer: 'COG Cognitive Load', score: 6, feedback: 'Pacing adequate', feedbackId: 'Kecepatan memadai' },
-      { layer: 'BMIL Micro-Indicators', score: 8, feedback: 'Behavioral signals strong', feedbackId: 'Sinyal behavioral kuat' },
-    ],
-  };
+  const handleTikTokAnalysisComplete = useCallback((result: BiasAnalysisResult) => {
+    setCurrentAnalysis(result);
+    saveAnalysisToHistory(result, 'tiktok', 'video', 'TikTok Video Analysis');
+  }, []);
 
   const platformConfig = {
     tiktok: {
@@ -74,18 +70,6 @@ export default function SocialMediaPro() {
       color: '#FF0050',
       name: 'TikTok',
       placeholder: '@username',
-    },
-    instagram: {
-      icon: SiInstagram,
-      color: '#E4405F',
-      name: 'Instagram',
-      placeholder: '@username',
-    },
-    youtube: {
-      icon: SiYoutube,
-      color: '#FF0000',
-      name: 'YouTube',
-      placeholder: '@channelname',
     },
   };
 
@@ -169,54 +153,123 @@ export default function SocialMediaPro() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-pink-500/10 via-transparent to-cyan-400/10 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <Zap className="w-6 h-6 md:w-8 md:h-8 text-pink-500 flex-shrink-0" />
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-              {t('Social Media Pro', 'Social Media Pro')}
+    <div className="flex-1 bg-[#0A0A0A] text-white">
+      {/* Hero Section - Minimal & Clean */}
+      <div className="border-b border-gray-800/30">
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-5 h-5 md:w-6 md:h-6 text-pink-500" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white">
+              {t('TikTok Pro', 'TikTok Pro')}
             </h1>
           </div>
-          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-3xl leading-relaxed">
+          <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
             {t(
-              'Deep behavioral analysis for TikTok, Instagram & YouTube creators. Track metrics, identify growth opportunities, and optimize your content strategy.',
-              'Analisis behavioral mendalam untuk kreator TikTok, Instagram & YouTube. Lacak metrik, identifikasi peluang pertumbuhan, dan optimalkan strategi konten.'
+              'Behavioral analysis for TikTok creators with science-backed insights.',
+              'Analisis behavioral untuk kreator TikTok dengan insight berbasis sains.'
             )}
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {/* Analysis Mode Selector */}
-        <Card className="bg-[#141414] border-gray-800">
-          <CardContent className="pt-6">
-            <Tabs value={analysisMode} onValueChange={(v) => setAnalysisMode(v as typeof analysisMode)}>
-              <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-gray-700 gap-1">
-                <TabsTrigger 
-                  value="account"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-mode-account"
-                >
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Account', 'Akun')}</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="video"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] sm:text-sm px-2"
-                  data-testid="tab-mode-video"
-                >
-                  <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('Video', 'Video')}</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </CardContent>
-        </Card>
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+        {/* Main Mode Selector - Minimal */}
+        <div className="flex justify-center">
+          <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-xs">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setMainMode('mentor');
+                trackTabSelection('tiktok-pro', 'mentor');
+              }}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Bot className="w-4 h-4 mr-1.5" />
+              {t('Ai Mentor', 'Ai Mentor')}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setMainMode('analytics');
+                trackTabSelection('tiktok-pro', 'analytics');
+              }}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              <TrendingUp className="w-4 h-4 mr-1.5" />
+              {t('Analytics', 'Analitik')}
+            </Button>
+          </div>
+        </div>
+
+        {/* MENTOR HUB - Ai Chat */}
+        {mainMode === 'mentor' && (
+          <InteractiveCreatorHub mode="tiktok" />
+        )}
+
+        {/* ANALYTICS LAB - Consolidated analytics */}
+        {mainMode === 'analytics' && (
+          <div className="space-y-4">
+        {/* Analytics Tab Selector - Clean & Minimal */}
+        <Tabs value={analyticsTab} onValueChange={(v) => {
+          const newTab = v as typeof analyticsTab;
+          setAnalyticsTab(newTab);
+          trackTabSelection('tiktok-pro', newTab);
+        }}>
+          <TabsList className="grid w-full grid-cols-7 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
+            <TabsTrigger 
+              value="account"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Akun', 'Akun')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="video"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Video', 'Video')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="batch"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <BarChart3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Batch', 'Batch')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="hooks"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('A/B', 'A/B')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="screenshot"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('SS', 'SS')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="compare"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <BarChart2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('VS', 'VS')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="thumbnail"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+            >
+              <Wand2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai', 'Ai')}</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Account Analysis Mode */}
-        {analysisMode === 'account' && (
+        {analyticsTab === 'account' && (
           <Card className="bg-[#141414] border-gray-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
@@ -228,50 +281,19 @@ export default function SocialMediaPro() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-            {/* Platform Tabs */}
-            <Tabs value={platform} onValueChange={(v) => setPlatform(v as typeof platform)}>
-              <TabsList className="grid grid-cols-3 w-full bg-[#1E1E1E] border border-gray-700 p-1 gap-1">
-                <TabsTrigger 
-                  value="tiktok" 
-                  className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-1 text-[10px] sm:text-sm px-1 sm:px-3"
-                  data-testid="tab-tiktok"
-                >
-                  <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">TikTok</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="instagram"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white gap-1 text-[10px] sm:text-sm px-1 sm:px-3"
-                  data-testid="tab-instagram"
-                >
-                  <SiInstagram className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">Instagram</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="youtube"
-                  className="data-[state=active]:bg-red-600 data-[state=active]:text-white gap-1 text-[10px] sm:text-sm px-1 sm:px-3"
-                  data-testid="tab-youtube"
-                >
-                  <SiYoutube className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">YouTube</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-
             {/* Username Input */}
             <div className="space-y-3">
               <Label htmlFor="username" className="text-white">
-                {config.name} {t('Username', 'Username')} <span className="text-pink-500">*</span>
+                TikTok {t('Username', 'Username')} <span className="text-pink-500">*</span>
               </Label>
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
-                  <PlatformIcon 
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" 
-                    style={{ color: config.color }}
+                  <SiTiktok 
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-pink-500"
                   />
                   <Input
                     id="username"
-                    placeholder={config.placeholder}
+                    placeholder="@username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="pl-12 bg-[#1E1E1E] border-gray-700 focus:border-pink-500 text-white"
@@ -321,12 +343,42 @@ export default function SocialMediaPro() {
         )}
 
         {/* Video Upload & Compare Mode */}
-        {analysisMode === 'video' && (
+        {analyticsTab === 'video' && (
           <VideoUploadAnalyzer mode="creator" />
         )}
 
+        {/* Screenshot Analytics Mode */}
+        {analyticsTab === 'screenshot' && (
+          <ScreenshotAnalyticsPanel />
+        )}
+
+        {/* Competitor Comparison Mode */}
+        {analyticsTab === 'compare' && (
+          <CompetitorAnalysis />
+        )}
+
+        {/* Thumbnail Generator Mode */}
+        {analyticsTab === 'thumbnail' && (
+          <ThumbnailGenerator />
+        )}
+
+        {/* Batch Analysis Mode */}
+        {analyticsTab === 'batch' && (
+          <BatchAnalysis />
+        )}
+
+        {/* A/B Hook Tester Mode */}
+        {analyticsTab === 'hooks' && (
+          <ABHookTester />
+        )}
+
+        {/* Analysis History */}
+        {(analyticsTab === 'video' || analyticsTab === 'account') && (
+          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
+        )}
+
         {/* Account Profile Card - Show after analysis */}
-        {analysisMode === 'account' && accountData && (
+        {analyticsTab === 'account' && accountData && (
           <Card className="bg-[#141414] border-gray-800" id="account-profile">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-6">
@@ -412,7 +464,7 @@ export default function SocialMediaPro() {
         )}
 
         {/* Account Metrics Grid & Analytics - Only show when analysis is complete */}
-        {analysisMode === 'account' && accountData && (() => {
+        {analyticsTab === 'account' && accountData && (() => {
           // Extract real metrics from API response
           const followers = getMetricValue(accountData.metrics?.followers);
           const likes = getMetricValue(accountData.metrics?.likes);
@@ -430,8 +482,8 @@ export default function SocialMediaPro() {
           const videosDisplay = videos.toString();
           
           return (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
               title={t('Total Followers', 'Total Followers')}
               value={followersDisplay}
@@ -689,10 +741,12 @@ export default function SocialMediaPro() {
               </div>
             </CardContent>
           </Card>
-          </div>
-        </>
+              </div>
+            </>
           );
         })()}
+        </div>
+      )}
       </div>
     </div>
   );

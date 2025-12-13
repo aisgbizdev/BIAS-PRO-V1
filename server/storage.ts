@@ -6,16 +6,35 @@ import {
   type TiktokVideo, type InsertTiktokVideo,
   type TiktokComparison, type InsertTiktokComparison,
   type LibraryContribution, type InsertLibraryContribution,
+  type SuccessStory, type InsertSuccessStory,
   type PageView, type InsertPageView,
   type FeatureUsage, type InsertFeatureUsage,
   type AdminSession, type InsertAdminSession,
   type Brand, type InsertBrand,
+  type ExpertKnowledge, type Hook, type StorytellingFramework,
+  type GrowthStageGuide, type ResponseTemplate, type LiveStreamingTemplate,
+  type ScriptTemplate,
+  type AppSetting, type PricingTier,
   adminSessions,
-  brands
+  brands,
+  successStories,
+  expertKnowledge,
+  hooks,
+  storytellingFrameworks,
+  growthStageGuides,
+  responseTemplates,
+  liveStreamingTemplates,
+  scriptTemplates,
+  appSettings,
+  pricingTiers,
+  tiktokAccounts,
+  libraryContributions,
+  pageViews,
+  featureUsage
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "../db";
-import { eq, lt, and, gt } from "drizzle-orm";
+import { eq, lt, and, gt, or, lte, gte, ilike, desc, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   // Session management
@@ -38,6 +57,8 @@ export interface IStorage {
   getTiktokAccountByUsername(username: string): Promise<TiktokAccount | undefined>;
   getTiktokAccountsBySession(sessionId: string): Promise<TiktokAccount[]>;
   updateTiktokAccount(id: string, updates: Partial<TiktokAccount>): Promise<TiktokAccount | undefined>;
+  getAllAnalyzedAccounts(limit?: number): Promise<TiktokAccount[]>;
+  getAnalyzedAccountsCount(): Promise<number>;
 
   // TikTok video management
   createTiktokVideo(video: InsertTiktokVideo): Promise<TiktokVideo>;
@@ -64,6 +85,15 @@ export interface IStorage {
   getDeletedLibraryItems(): Promise<string[]>;
   isLibraryItemDeleted(itemId: string): Promise<boolean>;
 
+  // Success stories management
+  createSuccessStory(story: InsertSuccessStory): Promise<SuccessStory>;
+  getSuccessStory(id: string): Promise<SuccessStory | undefined>;
+  getPendingSuccessStories(): Promise<SuccessStory[]>;
+  getApprovedSuccessStories(): Promise<SuccessStory[]>;
+  getFeaturedSuccessStories(): Promise<SuccessStory[]>;
+  updateSuccessStory(id: string, updates: Partial<SuccessStory>): Promise<SuccessStory | undefined>;
+  deleteSuccessStory(id: string): Promise<boolean>;
+
   // Analytics tracking
   trackPageView(pageView: InsertPageView): Promise<PageView>;
   trackFeatureUsage(usage: InsertFeatureUsage): Promise<FeatureUsage>;
@@ -72,6 +102,9 @@ export interface IStorage {
   getUniqueSessionsCount(days?: number): Promise<number>;
   getTotalPageViews(days?: number): Promise<number>;
   getTotalFeatureUsage(days?: number): Promise<number>;
+  getNavigationBreakdown(days?: number): Promise<{ menuItem: string; destination: string; count: number }[]>;
+  getTabBreakdown(days?: number): Promise<{ page: string; tabName: string; count: number }[]>;
+  getButtonClickBreakdown(days?: number): Promise<{ buttonName: string; context: string; count: number }[]>;
 
   // Admin session management
   createAdminSession(sessionId: string, username: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date }>;
@@ -87,6 +120,18 @@ export interface IStorage {
   getActiveBrands(): Promise<Brand[]>;
   updateBrand(id: string, updates: Partial<Brand>): Promise<Brand | undefined>;
   deleteBrand(id: string): Promise<boolean>;
+
+  // Platform settings management
+  getPublicSettings(): Promise<Record<string, any>>;
+  getAllSettings(): Promise<AppSetting[]>;
+  getSetting(key: string): Promise<AppSetting | undefined>;
+  updateSetting(key: string, value: string, updatedBy?: string): Promise<AppSetting | undefined>;
+
+  // Pricing tier management
+  getActivePricingTiers(): Promise<PricingTier[]>;
+  getAllPricingTiers(): Promise<PricingTier[]>;
+  getPricingTier(slug: string): Promise<PricingTier | undefined>;
+  updatePricingTier(slug: string, updates: Partial<PricingTier>, updatedBy?: string): Promise<PricingTier | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -250,6 +295,16 @@ export class MemStorage implements IStorage {
     return updated;
   }
 
+  async getAllAnalyzedAccounts(limit: number = 100): Promise<TiktokAccount[]> {
+    return Array.from(this.tiktokAccounts.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }
+
+  async getAnalyzedAccountsCount(): Promise<number> {
+    return this.tiktokAccounts.size;
+  }
+
   // TikTok Video methods
   async createTiktokVideo(insertVideo: InsertTiktokVideo): Promise<TiktokVideo> {
     const id = randomUUID();
@@ -385,6 +440,45 @@ export class MemStorage implements IStorage {
     return this.deletedLibraryItems.has(itemId);
   }
 
+  // Success Stories (using database)
+  async createSuccessStory(story: InsertSuccessStory): Promise<SuccessStory> {
+    const [created] = await db.insert(successStories).values({
+      ...story,
+      status: 'pending',
+      featured: false,
+    }).returning();
+    return created;
+  }
+
+  async getSuccessStory(id: string): Promise<SuccessStory | undefined> {
+    const [s] = await db.select().from(successStories).where(eq(successStories.id, id));
+    return s;
+  }
+
+  async getPendingSuccessStories(): Promise<SuccessStory[]> {
+    return db.select().from(successStories).where(eq(successStories.status, 'pending'));
+  }
+
+  async getApprovedSuccessStories(): Promise<SuccessStory[]> {
+    return db.select().from(successStories).where(eq(successStories.status, 'approved'));
+  }
+
+  async getFeaturedSuccessStories(): Promise<SuccessStory[]> {
+    return db.select().from(successStories).where(
+      and(eq(successStories.status, 'approved'), eq(successStories.featured, true))
+    );
+  }
+
+  async updateSuccessStory(id: string, updates: Partial<SuccessStory>): Promise<SuccessStory | undefined> {
+    const [updated] = await db.update(successStories).set(updates).where(eq(successStories.id, id)).returning();
+    return updated;
+  }
+
+  async deleteSuccessStory(id: string): Promise<boolean> {
+    await db.delete(successStories).where(eq(successStories.id, id));
+    return true;
+  }
+
   // Analytics methods
   async trackPageView(insertPageView: InsertPageView): Promise<PageView> {
     const id = randomUUID();
@@ -486,6 +580,90 @@ export class MemStorage implements IStorage {
     return Array.from(this.featureUsages.values())
       .filter(u => u.createdAt >= cutoff)
       .length;
+  }
+
+  async getNavigationBreakdown(days: number = 7): Promise<{ menuItem: string; destination: string; count: number }[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const usages = Array.from(this.featureUsages.values())
+      .filter(u => u.createdAt >= cutoff && u.featureType === 'navigation');
+
+    const stats = new Map<string, { menuItem: string; destination: string; count: number }>();
+    usages.forEach(u => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.menuItem || 'unknown'}|${details.destination || 'unknown'}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, { 
+            menuItem: details.menuItem || 'Unknown', 
+            destination: details.destination || '/', 
+            count: 1 
+          });
+        }
+      } catch (e) {}
+    });
+
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  }
+
+  async getTabBreakdown(days: number = 7): Promise<{ page: string; tabName: string; count: number }[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const usages = Array.from(this.featureUsages.values())
+      .filter(u => u.createdAt >= cutoff && u.featureType === 'tab-selection');
+
+    const stats = new Map<string, { page: string; tabName: string; count: number }>();
+    usages.forEach(u => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.page || 'unknown'}|${details.tabName || u.mode || 'unknown'}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, { 
+            page: details.page || 'Unknown', 
+            tabName: details.tabName || u.mode || 'Unknown', 
+            count: 1 
+          });
+        }
+      } catch (e) {}
+    });
+
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  }
+
+  async getButtonClickBreakdown(days: number = 7): Promise<{ buttonName: string; context: string; count: number }[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const usages = Array.from(this.featureUsages.values())
+      .filter(u => u.createdAt >= cutoff && u.featureType === 'button-click');
+
+    const stats = new Map<string, { buttonName: string; context: string; count: number }>();
+    usages.forEach(u => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.buttonName || 'unknown'}|${details.context || u.mode || 'unknown'}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, { 
+            buttonName: details.buttonName || 'Unknown', 
+            context: details.context || u.mode || 'Unknown', 
+            count: 1 
+          });
+        }
+      } catch (e) {}
+    });
+
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
   }
 
   // Admin session methods
@@ -594,6 +772,60 @@ export class MemStorage implements IStorage {
   async deleteBrand(id: string): Promise<boolean> {
     return this.brandsMap.delete(id);
   }
+
+  // Expert Knowledge Base stub methods (MemStorage - returns empty arrays)
+  async getExpertKnowledge(_filters?: any): Promise<ExpertKnowledge[]> {
+    return [];
+  }
+  async getHooks(_filters?: any): Promise<Hook[]> {
+    return [];
+  }
+  async getStorytellingFrameworks(): Promise<StorytellingFramework[]> {
+    return [];
+  }
+  async getGrowthStageGuides(_followerCount?: number): Promise<GrowthStageGuide[]> {
+    return [];
+  }
+  async getGrowthStageGuideByStage(_stage: string): Promise<GrowthStageGuide | undefined> {
+    return undefined;
+  }
+  async getResponseTemplates(_category?: string): Promise<ResponseTemplate[]> {
+    return [];
+  }
+  async getLiveStreamingTemplates(_filters?: any): Promise<LiveStreamingTemplate[]> {
+    return [];
+  }
+  async getScriptTemplates(_filters?: any): Promise<ScriptTemplate[]> {
+    return [];
+  }
+
+  // Platform settings stub methods (MemStorage - returns empty)
+  async getPublicSettings(): Promise<Record<string, any>> {
+    return {};
+  }
+  async getAllSettings(): Promise<AppSetting[]> {
+    return [];
+  }
+  async getSetting(_key: string): Promise<AppSetting | undefined> {
+    return undefined;
+  }
+  async updateSetting(_key: string, _value: string, _updatedBy?: string): Promise<AppSetting | undefined> {
+    return undefined;
+  }
+
+  // Pricing tier stub methods (MemStorage - returns empty)
+  async getActivePricingTiers(): Promise<PricingTier[]> {
+    return [];
+  }
+  async getAllPricingTiers(): Promise<PricingTier[]> {
+    return [];
+  }
+  async getPricingTier(_slug: string): Promise<PricingTier | undefined> {
+    return undefined;
+  }
+  async updatePricingTier(_slug: string, _updates: Partial<PricingTier>, _updatedBy?: string): Promise<PricingTier | undefined> {
+    return undefined;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -636,23 +868,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTiktokAccount(account: InsertTiktokAccount): Promise<TiktokAccount> {
-    return this.memStorage.createTiktokAccount(account);
+    const [inserted] = await db.insert(tiktokAccounts).values(account).returning();
+    return inserted;
   }
 
   async getTiktokAccount(id: string): Promise<TiktokAccount | undefined> {
-    return this.memStorage.getTiktokAccount(id);
+    const [account] = await db.select().from(tiktokAccounts).where(eq(tiktokAccounts.id, id));
+    return account;
   }
 
   async getTiktokAccountByUsername(username: string): Promise<TiktokAccount | undefined> {
-    return this.memStorage.getTiktokAccountByUsername(username);
+    const [account] = await db.select().from(tiktokAccounts)
+      .where(ilike(tiktokAccounts.username, username))
+      .orderBy(desc(tiktokAccounts.createdAt))
+      .limit(1);
+    return account;
   }
 
   async getTiktokAccountsBySession(sessionId: string): Promise<TiktokAccount[]> {
-    return this.memStorage.getTiktokAccountsBySession(sessionId);
+    return db.select().from(tiktokAccounts)
+      .where(eq(tiktokAccounts.sessionId, sessionId))
+      .orderBy(desc(tiktokAccounts.createdAt));
   }
 
   async updateTiktokAccount(id: string, updates: Partial<TiktokAccount>): Promise<TiktokAccount | undefined> {
-    return this.memStorage.updateTiktokAccount(id, updates);
+    const [updated] = await db.update(tiktokAccounts)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(tiktokAccounts.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getAllAnalyzedAccounts(limit: number = 100): Promise<TiktokAccount[]> {
+    return db.select().from(tiktokAccounts)
+      .orderBy(desc(tiktokAccounts.createdAt))
+      .limit(limit);
+  }
+
+  async getAnalyzedAccountsCount(): Promise<number> {
+    const [result] = await db.select({ count: count() }).from(tiktokAccounts);
+    return result?.count || 0;
   }
 
   async createTiktokVideo(video: InsertTiktokVideo): Promise<TiktokVideo> {
@@ -723,6 +978,35 @@ export class DatabaseStorage implements IStorage {
     return this.memStorage.isLibraryItemDeleted(itemId);
   }
 
+  // Success Stories - delegate to memStorage (which uses DB)
+  async createSuccessStory(story: InsertSuccessStory): Promise<SuccessStory> {
+    return this.memStorage.createSuccessStory(story);
+  }
+
+  async getSuccessStory(id: string): Promise<SuccessStory | undefined> {
+    return this.memStorage.getSuccessStory(id);
+  }
+
+  async getPendingSuccessStories(): Promise<SuccessStory[]> {
+    return this.memStorage.getPendingSuccessStories();
+  }
+
+  async getApprovedSuccessStories(): Promise<SuccessStory[]> {
+    return this.memStorage.getApprovedSuccessStories();
+  }
+
+  async getFeaturedSuccessStories(): Promise<SuccessStory[]> {
+    return this.memStorage.getFeaturedSuccessStories();
+  }
+
+  async updateSuccessStory(id: string, updates: Partial<SuccessStory>): Promise<SuccessStory | undefined> {
+    return this.memStorage.updateSuccessStory(id, updates);
+  }
+
+  async deleteSuccessStory(id: string): Promise<boolean> {
+    return this.memStorage.deleteSuccessStory(id);
+  }
+
   async trackPageView(pageView: InsertPageView): Promise<PageView> {
     return this.memStorage.trackPageView(pageView);
   }
@@ -749,6 +1033,18 @@ export class DatabaseStorage implements IStorage {
 
   async getTotalFeatureUsage(days: number = 7): Promise<number> {
     return this.memStorage.getTotalFeatureUsage(days);
+  }
+
+  async getNavigationBreakdown(days: number = 7): Promise<{ menuItem: string; destination: string; count: number }[]> {
+    return this.memStorage.getNavigationBreakdown(days);
+  }
+
+  async getTabBreakdown(days: number = 7): Promise<{ page: string; tabName: string; count: number }[]> {
+    return this.memStorage.getTabBreakdown(days);
+  }
+
+  async getButtonClickBreakdown(days: number = 7): Promise<{ buttonName: string; context: string; count: number }[]> {
+    return this.memStorage.getButtonClickBreakdown(days);
   }
 
   async createAdminSession(sessionId: string, username: string): Promise<{ sessionId: string; username: string; createdAt: Date; expiresAt: Date }> {
@@ -856,6 +1152,259 @@ export class DatabaseStorage implements IStorage {
       .where(eq(brands.id, id))
       .returning();
     return result.length > 0;
+  }
+
+  // ==========================================
+  // EXPERT KNOWLEDGE BASE METHODS
+  // ==========================================
+
+  async getExpertKnowledge(filters?: { 
+    category?: string; 
+    subcategory?: string; 
+    level?: string; 
+    search?: string; 
+  }): Promise<ExpertKnowledge[]> {
+    let query = db.select().from(expertKnowledge).where(eq(expertKnowledge.isActive, true));
+    
+    const conditions: any[] = [eq(expertKnowledge.isActive, true)];
+    
+    if (filters?.category) {
+      conditions.push(eq(expertKnowledge.category, filters.category));
+    }
+    if (filters?.subcategory) {
+      conditions.push(eq(expertKnowledge.subcategory, filters.subcategory));
+    }
+    if (filters?.level) {
+      conditions.push(eq(expertKnowledge.level, filters.level));
+    }
+    if (filters?.search) {
+      conditions.push(
+        or(
+          ilike(expertKnowledge.titleEn, `%${filters.search}%`),
+          ilike(expertKnowledge.titleId, `%${filters.search}%`),
+          ilike(expertKnowledge.contentEn, `%${filters.search}%`),
+          ilike(expertKnowledge.contentId, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    return db.select().from(expertKnowledge).where(and(...conditions));
+  }
+
+  async getHooks(filters?: { 
+    hookType?: string; 
+    category?: string; 
+    search?: string; 
+  }): Promise<Hook[]> {
+    const conditions: any[] = [eq(hooks.isActive, true)];
+    
+    if (filters?.hookType) {
+      conditions.push(eq(hooks.hookType, filters.hookType));
+    }
+    if (filters?.category) {
+      conditions.push(eq(hooks.category, filters.category));
+    }
+    if (filters?.search) {
+      conditions.push(
+        or(
+          ilike(hooks.hookTextEn, `%${filters.search}%`),
+          ilike(hooks.hookTextId, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    return db.select().from(hooks).where(and(...conditions));
+  }
+
+  async getStorytellingFrameworks(): Promise<StorytellingFramework[]> {
+    return db.select().from(storytellingFrameworks).where(eq(storytellingFrameworks.isActive, true));
+  }
+
+  async getGrowthStageGuides(followerCount?: number): Promise<GrowthStageGuide[]> {
+    if (followerCount !== undefined) {
+      return db.select().from(growthStageGuides).where(
+        and(
+          eq(growthStageGuides.isActive, true),
+          lte(growthStageGuides.followerRangeMin, followerCount)
+        )
+      );
+    }
+    return db.select().from(growthStageGuides).where(eq(growthStageGuides.isActive, true));
+  }
+
+  async getGrowthStageGuideByStage(stage: string): Promise<GrowthStageGuide | undefined> {
+    const [guide] = await db.select().from(growthStageGuides).where(
+      and(
+        eq(growthStageGuides.stage, stage),
+        eq(growthStageGuides.isActive, true)
+      )
+    ).limit(1);
+    return guide;
+  }
+
+  async getResponseTemplates(category?: string): Promise<ResponseTemplate[]> {
+    const conditions: any[] = [eq(responseTemplates.isActive, true)];
+    
+    if (category) {
+      conditions.push(eq(responseTemplates.category, category));
+    }
+    
+    return db.select().from(responseTemplates).where(and(...conditions));
+  }
+
+  async getLiveStreamingTemplates(filters?: { 
+    format?: string; 
+    duration?: string; 
+  }): Promise<LiveStreamingTemplate[]> {
+    const conditions: any[] = [eq(liveStreamingTemplates.isActive, true)];
+    
+    if (filters?.format) {
+      conditions.push(eq(liveStreamingTemplates.format, filters.format));
+    }
+    if (filters?.duration) {
+      conditions.push(eq(liveStreamingTemplates.duration, filters.duration));
+    }
+    
+    return db.select().from(liveStreamingTemplates).where(and(...conditions));
+  }
+
+  async getScriptTemplates(filters?: { 
+    category?: string; 
+    duration?: string; 
+    goal?: string; 
+    level?: string; 
+  }): Promise<ScriptTemplate[]> {
+    const conditions: any[] = [eq(scriptTemplates.isActive, true)];
+    
+    if (filters?.category) {
+      conditions.push(eq(scriptTemplates.category, filters.category));
+    }
+    if (filters?.duration) {
+      conditions.push(eq(scriptTemplates.duration, filters.duration));
+    }
+    if (filters?.goal) {
+      conditions.push(eq(scriptTemplates.goal, filters.goal));
+    }
+    if (filters?.level) {
+      conditions.push(eq(scriptTemplates.level, filters.level));
+    }
+    
+    return db.select().from(scriptTemplates).where(and(...conditions));
+  }
+
+  // Platform settings management
+  async getPublicSettings(): Promise<Record<string, any>> {
+    try {
+      const settings = await db.select().from(appSettings);
+      const result: Record<string, any> = {};
+      
+      for (const setting of settings) {
+        let value: any = setting.value;
+        
+        if (setting.valueType === 'number') {
+          value = parseFloat(setting.value);
+        } else if (setting.valueType === 'boolean') {
+          value = setting.value === 'true';
+        } else if (setting.valueType === 'json') {
+          try {
+            value = JSON.parse(setting.value);
+          } catch {
+            value = setting.value;
+          }
+        }
+        
+        result[setting.key] = value;
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('[SETTINGS] Error getting public settings:', error);
+      return {};
+    }
+  }
+
+  async getAllSettings(): Promise<AppSetting[]> {
+    try {
+      return db.select().from(appSettings);
+    } catch (error) {
+      console.error('[SETTINGS] Error getting all settings:', error);
+      return [];
+    }
+  }
+
+  async getSetting(key: string): Promise<AppSetting | undefined> {
+    try {
+      const [setting] = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
+      return setting;
+    } catch (error) {
+      console.error('[SETTINGS] Error getting setting:', error);
+      return undefined;
+    }
+  }
+
+  async updateSetting(key: string, value: string, updatedBy?: string): Promise<AppSetting | undefined> {
+    try {
+      const [updated] = await db.update(appSettings)
+        .set({ 
+          value, 
+          updatedBy: updatedBy || null,
+          updatedAt: new Date()
+        })
+        .where(eq(appSettings.key, key))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('[SETTINGS] Error updating setting:', error);
+      return undefined;
+    }
+  }
+
+  // Pricing tier management
+  async getActivePricingTiers(): Promise<PricingTier[]> {
+    try {
+      return db.select().from(pricingTiers)
+        .where(eq(pricingTiers.isActive, true))
+        .orderBy(pricingTiers.sortOrder);
+    } catch (error) {
+      console.error('[PRICING] Error getting active pricing tiers:', error);
+      return [];
+    }
+  }
+
+  async getAllPricingTiers(): Promise<PricingTier[]> {
+    try {
+      return db.select().from(pricingTiers).orderBy(pricingTiers.sortOrder);
+    } catch (error) {
+      console.error('[PRICING] Error getting all pricing tiers:', error);
+      return [];
+    }
+  }
+
+  async getPricingTier(slug: string): Promise<PricingTier | undefined> {
+    try {
+      const [tier] = await db.select().from(pricingTiers).where(eq(pricingTiers.slug, slug)).limit(1);
+      return tier;
+    } catch (error) {
+      console.error('[PRICING] Error getting pricing tier:', error);
+      return undefined;
+    }
+  }
+
+  async updatePricingTier(slug: string, updates: Partial<PricingTier>, updatedBy?: string): Promise<PricingTier | undefined> {
+    try {
+      const [updated] = await db.update(pricingTiers)
+        .set({ 
+          ...updates,
+          updatedBy: updatedBy || null,
+          updatedAt: new Date()
+        })
+        .where(eq(pricingTiers.slug, slug))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('[PRICING] Error updating pricing tier:', error);
+      return undefined;
+    }
   }
 }
 

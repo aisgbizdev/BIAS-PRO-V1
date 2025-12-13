@@ -1,26 +1,49 @@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
+import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { Globe, BookOpen, Home, Mic, ExternalLink, Menu } from 'lucide-react';
+import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { openExternalLink } from '@/lib/external-link-handler';
+import { trackNavigation, trackButtonClick } from '@/lib/analytics';
 
 export function BiasHeader() {
   const { language, toggleLanguage, t } = useLanguage();
   const { brand, getTagline } = useBrand();
+  const { pricing } = useSettings();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const brandLogo = getActiveBrandLogo();
+  
+  const [usageToday, setUsageToday] = useState(0);
+  const starterPlan = pricing.find(p => p.slug === 'gratis');
+  const dailyLimit = starterPlan?.videoLimit || 10;
+  
+  useEffect(() => {
+    const stored = localStorage.getItem('bias-usage-today');
+    if (stored) {
+      const data = JSON.parse(stored);
+      const today = new Date().toDateString();
+      if (data.date === today) {
+        setUsageToday(data.count);
+      }
+    }
+  }, []);
+  
+  const remaining = Math.max(0, dailyLimit - usageToday);
 
   const menuItems = [
     { href: '/', icon: Home, label: t('Home', 'Beranda') },
-    { href: '/social-pro', icon: SiTiktok, label: t('Social Pro', 'Social Pro') },
-    { href: '/creator', icon: Mic, label: t('Communication', 'Komunikasi') },
+    { href: '/social-pro', icon: SiTiktok, label: t('TikTok Pro', 'TikTok Pro') },
+    { href: '/creator', icon: Mic, label: t('Marketing Pro', 'Marketing Pro') },
     { href: '/library', icon: BookOpen, label: t('Library', 'Library') },
+    { href: '/help', icon: HelpCircle, label: t('Help', 'Bantuan') },
   ];
 
   return (
@@ -54,7 +77,10 @@ export function BiasHeader() {
                     <Button
                       variant={location === item.href ? 'default' : 'ghost'}
                       className="w-full justify-start gap-3 h-12"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => {
+                        trackNavigation(item.label, item.href);
+                        setMobileMenuOpen(false);
+                      }}
                     >
                       <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
@@ -66,6 +92,7 @@ export function BiasHeader() {
               {/* TikTok Follow in Mobile Menu */}
               <Button
                 onClick={() => {
+                  trackButtonClick('TikTok Follow', 'mobile-menu');
                   openExternalLink(brand.social.tiktokUrl);
                   setMobileMenuOpen(false);
                 }}
@@ -81,6 +108,7 @@ export function BiasHeader() {
               <Button
                 variant="outline"
                 onClick={() => {
+                  trackButtonClick('Language Toggle', 'mobile-menu', { from: language, to: language === 'en' ? 'id' : 'en' });
                   toggleLanguage();
                   setMobileMenuOpen(false);
                 }}
@@ -124,6 +152,7 @@ export function BiasHeader() {
                   size="sm"
                   className="gap-1 h-8 px-2 md:px-3"
                   data-testid={`button-nav-${item.href.replace('/', '') || 'home'}`}
+                  onClick={() => trackNavigation(item.label, item.href)}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span className="hidden lg:inline text-xs">{item.label}</span>
@@ -133,11 +162,65 @@ export function BiasHeader() {
           })}
         </div>
 
-        {/* Right Side: TikTok + Language */}
+        {/* Right Side: Usage + TikTok + Language */}
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
+          {/* Usage Indicator - Prominent with tooltip explanation */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/premium">
+                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer transition-all ${
+                    remaining <= 0 
+                      ? 'bg-orange-500/20 border border-orange-500/50 hover:bg-orange-500/30' 
+                      : remaining <= 2 
+                        ? 'bg-red-500/20 border border-red-500/50 hover:bg-red-500/30' 
+                        : 'bg-pink-500/20 border border-pink-500/50 hover:bg-pink-500/30'
+                  }`}>
+                    <Zap className={`w-4 h-4 ${
+                      remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
+                    }`} />
+                    <span className={`text-sm font-bold ${
+                      remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
+                    }`}>
+                      {remaining}/{dailyLimit}
+                    </span>
+                    <Info className="w-3 h-3 text-muted-foreground" />
+                  </div>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[280px] p-3">
+                <div className="space-y-2">
+                  <p className="font-semibold text-sm">
+                    {t('Ai Token Limit', 'Limit Token Ai')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {remaining > 0 
+                      ? t(
+                          `You have ${remaining} Ai-powered analyses remaining today.`,
+                          `Kamu punya ${remaining} analisa Ai tersisa hari ini.`
+                        )
+                      : t(
+                          'Ai token limit reached! Analysis still works using local knowledge base (without Ai enhancement).',
+                          'Limit token Ai habis! Analisa tetap jalan pakai knowledge base lokal (tanpa Ai enhancement).'
+                        )
+                    }
+                  </p>
+                  {remaining <= 0 && (
+                    <p className="text-xs text-orange-400 font-medium">
+                      {t('Upgrade for more Ai analyses →', 'Upgrade untuk lebih banyak analisa Ai →')}
+                    </p>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           {/* TikTok Follow - Always Visible */}
           <Button
-            onClick={() => openExternalLink(brand.social.tiktokUrl)}
+            onClick={() => {
+              trackButtonClick('TikTok Follow', 'header');
+              openExternalLink(brand.social.tiktokUrl);
+            }}
             size="sm"
             variant="outline"
             data-testid="button-tiktok"
@@ -152,7 +235,10 @@ export function BiasHeader() {
           <Button
             variant="outline"
             size="sm"
-            onClick={toggleLanguage}
+            onClick={() => {
+              trackButtonClick('Language Toggle', 'header', { from: language, to: language === 'en' ? 'id' : 'en' });
+              toggleLanguage();
+            }}
             title={t('Switch to Indonesian', 'Ganti ke Bahasa Inggris')}
             data-testid="button-language-toggle"
             className="gap-1 h-8 px-2 md:px-3"
