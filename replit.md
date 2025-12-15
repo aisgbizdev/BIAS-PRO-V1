@@ -76,6 +76,7 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Removed Level Toggle**: Removed non-functional Basic/Expert skill level toggle from TikTok Pro (backend auto-detects skill level from metrics).
 - **User Tracking System**: TikTok accounts analyzed are now persisted to PostgreSQL database (`tiktok_accounts` table) for marketing/promo purposes. Data includes username, followers, likes, engagement rate, and analysis timestamp.
 - **Admin Users Panel**: New "Users" tab in Admin Panel showing all analyzed TikTok accounts with links to profiles, follower counts, engagement rates, and analysis dates. Useful for promotional outreach.
+- **Admin AI Learning Panel**: New "AI Learning" tab in Admin Panel to manage the self-learning library (learned_responses table). Admins can view, search, edit, and delete auto-saved AI responses from chat conversations. Keywords auto-recalculate when questions are edited.
 
 ## External Dependencies
 
