@@ -119,6 +119,8 @@ export const libraryContributions = pgTable("library_contributions", {
   example: text("example"),
   exampleId: text("example_id"),
   status: text("status").notNull().default("pending"), // 'pending', 'approved', 'rejected'
+  rejectionReason: text("rejection_reason"), // reason if rejected
+  reviewedBy: text("reviewed_by"), // admin who reviewed
   createdAt: timestamp("created_at").notNull().defaultNow(),
   approvedAt: timestamp("approved_at"),
 });
