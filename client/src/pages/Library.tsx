@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight, Brain } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -1666,7 +1666,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="library" className="gap-2">
             <BookOpen className="w-4 h-4" />
             {t('Library', 'Perpustakaan')}
@@ -1682,6 +1682,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
           <TabsTrigger value="users" className="gap-2">
             <Users className="w-4 h-4" />
             {t('Users', 'Pengguna')}
+          </TabsTrigger>
+          <TabsTrigger value="ai-learning" className="gap-2">
+            <Brain className="w-4 h-4" />
+            {t('AI Learning', 'AI Learning')}
           </TabsTrigger>
           <TabsTrigger value="settings" className="gap-2">
             <Settings className="w-4 h-4" />
@@ -1917,6 +1921,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
 
         <TabsContent value="users" className="mt-6">
           <AnalyzedUsersPanel />
+        </TabsContent>
+
+        <TabsContent value="ai-learning" className="mt-6">
+          <LearnedResponsesPanel />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
@@ -2787,6 +2795,241 @@ interface AppSetting {
   isEditable: boolean;
   updatedBy?: string;
   updatedAt: string;
+}
+
+interface LearnedResponse {
+  id: string;
+  question: string;
+  keywords: string[];
+  response: string;
+  useCount: number;
+  quality: number | null;
+  createdAt: string;
+  lastUsedAt: string;
+}
+
+function LearnedResponsesPanel() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [responses, setResponses] = useState<LearnedResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editData, setEditData] = useState({ question: '', response: '' });
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    loadResponses();
+  }, []);
+
+  const loadResponses = async () => {
+    try {
+      const res = await fetch('/api/learned-responses', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load responses');
+      const data = await res.json();
+      setResponses(data);
+    } catch (error) {
+      console.error('Error loading learned responses:', error);
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to load AI learning data', 'Gagal memuat data AI learning'),
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('Delete this learned response?', 'Hapus respons ini?'))) return;
+    
+    try {
+      const res = await fetch(`/api/learned-responses/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to delete');
+      setResponses(responses.filter(r => r.id !== id));
+      toast({
+        title: t('Success', 'Berhasil'),
+        description: t('Response deleted', 'Respons dihapus'),
+      });
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to delete response', 'Gagal menghapus respons'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleEdit = (response: LearnedResponse) => {
+    setEditingId(response.id);
+    setEditData({ question: response.question, response: response.response });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId) return;
+    
+    try {
+      const res = await fetch(`/api/learned-responses/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(editData),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      
+      setResponses(responses.map(r => 
+        r.id === editingId 
+          ? { ...r, question: editData.question, response: editData.response }
+          : r
+      ));
+      setEditingId(null);
+      toast({
+        title: t('Success', 'Berhasil'),
+        description: t('Response updated', 'Respons diperbarui'),
+      });
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to update response', 'Gagal memperbarui respons'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const filteredResponses = responses.filter(r => 
+    r.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full mx-auto mb-3" />
+          <p className="text-muted-foreground">{t('Loading...', 'Memuat...')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold">{t('AI Learning Library', 'Perpustakaan AI Learning')}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t('Manage auto-learned responses from chat conversations', 'Kelola respons yang dipelajari otomatis dari percakapan chat')}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs">
+            {responses.length} {t('responses', 'respons')}
+          </Badge>
+          <Button variant="outline" size="sm" onClick={loadResponses}>
+            <RefreshCcw className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder={t('Search by question or keyword...', 'Cari berdasarkan pertanyaan atau keyword...')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      {filteredResponses.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            <Brain className="w-12 h-12 mx-auto mb-3 opacity-20" />
+            {searchQuery ? (
+              <p>{t('No matching responses found', 'Tidak ada respons yang cocok')}</p>
+            ) : (
+              <p>{t('No learned responses yet. Chat with AI to start learning!', 'Belum ada respons yang dipelajari. Chat dengan AI untuk mulai belajar!')}</p>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {filteredResponses.map((item) => (
+            <Card key={item.id} className="border-2">
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 space-y-1">
+                    {editingId === item.id ? (
+                      <textarea
+                        value={editData.question}
+                        onChange={(e) => setEditData({ ...editData, question: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                        rows={2}
+                      />
+                    ) : (
+                      <p className="font-medium text-sm">{item.question}</p>
+                    )}
+                    <div className="flex flex-wrap gap-1">
+                      {item.keywords.slice(0, 5).map((kw, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-[10px]">
+                          {kw}
+                        </Badge>
+                      ))}
+                      {item.keywords.length > 5 && (
+                        <Badge variant="outline" className="text-[10px]">
+                          +{item.keywords.length - 5}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {editingId === item.id ? (
+                      <>
+                        <Button size="sm" onClick={handleSaveEdit}>
+                          <Check className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
+                          <Pencil className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}>
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {editingId === item.id ? (
+                  <textarea
+                    value={editData.response}
+                    onChange={(e) => setEditData({ ...editData, response: e.target.value })}
+                    className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                    rows={4}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground line-clamp-3">{item.response}</p>
+                )}
+                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                  <span>{t('Used', 'Digunakan')}: {item.useCount}x</span>
+                  <span>{t('Created', 'Dibuat')}: {new Date(item.createdAt).toLocaleDateString('id-ID')}</span>
+                  <span>{t('Last used', 'Terakhir')}: {new Date(item.lastUsedAt).toLocaleDateString('id-ID')}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 interface PricingTier {

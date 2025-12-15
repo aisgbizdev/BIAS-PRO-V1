@@ -1356,6 +1356,70 @@ Status meanings:
     }
   });
 
+  // ========================================
+  // LEARNED RESPONSES (AI Learning) ENDPOINTS
+  // ========================================
+  
+  // Get all learned responses (admin only)
+  app.get("/api/learned-responses", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { desc } = await import('drizzle-orm');
+      
+      const responses = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.createdAt));
+      res.json(responses);
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error fetching learned responses:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Delete learned response (admin only)
+  app.delete("/api/learned-responses/:id", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      await db.delete(learnedResponses).where(eq(learnedResponses.id, req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error deleting learned response:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update learned response (admin only)
+  app.put("/api/learned-responses/:id", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq } = await import('drizzle-orm');
+      const { extractKeywords } = await import('./utils/learning-system');
+      
+      const { question, response } = req.body;
+      
+      if (!question?.trim() || !response?.trim()) {
+        return res.status(400).json({ error: 'Question and response are required' });
+      }
+      
+      const keywords = extractKeywords(question);
+      
+      await db.update(learnedResponses)
+        .set({ 
+          question: question.trim(), 
+          response: response.trim(),
+          keywords,
+        })
+        .where(eq(learnedResponses.id, req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error updating learned response:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Analytics - Track page view
   app.post("/api/analytics/pageview", async (req, res) => {
     try {
