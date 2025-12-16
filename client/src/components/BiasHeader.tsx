@@ -128,7 +128,7 @@ export function BiasHeader() {
             <img 
               src={brandLogo} 
               alt={`${brand.name} Logo`}
-              className="h-8 md:h-10 w-auto object-contain"
+              className="h-8 md:h-10 w-auto object-contain rounded-lg"
             />
             <div className="flex flex-col leading-none">
               <span className={`text-sm md:text-base font-bold bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent`}>
