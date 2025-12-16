@@ -41,6 +41,8 @@ export const learnedResponses = pgTable("learned_responses", {
   response: text("response").notNull(), // AI response
   useCount: integer("use_count").notNull().default(1), // How many times this was used
   quality: integer("quality").default(0), // User feedback (-1, 0, 1)
+  isApproved: boolean("is_approved").notNull().default(false), // Admin approved for library
+  approvedAt: timestamp("approved_at"), // When approved
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
 });

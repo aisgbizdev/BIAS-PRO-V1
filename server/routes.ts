@@ -1420,6 +1420,44 @@ Status meanings:
     }
   });
 
+  // Approve learned response to library (admin only)
+  app.post("/api/learned-responses/:id/approve", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      await db.update(learnedResponses)
+        .set({ 
+          isApproved: true,
+          approvedAt: new Date(),
+        })
+        .where(eq(learnedResponses.id, req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error approving learned response:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get approved learned responses for library (public)
+  app.get("/api/library/ai-learned", async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      const approved = await db.select()
+        .from(learnedResponses)
+        .where(eq(learnedResponses.isApproved, true))
+        .orderBy(desc(learnedResponses.approvedAt));
+      res.json(approved);
+    } catch (error: any) {
+      console.error('[LIBRARY] Error fetching AI-learned knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Analytics - Track page view
   app.post("/api/analytics/pageview", async (req, res) => {
     try {

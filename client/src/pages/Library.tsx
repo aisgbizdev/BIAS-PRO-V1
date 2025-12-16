@@ -672,7 +672,7 @@ export default function Library() {
 
       {/* Tabs */}
       <Tabs defaultValue="tiktok" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
+        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 gap-1">
           <TabsTrigger value="tiktok" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-tiktok">
             <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">TikTok ({filteredTikTok.length})</span>
@@ -687,6 +687,11 @@ export default function Library() {
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">BIAS ({filteredBias.length})</span>
             <span className="sm:hidden">BIAS</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai-learned" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-ai-learned">
+            <Brain className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">{t('AI-Learned', 'AI-Learned')}</span>
+            <span className="sm:hidden">AI</span>
           </TabsTrigger>
           <TabsTrigger value="stories" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-stories">
             <Trophy className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -751,6 +756,10 @@ export default function Library() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="ai-learned" className="space-y-6 mt-6">
+          <AILearnedKnowledgePanel search={search} />
         </TabsContent>
 
         <TabsContent value="rules" className="space-y-6 mt-6">
@@ -2652,6 +2661,123 @@ function BrandManagement() {
   );
 }
 
+interface AILearnedItem {
+  id: string;
+  question: string;
+  keywords: string[];
+  response: string;
+  useCount: number;
+  approvedAt: string;
+}
+
+function AILearnedKnowledgePanel({ search }: { search: string }) {
+  const { t, language } = useLanguage();
+  const [items, setItems] = useState<AILearnedItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAILearned = async () => {
+      try {
+        const res = await fetch('/api/library/ai-learned');
+        if (res.ok) {
+          const data = await res.json();
+          setItems(data);
+        }
+      } catch (error) {
+        console.error('Error fetching AI-learned knowledge:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAILearned();
+  }, []);
+
+  const filteredItems = items.filter(item => {
+    const searchLower = search.toLowerCase();
+    return (
+      item.question.toLowerCase().includes(searchLower) ||
+      item.response.toLowerCase().includes(searchLower) ||
+      item.keywords.some(k => k.toLowerCase().includes(searchLower))
+    );
+  });
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full mx-auto mb-3" />
+          <p className="text-muted-foreground">{t('Loading...', 'Memuat...')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (filteredItems.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <Brain className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+          <p className="text-muted-foreground">
+            {search 
+              ? t('No matching AI-learned knowledge found', 'Tidak ada knowledge AI yang cocok')
+              : t('No approved AI-learned knowledge yet', 'Belum ada knowledge AI yang diapprove')
+            }
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            {t('AI-learned knowledge is curated from chat conversations and approved by admins', 'Knowledge AI dikurasi dari percakapan chat dan diapprove oleh admin')}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-4">
+        <Brain className="w-5 h-5 text-pink-500" />
+        <h3 className="font-semibold">{t('AI-Learned Knowledge', 'Knowledge AI')}</h3>
+        <Badge variant="secondary" className="text-xs">{filteredItems.length} {t('items', 'item')}</Badge>
+      </div>
+      <p className="text-sm text-muted-foreground mb-4">
+        {t('Curated knowledge from AI chat conversations, approved by the BiAS Pro team.', 'Knowledge yang dikurasi dari percakapan AI chat, diapprove oleh tim BiAS Pro.')}
+      </p>
+      
+      <div className="space-y-3">
+        {filteredItems.map((item) => (
+          <Card key={item.id} className="border-l-4 border-l-pink-500/50">
+            <CardHeader className="pb-2">
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{item.question}</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {item.keywords.slice(0, 4).map((kw, idx) => (
+                      <Badge key={idx} variant="outline" className="text-[10px]">
+                        {kw}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.response}</p>
+              <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Check className="w-3 h-3 text-green-500" />
+                  {t('Used', 'Digunakan')}: {item.useCount}x
+                </span>
+                <span>
+                  {t('Approved', 'Diapprove')}: {new Date(item.approvedAt).toLocaleDateString('id-ID')}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PlatformRulesHub({ search }: { search: string }) {
   const { t, language } = useLanguage();
 
@@ -2804,6 +2930,8 @@ interface LearnedResponse {
   response: string;
   useCount: number;
   quality: number | null;
+  isApproved: boolean;
+  approvedAt: string | null;
   createdAt: string;
   lastUsedAt: string;
 }
@@ -2865,6 +2993,31 @@ function LearnedResponsesPanel() {
   const handleEdit = (response: LearnedResponse) => {
     setEditingId(response.id);
     setEditData({ question: response.question, response: response.response });
+  };
+
+  const handleApprove = async (id: string) => {
+    if (!confirm(t('Approve this response to Library?', 'Approve respons ini ke Library?'))) return;
+    
+    try {
+      const res = await fetch(`/api/learned-responses/${id}/approve`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to approve');
+      setResponses(responses.map(r => 
+        r.id === id ? { ...r, isApproved: true, approvedAt: new Date().toISOString() } : r
+      ));
+      toast({
+        title: t('Success', 'Berhasil'),
+        description: t('Response approved to Library!', 'Respons berhasil diapprove ke Library!'),
+      });
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to approve response', 'Gagal approve respons'),
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -2972,6 +3125,11 @@ function LearnedResponsesPanel() {
                       <p className="font-medium text-sm">{item.question}</p>
                     )}
                     <div className="flex flex-wrap gap-1">
+                      {item.isApproved && (
+                        <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">
+                          ✓ {t('In Library', 'Di Library')}
+                        </Badge>
+                      )}
                       {item.keywords.slice(0, 5).map((kw, idx) => (
                         <Badge key={idx} variant="secondary" className="text-[10px]">
                           {kw}
@@ -2996,6 +3154,11 @@ function LearnedResponsesPanel() {
                       </>
                     ) : (
                       <>
+                        {!item.isApproved && (
+                          <Button size="sm" variant="outline" className="text-green-500 border-green-500 hover:bg-green-500/10" onClick={() => handleApprove(item.id)}>
+                            <Check className="w-3 h-3" />
+                          </Button>
+                        )}
                         <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
                           <Pencil className="w-3 h-3" />
                         </Button>
