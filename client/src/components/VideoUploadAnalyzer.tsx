@@ -409,28 +409,19 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                           </Button>
                         </div>
                         <div className="space-y-1">
-                          <Label className="text-xs text-pink-400 font-medium flex items-center gap-1">
-                            <span className="text-red-500">*</span>
-                            {t('Video Description (REQUIRED for Ai Analysis)', 'Deskripsi Video (WAJIB untuk Analisis Ai)')}
+                          <Label className="text-xs text-gray-400 font-medium">
+                            {t('Additional Context (Optional)', 'Konteks Tambahan (Opsional)')}
                           </Label>
                           <Textarea
                             placeholder={t(
-                              'EXAMPLE: "In this sales pitch video, I start with a question about their biggest challenge. My voice is energetic at first but gets monotone around 0:30. I say \'eee\' about 5 times. My hand gestures are good when explaining benefits but I fidget when discussing pricing. The closing feels weak..."',
-                              'CONTOH: "Di video sales pitch ini, saya buka dengan pertanyaan soal masalah terbesar mereka. Suara saya energik di awal tapi jadi monoton sekitar 0:30. Saya bilang \'eee\' sekitar 5 kali. Gestur tangan bagus saat jelaskan benefit tapi nervous saat bahas harga. Closing terasa lemah..."'
+                              'Optional: Add extra context about the video if you want more specific feedback...',
+                              'Opsional: Tambahkan konteks tambahan tentang video jika ingin feedback lebih spesifik...'
                             )}
                             value={videoFile.description}
                             onChange={(e) => updateFileDescription(videoFile.id, e.target.value)}
-                            className={`bg-[#0A0A0A] border-gray-700 text-white text-sm min-h-[100px] ${
-                              videoFile.description.length < 50 ? 'border-yellow-500/50' : 'border-green-500/50'
-                            }`}
+                            className="bg-[#0A0A0A] border-gray-700 text-white text-sm min-h-[60px]"
                             data-testid={`textarea-description-${videoFile.id}`}
                           />
-                          <p className={`text-xs ${videoFile.description.length < 50 ? 'text-yellow-400' : 'text-green-400'}`}>
-                            {videoFile.description.length}/50 {t('chars minimum', 'karakter minimum')} 
-                            {videoFile.description.length < 50 
-                              ? ` - ${t('Need more detail!', 'Butuh lebih detail!')}`
-                              : ` - ${t('Good!', 'Bagus!')}`}
-                          </p>
                         </div>
                       </div>
                     </div>
@@ -465,7 +456,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           {/* Analyze Button */}
           <Button
             onClick={analyzeVideos}
-            disabled={uploadedFiles.length === 0 || isAnalyzing || uploadedFiles.some(f => f.description.length < 50)}
+            disabled={uploadedFiles.length === 0 || isAnalyzing}
             className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-pink-500/20"
             data-testid="button-analyze-videos"
           >
@@ -484,26 +475,13 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             )}
           </Button>
 
-          {/* Description Requirement Warning */}
-          {uploadedFiles.length > 0 && uploadedFiles.some(f => f.description.length < 50) && (
-            <Alert className="border-yellow-500/30 bg-yellow-500/10">
-              <AlertCircle className="w-4 h-4 text-yellow-400" />
-              <AlertDescription className="text-yellow-300 text-sm">
-                {t(
-                  'Ai cannot watch videos directly. Please describe each video in detail (min 50 chars) including: speaking style, gestures, tone, filler words, timestamps, etc. The more detail you provide, the more specific your feedback will be!',
-                  'Ai tidak bisa langsung menonton video. Mohon deskripsikan setiap video secara detail (min 50 karakter) termasuk: gaya bicara, gestur, tone, filler words, timestamps, dll. Makin detail deskripsimu, makin spesifik feedback yang kamu dapat!'
-                )}
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Info Alert */}
-          <Alert className="border-gray-700 bg-gray-800/50">
-            <AlertCircle className="w-4 h-4 text-gray-400" />
-            <AlertDescription className="text-gray-400 text-sm">
+          <Alert className="border-cyan-500/30 bg-cyan-500/10">
+            <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+            <AlertDescription className="text-cyan-300 text-sm">
               {t(
-                'Tip: Ai reads your DESCRIPTION, not the video file. Better description = better analysis!',
-                'Tips: Ai membaca DESKRIPSI kamu, bukan file video. Deskripsi lebih detail = analisis lebih akurat!'
+                'Ai Vision analyzes your video thumbnail combined with Knowledge Library for comprehensive feedback.',
+                'Ai Vision menganalisis thumbnail video Anda dikombinasikan dengan Knowledge Library untuk feedback komprehensif.'
               )}
             </AlertDescription>
           </Alert>
