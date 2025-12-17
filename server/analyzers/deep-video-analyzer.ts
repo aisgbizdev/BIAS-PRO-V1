@@ -167,51 +167,70 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
     // Parse Ai response
     const parsedResponse = JSON.parse(responseContent);
     
+    // Debug: Log structure of parsed response
+    console.log('📋 AI Response keys:', Object.keys(parsedResponse));
+    
     // Handle various response formats from OpenAI (can be nested)
     let layers: any[] = [];
+    let foundAt = '';
     
     // Try direct array
     if (Array.isArray(parsedResponse)) {
       layers = parsedResponse;
+      foundAt = 'root array';
     } 
     // Try parsedResponse.layers
     else if (parsedResponse.layers && Array.isArray(parsedResponse.layers)) {
       layers = parsedResponse.layers;
+      foundAt = 'parsedResponse.layers';
     } 
     // Try parsedResponse.analysis.layers (nested format)
     else if (parsedResponse.analysis?.layers && Array.isArray(parsedResponse.analysis.layers)) {
       layers = parsedResponse.analysis.layers;
+      foundAt = 'parsedResponse.analysis.layers';
     }
     // Try parsedResponse.analysis directly as array
     else if (parsedResponse.analysis && Array.isArray(parsedResponse.analysis)) {
       layers = parsedResponse.analysis;
+      foundAt = 'parsedResponse.analysis (array)';
     }
     // Try parsedResponse.results
     else if (parsedResponse.results && Array.isArray(parsedResponse.results)) {
       layers = parsedResponse.results;
+      foundAt = 'parsedResponse.results';
     }
-    // Last resort: find any array with 8 elements
+    // Try looking for any key containing "layer" or "VBM"
     else {
-      const findLayers = (obj: any): any[] | null => {
-        if (Array.isArray(obj) && obj.length >= 6 && obj.length <= 10) {
-          return obj;
+      for (const [key, value] of Object.entries(parsedResponse)) {
+        if (Array.isArray(value) && value.length >= 6 && value.length <= 10) {
+          layers = value;
+          foundAt = `parsedResponse.${key}`;
+          break;
         }
-        if (typeof obj === 'object' && obj !== null) {
-          for (const value of Object.values(obj)) {
-            const found = findLayers(value);
-            if (found) return found;
+        // Check nested objects
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          for (const [nestedKey, nestedValue] of Object.entries(value as any)) {
+            if (Array.isArray(nestedValue) && nestedValue.length >= 6 && nestedValue.length <= 10) {
+              layers = nestedValue;
+              foundAt = `parsedResponse.${key}.${nestedKey}`;
+              break;
+            }
           }
         }
-        return null;
-      };
-      layers = findLayers(parsedResponse) || [];
+        if (layers.length > 0) break;
+      }
     }
     
-    console.log(`Parsed ${layers.length} layers from AI response`);
+    console.log(`📊 Found ${layers.length} layers at: ${foundAt || 'NOT FOUND'}`);
     
     if (!layers || layers.length === 0) {
-      console.log('AI response structure:', JSON.stringify(parsedResponse).substring(0, 500));
+      console.log('❌ AI response structure:', JSON.stringify(parsedResponse).substring(0, 1000));
       throw new Error('No layers in Ai response');
+    }
+    
+    // Debug: Log first layer structure
+    if (layers.length > 0) {
+      console.log('📝 First layer keys:', Object.keys(layers[0] || {}));
     }
 
     // Record token usage (approximate based on response length)
