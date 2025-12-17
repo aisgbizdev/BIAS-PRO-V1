@@ -60,7 +60,7 @@ export function BatchAnalysis() {
     const files = Array.from(e.target.files || []);
     const validFiles = files.filter(f => 
       f.type.startsWith('image/') || f.type.startsWith('video/')
-    ).slice(0, 10); // Max 10 files
+    ).slice(0, 3); // Max 3 files
 
     const newVideos: VideoFile[] = validFiles.map(file => ({
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -69,7 +69,7 @@ export function BatchAnalysis() {
       name: file.name.replace(/\.[^/.]+$/, '').substring(0, 30),
     }));
 
-    setVideos(prev => [...prev, ...newVideos].slice(0, 10));
+    setVideos(prev => [...prev, ...newVideos].slice(0, 3));
     setBatchResult(null);
   };
 
@@ -238,7 +238,7 @@ export function BatchAnalysis() {
           >
             <Upload className="w-12 h-12 text-gray-500 mx-auto mb-4" />
             <p className="text-gray-400 mb-2">
-              {t('Click to upload videos (max 10)', 'Klik untuk upload video (maks 10)')}
+              {t('Click to upload videos (max 3)', 'Klik untuk upload video (maks 3)')}
             </p>
             <p className="text-gray-500 text-sm">
               {t('Support: MP4, MOV, JPG, PNG', 'Mendukung: MP4, MOV, JPG, PNG')}
@@ -260,7 +260,7 @@ export function BatchAnalysis() {
         <Card className="bg-gray-900/50 border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg text-white">
-              {t('Selected Videos', 'Video Dipilih')} ({videos.length}/10)
+              {t('Selected Videos', 'Video Dipilih')} ({videos.length}/3)
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={clearAll} className="text-gray-400">
               {t('Clear All', 'Hapus Semua')}
