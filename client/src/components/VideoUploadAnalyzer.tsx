@@ -17,6 +17,7 @@ import type { BiasAnalysisResult } from '@shared/schema';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { trackFeatureUsage } from '@/lib/analytics';
+import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 
 type Platform = 'tiktok' | 'non-social';
 
@@ -218,6 +219,15 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
       }
 
       setAnalysisResults(results);
+      
+      // Save each result to history
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        const videoFile = uploadedFiles[i];
+        const historyMode = selectedPlatform === 'tiktok' ? 'tiktok' : 'marketing';
+        const preview = videoFile?.description || videoFile?.file.name || 'Video Analysis';
+        saveAnalysisToHistory(result, historyMode, 'video', preview);
+      }
       
       if (onAnalysisComplete && results.length > 0) {
         onAnalysisComplete(results[0]);

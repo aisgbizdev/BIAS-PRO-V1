@@ -26,6 +26,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { canUseVideoAnalysis, incrementVideoUsage, getDailyLimit } from '@/lib/usageLimit';
+import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 
 interface AnalysisResult {
   overallScore: number;
@@ -144,7 +145,7 @@ export function VideoAnalyzerPanel() {
           .slice(0, 3)
           .map((l: any) => l.feedback?.substring(0, 150) || `${l.layer}: Needs improvement`);
         
-        setAnalysisResult({
+        const resultData = {
           overallScore: analysisData.overallScore,
           hookStrength: analysisData.hookStrength || getLayerScore('vbm') || 70,
           visualQuality: analysisData.visualQuality || getLayerScore('visual') || 70,
@@ -154,8 +155,21 @@ export function VideoAnalyzerPanel() {
           strengths,
           improvements,
           recommendations,
-        });
+        };
+        setAnalysisResult(resultData);
         incrementVideoUsage();
+        
+        // Save to history
+        const historyResult = {
+          mode: 'creator' as const,
+          overallScore: resultData.overallScore,
+          layers: [],
+          summary: `Video Analysis - Score: ${resultData.overallScore}`,
+          summaryId: `Analisis Video - Skor: ${resultData.overallScore}`,
+          recommendations: resultData.recommendations,
+          recommendationsId: resultData.recommendations,
+        };
+        saveAnalysisToHistory(historyResult, 'tiktok', 'video', description || uploadedFile?.name || 'TikTok Video');
       } else {
         throw new Error(t('Analysis incomplete - please try again', 'Analisis tidak lengkap - silakan coba lagi'));
       }
