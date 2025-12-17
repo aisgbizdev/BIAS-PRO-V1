@@ -112,17 +112,48 @@ export function VideoAnalyzerPanel() {
       
       const data = await response.json();
       
-      if (data.result && data.result.overallScore !== undefined) {
+      // Handle both new format (analysis with 8-layer) and legacy format (result)
+      const analysisData = data.analysis || data.result;
+      
+      if (analysisData && analysisData.overallScore !== undefined) {
+        // Extract scores from 8-layer format if available
+        const layers = analysisData.layers || [];
+        const getLayerScore = (keyword: string) => {
+          const layer = layers.find((l: any) => l.layer?.toLowerCase().includes(keyword.toLowerCase()));
+          return layer ? layer.score * 10 : 70; // Convert 1-10 to percentage, default 70
+        };
+        
+        // Safely extract recommendations (can be array or object)
+        let recommendations: string[] = [];
+        if (Array.isArray(analysisData.recommendations)) {
+          recommendations = analysisData.recommendations;
+        } else if (typeof analysisData.recommendations === 'object' && analysisData.recommendations) {
+          // Extract from nested object (e.g., {fyp: [], engagement: []})
+          recommendations = Object.values(analysisData.recommendations).flat().filter((r): r is string => typeof r === 'string').slice(0, 5);
+        }
+        
+        // Extract strengths from layers if not directly available
+        const strengths = analysisData.strengths || layers
+          .filter((l: any) => l.score >= 7)
+          .slice(0, 3)
+          .map((l: any) => l.feedback?.substring(0, 150) || `${l.layer}: Good performance`);
+        
+        // Extract improvements from layers with low scores
+        const improvements = analysisData.improvements || layers
+          .filter((l: any) => l.score < 7)
+          .slice(0, 3)
+          .map((l: any) => l.feedback?.substring(0, 150) || `${l.layer}: Needs improvement`);
+        
         setAnalysisResult({
-          overallScore: data.result.overallScore,
-          hookStrength: data.result.hookStrength || 0,
-          visualQuality: data.result.visualQuality || 0,
-          audioClarity: data.result.audioClarity || 0,
-          engagement: data.result.engagement || 0,
-          retention: data.result.retention || 0,
-          strengths: data.result.strengths || [],
-          improvements: data.result.improvements || [],
-          recommendations: data.result.recommendations || [],
+          overallScore: analysisData.overallScore,
+          hookStrength: analysisData.hookStrength || getLayerScore('vbm') || 70,
+          visualQuality: analysisData.visualQuality || getLayerScore('visual') || 70,
+          audioClarity: analysisData.audioClarity || getLayerScore('nlp') || 70,
+          engagement: analysisData.engagement || getLayerScore('soc') || 70,
+          retention: analysisData.retention || getLayerScore('cog') || 70,
+          strengths,
+          improvements,
+          recommendations,
         });
         incrementVideoUsage();
       } else {
