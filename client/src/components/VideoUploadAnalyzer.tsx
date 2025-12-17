@@ -178,7 +178,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
         }
         formData.append('content', videoFile.description || `Video file: ${videoFile.file.name}`);
 
-        const response = await fetch('/api/analyze', {
+        const response = await fetch('/api/analyze-video', {
           method: 'POST',
           body: formData,
         });
