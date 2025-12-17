@@ -86,25 +86,27 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         }
       }, duration / steps);
 
-      // Animate layer scores with stagger
-      result.layers.forEach((layer, idx) => {
-        setTimeout(() => {
-          const layerTargetScore = layer.score;
-          const layerSteps = 20;
-          const layerIncrement = layerTargetScore / layerSteps;
-          let layerStep = 0;
+      // Animate layer scores with stagger (only if layers exist)
+      if (result.layers && result.layers.length > 0) {
+        result.layers.forEach((layer, idx) => {
+          setTimeout(() => {
+            const layerTargetScore = layer.score;
+            const layerSteps = 20;
+            const layerIncrement = layerTargetScore / layerSteps;
+            let layerStep = 0;
 
-          const layerInterval = setInterval(() => {
-            layerStep++;
-            if (layerStep >= layerSteps) {
-              setAnimatedLayers(prev => ({ ...prev, [idx]: layerTargetScore }));
-              clearInterval(layerInterval);
-            } else {
-              setAnimatedLayers(prev => ({ ...prev, [idx]: Math.floor(layerIncrement * layerStep) }));
-            }
-          }, 800 / layerSteps);
-        }, idx * 100); // Stagger by 100ms
-      });
+            const layerInterval = setInterval(() => {
+              layerStep++;
+              if (layerStep >= layerSteps) {
+                setAnimatedLayers(prev => ({ ...prev, [idx]: layerTargetScore }));
+                clearInterval(layerInterval);
+              } else {
+                setAnimatedLayers(prev => ({ ...prev, [idx]: Math.floor(layerIncrement * layerStep) }));
+              }
+            }, 800 / layerSteps);
+          }, idx * 100); // Stagger by 100ms
+        });
+      }
 
       return () => {
         clearInterval(scoreInterval);
