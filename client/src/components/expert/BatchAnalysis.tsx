@@ -137,18 +137,32 @@ export function BatchAnalysis() {
         }
 
         const data = await response.json();
+        const analysisData = data.analysis || data.result;
         
-        if (data.result && data.result.overallScore !== undefined) {
+        if (analysisData) {
+          const overallScore = analysisData.overallScore ?? analysisData.score ?? 
+            (analysisData.layers ? Math.round(analysisData.layers.reduce((sum: number, l: any) => sum + (l.score || 0), 0) / analysisData.layers.length) : 70);
+          
+          const strengths: string[] = [];
+          const improvements: string[] = [];
+          
+          if (analysisData.layers && Array.isArray(analysisData.layers)) {
+            analysisData.layers.forEach((layer: any) => {
+              if (layer.strengths) strengths.push(...(Array.isArray(layer.strengths) ? layer.strengths : [layer.strengths]));
+              if (layer.weaknesses) improvements.push(...(Array.isArray(layer.weaknesses) ? layer.weaknesses : [layer.weaknesses]));
+            });
+          }
+          
           results.push({
             videoId: videos[i].id,
             videoName: videos[i].name,
-            overallScore: data.result.overallScore,
-            hookStrength: data.result.hookStrength || 0,
-            visualQuality: data.result.visualQuality || 0,
-            engagement: data.result.engagement || 0,
-            retention: data.result.retention || 0,
-            strengths: data.result.strengths || [],
-            improvements: data.result.improvements || [],
+            overallScore,
+            hookStrength: analysisData.hookStrength || analysisData.layers?.find((l: any) => l.layer === 'VBM')?.score || 70,
+            visualQuality: analysisData.visualQuality || analysisData.layers?.find((l: any) => l.layer === 'NLP')?.score || 70,
+            engagement: analysisData.engagement || analysisData.layers?.find((l: any) => l.layer === 'EPM')?.score || 70,
+            retention: analysisData.retention || analysisData.layers?.find((l: any) => l.layer === 'COG')?.score || 70,
+            strengths: strengths.slice(0, 3),
+            improvements: improvements.slice(0, 3),
           });
           incrementVideoUsage();
         }
