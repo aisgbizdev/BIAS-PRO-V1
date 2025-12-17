@@ -199,7 +199,9 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
 
         const data = await response.json();
         
-        if (!data.analysis) {
+        // Server returns 'result', not 'analysis'
+        const analysisData = data.analysis || data.result;
+        if (!analysisData) {
           console.error('❌ Missing analysis in response:', data);
           throw new Error(t(
             'Invalid response from server. Please try again.',
@@ -207,7 +209,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           ));
         }
         
-        results.push(data.analysis);
+        results.push(analysisData);
         console.log(`✅ Video ${i + 1} analyzed successfully`);
         
         // Update progress AFTER successful analysis
