@@ -490,27 +490,43 @@ Respond in JSON:
         },
       }));
 
-      const visionResponse = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: analysisPrompt },
-              ...imageContent,
-            ],
-          },
-        ],
-        max_tokens: 1500,
-        response_format: { type: 'json_object' },
+      // Use fetch directly like text analysis (more reliable)
+      const visionFetchResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: analysisPrompt },
+                ...imageContent,
+              ],
+            },
+          ],
+          max_tokens: 1500,
+          response_format: { type: 'json_object' },
+        }),
       });
+
+      if (!visionFetchResponse.ok) {
+        const errorData = await visionFetchResponse.text();
+        console.error('Vision API error:', visionFetchResponse.status, errorData);
+        throw new Error(`Vision API error: ${visionFetchResponse.status}`);
+      }
+
+      const visionResponse = await visionFetchResponse.json();
 
       if (tempDir) {
         const { cleanupTempDir } = await import('./video-processor');
         cleanupTempDir(tempDir);
       }
 
-      const analysisText = visionResponse.choices[0]?.message?.content || '{}';
+      const analysisText = visionResponse.choices?.[0]?.message?.content || '{}';
       const analysisResult = JSON.parse(analysisText);
 
       if (typeof analysisResult.overallScore !== 'number') {
