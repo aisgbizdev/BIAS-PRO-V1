@@ -592,23 +592,38 @@ Analisis elemen visual dan presentasi dalam konten ini.`;
         ? 'Respond in Indonesian (Bahasa Indonesia).'
         : 'Respond in English.';
 
-      const analysisPrompt = `Analyze this ${contextDescription}. ${langInstruction}
+      const analysisPrompt = `Kamu expert TikTok analytics. Analisis screenshot ${contextDescription}. ${langInstruction}
 
-Extract all visible metrics and provide insights. Respond in JSON format:
+PENTING - BACA ANGKA YANG TERLIHAT:
+1. Extract SEMUA metrics yang terlihat (followers, views, likes, engagement rate, dll)
+2. Bandingkan dengan benchmark TikTok industry
+3. Berikan REKOMENDASI SPESIFIK berdasarkan data yang terlihat
+
+CONTOH REKOMENDASI YANG BAGUS:
+❌ GENERIC: "Tingkatkan engagement"
+✅ SPESIFIK: "Engagement rate kamu 2.3% - di bawah rata-rata 4.5%. BESOK: Post jam 19:00-21:00 (peak hour). Week 1: Tambah 3 CTA per video. Target: naik ke 3.5%"
+
+Respond in JSON:
 {
   "metrics": [
-    { "name": "Metric Name", "value": "extracted value", "status": "good|average|needs_work" },
-    ...
+    { "name": "Followers", "value": "12.5K", "status": "good", "insight": "Di atas rata-rata micro-influencer (10K)" },
+    { "name": "Engagement Rate", "value": "2.3%", "status": "needs_work", "insight": "Di bawah benchmark 4.5% untuk niche ini" }
   ],
-  "summary": "Brief overall assessment",
-  "insights": ["insight1", "insight2", "insight3"],
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+  "summary": "Ringkasan 2-3 kalimat tentang kondisi akun",
+  "insights": [
+    "Insight spesifik berdasarkan angka yang terlihat",
+    "Perbandingan dengan benchmark industry",
+    "Pola atau trend yang terdeteksi"
+  ],
+  "recommendations": [
+    "BESOK: Action konkret pertama. Target: hasil yang diharapkan",
+    "Week 1: Action kedua dengan timeline. Expected: peningkatan X%",
+    "Week 2-4: Action jangka menengah dengan milestone"
+  ],
+  "overallScore": 75
 }
 
-Status meanings:
-- good: Above average performance
-- average: Normal performance  
-- needs_work: Below expectations, needs improvement`;
+Status: good (di atas rata-rata), average (normal), needs_work (perlu perbaikan)`;
 
       // Use OpenAI Vision API
       const OpenAI = (await import('openai')).default;
@@ -1852,35 +1867,44 @@ Status meanings:
         ? 'Respond in Indonesian (Bahasa Indonesia).'
         : 'Respond in English.';
 
-      const prompt = `You are a TikTok viral content expert. Analyze these hook variations and determine which one has the highest viral potential. ${langInstruction}
+      const prompt = `Kamu TikTok viral expert. Analisis hook variations ini dan tentukan mana yang paling viral. ${langInstruction}
 
 ${hooksText}
 
-For each hook, evaluate:
-1. Attention-grabbing power (curiosity, emotion, relatability)
-2. Clarity and conciseness
-3. Call to action/engagement trigger
-4. Platform fit for TikTok/short-form video
+ANALISIS WAJIB SPESIFIK:
+1. Quote EXACT kata-kata dari hook yang bikin kuat/lemah
+2. Bandingkan dengan hook viral yang sukses di TikTok
+3. Kasih suggestion yang KONKRET (bukan "tambah emosi" tapi "ganti 'cara' jadi 'rahasia'")
 
-Respond in JSON format:
+CONTOH FEEDBACK YANG BAGUS:
+❌ GENERIC: "Kurang engaging"
+✅ SPESIFIK: "Kata 'tips' terlalu umum - ganti jadi 'RAHASIA yang gak banyak orang tau'. Hook A mulai dengan 'Gue' - bagus karena personal, tapi tambah angka: 'Gue nemuin 3 cara...'"
+
+Untuk setiap hook, evaluasi:
+1. Curiosity gap - apakah bikin penasaran?
+2. Emosi trigger - fear, desire, curiosity, shock?
+3. Relatability - apakah target audience connect?
+4. First 2 seconds - apakah stop-scrolling?
+
+Respond in JSON:
 {
   "results": [
     {
       "hookId": "id from input",
       "hookText": "the hook text",
-      "score": number 0-100,
+      "score": 0-100,
       "viralPotential": "high" | "medium" | "low",
-      "strengths": ["strength1", "strength2"],
-      "weaknesses": ["weakness1", "weakness2"],
-      "suggestion": "specific improvement suggestion"
+      "strengths": ["Quote exact: 'kata X' efektif karena...", "Pattern 'Y' proven viral di TikTok"],
+      "weaknesses": ["Kata 'Z' terlalu generic", "Kurang angka spesifik - '3 cara' lebih kuat dari 'beberapa cara'"],
+      "suggestion": "GANTI: '[hook asli]' → '[versi improved]'. Alasan: lebih triggering curiosity"
     }
   ],
-  "winner": "A" or "B" or "C" etc,
-  "winnerScore": number,
-  "comparison": "brief explanation why winner is best"
+  "winner": "A",
+  "winnerScore": 85,
+  "comparison": "Hook A menang karena: 1) Mulai dengan angka '3', 2) Kata 'rahasia' trigger curiosity, 3) Personal 'gue/aku' bikin relatable. Hook B kalah karena opening 'Tips untuk...' terlalu formal."
 }
 
-Be objective and provide actionable feedback.`;
+WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstrak!`;
 
       const OpenAI = (await import('openai')).default;
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
