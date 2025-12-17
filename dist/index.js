@@ -11,8 +11,10 @@ var __export = (target, all) => {
 // shared/schema.ts
 var schema_exports = {};
 __export(schema_exports, {
+  adminAuditLog: () => adminAuditLog,
   adminSessions: () => adminSessions,
   analyses: () => analyses,
+  appSettings: () => appSettings,
   brands: () => brands,
   chats: () => chats,
   expertKnowledge: () => expertKnowledge,
@@ -21,6 +23,8 @@ __export(schema_exports, {
   hooks: () => hooks,
   insertAdminSessionSchema: () => insertAdminSessionSchema,
   insertAnalysisSchema: () => insertAnalysisSchema,
+  insertAppSettingSchema: () => insertAppSettingSchema,
+  insertAuditLogSchema: () => insertAuditLogSchema,
   insertBrandSchema: () => insertBrandSchema,
   insertChatSchema: () => insertChatSchema,
   insertExpertKnowledgeSchema: () => insertExpertKnowledgeSchema,
@@ -31,10 +35,12 @@ __export(schema_exports, {
   insertLibraryContributionSchema: () => insertLibraryContributionSchema,
   insertLiveStreamingTemplateSchema: () => insertLiveStreamingTemplateSchema,
   insertPageViewSchema: () => insertPageViewSchema,
+  insertPricingTierSchema: () => insertPricingTierSchema,
   insertResponseTemplateSchema: () => insertResponseTemplateSchema,
   insertScriptTemplateSchema: () => insertScriptTemplateSchema,
   insertSessionSchema: () => insertSessionSchema,
   insertStorytellingFrameworkSchema: () => insertStorytellingFrameworkSchema,
+  insertSuccessStorySchema: () => insertSuccessStorySchema,
   insertTiktokAccountSchema: () => insertTiktokAccountSchema,
   insertTiktokComparisonSchema: () => insertTiktokComparisonSchema,
   insertTiktokVideoSchema: () => insertTiktokVideoSchema,
@@ -43,10 +49,12 @@ __export(schema_exports, {
   libraryContributions: () => libraryContributions,
   liveStreamingTemplates: () => liveStreamingTemplates,
   pageViews: () => pageViews,
+  pricingTiers: () => pricingTiers,
   responseTemplates: () => responseTemplates,
   scriptTemplates: () => scriptTemplates,
   sessions: () => sessions,
   storytellingFrameworks: () => storytellingFrameworks,
+  successStories: () => successStories,
   tiktokAccounts: () => tiktokAccounts,
   tiktokComparisons: () => tiktokComparisons,
   tiktokVideos: () => tiktokVideos,
@@ -55,7 +63,7 @@ __export(schema_exports, {
 import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, boolean, timestamp, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-var sessions, analyses, chats, learnedResponses, insertLearnedResponseSchema, tiktokAccounts, tiktokVideos, tiktokComparisons, libraryContributions, pageViews, featureUsage, adminSessions, brands, insertSessionSchema, insertAnalysisSchema, insertChatSchema, insertTiktokAccountSchema, insertTiktokVideoSchema, insertTiktokComparisonSchema, insertLibraryContributionSchema, insertPageViewSchema, insertFeatureUsageSchema, insertAdminSessionSchema, insertBrandSchema, expertKnowledge, scriptTemplates, hooks, storytellingFrameworks, liveStreamingTemplates, trendingData, growthStageGuides, responseTemplates, insertExpertKnowledgeSchema, insertScriptTemplateSchema, insertHookSchema, insertStorytellingFrameworkSchema, insertLiveStreamingTemplateSchema, insertTrendingDataSchema, insertGrowthStageGuideSchema, insertResponseTemplateSchema;
+var sessions, analyses, chats, learnedResponses, insertLearnedResponseSchema, tiktokAccounts, tiktokVideos, tiktokComparisons, libraryContributions, successStories, pageViews, featureUsage, adminSessions, brands, appSettings, pricingTiers, adminAuditLog, insertSessionSchema, insertAnalysisSchema, insertChatSchema, insertTiktokAccountSchema, insertTiktokVideoSchema, insertTiktokComparisonSchema, insertLibraryContributionSchema, insertSuccessStorySchema, insertPageViewSchema, insertFeatureUsageSchema, insertAdminSessionSchema, insertBrandSchema, insertAuditLogSchema, expertKnowledge, scriptTemplates, hooks, storytellingFrameworks, liveStreamingTemplates, trendingData, growthStageGuides, responseTemplates, insertExpertKnowledgeSchema, insertScriptTemplateSchema, insertHookSchema, insertStorytellingFrameworkSchema, insertLiveStreamingTemplateSchema, insertTrendingDataSchema, insertGrowthStageGuideSchema, insertResponseTemplateSchema, insertAppSettingSchema, insertPricingTierSchema;
 var init_schema = __esm({
   "shared/schema.ts"() {
     "use strict";
@@ -184,6 +192,34 @@ var init_schema = __esm({
       createdAt: timestamp("created_at").notNull().defaultNow(),
       approvedAt: timestamp("approved_at")
     });
+    successStories = pgTable("success_stories", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      name: text("name").notNull(),
+      username: text("username").notNull(),
+      platform: text("platform").notNull(),
+      // 'tiktok' or 'marketing'
+      role: text("role").notNull(),
+      // 'Creator', 'Influencer', 'Sales Manager', etc.
+      story: text("story").notNull(),
+      storyId: text("story_id"),
+      // Indonesian version
+      achievement: text("achievement").notNull(),
+      // e.g., "Followers naik 50%"
+      achievementId: text("achievement_id"),
+      // Indonesian version  
+      profileUrl: text("profile_url"),
+      // Link to their TikTok/LinkedIn
+      avatarUrl: text("avatar_url"),
+      // Optional profile picture
+      rating: integer("rating").notNull().default(5),
+      // 1-5 stars
+      status: text("status").notNull().default("pending"),
+      // 'pending', 'approved', 'rejected'
+      featured: boolean("featured").notNull().default(false),
+      // Show on homepage
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      approvedAt: timestamp("approved_at")
+    });
     pageViews = pgTable("page_views", {
       id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
       sessionId: text("session_id").notNull(),
@@ -248,6 +284,68 @@ var init_schema = __esm({
       createdAt: timestamp("created_at").notNull().defaultNow(),
       updatedAt: timestamp("updated_at").notNull().defaultNow()
     });
+    appSettings = pgTable("app_settings", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      key: text("key").notNull().unique(),
+      // 'daily_video_limit', 'feature_batch_analysis', etc.
+      value: text("value").notNull(),
+      // JSON or string value
+      valueType: text("value_type").notNull().default("string"),
+      // 'string', 'number', 'boolean', 'json'
+      category: text("category").notNull().default("general"),
+      // 'limits', 'features', 'pricing', 'general'
+      labelEn: text("label_en").notNull(),
+      // Human-readable label
+      labelId: text("label_id").notNull(),
+      descriptionEn: text("description_en"),
+      descriptionId: text("description_id"),
+      isEditable: boolean("is_editable").notNull().default(true),
+      updatedBy: text("updated_by"),
+      updatedAt: timestamp("updated_at").notNull().defaultNow(),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    pricingTiers = pgTable("pricing_tiers", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      name: text("name").notNull(),
+      // 'Gratis', 'Basic', 'Pro', 'Unlimited'
+      slug: text("slug").notNull().unique(),
+      // 'gratis', 'basic', 'pro', 'unlimited'
+      priceIdr: integer("price_idr").notNull().default(0),
+      // Price in IDR
+      priceUsd: real("price_usd").default(0),
+      // Price in USD (optional)
+      period: text("period").notNull().default("month"),
+      // 'month', 'year', 'lifetime'
+      descriptionEn: text("description_en"),
+      descriptionId: text("description_id"),
+      featuresEn: text("features_en").array(),
+      // Array of feature strings
+      featuresId: text("features_id").array(),
+      chatLimit: integer("chat_limit"),
+      // -1 for unlimited
+      videoLimit: integer("video_limit"),
+      // -1 for unlimited
+      isActive: boolean("is_active").notNull().default(true),
+      isPopular: boolean("is_popular").notNull().default(false),
+      sortOrder: integer("sort_order").notNull().default(0),
+      updatedBy: text("updated_by"),
+      updatedAt: timestamp("updated_at").notNull().defaultNow(),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
+    adminAuditLog = pgTable("admin_audit_log", {
+      id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+      adminUsername: text("admin_username").notNull(),
+      action: text("action").notNull(),
+      // 'approve', 'reject', 'delete', 'edit', 'create', 'login', 'logout', 'settings_update'
+      targetType: text("target_type").notNull(),
+      // 'contribution', 'brand', 'library_item', 'ai_settings', 'session'
+      targetId: text("target_id"),
+      // ID of affected item
+      details: text("details"),
+      // JSON string with additional context
+      ipAddress: text("ip_address"),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    });
     insertSessionSchema = createInsertSchema(sessions).omit({ id: true, createdAt: true, lastActiveAt: true });
     insertAnalysisSchema = createInsertSchema(analyses).omit({ id: true, createdAt: true });
     insertChatSchema = createInsertSchema(chats).omit({ id: true, createdAt: true });
@@ -255,10 +353,12 @@ var init_schema = __esm({
     insertTiktokVideoSchema = createInsertSchema(tiktokVideos).omit({ id: true, createdAt: true });
     insertTiktokComparisonSchema = createInsertSchema(tiktokComparisons).omit({ id: true, createdAt: true });
     insertLibraryContributionSchema = createInsertSchema(libraryContributions).omit({ id: true, createdAt: true, approvedAt: true });
+    insertSuccessStorySchema = createInsertSchema(successStories).omit({ id: true, createdAt: true, approvedAt: true, featured: true, status: true });
     insertPageViewSchema = createInsertSchema(pageViews).omit({ id: true, createdAt: true });
     insertFeatureUsageSchema = createInsertSchema(featureUsage).omit({ id: true, createdAt: true });
     insertAdminSessionSchema = createInsertSchema(adminSessions).omit({ id: true, createdAt: true });
     insertBrandSchema = createInsertSchema(brands).omit({ id: true, createdAt: true, updatedAt: true });
+    insertAuditLogSchema = createInsertSchema(adminAuditLog).omit({ id: true, createdAt: true });
     expertKnowledge = pgTable("expert_knowledge", {
       id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
       category: text("category").notNull(),
@@ -502,6 +602,8 @@ var init_schema = __esm({
     insertTrendingDataSchema = createInsertSchema(trendingData).omit({ id: true, createdAt: true });
     insertGrowthStageGuideSchema = createInsertSchema(growthStageGuides).omit({ id: true, createdAt: true });
     insertResponseTemplateSchema = createInsertSchema(responseTemplates).omit({ id: true, createdAt: true });
+    insertAppSettingSchema = createInsertSchema(appSettings).omit({ id: true, createdAt: true, updatedAt: true });
+    insertPricingTierSchema = createInsertSchema(pricingTiers).omit({ id: true, createdAt: true, updatedAt: true });
   }
 });
 
@@ -595,7 +697,7 @@ function recordUsage(sessionId, tokensUsed) {
   hourly.tokens += tokensUsed;
   daily.requests++;
   daily.tokens += tokensUsed;
-  console.log(`\u{1F4CA} AI Usage - Session ${sessionId.slice(0, 8)}...: ${daily.requests} requests, ${daily.tokens.toLocaleString()} tokens today`);
+  console.log(`\u{1F4CA} Ai Usage - Session ${sessionId.slice(0, 8)}...: ${daily.requests} requests, ${daily.tokens.toLocaleString()} tokens today`);
 }
 function getUsageStats(sessionId) {
   return {
@@ -606,7 +708,7 @@ function getUsageStats(sessionId) {
 }
 function updateConfig(newConfig) {
   Object.assign(DEFAULT_CONFIG, newConfig);
-  console.log("\u{1F527} AI Rate Limit Config Updated:", DEFAULT_CONFIG);
+  console.log("\u{1F527} Ai Rate Limit Config Updated:", DEFAULT_CONFIG);
   return DEFAULT_CONFIG;
 }
 function getConfig() {
@@ -639,7 +741,7 @@ __export(learning_system_exports, {
   getLearningStats: () => getLearningStats,
   saveLearnedResponse: () => saveLearnedResponse
 });
-import { eq as eq2, sql as sql2, desc } from "drizzle-orm";
+import { eq as eq2, sql as sql3, desc as desc2 } from "drizzle-orm";
 function extractKeywords(text2) {
   const normalized = text2.toLowerCase().replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
   const words = normalized.split(" ");
@@ -671,7 +773,7 @@ async function findSimilarResponse(question) {
       return { found: false };
     }
     console.log(`\u{1F50D} Looking for similar response. Keywords: ${queryKeywords.join(", ")}`);
-    const allResponses = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.useCount));
+    const allResponses = await db.select().from(learnedResponses).orderBy(desc2(learnedResponses.useCount));
     let bestMatch = null;
     const SIMILARITY_THRESHOLD = 0.4;
     for (const lr of allResponses) {
@@ -690,7 +792,7 @@ async function findSimilarResponse(question) {
     if (bestMatch) {
       console.log(`\u2705 Found similar response! Similarity: ${(bestMatch.similarity * 100).toFixed(0)}%`);
       await db.update(learnedResponses).set({
-        useCount: sql2`${learnedResponses.useCount} + 1`,
+        useCount: sql3`${learnedResponses.useCount} + 1`,
         lastUsedAt: /* @__PURE__ */ new Date()
       }).where(eq2(learnedResponses.id, bestMatch.id));
       return {
@@ -1029,7 +1131,7 @@ async function hybridChat(request) {
       };
     }
   } catch (error) {
-    console.log("\u26A0\uFE0F Learning library check failed, continuing to AI");
+    console.log("\u26A0\uFE0F Learning library check failed, continuing to Ai");
   }
   const rateLimitCheck = checkRateLimit(sessionId);
   if (!rateLimitCheck.allowed) {
@@ -1052,7 +1154,7 @@ Sementara itu, kamu masih bisa:
     return {
       response: `\u{1F527} **OpenAI belum dikonfigurasi**
 
-Untuk mengaktifkan AI chat, admin perlu setup OpenAI API key.
+Untuk mengaktifkan Ai chat, admin perlu setup OpenAI API key.
 
 Sementara itu, kamu bisa pakai:
 \u2022 Template Live Generator
@@ -1128,7 +1230,7 @@ ${relevantKnowledge}`
     return {
       response: `\u26A0\uFE0F **Ada gangguan bro!**
 
-Gue gak bisa connect ke AI sekarang. Error: ${error.message || "Unknown error"}
+Gue gak bisa connect ke Ai sekarang. Error: ${error.message || "Unknown error"}
 
 Coba:
 \u2022 Refresh dan tanya lagi
@@ -1510,7 +1612,7 @@ import { createServer } from "http";
 init_schema();
 init_db();
 import { randomUUID } from "crypto";
-import { eq, lt, and, gt, or, lte, ilike } from "drizzle-orm";
+import { eq, lt, and, gt, or, lte, ilike, desc, count } from "drizzle-orm";
 var MemStorage = class {
   sessions;
   analyses;
@@ -1645,6 +1747,12 @@ var MemStorage = class {
     this.tiktokAccounts.set(id, updated);
     return updated;
   }
+  async getAllAnalyzedAccounts(limit = 100) {
+    return Array.from(this.tiktokAccounts.values()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, limit);
+  }
+  async getAnalyzedAccountsCount() {
+    return this.tiktokAccounts.size;
+  }
   // TikTok Video methods
   async createTiktokVideo(insertVideo) {
     const id = randomUUID();
@@ -1752,6 +1860,38 @@ var MemStorage = class {
   async isLibraryItemDeleted(itemId) {
     return this.deletedLibraryItems.has(itemId);
   }
+  // Success Stories (using database)
+  async createSuccessStory(story) {
+    const [created] = await db.insert(successStories).values({
+      ...story,
+      status: "pending",
+      featured: false
+    }).returning();
+    return created;
+  }
+  async getSuccessStory(id) {
+    const [s] = await db.select().from(successStories).where(eq(successStories.id, id));
+    return s;
+  }
+  async getPendingSuccessStories() {
+    return db.select().from(successStories).where(eq(successStories.status, "pending"));
+  }
+  async getApprovedSuccessStories() {
+    return db.select().from(successStories).where(eq(successStories.status, "approved"));
+  }
+  async getFeaturedSuccessStories() {
+    return db.select().from(successStories).where(
+      and(eq(successStories.status, "approved"), eq(successStories.featured, true))
+    );
+  }
+  async updateSuccessStory(id, updates) {
+    const [updated] = await db.update(successStories).set(updates).where(eq(successStories.id, id)).returning();
+    return updated;
+  }
+  async deleteSuccessStory(id) {
+    await db.delete(successStories).where(eq(successStories.id, id));
+    return true;
+  }
   // Analytics methods
   async trackPageView(insertPageView) {
     const id = randomUUID();
@@ -1829,6 +1969,78 @@ var MemStorage = class {
     const cutoff = /* @__PURE__ */ new Date();
     cutoff.setDate(cutoff.getDate() - days);
     return Array.from(this.featureUsages.values()).filter((u) => u.createdAt >= cutoff).length;
+  }
+  async getNavigationBreakdown(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const usages = Array.from(this.featureUsages.values()).filter((u) => u.createdAt >= cutoff && u.featureType === "navigation");
+    const stats = /* @__PURE__ */ new Map();
+    usages.forEach((u) => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.menuItem || "unknown"}|${details.destination || "unknown"}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, {
+            menuItem: details.menuItem || "Unknown",
+            destination: details.destination || "/",
+            count: 1
+          });
+        }
+      } catch (e) {
+      }
+    });
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  }
+  async getTabBreakdown(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const usages = Array.from(this.featureUsages.values()).filter((u) => u.createdAt >= cutoff && u.featureType === "tab-selection");
+    const stats = /* @__PURE__ */ new Map();
+    usages.forEach((u) => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.page || "unknown"}|${details.tabName || u.mode || "unknown"}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, {
+            page: details.page || "Unknown",
+            tabName: details.tabName || u.mode || "Unknown",
+            count: 1
+          });
+        }
+      } catch (e) {
+      }
+    });
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  }
+  async getButtonClickBreakdown(days = 7) {
+    const cutoff = /* @__PURE__ */ new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const usages = Array.from(this.featureUsages.values()).filter((u) => u.createdAt >= cutoff && u.featureType === "button-click");
+    const stats = /* @__PURE__ */ new Map();
+    usages.forEach((u) => {
+      try {
+        const details = u.featureDetails ? JSON.parse(u.featureDetails) : {};
+        const key = `${details.buttonName || "unknown"}|${details.context || u.mode || "unknown"}`;
+        const existing = stats.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          stats.set(key, {
+            buttonName: details.buttonName || "Unknown",
+            context: details.context || u.mode || "Unknown",
+            count: 1
+          });
+        }
+      } catch (e) {
+      }
+    });
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
   }
   // Admin session methods
   async createAdminSession(sessionId, username) {
@@ -1945,6 +2157,32 @@ var MemStorage = class {
   async getScriptTemplates(_filters) {
     return [];
   }
+  // Platform settings stub methods (MemStorage - returns empty)
+  async getPublicSettings() {
+    return {};
+  }
+  async getAllSettings() {
+    return [];
+  }
+  async getSetting(_key) {
+    return void 0;
+  }
+  async updateSetting(_key, _value, _updatedBy) {
+    return void 0;
+  }
+  // Pricing tier stub methods (MemStorage - returns empty)
+  async getActivePricingTiers() {
+    return [];
+  }
+  async getAllPricingTiers() {
+    return [];
+  }
+  async getPricingTier(_slug) {
+    return void 0;
+  }
+  async updatePricingTier(_slug, _updates, _updatedBy) {
+    return void 0;
+  }
 };
 var DatabaseStorage = class {
   memStorage;
@@ -1976,19 +2214,30 @@ var DatabaseStorage = class {
     return this.memStorage.clearChatsBySession(sessionId);
   }
   async createTiktokAccount(account) {
-    return this.memStorage.createTiktokAccount(account);
+    const [inserted] = await db.insert(tiktokAccounts).values(account).returning();
+    return inserted;
   }
   async getTiktokAccount(id) {
-    return this.memStorage.getTiktokAccount(id);
+    const [account] = await db.select().from(tiktokAccounts).where(eq(tiktokAccounts.id, id));
+    return account;
   }
   async getTiktokAccountByUsername(username) {
-    return this.memStorage.getTiktokAccountByUsername(username);
+    const [account] = await db.select().from(tiktokAccounts).where(ilike(tiktokAccounts.username, username)).orderBy(desc(tiktokAccounts.createdAt)).limit(1);
+    return account;
   }
   async getTiktokAccountsBySession(sessionId) {
-    return this.memStorage.getTiktokAccountsBySession(sessionId);
+    return db.select().from(tiktokAccounts).where(eq(tiktokAccounts.sessionId, sessionId)).orderBy(desc(tiktokAccounts.createdAt));
   }
   async updateTiktokAccount(id, updates) {
-    return this.memStorage.updateTiktokAccount(id, updates);
+    const [updated] = await db.update(tiktokAccounts).set({ ...updates, updatedAt: /* @__PURE__ */ new Date() }).where(eq(tiktokAccounts.id, id)).returning();
+    return updated;
+  }
+  async getAllAnalyzedAccounts(limit = 100) {
+    return db.select().from(tiktokAccounts).orderBy(desc(tiktokAccounts.createdAt)).limit(limit);
+  }
+  async getAnalyzedAccountsCount() {
+    const [result] = await db.select({ count: count() }).from(tiktokAccounts);
+    return result?.count || 0;
   }
   async createTiktokVideo(video) {
     return this.memStorage.createTiktokVideo(video);
@@ -2041,6 +2290,28 @@ var DatabaseStorage = class {
   async isLibraryItemDeleted(itemId) {
     return this.memStorage.isLibraryItemDeleted(itemId);
   }
+  // Success Stories - delegate to memStorage (which uses DB)
+  async createSuccessStory(story) {
+    return this.memStorage.createSuccessStory(story);
+  }
+  async getSuccessStory(id) {
+    return this.memStorage.getSuccessStory(id);
+  }
+  async getPendingSuccessStories() {
+    return this.memStorage.getPendingSuccessStories();
+  }
+  async getApprovedSuccessStories() {
+    return this.memStorage.getApprovedSuccessStories();
+  }
+  async getFeaturedSuccessStories() {
+    return this.memStorage.getFeaturedSuccessStories();
+  }
+  async updateSuccessStory(id, updates) {
+    return this.memStorage.updateSuccessStory(id, updates);
+  }
+  async deleteSuccessStory(id) {
+    return this.memStorage.deleteSuccessStory(id);
+  }
   async trackPageView(pageView) {
     return this.memStorage.trackPageView(pageView);
   }
@@ -2061,6 +2332,15 @@ var DatabaseStorage = class {
   }
   async getTotalFeatureUsage(days = 7) {
     return this.memStorage.getTotalFeatureUsage(days);
+  }
+  async getNavigationBreakdown(days = 7) {
+    return this.memStorage.getNavigationBreakdown(days);
+  }
+  async getTabBreakdown(days = 7) {
+    return this.memStorage.getTabBreakdown(days);
+  }
+  async getButtonClickBreakdown(days = 7) {
+    return this.memStorage.getButtonClickBreakdown(days);
   }
   async createAdminSession(sessionId, username) {
     const now = /* @__PURE__ */ new Date();
@@ -2227,6 +2507,101 @@ var DatabaseStorage = class {
       conditions.push(eq(scriptTemplates.level, filters.level));
     }
     return db.select().from(scriptTemplates).where(and(...conditions));
+  }
+  // Platform settings management
+  async getPublicSettings() {
+    try {
+      const settings = await db.select().from(appSettings);
+      const result = {};
+      for (const setting of settings) {
+        let value = setting.value;
+        if (setting.valueType === "number") {
+          value = parseFloat(setting.value);
+        } else if (setting.valueType === "boolean") {
+          value = setting.value === "true";
+        } else if (setting.valueType === "json") {
+          try {
+            value = JSON.parse(setting.value);
+          } catch {
+            value = setting.value;
+          }
+        }
+        result[setting.key] = value;
+      }
+      return result;
+    } catch (error) {
+      console.error("[SETTINGS] Error getting public settings:", error);
+      return {};
+    }
+  }
+  async getAllSettings() {
+    try {
+      return db.select().from(appSettings);
+    } catch (error) {
+      console.error("[SETTINGS] Error getting all settings:", error);
+      return [];
+    }
+  }
+  async getSetting(key) {
+    try {
+      const [setting] = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
+      return setting;
+    } catch (error) {
+      console.error("[SETTINGS] Error getting setting:", error);
+      return void 0;
+    }
+  }
+  async updateSetting(key, value, updatedBy) {
+    try {
+      const [updated] = await db.update(appSettings).set({
+        value,
+        updatedBy: updatedBy || null,
+        updatedAt: /* @__PURE__ */ new Date()
+      }).where(eq(appSettings.key, key)).returning();
+      return updated;
+    } catch (error) {
+      console.error("[SETTINGS] Error updating setting:", error);
+      return void 0;
+    }
+  }
+  // Pricing tier management
+  async getActivePricingTiers() {
+    try {
+      return db.select().from(pricingTiers).where(eq(pricingTiers.isActive, true)).orderBy(pricingTiers.sortOrder);
+    } catch (error) {
+      console.error("[PRICING] Error getting active pricing tiers:", error);
+      return [];
+    }
+  }
+  async getAllPricingTiers() {
+    try {
+      return db.select().from(pricingTiers).orderBy(pricingTiers.sortOrder);
+    } catch (error) {
+      console.error("[PRICING] Error getting all pricing tiers:", error);
+      return [];
+    }
+  }
+  async getPricingTier(slug) {
+    try {
+      const [tier] = await db.select().from(pricingTiers).where(eq(pricingTiers.slug, slug)).limit(1);
+      return tier;
+    } catch (error) {
+      console.error("[PRICING] Error getting pricing tier:", error);
+      return void 0;
+    }
+  }
+  async updatePricingTier(slug, updates, updatedBy) {
+    try {
+      const [updated] = await db.update(pricingTiers).set({
+        ...updates,
+        updatedBy: updatedBy || null,
+        updatedAt: /* @__PURE__ */ new Date()
+      }).where(eq(pricingTiers.slug, slug)).returning();
+      return updated;
+    } catch (error) {
+      console.error("[PRICING] Error updating pricing tier:", error);
+      return void 0;
+    }
   }
 };
 var storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
@@ -2841,12 +3216,12 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
     console.log(`\u2705 OpenAI deep analysis completed in ${(duration / 1e3).toFixed(1)}s`);
     const responseContent = completion.choices[0]?.message?.content;
     if (!responseContent) {
-      throw new Error("Empty AI response");
+      throw new Error("Empty Ai response");
     }
     const parsedResponse = JSON.parse(responseContent);
     const layers = Array.isArray(parsedResponse) ? parsedResponse : parsedResponse.layers || [];
     if (!layers || layers.length === 0) {
-      throw new Error("No layers in AI response");
+      throw new Error("No layers in Ai response");
     }
     const tokensUsed = completion.usage?.total_tokens || Math.ceil(responseContent.length / 4);
     recordUsage(sessionId, tokensUsed);
@@ -2856,7 +3231,7 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
       tokensUsed
     };
   } catch (error) {
-    console.error("\u274C Deep AI Analysis Error:", error);
+    console.error("\u274C Deep Ai Analysis Error:", error);
     console.log("\u{1F4CA} Falling back to basic analysis...");
     return { layers: generateBasicAnalysis(input) };
   }
@@ -2927,28 +3302,27 @@ function generateBasicAnalysis(input) {
   ];
   return layers.map((layer, idx) => ({
     layer,
-    score: 65 + Math.floor(Math.random() * 25),
-    // 65-90 range
+    score: 0,
+    // No score available without actual analysis
     specificObservations: [
-      `Analisis berdasarkan content description yang diberikan`,
-      `Detail observasi memerlukan actual video/audio file untuk analisis maksimal`,
-      `Gunakan mode upload video untuk mendapatkan feedback yang lebih spesifik`
+      `\u26A0\uFE0F Deep analysis memerlukan upload video/audio file`,
+      `Analisis berbasis teks tidak dapat memberikan skor akurat`,
+      `Upload file untuk mendapatkan observasi spesifik`
     ],
     strengths: [
-      `Konten memiliki potensi yang baik untuk platform ${input.platform || "digital"}`,
+      `Konten memiliki potensi untuk platform ${input.platform || "digital"}`,
       `Approach komunikasi sesuai dengan mode ${input.mode}`
     ],
     weaknesses: [
-      `Analisis terbatas tanpa access ke actual video/audio content`,
-      `Untuk feedback yang lebih aplikatif, upload actual file untuk AI deep analysis`
+      `Tidak dapat menganalisis tanpa actual video/audio content`,
+      `Upload file untuk mendapatkan feedback yang aplikatif`
     ],
     actionableRecommendations: [
-      `Week 1: Upload actual video file untuk mendapatkan analisis timestamp-specific`,
-      `Week 2-3: Implement recommendations dari deep AI analysis`,
-      `Month 1: Track improvement metrics dan iterate based on performance data`
+      `Upload actual video/audio file untuk analisis detail`,
+      `Gunakan mode upload untuk mendapatkan skor dan feedback konkret`
     ],
-    feedback: `\u26A0\uFE0F Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. AI deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`,
-    feedbackId: `\u26A0\uFE0F Analisis ini berbasis description text. Untuk mendapatkan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file. AI deep analyzer kami akan memberikan analisis detail seperti: "Di 0:15-0:32 intonasi terlalu monoton, gesture tangan muncul 3x tapi kurang ekspresif, filler word 'eee' terdeteksi 7x" - level detail yang bikin improvement process jauh lebih actionable!`
+    feedback: `\u26A0\uFE0F SKOR TIDAK TERSEDIA - Analisis ini berbasis description text saja. Untuk mendapatkan skor dan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file.`,
+    feedbackId: `\u26A0\uFE0F SKOR TIDAK TERSEDIA - Analisis ini berbasis description text saja. Untuk mendapatkan skor dan feedback KONKRET dengan specific observations (timestamps, filler words count, gesture analysis, intonation patterns), silakan upload actual video/audio file.`
   }));
 }
 
@@ -3003,7 +3377,7 @@ async function analyzeText(input) {
   const shouldUseAI = input.content && input.content.length >= 20;
   if (shouldUseAI) {
     try {
-      console.log("\u{1F916} Initiating AI Deep Analysis for", input.inputType, "content...");
+      console.log("\u{1F916} Initiating Ai Deep Analysis for", input.inputType, "content...");
       const deepResult = await deepAnalyzeWithAI({
         content: input.content,
         mode: input.mode,
@@ -3026,7 +3400,7 @@ async function analyzeText(input) {
           (dl) => dl.actionableRecommendations || []
         ).filter(Boolean);
         const summary = generateDeepSummary(deepLayers, overallScore, input.mode);
-        console.log("\u2705 AI Deep Analysis completed successfully");
+        console.log("\u2705 Ai Deep Analysis completed successfully");
         return {
           mode: input.mode,
           overallScore,
@@ -3038,10 +3412,10 @@ async function analyzeText(input) {
         };
       }
     } catch (error) {
-      console.error("\u26A0\uFE0F AI Deep Analysis failed, falling back to standard analysis:", error);
+      console.error("\u26A0\uFE0F Ai Deep Analysis failed, falling back to standard analysis:", error);
     }
   }
-  console.log("\u{1F4DD} Using standard template-based analysis (AI unavailable or content too short)");
+  console.log("\u{1F4DD} Using standard template-based analysis (Ai unavailable or content too short)");
   const analyzer = new TextAnalyzer({
     content: input.content,
     mode: input.mode,
@@ -3077,7 +3451,7 @@ var TikTokKnowledge = {
   // ALGORITHM & FYP SECRETS
   algorithm: {
     fyp: {
-      howItWorks: "TikTok FYP (For You Page) menggunakan AI untuk recommend video yang cocok dengan minat user. Semakin banyak interaksi (watch time, like, share), semakin sering video kamu muncul.",
+      howItWorks: "TikTok FYP (For You Page) menggunakan Ai untuk recommend video yang cocok dengan minat user. Semakin banyak interaksi (watch time, like, share), semakin sering video kamu muncul.",
       rankingFactors: [
         {
           factor: "Watch Time / Completion Rate",
@@ -3913,7 +4287,7 @@ var YouTubeKnowledge = {
       "Authenticity over production: Raw, unedited content competitive with high-production"
     ],
     features: [
-      "AI-powered tools: Auto-dubbing (multi-language), AI chapters, thumbnail suggestions",
+      "Ai-powered tools: Auto-dubbing (multi-language), Ai chapters, thumbnail suggestions",
       "Shopping integration: Tag products directly in video (affiliate on steroids)",
       "Handles (@username): Easier discovery, cross-platform consistency"
     ],
@@ -4736,7 +5110,7 @@ Coba tanya tentang salah satu topik di atas, atau rephrase pertanyaan dengan leb
           relatedTopics: libraryAnswer.relatedTopics
         };
       } catch (error) {
-        console.warn("\u26A0\uFE0F AI enhancement failed, returning library answer:", error);
+        console.warn("\u26A0\uFE0F Ai enhancement failed, returning library answer:", error);
         return libraryAnswer;
       }
     }
@@ -5558,7 +5932,7 @@ async function generateAICascadeResponse(message, mode) {
       };
     }
     if (knowledgeResult.source === "library+ai") {
-      console.log("\u2705 Answered from Knowledge Library + AI Enhancement");
+      console.log("\u2705 Answered from Knowledge Library + Ai Enhancement");
       return {
         response: knowledgeResult.answer,
         isOnTopic: true,
@@ -5573,9 +5947,9 @@ async function generateAICascadeResponse(message, mode) {
         provider: "knowledge-library"
       };
     }
-    console.log("\u26A0\uFE0F Library confidence medium/low, trying AI for better answer...");
+    console.log("\u26A0\uFE0F Library confidence medium/low, trying Ai for better answer...");
   } catch (error) {
-    console.warn("Knowledge library error, falling back to AI:", error);
+    console.warn("Knowledge library error, falling back to Ai:", error);
   }
   const preCheck = await generateChatResponse(message, mode);
   if (!preCheck.isOnTopic) {
@@ -5868,11 +6242,11 @@ function calculateEngagementRate2(likes, followers) {
   }
   return safeDivideBigInt(likes * BigInt(100), followers);
 }
-function calculateAverage(total, count) {
-  if (count === BigInt(0)) {
+function calculateAverage(total, count2) {
+  if (count2 === BigInt(0)) {
     return 0;
   }
-  return Math.round(safeDivideBigInt(total, count));
+  return Math.round(safeDivideBigInt(total, count2));
 }
 
 // server/services/tiktok-scraper.ts
@@ -6179,20 +6553,20 @@ var TIKTOK_RULES = [
       {
         id: "ai-content",
         category: "integrity",
-        title: "AI-Generated & Edited Media",
-        titleId: "Media yang Diedit dan Konten Buatan AI",
-        description: "We require clear labeling when using AI or editing content to show realistic people or scenes. We do not allow misleading AI content on public interest issues.",
-        descriptionId: "Kami mewajibkan Anda untuk memberikan label yang jelas jika menggunakan AI atau mengedit konten untuk menampilkan orang atau adegan yang tampak realistis.",
+        title: "Ai-Generated & Edited Media",
+        titleId: "Media yang Diedit dan Konten Buatan Ai",
+        description: "We require clear labeling when using Ai or editing content to show realistic people or scenes. We do not allow misleading Ai content on public interest issues.",
+        descriptionId: "Kami mewajibkan Anda untuk memberikan label yang jelas jika menggunakan Ai atau mengedit konten untuk menampilkan orang atau adegan yang tampak realistis.",
         status: "not-allowed",
         examples: [
-          "REQUIRED: Must label AI-generated realistic content",
-          "NOT ALLOWED: Misleading AI content about public issues",
-          "NOT ALLOWED: AI content that harms someone"
+          "REQUIRED: Must label Ai-generated realistic content",
+          "NOT ALLOWED: Misleading Ai content about public issues",
+          "NOT ALLOWED: Ai content that harms someone"
         ],
         examplesId: [
-          "WAJIB: Harus memberi label konten realistis buatan AI",
-          "TIDAK DIIZINKAN: Konten AI menyesatkan tentang isu publik",
-          "TIDAK DIIZINKAN: Konten AI yang membahayakan seseorang"
+          "WAJIB: Harus memberi label konten realistis buatan Ai",
+          "TIDAK DIIZINKAN: Konten Ai menyesatkan tentang isu publik",
+          "TIDAK DIIZINKAN: Konten Ai yang membahayakan seseorang"
         ]
       },
       {
@@ -6498,21 +6872,21 @@ var YOUTUBE_RULES = [
       {
         id: "ai-disclosure",
         category: "misinformation",
-        title: "AI Content Disclosure (2025)",
-        titleId: "Pengungkapan Konten AI (2025)",
-        description: "Creators MUST label synthetic content, especially deepfakes and AI-cloned voices. Required by new 2025 policy.",
-        descriptionId: "Kreator HARUS memberi label konten sintetis, terutama deepfake dan suara yang diklon AI. Diperlukan oleh kebijakan baru 2025.",
+        title: "Ai Content Disclosure (2025)",
+        titleId: "Pengungkapan Konten Ai (2025)",
+        description: "Creators MUST label synthetic content, especially deepfakes and Ai-cloned voices. Required by new 2025 policy.",
+        descriptionId: "Kreator HARUS memberi label konten sintetis, terutama deepfake dan suara yang diklon Ai. Diperlukan oleh kebijakan baru 2025.",
         status: "allowed",
         examples: [
-          "REQUIRED: Label AI-generated voices clearly",
+          "REQUIRED: Label Ai-generated voices clearly",
           "REQUIRED: Disclose deepfake or synthetic media",
-          "NOT ALLOWED: Use AI without disclosure",
+          "NOT ALLOWED: Use Ai without disclosure",
           "NOT ALLOWED: Misleading manipulated content"
         ],
         examplesId: [
-          "WAJIB: Label suara yang dihasilkan AI dengan jelas",
+          "WAJIB: Label suara yang dihasilkan Ai dengan jelas",
           "WAJIB: Ungkapkan deepfake atau media sintetis",
-          "TIDAK DIIZINKAN: Gunakan AI tanpa pengungkapan",
+          "TIDAK DIIZINKAN: Gunakan Ai tanpa pengungkapan",
           "TIDAK DIIZINKAN: Konten manipulatif yang menyesatkan"
         ]
       },
@@ -6685,8 +7059,8 @@ async function registerRoutes(app2) {
         console.error(`\u274C [${requestId}] Analysis engine failed:`, analysisError);
         return res.status(500).json({
           error: "Analysis failed",
-          message: "Our AI analysis engine encountered an error. This could be due to high load or API timeout. Please try again.",
-          messageId: "Analisis AI mengalami error. Ini bisa karena server load tinggi atau timeout. Silakan coba lagi.",
+          message: "Our Ai analysis engine encountered an error. This could be due to high load or API timeout. Please try again.",
+          messageId: "Analisis Ai mengalami error. Ini bisa karena server load tinggi atau timeout. Silakan coba lagi.",
           details: process.env.NODE_ENV === "development" ? analysisError.message : void 0
         });
       }
@@ -6726,8 +7100,8 @@ async function registerRoutes(app2) {
         userMessage = "Analysis timed out. Please try with shorter content or try again later.";
         userMessageId = "Analisis timeout. Coba dengan konten lebih pendek atau coba lagi nanti.";
       } else if (error.message?.includes("OpenAI") || error.message?.includes("API")) {
-        userMessage = "AI service temporarily unavailable. Please try again in a few moments.";
-        userMessageId = "Layanan AI sedang tidak tersedia. Silakan coba lagi dalam beberapa saat.";
+        userMessage = "Ai service temporarily unavailable. Please try again in a few moments.";
+        userMessageId = "Layanan Ai sedang tidak tersedia. Silakan coba lagi dalam beberapa saat.";
       }
       res.status(500).json({
         error: error.message,
@@ -6828,6 +7202,202 @@ async function registerRoutes(app2) {
         error: "Gagal menganalisis akun",
         message: "Maaf, terjadi kesalahan saat menganalisis akun. Kemungkinan: (1) Akun bersifat private atau tidak ditemukan, (2) Platform sedang bermasalah, atau (3) Username salah. Silakan coba akun publik lainnya.",
         messageId: "Maaf, terjadi kesalahan saat menganalisis akun. Kemungkinan: (1) Akun bersifat private atau tidak ditemukan, (2) Platform sedang bermasalah, atau (3) Username salah. Silakan coba akun publik lainnya."
+      });
+    }
+  });
+  app2.post("/api/analyze-video", upload.single("file"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: "No file uploaded",
+          message: "Silakan upload file video atau gambar untuk dianalisis.",
+          messageId: "Silakan upload file video atau gambar untuk dianalisis."
+        });
+      }
+      const description = req.body.description || "TikTok video content";
+      const mode = req.body.mode || "tiktok";
+      const base64Image = req.file.buffer.toString("base64");
+      const mimeType = req.file.mimetype;
+      const isVideo = mimeType.startsWith("video/");
+      const analysisPrompt = mode === "tiktok" ? `Analyze this TikTok ${isVideo ? "video thumbnail" : "image"} for content performance. Context: ${description}
+        
+Evaluate and score (0-100) these aspects:
+1. Hook Strength: How attention-grabbing is the opening visual?
+2. Visual Quality: Lighting, composition, color grading
+3. Audio Clarity: Based on visual cues (text overlays, mouth movement clarity)
+4. Engagement Potential: Shareability, relatability, emotional appeal
+5. Retention Score: Will viewers watch till the end?
+
+Also provide:
+- 3 key strengths
+- 3 areas for improvement  
+- 3 specific actionable recommendations
+
+Respond in JSON format:
+{
+  "overallScore": number,
+  "hookStrength": number,
+  "visualQuality": number,
+  "audioClarity": number,
+  "engagement": number,
+  "retention": number,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "improvements": ["improvement1", "improvement2", "improvement3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}` : `Analyze this marketing/presentation content. Context: ${description}
+        
+Evaluate and score (0-100) these aspects:
+1. Hook Strength: How attention-grabbing is the opening?
+2. Visual Quality: Professional appearance, branding
+3. Audio Clarity: Presentation clarity (based on visual cues)
+4. Engagement Potential: Audience interest, persuasiveness
+5. Retention Score: Will audience stay engaged?
+
+Also provide:
+- 3 key strengths
+- 3 areas for improvement
+- 3 specific actionable recommendations
+
+Respond in JSON format:
+{
+  "overallScore": number,
+  "hookStrength": number,
+  "visualQuality": number,
+  "audioClarity": number,
+  "engagement": number,
+  "retention": number,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "improvements": ["improvement1", "improvement2", "improvement3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}`;
+      const OpenAI4 = (await import("openai")).default;
+      const openai = new OpenAI4({ apiKey: process.env.OPENAI_API_KEY });
+      const visionResponse = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: analysisPrompt },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Image}`,
+                  detail: "low"
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 1e3,
+        response_format: { type: "json_object" }
+      });
+      const analysisText = visionResponse.choices[0]?.message?.content || "{}";
+      const analysisResult = JSON.parse(analysisText);
+      if (typeof analysisResult.overallScore !== "number") {
+        throw new Error("Invalid analysis result");
+      }
+      res.json({
+        success: true,
+        result: analysisResult
+      });
+    } catch (error) {
+      console.error("Video analysis error:", error);
+      res.status(500).json({
+        error: "Analysis failed",
+        message: "Gagal menganalisis konten. Silakan coba lagi.",
+        messageId: "Gagal menganalisis konten. Silakan coba lagi."
+      });
+    }
+  });
+  app2.post("/api/analyze-screenshot", async (req, res) => {
+    try {
+      const schema = z.object({
+        image: z.string().min(1),
+        guideType: z.string().optional(),
+        language: z.enum(["en", "id"]).optional()
+      });
+      const data = schema.parse(req.body);
+      const lang = data.language || "id";
+      const guideType = data.guideType || "profile";
+      const base64Match = data.image.match(/^data:image\/\w+;base64,(.+)$/);
+      if (!base64Match) {
+        return res.status(400).json({
+          error: "Invalid image format",
+          message: "Format gambar tidak valid. Gunakan screenshot dari TikTok.",
+          messageId: "Format gambar tidak valid. Gunakan screenshot dari TikTok."
+        });
+      }
+      const base64Image = base64Match[1];
+      const guidePrompts = {
+        profile: "TikTok profile analytics screenshot showing followers, views, engagement metrics",
+        content: "TikTok content performance screenshot showing video stats, views, likes",
+        followers: "TikTok follower insights screenshot showing demographics, activity times",
+        live: "TikTok LIVE analytics screenshot showing viewer count, duration, gifts"
+      };
+      const contextDescription = guidePrompts[guideType] || guidePrompts.profile;
+      const langInstruction = lang === "id" ? "Respond in Indonesian (Bahasa Indonesia)." : "Respond in English.";
+      const analysisPrompt = `Analyze this ${contextDescription}. ${langInstruction}
+
+Extract all visible metrics and provide insights. Respond in JSON format:
+{
+  "metrics": [
+    { "name": "Metric Name", "value": "extracted value", "status": "good|average|needs_work" },
+    ...
+  ],
+  "summary": "Brief overall assessment",
+  "insights": ["insight1", "insight2", "insight3"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+}
+
+Status meanings:
+- good: Above average performance
+- average: Normal performance  
+- needs_work: Below expectations, needs improvement`;
+      const OpenAI4 = (await import("openai")).default;
+      const openai = new OpenAI4({ apiKey: process.env.OPENAI_API_KEY });
+      const visionResponse = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: analysisPrompt },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/png;base64,${base64Image}`,
+                  detail: "high"
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 1500,
+        response_format: { type: "json_object" }
+      });
+      const analysisText = visionResponse.choices[0]?.message?.content || "{}";
+      const analysisResult = JSON.parse(analysisText);
+      if (!analysisResult.metrics || !Array.isArray(analysisResult.metrics)) {
+        throw new Error("Invalid analysis result structure");
+      }
+      res.json({
+        success: true,
+        result: analysisResult
+      });
+    } catch (error) {
+      console.error("Screenshot analysis error:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({
+          error: "Invalid input",
+          message: "Data screenshot tidak valid.",
+          messageId: "Data screenshot tidak valid."
+        });
+      }
+      res.status(500).json({
+        error: "Analysis failed",
+        message: "Gagal menganalisis screenshot. Pastikan gambar jelas dan coba lagi.",
+        messageId: "Gagal menganalisis screenshot. Pastikan gambar jelas dan coba lagi."
       });
     }
   });
@@ -7262,6 +7832,103 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: error.message });
     }
   });
+  app2.post("/api/success-stories", async (req, res) => {
+    try {
+      const story = await storage.createSuccessStory(req.body);
+      res.json({ success: true, story });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/success-stories/approved", async (req, res) => {
+    try {
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      const stories = await storage.getApprovedSuccessStories();
+      res.json(stories);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/success-stories/featured", async (req, res) => {
+    try {
+      const stories = await storage.getFeaturedSuccessStories();
+      res.json(stories);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/success-stories/pending", requireAdmin, async (req, res) => {
+    try {
+      const stories = await storage.getPendingSuccessStories();
+      res.json(stories);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.post("/api/success-stories/:id/approve", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { featured } = req.body;
+      const story = await storage.updateSuccessStory(id, {
+        status: "approved",
+        featured: featured || false,
+        approvedAt: /* @__PURE__ */ new Date()
+      });
+      if (!story) {
+        return res.status(404).json({ error: "Story not found" });
+      }
+      res.json({ success: true, story });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.post("/api/success-stories/:id/reject", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const story = await storage.updateSuccessStory(id, { status: "rejected" });
+      if (!story) {
+        return res.status(404).json({ error: "Story not found" });
+      }
+      res.json({ success: true, story });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.put("/api/success-stories/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const story = await storage.updateSuccessStory(id, req.body);
+      if (!story) {
+        return res.status(404).json({ error: "Story not found" });
+      }
+      res.json({ success: true, story });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.delete("/api/success-stories/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteSuccessStory(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Story not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/success-stories/all", requireAdmin, async (req, res) => {
+    try {
+      const [pending, approved] = await Promise.all([
+        storage.getPendingSuccessStories(),
+        storage.getApprovedSuccessStories()
+      ]);
+      res.json({ pending, approved });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
   app2.get("/api/library/all", async (req, res) => {
     try {
       const tiktokItems = TIKTOK_RULES.flatMap(
@@ -7519,13 +8186,19 @@ async function registerRoutes(app2) {
         featureUsageStats,
         uniqueSessions,
         totalPageViews,
-        totalFeatureUsage
+        totalFeatureUsage,
+        navigationBreakdown,
+        tabBreakdown,
+        buttonClickBreakdown
       ] = await Promise.all([
         storage.getPageViewStats(daysNum),
         storage.getFeatureUsageStats(daysNum),
         storage.getUniqueSessionsCount(daysNum),
         storage.getTotalPageViews(daysNum),
-        storage.getTotalFeatureUsage(daysNum)
+        storage.getTotalFeatureUsage(daysNum),
+        storage.getNavigationBreakdown(daysNum),
+        storage.getTabBreakdown(daysNum),
+        storage.getButtonClickBreakdown(daysNum)
       ]);
       res.json({
         period: `${daysNum} days`,
@@ -7535,11 +8208,125 @@ async function registerRoutes(app2) {
           totalFeatureUsage
         },
         pageViews: pageViewStats,
-        featureUsage: featureUsageStats
+        featureUsage: featureUsageStats,
+        navigationBreakdown,
+        tabBreakdown,
+        buttonClickBreakdown
       });
     } catch (error) {
       console.error("[ANALYTICS] Error getting stats:", error);
       res.status(500).json({ error: error.message });
+    }
+  });
+  app2.post("/api/generate-thumbnail", async (req, res) => {
+    try {
+      const { topic, style, aspectRatio } = req.body;
+      if (!topic) {
+        return res.status(400).json({
+          error: "Topic is required",
+          message: "Topik diperlukan untuk membuat preview",
+          messageId: "Topik diperlukan untuk membuat preview"
+        });
+      }
+      const dimensions = {
+        "16:9": "1280x720",
+        "9:16": "720x1280",
+        "1:1": "720x720"
+      };
+      const dim = dimensions[aspectRatio] || "1280x720";
+      const displayText = `${topic.substring(0, 25)}`;
+      const previewUrl = `https://placehold.co/${dim}/1a1a1a/ff0050?text=${encodeURIComponent(displayText)}&font=roboto`;
+      res.json({
+        success: true,
+        imageUrl: previewUrl,
+        prompt: `${topic} - ${style}`,
+        type: "concept-preview"
+      });
+    } catch (error) {
+      console.error("[THUMBNAIL] Error:", error);
+      res.status(500).json({
+        error: error.message,
+        message: "Gagal membuat preview thumbnail",
+        messageId: "Gagal membuat preview thumbnail"
+      });
+    }
+  });
+  app2.post("/api/test-hooks", async (req, res) => {
+    try {
+      const schema = z.object({
+        hooks: z.array(z.object({
+          id: z.string(),
+          text: z.string().min(1)
+        })).min(2).max(5),
+        language: z.enum(["en", "id"]).optional()
+      });
+      const data = schema.parse(req.body);
+      const lang = data.language || "id";
+      const hooksText = data.hooks.map(
+        (h, i) => `Hook ${String.fromCharCode(65 + i)}: "${h.text}"`
+      ).join("\n");
+      const langInstruction = lang === "id" ? "Respond in Indonesian (Bahasa Indonesia)." : "Respond in English.";
+      const prompt = `You are a TikTok viral content expert. Analyze these hook variations and determine which one has the highest viral potential. ${langInstruction}
+
+${hooksText}
+
+For each hook, evaluate:
+1. Attention-grabbing power (curiosity, emotion, relatability)
+2. Clarity and conciseness
+3. Call to action/engagement trigger
+4. Platform fit for TikTok/short-form video
+
+Respond in JSON format:
+{
+  "results": [
+    {
+      "hookId": "id from input",
+      "hookText": "the hook text",
+      "score": number 0-100,
+      "viralPotential": "high" | "medium" | "low",
+      "strengths": ["strength1", "strength2"],
+      "weaknesses": ["weakness1", "weakness2"],
+      "suggestion": "specific improvement suggestion"
+    }
+  ],
+  "winner": "A" or "B" or "C" etc,
+  "winnerScore": number,
+  "comparison": "brief explanation why winner is best"
+}
+
+Be objective and provide actionable feedback.`;
+      const OpenAI4 = (await import("openai")).default;
+      const openai = new OpenAI4({ apiKey: process.env.OPENAI_API_KEY });
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 1500,
+        response_format: { type: "json_object" }
+      });
+      const resultText = completion.choices[0]?.message?.content || "{}";
+      const result = JSON.parse(resultText);
+      if (result.results) {
+        result.results = result.results.map((r, i) => ({
+          ...r,
+          hookId: data.hooks[i]?.id || r.hookId,
+          hookText: data.hooks[i]?.text || r.hookText
+        }));
+      }
+      res.json(result);
+    } catch (error) {
+      console.error("[HOOK_TESTER] Error:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({
+          error: "Invalid input",
+          message: "Minimal 2 hook diperlukan, maksimal 5.",
+          messageId: "Minimal 2 hook diperlukan, maksimal 5."
+        });
+      }
+      res.status(500).json({
+        error: "Analysis failed",
+        message: "Gagal menganalisis hook. Silakan coba lagi.",
+        messageId: "Gagal menganalisis hook. Silakan coba lagi."
+      });
     }
   });
   app2.post("/api/chat/hybrid", async (req, res) => {
@@ -7717,6 +8504,146 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: error.message });
     }
   });
+  app2.get("/api/settings/public", async (req, res) => {
+    try {
+      const settings = await storage.getPublicSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("[SETTINGS] Error getting public settings:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/pricing", async (req, res) => {
+    try {
+      const tiers = await storage.getActivePricingTiers();
+      res.json(tiers);
+    } catch (error) {
+      console.error("[PRICING] Error getting pricing:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/admin/settings", requireAdmin, async (req, res) => {
+    try {
+      const settings = await storage.getAllSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("[ADMIN_SETTINGS] Error getting settings:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.put("/api/admin/settings/:key", requireAdmin, async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value } = req.body;
+      const adminUser = req.adminUser;
+      if (value === void 0) {
+        return res.status(400).json({ error: "Value is required" });
+      }
+      const existingSetting = await storage.getSetting(key);
+      if (!existingSetting) {
+        return res.status(404).json({ error: "Setting not found" });
+      }
+      if (!existingSetting.isEditable) {
+        return res.status(403).json({ error: "This setting cannot be modified" });
+      }
+      let validatedValue = String(value);
+      if (existingSetting.valueType === "number") {
+        const numVal = parseFloat(value);
+        if (isNaN(numVal)) {
+          return res.status(400).json({ error: "Value must be a valid number" });
+        }
+        validatedValue = String(numVal);
+      } else if (existingSetting.valueType === "boolean") {
+        if (value !== "true" && value !== "false" && value !== true && value !== false) {
+          return res.status(400).json({ error: "Value must be true or false" });
+        }
+        validatedValue = String(value === true || value === "true");
+      }
+      const setting = await storage.updateSetting(key, validatedValue, adminUser);
+      res.json(setting);
+    } catch (error) {
+      console.error("[ADMIN_SETTINGS] Error updating setting:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/admin/pricing", requireAdmin, async (req, res) => {
+    try {
+      const tiers = await storage.getAllPricingTiers();
+      res.json(tiers);
+    } catch (error) {
+      console.error("[ADMIN_PRICING] Error getting pricing:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.put("/api/admin/pricing/:slug", requireAdmin, async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const updates = req.body;
+      const adminUser = req.adminUser;
+      const existingTier = await storage.getPricingTier(slug);
+      if (!existingTier) {
+        return res.status(404).json({ error: "Pricing tier not found" });
+      }
+      const validatedUpdates = {};
+      if (updates.priceIdr !== void 0) {
+        const price = parseInt(updates.priceIdr);
+        if (isNaN(price) || price < 0) {
+          return res.status(400).json({ error: "Price must be a valid non-negative number" });
+        }
+        validatedUpdates.priceIdr = price;
+      }
+      if (updates.videoLimit !== void 0) {
+        const limit = parseInt(updates.videoLimit);
+        if (isNaN(limit)) {
+          return res.status(400).json({ error: "Video limit must be a valid number" });
+        }
+        validatedUpdates.videoLimit = limit;
+      }
+      if (updates.chatLimit !== void 0) {
+        const limit = parseInt(updates.chatLimit);
+        if (isNaN(limit)) {
+          return res.status(400).json({ error: "Chat limit must be a valid number" });
+        }
+        validatedUpdates.chatLimit = limit;
+      }
+      if (updates.isActive !== void 0) {
+        validatedUpdates.isActive = updates.isActive === true || updates.isActive === "true";
+      }
+      if (updates.isPopular !== void 0) {
+        validatedUpdates.isPopular = updates.isPopular === true || updates.isPopular === "true";
+      }
+      const tier = await storage.updatePricingTier(slug, validatedUpdates, adminUser);
+      res.json(tier);
+    } catch (error) {
+      console.error("[ADMIN_PRICING] Error updating pricing:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/admin/analyzed-accounts", requireAdmin, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 100, 500);
+      const accounts = await storage.getAllAnalyzedAccounts(limit);
+      const totalCount = await storage.getAnalyzedAccountsCount();
+      res.json({
+        accounts: accounts.map((a) => ({
+          id: a.id,
+          username: a.username,
+          displayName: a.displayName,
+          followers: a.followers,
+          following: a.following,
+          totalLikes: a.totalLikes,
+          totalVideos: a.totalVideos,
+          verified: a.verified,
+          engagementRate: a.engagementRate,
+          createdAt: a.createdAt
+        })),
+        total: totalCount
+      });
+    } catch (error) {
+      console.error("[ADMIN_ACCOUNTS] Error getting analyzed accounts:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
   const httpServer = createServer(app2);
   return httpServer;
 }
@@ -7832,6 +8759,60 @@ function serveStatic(app2) {
   });
 }
 
+// server/init-settings.ts
+init_db();
+init_schema();
+var defaultSettings = [
+  { key: "beta_end_date", value: "2025-03-31", valueType: "date", category: "beta", labelEn: "Beta End Date", labelId: "Tanggal Akhir Beta", descriptionEn: "When the beta period ends (YYYY-MM-DD)", descriptionId: "Kapan periode beta berakhir (YYYY-MM-DD)", isEditable: true },
+  { key: "global_token_per_day", value: "100000", valueType: "number", category: "protection", labelEn: "Daily Token Limit (All Users)", labelId: "Limit Token Harian (Semua User)", descriptionEn: "Maximum tokens per day for entire platform. Shows maintenance when exceeded.", descriptionId: "Maksimum token per hari untuk seluruh platform. Tampilkan maintenance jika tercapai.", isEditable: true },
+  { key: "global_token_per_request", value: "2000", valueType: "number", category: "protection", labelEn: "Token per Request", labelId: "Token per Request", descriptionEn: "Maximum tokens per single AI request.", descriptionId: "Maksimum token per satu request AI.", isEditable: true },
+  { key: "enable_batch_analysis", value: "true", valueType: "boolean", category: "features", labelEn: "Batch Analysis", labelId: "Batch Analysis", descriptionEn: "Enable batch video analysis feature", descriptionId: "Aktifkan fitur analisis batch video", isEditable: true },
+  { key: "enable_ab_testing", value: "true", valueType: "boolean", category: "features", labelEn: "A/B Hook Tester", labelId: "A/B Hook Tester", descriptionEn: "Enable A/B hook testing feature", descriptionId: "Aktifkan fitur A/B hook testing", isEditable: true },
+  { key: "enable_screenshot_analytics", value: "true", valueType: "boolean", category: "features", labelEn: "Screenshot Analytics", labelId: "Screenshot Analytics", descriptionEn: "Enable screenshot analytics feature", descriptionId: "Aktifkan fitur analitik screenshot", isEditable: true },
+  { key: "enable_competitor_analysis", value: "true", valueType: "boolean", category: "features", labelEn: "Competitor Analysis", labelId: "Competitor Analysis", descriptionEn: "Enable competitor analysis feature", descriptionId: "Aktifkan fitur analisis kompetitor", isEditable: true },
+  { key: "enable_thumbnail_generator", value: "true", valueType: "boolean", category: "features", labelEn: "Thumbnail Generator", labelId: "Thumbnail Generator", descriptionEn: "Enable AI thumbnail generator", descriptionId: "Aktifkan generator thumbnail AI", isEditable: true },
+  { key: "enable_voice_input", value: "true", valueType: "boolean", category: "features", labelEn: "Voice Input", labelId: "Voice Input", descriptionEn: "Enable voice input for analysis forms", descriptionId: "Aktifkan input suara untuk form analisis", isEditable: true },
+  { key: "enable_pdf_export", value: "true", valueType: "boolean", category: "features", labelEn: "PDF Export", labelId: "PDF Export", descriptionEn: "Enable PDF export for analysis results", descriptionId: "Aktifkan ekspor PDF untuk hasil analisis", isEditable: true },
+  { key: "enable_save_history", value: "true", valueType: "boolean", category: "features", labelEn: "Save History", labelId: "Save History", descriptionEn: "Enable save analysis history to localStorage", descriptionId: "Aktifkan simpan riwayat analisis ke localStorage", isEditable: true }
+];
+var defaultPricingTiers = [
+  { slug: "gratis", name: "Gratis", priceIdr: 0, period: "month", descriptionEn: "Beta - try all features free!", descriptionId: "Beta - coba semua fitur gratis!", videoLimit: 5, chatLimit: 20, featuresEn: ["20 Ai chat/day", "5 video analysis/day", "All features unlocked", "Limited time beta"], featuresId: ["20 chat Ai/hari", "5 analisis video/hari", "Semua fitur aktif", "Promo beta terbatas"], isPopular: false, isActive: true, sortOrder: 1 },
+  { slug: "basic", name: "Basic", priceIdr: 29e3, period: "month", descriptionEn: "For casual creators", descriptionId: "Untuk kreator kasual", videoLimit: 5, chatLimit: 50, featuresEn: ["50 Ai chat/day", "5 video analysis/day", "Save history", "PDF Export"], featuresId: ["50 chat Ai/hari", "5 analisis video/hari", "Simpan riwayat", "Export PDF"], isPopular: false, isActive: true, sortOrder: 2 },
+  { slug: "pro", name: "Pro", priceIdr: 79e3, period: "month", descriptionEn: "For serious creators", descriptionId: "Untuk kreator serius", videoLimit: 15, chatLimit: -1, featuresEn: ["Unlimited Ai chat", "15 video analysis/day", "Batch Analysis", "A/B Hook Tester", "Priority support"], featuresId: ["Chat Ai unlimited", "15 analisis video/hari", "Batch Analysis", "A/B Hook Tester", "Dukungan prioritas"], isPopular: true, isActive: true, sortOrder: 3 },
+  { slug: "unlimited", name: "Unlimited", priceIdr: 149e3, period: "month", descriptionEn: "For agencies & teams", descriptionId: "Untuk agensi & tim", videoLimit: -1, chatLimit: -1, featuresEn: ["Everything in Pro", "Unlimited video analysis", "API access", "White-label branding", "Dedicated support"], featuresId: ["Semua fitur Pro", "Analisis video unlimited", "Akses API", "White-label branding", "Dukungan khusus"], isPopular: false, isActive: true, sortOrder: 4 }
+];
+async function initializeDefaultSettings() {
+  try {
+    const existingSettings = await db.select().from(appSettings);
+    const existingTiers = await db.select().from(pricingTiers);
+    const existingSettingKeys = new Set(existingSettings.map((s) => s.key));
+    const existingTierSlugs = new Set(existingTiers.map((t) => t.slug));
+    const missingSettings = defaultSettings.filter((s) => !existingSettingKeys.has(s.key));
+    const missingTiers = defaultPricingTiers.filter((t) => !existingTierSlugs.has(t.slug));
+    if (missingSettings.length === 0 && missingTiers.length === 0) {
+      return;
+    }
+    await db.transaction(async (tx) => {
+      if (missingSettings.length > 0) {
+        console.log(`[INIT] Adding ${missingSettings.length} missing settings...`);
+        for (const setting of missingSettings) {
+          await tx.insert(appSettings).values(setting).onConflictDoNothing();
+        }
+        console.log(`[INIT] \u2705 Added missing settings: ${missingSettings.map((s) => s.key).join(", ")}`);
+      }
+      if (missingTiers.length > 0) {
+        console.log(`[INIT] Adding ${missingTiers.length} missing pricing tiers...`);
+        for (const tier of missingTiers) {
+          await tx.insert(pricingTiers).values(tier).onConflictDoNothing();
+        }
+        console.log(`[INIT] \u2705 Added missing tiers: ${missingTiers.map((t) => t.slug).join(", ")}`);
+      }
+    });
+  } catch (error) {
+    console.error("[INIT] Error initializing settings:", error);
+  }
+}
+
 // server/index.ts
 var app = express2();
 app.use(cookieParser());
@@ -7867,6 +8848,7 @@ app.use((req, res, next) => {
   next();
 });
 (async () => {
+  await initializeDefaultSettings();
   const server = await registerRoutes(app);
   app.use((err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
