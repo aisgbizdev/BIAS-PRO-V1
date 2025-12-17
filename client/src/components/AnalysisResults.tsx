@@ -267,14 +267,17 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         </CardHeader>
       </Card>
 
-      {/* Radar Chart Visualization */}
-      <RadarChart8Layer 
-        layers={result.layers}
-        title={t('Behavioral Intelligence Radar', 'Radar Behavioral Intelligence')}
-        description={t('Visual representation of your 8-layer analysis', 'Representasi visual dari analisis 8-layer Anda')}
-      />
+      {/* Radar Chart Visualization - only show if layers exist */}
+      {result.layers && result.layers.length > 0 && (
+        <RadarChart8Layer 
+          layers={result.layers}
+          title={t('Behavioral Intelligence Radar', 'Radar Behavioral Intelligence')}
+          description={t('Visual representation of your 8-layer analysis', 'Representasi visual dari analisis 8-layer Anda')}
+        />
+      )}
 
-      {/* Layer Scores */}
+      {/* Layer Scores - only show if layers exist */}
+      {result.layers && result.layers.length > 0 && (
       <Card>
         <CardHeader>
           <CardTitle>{t('Layer Details', 'Detail Layer')}</CardTitle>
@@ -347,8 +350,10 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
           })}
         </CardContent>
       </Card>
+      )}
 
       {/* Recommendations */}
+      {(result.recommendations || result.recommendationsId) && (
       <Card>
         <CardHeader>
           <CardTitle>{t('Recommendations', 'Rekomendasi')}</CardTitle>
@@ -358,7 +363,7 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
-            {(language === 'en' ? result.recommendations : result.recommendationsId).map((rec, idx) => (
+            {(language === 'en' ? (result.recommendations || []) : (result.recommendationsId || result.recommendations || [])).map((rec, idx) => (
               <li key={idx} className="flex items-start gap-2">
                 <span className="text-primary mt-1">•</span>
                 <span className="text-sm">{rec}</span>
@@ -367,6 +372,7 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
           </ul>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }
