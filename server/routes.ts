@@ -349,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analyze Video Content with AI Vision + Whisper Audio Transcription
+  // Analyze Video Content with AI Vision + Whisper Audio Transcription + 8-Layer BIAS
   app.post("/api/analyze-video", upload.single('file'), async (req, res) => {
     let tempDir: string | null = null;
     
@@ -364,17 +364,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const description = req.body.description || '';
       const mode = req.body.mode || 'tiktok';
+      const platform = req.body.platform || 'tiktok';
       const mimeType = req.file.mimetype;
       const isVideo = mimeType.startsWith('video/');
 
       const OpenAI = (await import('openai')).default;
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const fs = await import('fs');
+      const { analyzeBehavior } = await import('./bias-engine');
 
       let transcription = '';
+      let visualDescription = '';
       let frameBase64List: string[] = [];
       let videoDuration = 0;
 
+      // Step 1: Extract audio and frames from video
       if (isVideo) {
         console.log('Processing video with ffmpeg...');
         const { processVideo, cleanupTempDir, frameToBase64 } = await import('./video-processor');
@@ -384,6 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           tempDir = result.tempDir;
           videoDuration = result.duration;
           
+          // Transcribe audio with Whisper
           if (result.audioPath) {
             console.log('Transcribing audio with Whisper...');
             try {
@@ -401,6 +406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
           
+          // Extract frames for visual analysis
           for (const framePath of result.frames) {
             frameBase64List.push(frameToBase64(framePath));
           }
@@ -411,137 +417,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
           frameBase64List = [req.file.buffer.toString('base64')];
         }
       } else {
+        // Image file - just use as is
         frameBase64List = [req.file.buffer.toString('base64')];
       }
 
-      const hasTranscription = transcription.length > 10;
-      const contextInfo = description ? `\nUser context: ${description}` : '';
-      const transcriptionInfo = hasTranscription 
-        ? `\n\nAUDIO TRANSCRIPTION (from video):\n"${transcription}"\n`
-        : '';
+      // Step 2: Get visual description from Vision API
+      if (frameBase64List.length > 0) {
+        console.log('Getting visual description from Vision API...');
+        const imageContent = frameBase64List.slice(0, 3).map(base64 => ({
+          type: 'image_url',
+          image_url: { url: `data:image/jpeg;base64,${base64}`, detail: 'low' },
+        }));
 
-      const analysisPrompt = mode === 'tiktok' 
-        ? `Analyze this TikTok video content comprehensively.${contextInfo}${transcriptionInfo}
-
-${hasTranscription ? 'I have both VISUAL frames and AUDIO transcription. Analyze BOTH aspects.' : 'Analyze the visual content.'}
-
-Evaluate and score (0-100) these aspects:
-1. Hook Strength: How attention-grabbing is the opening? ${hasTranscription ? '(Consider first words spoken)' : ''}
-2. Visual Quality: Lighting, composition, color grading, visual appeal
-3. Audio Clarity: ${hasTranscription ? 'Based on transcription - clarity, pace, filler words, confidence' : 'Based on visual cues'}
-4. Engagement Potential: Shareability, relatability, emotional appeal
-5. Retention Score: Will viewers watch till the end?
-
-${hasTranscription ? `SPEECH ANALYSIS - Evaluate the transcribed content for:
-- Speaking confidence and clarity
-- Use of filler words (um, eh, uh)
-- Hook effectiveness (first 3 seconds)
-- Call-to-action strength
-- Overall message clarity` : ''}
-
-Provide:
-- 3 key strengths (be specific, reference actual content)
-- 3 areas for improvement (actionable feedback)
-- 3 specific recommendations
-
-Respond in JSON:
-{
-  "overallScore": number,
-  "hookStrength": number,
-  "visualQuality": number,
-  "audioClarity": number,
-  "engagement": number,
-  "retention": number,
-  "strengths": ["specific strength 1", "specific strength 2", "specific strength 3"],
-  "improvements": ["specific improvement 1", "specific improvement 2", "specific improvement 3"],
-  "recommendations": ["actionable recommendation 1", "actionable recommendation 2", "actionable recommendation 3"],
-  "speechAnalysis": ${hasTranscription ? '{ "fillerWords": number, "speakingPace": "fast|normal|slow", "confidence": number, "hookEffectiveness": number }' : 'null'}
-}`
-        : `Analyze this marketing/presentation content.${contextInfo}${transcriptionInfo}
-
-${hasTranscription ? 'I have both VISUAL frames and AUDIO transcription. Analyze BOTH aspects.' : 'Analyze the visual content.'}
-
-Evaluate and score (0-100):
-1. Hook Strength: Opening impact
-2. Visual Quality: Professional appearance
-3. Audio Clarity: ${hasTranscription ? 'Speech quality, pace, confidence' : 'Visual cues'}
-4. Engagement Potential: Persuasiveness
-5. Retention Score: Audience engagement
-
-Respond in JSON:
-{
-  "overallScore": number,
-  "hookStrength": number,
-  "visualQuality": number,
-  "audioClarity": number,
-  "engagement": number,
-  "retention": number,
-  "strengths": ["strength1", "strength2", "strength3"],
-  "improvements": ["improvement1", "improvement2", "improvement3"],
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"],
-  "speechAnalysis": ${hasTranscription ? '{ "fillerWords": number, "speakingPace": "fast|normal|slow", "confidence": number, "hookEffectiveness": number }' : 'null'}
-}`;
-
-      const imageContent: any[] = frameBase64List.slice(0, 3).map((base64, idx) => ({
-        type: 'image_url',
-        image_url: {
-          url: `data:image/jpeg;base64,${base64}`,
-          detail: 'low',
-        },
-      }));
-
-      // Use fetch directly like text analysis (more reliable)
-      const visionFetchResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                { type: 'text', text: analysisPrompt },
-                ...imageContent,
-              ],
+        try {
+          const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
             },
-          ],
-          max_tokens: 1500,
-          response_format: { type: 'json_object' },
-        }),
-      });
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{
+                role: 'user',
+                content: [
+                  { type: 'text', text: `Describe this ${isVideo ? 'video content' : 'image'} in detail for behavioral analysis. Focus on: presenter appearance, body language, facial expressions, background setting, visual quality, text overlays, and overall presentation style. Be specific and descriptive. Response in Indonesian.` },
+                  ...imageContent,
+                ],
+              }],
+              max_tokens: 500,
+            }),
+          });
 
-      if (!visionFetchResponse.ok) {
-        const errorData = await visionFetchResponse.text();
-        console.error('Vision API error:', visionFetchResponse.status, errorData);
-        throw new Error(`Vision API error: ${visionFetchResponse.status}`);
+          if (visionResponse.ok) {
+            const visionData = await visionResponse.json();
+            visualDescription = visionData.choices?.[0]?.message?.content || '';
+            console.log(`Visual description: ${visualDescription.substring(0, 100)}...`);
+          }
+        } catch (visionError: any) {
+          console.log('Vision API failed:', visionError.message);
+        }
       }
 
-      const visionResponse = await visionFetchResponse.json();
+      // Step 3: Combine all context for 8-layer BIAS analysis
+      const hasTranscription = transcription.length > 10;
+      const hasVisual = visualDescription.length > 10;
+      
+      let combinedContent = '';
+      
+      if (hasTranscription && hasVisual) {
+        combinedContent = `[ANALISIS VIDEO KOMPREHENSIF]
 
+TRANSKRIPSI AUDIO (apa yang dikatakan):
+"${transcription}"
+
+DESKRIPSI VISUAL (apa yang terlihat):
+${visualDescription}
+
+${description ? `KONTEKS DARI USER: ${description}` : ''}
+
+Durasi video: ${videoDuration.toFixed(1)} detik
+
+Analisis konten video ini secara menyeluruh dari segi komunikasi behavioral, termasuk cara bicara, ekspresi, dan penyampaian pesan.`;
+      } else if (hasTranscription) {
+        combinedContent = `[ANALISIS AUDIO VIDEO]
+
+TRANSKRIPSI (apa yang dikatakan):
+"${transcription}"
+
+${description ? `KONTEKS: ${description}` : ''}
+
+Durasi: ${videoDuration.toFixed(1)} detik
+
+Analisis cara bicara dan penyampaian pesan dalam rekaman ini.`;
+      } else if (hasVisual) {
+        combinedContent = `[ANALISIS VISUAL VIDEO]
+
+DESKRIPSI VISUAL:
+${visualDescription}
+
+${description ? `KONTEKS: ${description}` : ''}
+
+Analisis elemen visual dan presentasi dalam konten ini.`;
+      } else {
+        combinedContent = description || 'Video content untuk dianalisis';
+      }
+
+      console.log('Running 8-layer BIAS analysis...');
+      
+      // Step 4: Use existing BIAS engine for 8-layer analysis
+      const biasMode = mode === 'marketing' ? 'academic' : 'creator';
+      const biasResult = await analyzeBehavior({
+        mode: biasMode,
+        inputType: 'video',
+        content: combinedContent,
+        platform: platform as any,
+      });
+
+      // Cleanup temp files
       if (tempDir) {
         const { cleanupTempDir } = await import('./video-processor');
         cleanupTempDir(tempDir);
       }
 
-      const analysisText = visionResponse.choices?.[0]?.message?.content || '{}';
-      const analysisResult = JSON.parse(analysisText);
+      // Add video-specific metadata
+      const enrichedResult = {
+        ...biasResult,
+        hasAudioAnalysis: hasTranscription,
+        hasVisualAnalysis: hasVisual,
+        videoDuration,
+        transcriptionPreview: hasTranscription 
+          ? transcription.substring(0, 200) + (transcription.length > 200 ? '...' : '')
+          : undefined,
+      };
 
-      if (typeof analysisResult.overallScore !== 'number') {
-        throw new Error('Invalid analysis result');
-      }
-
-      analysisResult.hasAudioAnalysis = hasTranscription;
-      analysisResult.videoDuration = videoDuration;
-      if (hasTranscription) {
-        analysisResult.transcriptionPreview = transcription.substring(0, 200) + (transcription.length > 200 ? '...' : '');
-      }
+      console.log('8-layer BIAS analysis completed successfully');
 
       res.json({
         success: true,
-        result: analysisResult,
+        analysis: enrichedResult,
       });
     } catch (error: any) {
       console.error('Video analysis error:', error);
