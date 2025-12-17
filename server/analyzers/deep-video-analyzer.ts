@@ -167,26 +167,50 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
     // Parse Ai response
     const parsedResponse = JSON.parse(responseContent);
     
-    // Handle various response formats from OpenAI
+    // Handle various response formats from OpenAI (can be nested)
     let layers: any[] = [];
+    
+    // Try direct array
     if (Array.isArray(parsedResponse)) {
       layers = parsedResponse;
-    } else if (parsedResponse.layers && Array.isArray(parsedResponse.layers)) {
+    } 
+    // Try parsedResponse.layers
+    else if (parsedResponse.layers && Array.isArray(parsedResponse.layers)) {
       layers = parsedResponse.layers;
-    } else if (parsedResponse.analysis && Array.isArray(parsedResponse.analysis)) {
+    } 
+    // Try parsedResponse.analysis.layers (nested format)
+    else if (parsedResponse.analysis?.layers && Array.isArray(parsedResponse.analysis.layers)) {
+      layers = parsedResponse.analysis.layers;
+    }
+    // Try parsedResponse.analysis directly as array
+    else if (parsedResponse.analysis && Array.isArray(parsedResponse.analysis)) {
       layers = parsedResponse.analysis;
-    } else {
-      // Try to extract layers from any array-like property
-      const arrayProps = Object.values(parsedResponse).filter(v => Array.isArray(v));
-      if (arrayProps.length > 0 && (arrayProps[0] as any[]).length === 8) {
-        layers = arrayProps[0] as any[];
-      }
+    }
+    // Try parsedResponse.results
+    else if (parsedResponse.results && Array.isArray(parsedResponse.results)) {
+      layers = parsedResponse.results;
+    }
+    // Last resort: find any array with 8 elements
+    else {
+      const findLayers = (obj: any): any[] | null => {
+        if (Array.isArray(obj) && obj.length >= 6 && obj.length <= 10) {
+          return obj;
+        }
+        if (typeof obj === 'object' && obj !== null) {
+          for (const value of Object.values(obj)) {
+            const found = findLayers(value);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      layers = findLayers(parsedResponse) || [];
     }
     
     console.log(`Parsed ${layers.length} layers from AI response`);
     
     if (!layers || layers.length === 0) {
-      console.log('AI response structure:', JSON.stringify(Object.keys(parsedResponse)));
+      console.log('AI response structure:', JSON.stringify(parsedResponse).substring(0, 500));
       throw new Error('No layers in Ai response');
     }
 
