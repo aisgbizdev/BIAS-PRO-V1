@@ -349,8 +349,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analyze Video Content with AI Vision
+  // Analyze Video Content with AI Vision + Whisper Audio Transcription
   app.post("/api/analyze-video", upload.single('file'), async (req, res) => {
+    let tempDir: string | null = null;
+    
     try {
       if (!req.file) {
         return res.status(400).json({
@@ -360,33 +362,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const description = req.body.description || 'TikTok video content';
+      const description = req.body.description || '';
       const mode = req.body.mode || 'tiktok';
-
-      // Convert file to base64 for OpenAI Vision
-      const base64Image = req.file.buffer.toString('base64');
       const mimeType = req.file.mimetype;
-      
-      // For videos, we analyze the first frame (thumbnail)
-      // For images, we analyze directly
       const isVideo = mimeType.startsWith('video/');
-      
-      const analysisPrompt = mode === 'tiktok' 
-        ? `Analyze this TikTok ${isVideo ? 'video thumbnail' : 'image'} for content performance. Context: ${description}
+
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const fs = await import('fs');
+
+      let transcription = '';
+      let frameBase64List: string[] = [];
+      let videoDuration = 0;
+
+      if (isVideo) {
+        console.log('Processing video with ffmpeg...');
+        const { processVideo, cleanupTempDir, frameToBase64 } = await import('./video-processor');
         
+        try {
+          const result = await processVideo(req.file.buffer, req.file.originalname || 'video.mp4');
+          tempDir = result.tempDir;
+          videoDuration = result.duration;
+          
+          if (result.audioPath) {
+            console.log('Transcribing audio with Whisper...');
+            try {
+              const audioFile = fs.createReadStream(result.audioPath);
+              const whisperResponse = await openai.audio.transcriptions.create({
+                file: audioFile,
+                model: 'whisper-1',
+                language: 'id',
+                response_format: 'text',
+              });
+              transcription = whisperResponse || '';
+              console.log(`Transcription: ${transcription.substring(0, 100)}...`);
+            } catch (whisperError: any) {
+              console.log('Whisper transcription failed:', whisperError.message);
+            }
+          }
+          
+          for (const framePath of result.frames) {
+            frameBase64List.push(frameToBase64(framePath));
+          }
+          console.log(`Extracted ${frameBase64List.length} frames for vision analysis`);
+          
+        } catch (ffmpegError: any) {
+          console.log('FFmpeg processing failed, falling back to direct upload:', ffmpegError.message);
+          frameBase64List = [req.file.buffer.toString('base64')];
+        }
+      } else {
+        frameBase64List = [req.file.buffer.toString('base64')];
+      }
+
+      const hasTranscription = transcription.length > 10;
+      const contextInfo = description ? `\nUser context: ${description}` : '';
+      const transcriptionInfo = hasTranscription 
+        ? `\n\nAUDIO TRANSCRIPTION (from video):\n"${transcription}"\n`
+        : '';
+
+      const analysisPrompt = mode === 'tiktok' 
+        ? `Analyze this TikTok video content comprehensively.${contextInfo}${transcriptionInfo}
+
+${hasTranscription ? 'I have both VISUAL frames and AUDIO transcription. Analyze BOTH aspects.' : 'Analyze the visual content.'}
+
 Evaluate and score (0-100) these aspects:
-1. Hook Strength: How attention-grabbing is the opening visual?
-2. Visual Quality: Lighting, composition, color grading
-3. Audio Clarity: Based on visual cues (text overlays, mouth movement clarity)
+1. Hook Strength: How attention-grabbing is the opening? ${hasTranscription ? '(Consider first words spoken)' : ''}
+2. Visual Quality: Lighting, composition, color grading, visual appeal
+3. Audio Clarity: ${hasTranscription ? 'Based on transcription - clarity, pace, filler words, confidence' : 'Based on visual cues'}
 4. Engagement Potential: Shareability, relatability, emotional appeal
 5. Retention Score: Will viewers watch till the end?
 
-Also provide:
-- 3 key strengths
-- 3 areas for improvement  
-- 3 specific actionable recommendations
+${hasTranscription ? `SPEECH ANALYSIS - Evaluate the transcribed content for:
+- Speaking confidence and clarity
+- Use of filler words (um, eh, uh)
+- Hook effectiveness (first 3 seconds)
+- Call-to-action strength
+- Overall message clarity` : ''}
 
-Respond in JSON format:
+Provide:
+- 3 key strengths (be specific, reference actual content)
+- 3 areas for improvement (actionable feedback)
+- 3 specific recommendations
+
+Respond in JSON:
 {
   "overallScore": number,
   "hookStrength": number,
@@ -394,25 +452,23 @@ Respond in JSON format:
   "audioClarity": number,
   "engagement": number,
   "retention": number,
-  "strengths": ["strength1", "strength2", "strength3"],
-  "improvements": ["improvement1", "improvement2", "improvement3"],
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+  "strengths": ["specific strength 1", "specific strength 2", "specific strength 3"],
+  "improvements": ["specific improvement 1", "specific improvement 2", "specific improvement 3"],
+  "recommendations": ["actionable recommendation 1", "actionable recommendation 2", "actionable recommendation 3"],
+  "speechAnalysis": ${hasTranscription ? '{ "fillerWords": number, "speakingPace": "fast|normal|slow", "confidence": number, "hookEffectiveness": number }' : 'null'}
 }`
-        : `Analyze this marketing/presentation content. Context: ${description}
-        
-Evaluate and score (0-100) these aspects:
-1. Hook Strength: How attention-grabbing is the opening?
-2. Visual Quality: Professional appearance, branding
-3. Audio Clarity: Presentation clarity (based on visual cues)
-4. Engagement Potential: Audience interest, persuasiveness
-5. Retention Score: Will audience stay engaged?
+        : `Analyze this marketing/presentation content.${contextInfo}${transcriptionInfo}
 
-Also provide:
-- 3 key strengths
-- 3 areas for improvement
-- 3 specific actionable recommendations
+${hasTranscription ? 'I have both VISUAL frames and AUDIO transcription. Analyze BOTH aspects.' : 'Analyze the visual content.'}
 
-Respond in JSON format:
+Evaluate and score (0-100):
+1. Hook Strength: Opening impact
+2. Visual Quality: Professional appearance
+3. Audio Clarity: ${hasTranscription ? 'Speech quality, pace, confidence' : 'Visual cues'}
+4. Engagement Potential: Persuasiveness
+5. Retention Score: Audience engagement
+
+Respond in JSON:
 {
   "overallScore": number,
   "hookStrength": number,
@@ -422,12 +478,17 @@ Respond in JSON format:
   "retention": number,
   "strengths": ["strength1", "strength2", "strength3"],
   "improvements": ["improvement1", "improvement2", "improvement3"],
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"],
+  "speechAnalysis": ${hasTranscription ? '{ "fillerWords": number, "speakingPace": "fast|normal|slow", "confidence": number, "hookEffectiveness": number }' : 'null'}
 }`;
 
-      // Use OpenAI Vision API
-      const OpenAI = (await import('openai')).default;
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const imageContent: any[] = frameBase64List.slice(0, 3).map((base64, idx) => ({
+        type: 'image_url',
+        image_url: {
+          url: `data:image/jpeg;base64,${base64}`,
+          detail: 'low',
+        },
+      }));
 
       const visionResponse = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -436,26 +497,30 @@ Respond in JSON format:
             role: 'user',
             content: [
               { type: 'text', text: analysisPrompt },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:${mimeType};base64,${base64Image}`,
-                  detail: 'low',
-                },
-              },
+              ...imageContent,
             ],
           },
         ],
-        max_tokens: 1000,
+        max_tokens: 1500,
         response_format: { type: 'json_object' },
       });
+
+      if (tempDir) {
+        const { cleanupTempDir } = await import('./video-processor');
+        cleanupTempDir(tempDir);
+      }
 
       const analysisText = visionResponse.choices[0]?.message?.content || '{}';
       const analysisResult = JSON.parse(analysisText);
 
-      // Validate required fields
       if (typeof analysisResult.overallScore !== 'number') {
         throw new Error('Invalid analysis result');
+      }
+
+      analysisResult.hasAudioAnalysis = hasTranscription;
+      analysisResult.videoDuration = videoDuration;
+      if (hasTranscription) {
+        analysisResult.transcriptionPreview = transcription.substring(0, 200) + (transcription.length > 200 ? '...' : '');
       }
 
       res.json({
@@ -464,6 +529,14 @@ Respond in JSON format:
       });
     } catch (error: any) {
       console.error('Video analysis error:', error);
+      if (tempDir) {
+        try {
+          const { cleanupTempDir } = await import('./video-processor');
+          cleanupTempDir(tempDir);
+        } catch (cleanupError) {
+          console.log('Cleanup error:', cleanupError);
+        }
+      }
       res.status(500).json({
         error: 'Analysis failed',
         message: 'Gagal menganalisis konten. Silakan coba lagi.',

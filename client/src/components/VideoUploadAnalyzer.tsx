@@ -480,8 +480,8 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             <CheckCircle2 className="w-4 h-4 text-cyan-400" />
             <AlertDescription className="text-cyan-300 text-sm">
               {t(
-                'Ai Vision analyzes your video thumbnail combined with Knowledge Library for comprehensive feedback.',
-                'Ai Vision menganalisis thumbnail video Anda dikombinasikan dengan Knowledge Library untuk feedback komprehensif.'
+                'Ai analyzes your video comprehensively: Audio transcription (Whisper) + Visual frames (Vision) for detailed feedback on speech, visuals, and content quality.',
+                'Ai menganalisis video secara komprehensif: Transkripsi audio (Whisper) + Frame visual (Vision) untuk feedback detail tentang cara bicara, visual, dan kualitas konten.'
               )}
             </AlertDescription>
           </Alert>

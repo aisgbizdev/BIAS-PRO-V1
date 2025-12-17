@@ -52,7 +52,7 @@ The application supports dynamic white-label branding for partners via a path-ba
 - Integrated new analytics tabs (Account, Video, Batch, A/B, Screenshot, Compare, Thumbnail) into TikTok Pro
 - Fixed Save History auto-refresh using custom event dispatching ('bias-history-updated')
 - **CRITICAL**: Removed all fake/mock/random data generation - platform now shows real data only or clear error messages
-- Added `/api/analyze-video` endpoint using OpenAI Vision for image/video thumbnail analysis
+- **Comprehensive Video Analysis (Dec 2024)**: Upgraded `/api/analyze-video` endpoint to use FFmpeg for video processing, OpenAI Whisper for audio transcription, and GPT-4o-mini Vision for multi-frame analysis. Videos are now analyzed for both visual content AND audio/speech quality (filler words, pacing, confidence, hook effectiveness).
 - Added `/api/analyze-screenshot` endpoint using OpenAI Vision for TikTok screenshot analysis
 - Added `/api/test-hooks` endpoint for A/B Hook testing with GPT-4o-mini
 - Fixed VideoAnalyzerPanel, ScreenshotAnalyticsPanel, CompetitorAnalysis to use real API calls
