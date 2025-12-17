@@ -127,21 +127,32 @@ HARUS BILANG: "TOMORROW: [Specific action]. Week 1: [Measurable target]. Expecte
 Platform: ${input.platform || 'general'} - Check community guidelines!
 ${input.mode === 'academic' || input.mode === 'hybrid' ? 'Academic mode: Check citations & logic!' : ''}
 
-JSON array (8 layers), each:
+WAJIB return JSON object dengan key "layers" berisi ARRAY of 8 objects:
 {
-  "layer": "VBM (Visual Behavior Mapping)",
-  "score": 75,
-  "specificObservations": ["observation 1", "observation 2", ...],
-  "strengths": ["strength 1 dengan contoh spesifik", ...],
-  "weaknesses": ["weakness 1 dengan contoh konkret", ...],
-  "actionableRecommendations": ["Step 1: ... (Timeline: Week 1-2)", ...],
-  "feedback": "Narrative 4-5 kalimat yang mendidik & motivating dalam Bahasa Indonesia",
-  "feedbackId": "Same as feedback (Indonesian)"
+  "layers": [
+    {
+      "layer": "VBM (Visual Behavior Mapping)",
+      "score": 75,
+      "specificObservations": ["Quote exact: 'Halo Traders' - pembukaan langsung engaging", "Di tengah video gesture tangan kaku saat jelaskan data"],
+      "strengths": ["Hook kuat di awal - 'saat ini isu yang sering dibahas' langsung menarik perhatian"],
+      "weaknesses": ["Bagian tengah (menjelaskan dampak) kurang gesture, tangan di samping"],
+      "actionableRecommendations": ["BESOK: Practice 5x di cermin, fokus gesture saat bilang 'dampaknya adalah...'", "Week 1 target: 3 gesture berbeda per menit. Expected: audiens lebih engaged"],
+      "feedback": "Postur kamu udah bagus bro, tegak dan percaya diri. Gesture tangan di awal ekspresif - terutama pas bilang '[quote dari video]'. Tapi di tengah pas bahas data, tangan agak kaku. FIX: Latihan 5x besok, setiap kali sebut angka, point ke arah tertentu.",
+      "feedbackId": "Same Indonesian text"
+    },
+    { "layer": "EPM (Emotional Processing Metric)", ... },
+    { "layer": "NLP (Narrative & Language Patterns)", ... },
+    { "layer": "ETH (Ethical Framework)", ... },
+    { "layer": "ECO (Ecosystem Awareness)", ... },
+    { "layer": "SOC (Social Intelligence)", ... },
+    { "layer": "COG (Cognitive Load Management)", ... },
+    { "layer": "BMIL (Behavioral Micro-Indicators Library)", ... }
+  ]
 }
 
-CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan generic template!`;
+SEMUA 8 LAYERS WAJIB ADA! Quote kata-kata EXACT dari transkripsi. Jangan generic!`;
 
-    console.log('🚀 Calling OpenAI GPT-4o-mini for deep analysis... (optimized for <20s response)');
+    console.log('🚀 Calling OpenAI GPT-4o-mini for deep analysis...');
     const startTime = Date.now();
     
     const completion = await openai.chat.completions.create({
@@ -150,8 +161,8 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
         { role: 'system', content: DEEP_ANALYSIS_PROMPT },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.5,  // Lower = faster, more focused
-      max_tokens: 2200,  // Reduced from 4000 for 2x faster response
+      temperature: 0.6,
+      max_tokens: 4500,  // Increased to fit all 8 layers with detailed content
       response_format: { type: "json_object" },
     });
     
@@ -199,10 +210,16 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
       layers = parsedResponse.results;
       foundAt = 'parsedResponse.results';
     }
-    // Try looking for any key containing "layer" or "VBM"
+    // Check if response is a SINGLE layer object (has "layer" key with layer name)
+    else if (parsedResponse.layer && typeof parsedResponse.layer === 'string' && parsedResponse.score !== undefined) {
+      layers = [parsedResponse];
+      foundAt = 'single layer object (wrapped)';
+      console.log('⚠️ AI returned single layer instead of array - using it anyway');
+    }
+    // Try looking for any array with 6-10 elements
     else {
       for (const [key, value] of Object.entries(parsedResponse)) {
-        if (Array.isArray(value) && value.length >= 6 && value.length <= 10) {
+        if (Array.isArray(value) && value.length >= 1 && value.length <= 10) {
           layers = value;
           foundAt = `parsedResponse.${key}`;
           break;
@@ -210,7 +227,7 @@ CRITICAL: Berikan analysis yang DETAIL & SPESIFIK - ini premium service, bukan g
         // Check nested objects
         if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
           for (const [nestedKey, nestedValue] of Object.entries(value as any)) {
-            if (Array.isArray(nestedValue) && nestedValue.length >= 6 && nestedValue.length <= 10) {
+            if (Array.isArray(nestedValue) && nestedValue.length >= 1 && nestedValue.length <= 10) {
               layers = nestedValue;
               foundAt = `parsedResponse.${key}.${nestedKey}`;
               break;
