@@ -12,6 +12,8 @@ import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
 import { ThumbnailGenerator } from '@/components/ThumbnailGenerator';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
+import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
+import { MessageSquare } from 'lucide-react';
 import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, BarChart3, Wand2 } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
@@ -370,11 +372,6 @@ export default function SocialMediaPro() {
         {/* A/B Hook Tester Mode */}
         {analyticsTab === 'hooks' && (
           <ABHookTester />
-        )}
-
-        {/* Analysis History */}
-        {(analyticsTab === 'video' || analyticsTab === 'account') && (
-          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
         )}
 
         {/* Account Profile Card - Show after analysis */}
@@ -742,9 +739,36 @@ export default function SocialMediaPro() {
             </CardContent>
           </Card>
               </div>
+              
+              {/* Discussion Chat Box for Account Analysis */}
+              <Card className="border-pink-500/20 bg-[#141414]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MessageSquare className="w-5 h-5 text-pink-500" />
+                    {t('Discuss Your Results', 'Diskusikan Hasilmu')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AnalysisDiscussion
+                    analysisType="account"
+                    analysisContext={`TikTok Account Analysis for @${username}:
+- Followers: ${followersDisplay}
+- Total Likes: ${likesDisplay}
+- Videos: ${videosDisplay}
+- Engagement Rate: ${engagementRate}%
+- Likes per Video: ${formatMetric(likesPerVideo)}`}
+                    mode="tiktok"
+                  />
+                </CardContent>
+              </Card>
             </>
           );
         })()}
+        
+        {/* Analysis History - Always at Bottom */}
+        {(analyticsTab === 'video' || analyticsTab === 'account') && (
+          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
+        )}
         </div>
       )}
       </div>

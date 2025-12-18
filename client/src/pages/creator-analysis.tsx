@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
-import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
 import { FileText, Zap, Briefcase, MessageCircle } from 'lucide-react';
@@ -95,17 +94,10 @@ export default function CreatorAnalysis() {
           <VideoUploadAnalyzer onAnalysisComplete={(result) => handleAnalysisComplete(result, 'video', 'Video Analysis')} mode="academic" />
         )}
 
-        {/* Analysis Results */}
+        {/* Analysis Results - AnalysisResults already includes AnalysisDiscussion */}
         {currentAnalysis && (
           <div data-results-container>
             <AnalysisResults result={currentAnalysis} mode="marketing" />
-            
-            {/* Discussion Chat Box */}
-            <AnalysisDiscussion 
-              analysisResult={currentAnalysis} 
-              mode="marketing" 
-              analysisType={inputMode === 'upload' ? 'video' : 'text'} 
-            />
           </div>
         )}
 
