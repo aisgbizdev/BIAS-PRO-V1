@@ -5,10 +5,11 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, Share2, Link2, Check, FileDown, Loader2 } from 'lucide-react';
+import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, Share2, Link2, Check, FileDown, Loader2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { exportAnalysisToPDF } from '@/lib/pdfExport';
+import { AnalysisDiscussion } from './AnalysisDiscussion';
 import type { BiasAnalysisResult } from '@shared/schema';
 
 const LAYER_TOOLTIPS: Record<string, { en: string; id: string }> = {
@@ -375,6 +376,23 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         </CardContent>
       </Card>
       )}
+
+      {/* Discussion Chat */}
+      <Card className="border-pink-500/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-pink-500" />
+            {t('Discuss Your Results', 'Diskusikan Hasilmu')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AnalysisDiscussion
+            analysisResult={result}
+            analysisType="text"
+            mode={mode}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

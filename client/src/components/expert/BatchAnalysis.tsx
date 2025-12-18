@@ -15,9 +15,11 @@ import {
   FileVideo,
   BarChart3,
   Trophy,
-  AlertCircle
+  AlertCircle,
+  MessageSquare
 } from 'lucide-react';
 import { getRemainingVideoAnalysis, incrementVideoUsage } from '@/lib/usageLimit';
+import { AnalysisDiscussion } from '../AnalysisDiscussion';
 
 interface VideoFile {
   id: string;
@@ -601,6 +603,32 @@ export function BatchAnalysis() {
               </CardContent>
             </Card>
           )}
+
+          {/* Discussion Chat */}
+          <Card className="border-pink-500/20 mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg text-white">
+                <MessageSquare className="w-5 h-5 text-pink-500" />
+                {t('Discuss Your Results', 'Diskusikan Hasilmu')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AnalysisDiscussion
+                analysisType="batch"
+                analysisContext={`Batch Video Analysis Results:
+- Videos Analyzed: ${batchResult.results.length}
+- Best Performer: ${batchResult.comparison?.overallWinner?.videoName || 'N/A'} - ${batchResult.comparison?.overallWinner?.reason || ''}
+- Average Score: ${Math.round(batchResult.results.reduce((sum, r) => sum + r.overallScore, 0) / batchResult.results.length)}
+
+Individual Scores:
+${batchResult.results.map(r => `- ${r.videoName}: ${r.overallScore}/100`).join('\n')}
+
+Insights:
+${batchResult.insights.join('\n')}`}
+                mode="tiktok"
+              />
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

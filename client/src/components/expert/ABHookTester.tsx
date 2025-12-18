@@ -16,8 +16,10 @@ import {
   Lightbulb,
   Loader2,
   Copy,
-  Check
+  Check,
+  MessageSquare
 } from 'lucide-react';
+import { AnalysisDiscussion } from '../AnalysisDiscussion';
 
 interface HookInput {
   id: string;
@@ -366,6 +368,31 @@ export function ABHookTester() {
               );
             })}
           </div>
+
+          {/* Discussion Chat */}
+          <Card className="border-pink-500/20 mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg text-white">
+                <MessageSquare className="w-5 h-5 text-pink-500" />
+                {t('Discuss Your Results', 'Diskusikan Hasilmu')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AnalysisDiscussion
+                analysisType="hook"
+                analysisContext={`A/B Hook Test Results:
+- Winner: Hook ${result.winner} (Score: ${result.winnerScore}/100)
+- Comparison: ${result.comparison}
+
+Hook Scores:
+${result.results.map(r => `- Hook ${r.hookId}: "${r.hookText.substring(0, 50)}..." - Score: ${r.score}/100, Viral: ${r.viralPotential}`).join('\n')}
+
+Strengths & Weaknesses:
+${result.results.map(r => `Hook ${r.hookId}: Strengths: ${r.strengths.join(', ')}. Weaknesses: ${r.weaknesses.join(', ')}`).join('\n')}`}
+                mode="tiktok"
+              />
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

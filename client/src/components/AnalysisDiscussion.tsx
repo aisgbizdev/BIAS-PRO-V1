@@ -17,7 +17,7 @@ interface AnalysisDiscussionProps {
   analysisResult?: BiasAnalysisResult | null;
   analysisContext?: string;
   mode?: 'tiktok' | 'marketing';
-  analysisType?: 'video' | 'text' | 'account' | 'comparison';
+  analysisType?: 'video' | 'text' | 'account' | 'comparison' | 'batch' | 'hook' | 'screenshot';
 }
 
 export function AnalysisDiscussion({ analysisResult, analysisContext, mode = 'tiktok', analysisType = 'video' }: AnalysisDiscussionProps) {
@@ -103,6 +103,36 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
         { text: t('How to beat my competitor?', 'Gimana cara menang dari kompetitor?'), icon: '⚔️' },
         { text: t('What can I learn from the winner?', 'Apa yang bisa dipelajari dari pemenang?'), icon: '📚' },
         { text: t('Weakness of top performer?', 'Kelemahan akun teratas?'), icon: '🎯' },
+      ];
+    }
+    
+    // Hook test specific suggestions
+    if (analysisType === 'hook') {
+      return [
+        { text: t('Why did this hook win?', 'Kenapa hook ini menang?'), icon: '🏆' },
+        { text: t('How to make my hook more viral?', 'Gimana buat hook lebih viral?'), icon: '🔥' },
+        { text: t('What makes a great opening?', 'Apa yang bikin opening bagus?'), icon: '🎣' },
+        { text: t('Combine strengths of all hooks?', 'Gabungin kekuatan semua hook?'), icon: '💡' },
+      ];
+    }
+    
+    // Batch video analysis suggestions
+    if (analysisType === 'batch') {
+      return [
+        { text: t('Why did this video win?', 'Kenapa video ini menang?'), icon: '🏆' },
+        { text: t('Common pattern in my best videos?', 'Pola umum di video terbaik?'), icon: '📊' },
+        { text: t('How to improve consistency?', 'Gimana improve konsistensi?'), icon: '🎯' },
+        { text: t('What to avoid in future?', 'Apa yang harus dihindari?'), icon: '⚠️' },
+      ];
+    }
+    
+    // Screenshot analysis suggestions
+    if (analysisType === 'screenshot') {
+      return [
+        { text: t('How to improve these metrics?', 'Gimana improve metrik ini?'), icon: '📈' },
+        { text: t('What does this data mean?', 'Apa artinya data ini?'), icon: '🤔' },
+        { text: t('Best time to post?', 'Waktu terbaik posting?'), icon: '⏰' },
+        { text: t('How to get more views?', 'Gimana dapet lebih banyak views?'), icon: '👁️' },
       ];
     }
     
