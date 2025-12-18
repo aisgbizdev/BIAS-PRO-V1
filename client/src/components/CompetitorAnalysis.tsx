@@ -11,6 +11,24 @@ import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus 
 import { SiTiktok } from 'react-icons/si';
 import { trackFeatureUsage } from '@/lib/analytics';
 
+// Helper to safely extract numeric value from MetricValue objects or primitives
+function getMetricValue(metric: any): number {
+  if (metric === null || metric === undefined) return 0;
+  if (typeof metric === 'number') return metric;
+  if (typeof metric === 'object' && 'approx' in metric) {
+    return typeof metric.approx === 'number' ? metric.approx : 0;
+  }
+  return 0;
+}
+
+// Format large numbers (e.g., 1.5M, 2.3K)
+function formatNumber(num: number): string {
+  if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1)}B`;
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
+  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
+  return num.toString();
+}
+
 interface AccountData {
   username: string;
   followers: number;
@@ -83,11 +101,13 @@ export function CompetitorAnalysis() {
 
           if (response.ok) {
             const data = await response.json();
-            // Handle both old (stats) and new (metrics) API response formats
-            const followers = data.metrics?.followers?.approx || data.metrics?.followers || data.stats?.followers || 0;
-            const following = data.metrics?.following?.approx || data.metrics?.following || data.stats?.following || 0;
-            const likes = data.metrics?.likes?.approx || data.metrics?.likes || data.stats?.likes || 0;
-            const videos = data.metrics?.videos?.approx || data.metrics?.videos || data.stats?.videos || 0;
+            // Handle both old (stats) and new (metrics with MetricValue objects) API response formats
+            const followers = getMetricValue(data.metrics?.followers) || getMetricValue(data.stats?.followers);
+            const following = getMetricValue(data.metrics?.following) || getMetricValue(data.stats?.following);
+            const likes = getMetricValue(data.metrics?.likes) || getMetricValue(data.stats?.likes);
+            const videos = getMetricValue(data.metrics?.videos) || getMetricValue(data.stats?.videos);
+            const engagementRate = getMetricValue(data.metrics?.engagementRate) || getMetricValue(data.stats?.engagementRate);
+            const avgViews = getMetricValue(data.metrics?.avgViews) || getMetricValue(data.stats?.avgViews);
             
             if (followers > 0) {
               accountsData.push({
@@ -96,8 +116,8 @@ export function CompetitorAnalysis() {
                 following,
                 likes,
                 videos,
-                engagementRate: data.metrics?.engagementRate || data.stats?.engagementRate || 0,
-                avgViews: data.metrics?.avgViews || data.stats?.avgViews || 0,
+                engagementRate,
+                avgViews,
                 nickname: data.displayName || data.accountInfo?.nickname,
                 photoUrl: data.profilePhotoUrl || data.accountInfo?.photoUrl,
                 verified: data.verified || data.accountInfo?.verified,
