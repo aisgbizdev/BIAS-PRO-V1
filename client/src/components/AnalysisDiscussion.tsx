@@ -15,11 +15,12 @@ interface Message {
 
 interface AnalysisDiscussionProps {
   analysisResult?: BiasAnalysisResult | null;
+  analysisContext?: string;
   mode?: 'tiktok' | 'marketing';
-  analysisType?: 'video' | 'text' | 'account';
+  analysisType?: 'video' | 'text' | 'account' | 'comparison';
 }
 
-export function AnalysisDiscussion({ analysisResult, mode = 'tiktok', analysisType = 'video' }: AnalysisDiscussionProps) {
+export function AnalysisDiscussion({ analysisResult, analysisContext, mode = 'tiktok', analysisType = 'video' }: AnalysisDiscussionProps) {
   const { language } = useLanguage();
   const t = (en: string, id: string) => language === 'en' ? en : id;
   
@@ -51,8 +52,19 @@ export function AnalysisDiscussion({ analysisResult, mode = 'tiktok', analysisTy
     setIsMinimized(false);
   };
 
-  // Build context from analysis result
+  // Build context from analysis result or custom context
   const getAnalysisContext = () => {
+    // Use custom context if provided
+    if (analysisContext) {
+      return `
+KONTEKS ANALISIS SEBELUMNYA:
+- Mode: ${mode === 'tiktok' ? 'TikTok Pro' : 'Marketing Pro'}
+- Tipe: ${analysisType}
+
+${analysisContext}
+`;
+    }
+    
     if (!analysisResult) return '';
     
     const layers = analysisResult.layers?.map(l => `${l.layer}: ${l.score}/10 - ${l.feedback}`).join('\n') || '';
@@ -72,8 +84,28 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
 `;
   };
 
-  // Quick suggestions based on mode and analysis
+  // Quick suggestions based on mode and analysis type
   const getQuickSuggestions = () => {
+    // Account-specific suggestions
+    if (analysisType === 'account') {
+      return [
+        { text: t('How to grow my followers?', 'Gimana cara naikin followers?'), icon: '📈' },
+        { text: t('Why is my engagement low?', 'Kenapa engagement rendah?'), icon: '🎯' },
+        { text: t('Tips to improve my profile?', 'Tips improve profil?'), icon: '✨' },
+        { text: t('Best posting strategy?', 'Strategi posting terbaik?'), icon: '📅' },
+      ];
+    }
+    
+    // Comparison-specific suggestions
+    if (analysisType === 'comparison') {
+      return [
+        { text: t('Why did this account win?', 'Kenapa akun ini menang?'), icon: '🏆' },
+        { text: t('How to beat my competitor?', 'Gimana cara menang dari kompetitor?'), icon: '⚔️' },
+        { text: t('What can I learn from the winner?', 'Apa yang bisa dipelajari dari pemenang?'), icon: '📚' },
+        { text: t('Weakness of top performer?', 'Kelemahan akun teratas?'), icon: '🎯' },
+      ];
+    }
+    
     if (mode === 'tiktok') {
       return [
         { text: t('How to improve my score?', 'Gimana cara improve skor ini?'), icon: '📈' },

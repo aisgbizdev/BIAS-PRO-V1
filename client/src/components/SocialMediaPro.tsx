@@ -10,7 +10,8 @@ import { useSession } from '@/lib/sessionContext';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Video, User, AlertCircle } from 'lucide-react';
+import { Video, User, AlertCircle, MessageSquare } from 'lucide-react';
+import { AnalysisDiscussion } from './AnalysisDiscussion';
 import { SiTiktok, SiInstagram, SiYoutube } from 'react-icons/si';
 import type { TikTokAccountAnalysis, TikTokVideoAnalysis, Session } from '@shared/schema';
 
@@ -554,6 +555,35 @@ export function SocialMediaPro() {
                       </CardContent>
                     </Card>
                   )}
+
+                  {/* Discussion Chat */}
+                  <Card className="border-pink-500/20 mt-6">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <MessageSquare className="w-5 h-5 text-pink-500" />
+                        {t('Discuss Your Results', 'Diskusikan Hasilmu')}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <AnalysisDiscussion
+                        analysisType="account"
+                        analysisContext={`TikTok Account Analysis for @${accountData.username || 'user'}:
+- Overall Score: ${accountAnalysis.overallScore}/10
+- Followers: ${accountData.followers?.toLocaleString() || 'N/A'}
+- Total Likes: ${accountData.totalLikes?.toLocaleString() || 'N/A'}
+- Videos: ${accountData.videoCount || 'N/A'}
+- Engagement Rate: ${accountData.avgEngagementRate || 'N/A'}%
+
+BIAS Layers:
+${Object.entries(accountAnalysis.biasLayers).map(([layer, data]) => `- ${layer}: ${data.score}/10 - ${data.insight}`).join('\n')}
+
+Strengths: ${accountAnalysis.strengths.join(', ')}
+Weaknesses: ${accountAnalysis.weaknesses.join(', ')}
+Recommendations: ${accountAnalysis.recommendations.join(', ')}`}
+                        mode="tiktok"
+                      />
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </CardContent>
