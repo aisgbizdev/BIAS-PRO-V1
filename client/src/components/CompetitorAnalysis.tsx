@@ -416,7 +416,7 @@ Hasil Perbandingan Akun TikTok:
       </Card>
 
       {results && (
-        <Card className="border-cyan-500/20">
+        <Card id="comparison-results" className="border-cyan-500/20">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
