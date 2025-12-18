@@ -83,18 +83,24 @@ export function CompetitorAnalysis() {
 
           if (response.ok) {
             const data = await response.json();
-            if (data.stats?.followers > 0) {
+            // Handle both old (stats) and new (metrics) API response formats
+            const followers = data.metrics?.followers?.approx || data.metrics?.followers || data.stats?.followers || 0;
+            const following = data.metrics?.following?.approx || data.metrics?.following || data.stats?.following || 0;
+            const likes = data.metrics?.likes?.approx || data.metrics?.likes || data.stats?.likes || 0;
+            const videos = data.metrics?.videos?.approx || data.metrics?.videos || data.stats?.videos || 0;
+            
+            if (followers > 0) {
               accountsData.push({
-                username: username.trim(),
-                followers: data.stats?.followers || 0,
-                following: data.stats?.following || 0,
-                likes: data.stats?.likes || 0,
-                videos: data.stats?.videos || 0,
-                engagementRate: data.stats?.engagementRate || 0,
-                avgViews: data.stats?.avgViews || 0,
-                nickname: data.accountInfo?.nickname,
-                photoUrl: data.accountInfo?.photoUrl,
-                verified: data.accountInfo?.verified,
+                username: data.username || username.trim(),
+                followers,
+                following,
+                likes,
+                videos,
+                engagementRate: data.metrics?.engagementRate || data.stats?.engagementRate || 0,
+                avgViews: data.metrics?.avgViews || data.stats?.avgViews || 0,
+                nickname: data.displayName || data.accountInfo?.nickname,
+                photoUrl: data.profilePhotoUrl || data.accountInfo?.photoUrl,
+                verified: data.verified || data.accountInfo?.verified,
               });
             } else {
               toast({
