@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDefaultSettings } from "./init-settings";
+import { loadSettingsFromDatabase } from "./utils/ai-rate-limiter";
 
 const app = express();
 
@@ -58,6 +59,9 @@ app.use((req, res, next) => {
 (async () => {
   // Initialize default settings if database is empty
   await initializeDefaultSettings();
+  
+  // Load AI rate limiter settings from database
+  await loadSettingsFromDatabase();
   
   const server = await registerRoutes(app);
 

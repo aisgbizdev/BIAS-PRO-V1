@@ -1,5 +1,10 @@
 // Ai Rate Limiter - Batasi penggunaan OpenAI untuk hemat token
 // Configurable limits per session dan per hari
+// Now fetches limits from database (pricingTiers and appSettings)
+
+import { db } from '../../db';
+import { pricingTiers, appSettings } from '../../shared/schema';
+import { eq } from 'drizzle-orm';
 
 interface UsageRecord {
   requests: number;
@@ -14,13 +19,54 @@ interface RateLimitConfig {
   maxTokensPerRequest: number;
 }
 
-// Default config HEMAT - bisa diubah di admin panel
-const DEFAULT_CONFIG: RateLimitConfig = {
-  maxRequestsPerHour: 5,       // Max 5 request per jam (hemat)
-  maxRequestsPerDay: 20,       // Max 20 request per hari (hemat)
-  maxTokensPerDay: 50000,      // Max 50K tokens per hari (hemat)
-  maxTokensPerRequest: 1500,   // Max 1500 token per request (hemat, tetap quality)
+// Default config - will be overwritten by database settings on loadSettingsFromDatabase()
+let CURRENT_CONFIG: RateLimitConfig = {
+  maxRequestsPerHour: 100,     // Default high - database will override
+  maxRequestsPerDay: 1000,     // Default high - database will override  
+  maxTokensPerDay: 1000000,    // Default high - database will override
+  maxTokensPerRequest: 100000, // Default high - database will override
 };
+
+// Track if settings have been loaded from database
+let settingsLoaded = false;
+
+// Load settings from database (call on server startup)
+export async function loadSettingsFromDatabase(): Promise<void> {
+  try {
+    // Get the 'gratis' tier (default tier for anonymous users)
+    const [gratisTier] = await db.select().from(pricingTiers).where(eq(pricingTiers.slug, 'gratis'));
+    
+    // Get global settings
+    const allSettings = await db.select().from(appSettings);
+    const globalTokenPerDay = allSettings.find(s => s.key === 'global_token_per_day');
+    const globalTokenPerRequest = allSettings.find(s => s.key === 'global_token_per_request');
+    
+    if (gratisTier) {
+      // chatLimit from tier = max requests per day (or unlimited if -1)
+      const chatLimit = gratisTier.chatLimit ?? 100;
+      
+      CURRENT_CONFIG = {
+        maxRequestsPerHour: chatLimit === -1 ? 999999 : Math.max(10, Math.ceil(chatLimit / 24)), // Divide daily by 24 for hourly, min 10
+        maxRequestsPerDay: chatLimit === -1 ? 999999 : chatLimit,
+        maxTokensPerDay: globalTokenPerDay ? parseInt(globalTokenPerDay.value || '1000000') : 1000000,
+        maxTokensPerRequest: globalTokenPerRequest ? parseInt(globalTokenPerRequest.value || '100000') : 100000,
+      };
+      
+      console.log('🔧 AI Rate Limiter loaded from database:', CURRENT_CONFIG);
+    }
+    
+    settingsLoaded = true;
+  } catch (error) {
+    console.error('❌ Failed to load AI rate limiter settings from database:', error);
+    // Keep defaults on error
+  }
+}
+
+// Reload settings (can be called after admin updates)
+export async function reloadSettings(): Promise<RateLimitConfig> {
+  await loadSettingsFromDatabase();
+  return CURRENT_CONFIG;
+}
 
 // In-memory storage untuk tracking usage (reset saat server restart)
 const hourlyUsage: Map<string, UsageRecord> = new Map();
@@ -66,7 +112,7 @@ export interface RateLimitResult {
 }
 
 export function checkRateLimit(sessionId: string, config: Partial<RateLimitConfig> = {}): RateLimitResult {
-  const cfg = { ...DEFAULT_CONFIG, ...config };
+  const cfg = { ...CURRENT_CONFIG, ...config };
   const hourly = getHourlyRecord(sessionId);
   const daily = getDailyRecord(sessionId);
   const now = new Date();
@@ -136,17 +182,17 @@ export function getUsageStats(sessionId: string): {
   return {
     hourly: getHourlyRecord(sessionId),
     daily: getDailyRecord(sessionId),
-    limits: DEFAULT_CONFIG,
+    limits: CURRENT_CONFIG,
   };
 }
 
 // Export config untuk bisa dimodifikasi
 export function updateConfig(newConfig: Partial<RateLimitConfig>): RateLimitConfig {
-  Object.assign(DEFAULT_CONFIG, newConfig);
-  console.log('🔧 Ai Rate Limit Config Updated:', DEFAULT_CONFIG);
-  return DEFAULT_CONFIG;
+  Object.assign(CURRENT_CONFIG, newConfig);
+  console.log('🔧 Ai Rate Limit Config Updated:', CURRENT_CONFIG);
+  return CURRENT_CONFIG;
 }
 
 export function getConfig(): RateLimitConfig {
-  return { ...DEFAULT_CONFIG };
+  return { ...CURRENT_CONFIG };
 }
