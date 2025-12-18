@@ -36,6 +36,29 @@ interface VideoAnalysisResult {
   retention: number;
   strengths: string[];
   improvements: string[];
+  layers?: any[];
+  transcriptionPreview?: string;
+}
+
+interface CompetitiveComparison {
+  overallWinner: {
+    videoName: string;
+    reason: string;
+  };
+  dimensionWinners: Array<{
+    dimension: string;
+    winner: string;
+    reason: string;
+  }>;
+  pairwiseComparisons: Array<{
+    pair: string;
+    verdict: string;
+  }>;
+  sharedWeaknesses: string[];
+  winningCombo: {
+    recommendation: string;
+    nextAction: string;
+  };
 }
 
 interface BatchResult {
@@ -44,6 +67,7 @@ interface BatchResult {
   worstPerformer: string;
   averageScore: number;
   insights: string[];
+  comparison?: CompetitiveComparison;
 }
 
 export function BatchAnalysis() {
@@ -157,22 +181,55 @@ export function BatchAnalysis() {
             videoId: videos[i].id,
             videoName: videos[i].name,
             overallScore,
-            hookStrength: analysisData.hookStrength || analysisData.layers?.find((l: any) => l.layer === 'VBM')?.score || 70,
-            visualQuality: analysisData.visualQuality || analysisData.layers?.find((l: any) => l.layer === 'NLP')?.score || 70,
-            engagement: analysisData.engagement || analysisData.layers?.find((l: any) => l.layer === 'EPM')?.score || 70,
-            retention: analysisData.retention || analysisData.layers?.find((l: any) => l.layer === 'COG')?.score || 70,
+            hookStrength: analysisData.hookStrength || analysisData.layers?.find((l: any) => l.layer?.includes('VBM'))?.score || 70,
+            visualQuality: analysisData.visualQuality || analysisData.layers?.find((l: any) => l.layer?.includes('NLP'))?.score || 70,
+            engagement: analysisData.engagement || analysisData.layers?.find((l: any) => l.layer?.includes('EPM'))?.score || 70,
+            retention: analysisData.retention || analysisData.layers?.find((l: any) => l.layer?.includes('COG'))?.score || 70,
             strengths: strengths.slice(0, 3),
             improvements: improvements.slice(0, 3),
+            layers: analysisData.layers || [],
+            transcriptionPreview: analysisData.transcriptionPreview || '',
           });
           incrementVideoUsage();
         }
 
-        setProgress(Math.round(((i + 1) / videos.length) * 100));
+        setProgress(Math.round(((i + 1) / videos.length) * 80)); // 80% for individual analyses
       }
 
       if (results.length === 0) {
         throw new Error(t('No videos could be analyzed', 'Tidak ada video yang bisa dianalisis'));
       }
+
+      // Step 2: Call competitive comparison API
+      setProgress(85);
+      let comparison: CompetitiveComparison | undefined;
+      
+      try {
+        const comparePayload = {
+          videos: results.map(r => ({
+            name: r.videoName,
+            overallScore: r.overallScore,
+            layers: r.layers,
+            transcriptionPreview: r.transcriptionPreview,
+          })),
+          language: language === 'id' ? 'id' : 'en',
+        };
+
+        const compareResponse = await fetch('/api/compare-videos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(comparePayload),
+        });
+
+        if (compareResponse.ok) {
+          const compareData = await compareResponse.json();
+          comparison = compareData.comparison;
+        }
+      } catch (compareError) {
+        console.log('Competitive comparison failed, using basic insights:', compareError);
+      }
+
+      setProgress(100);
 
       // Calculate batch insights
       const sortedByScore = [...results].sort((a, b) => b.overallScore - a.overallScore);
@@ -186,11 +243,14 @@ export function BatchAnalysis() {
         worstPerformer: sortedByScore[sortedByScore.length - 1].videoName,
         averageScore: avgScore,
         insights,
+        comparison,
       });
 
       toast({
         title: t('Batch Analysis Complete!', 'Analisis Batch Selesai!'),
-        description: t(`${results.length} videos analyzed`, `${results.length} video dianalisis`),
+        description: comparison 
+          ? t(`${results.length} videos analyzed & compared`, `${results.length} video dianalisis & dibandingkan`)
+          : t(`${results.length} videos analyzed`, `${results.length} video dianalisis`),
       });
 
     } catch (error: any) {
@@ -437,6 +497,102 @@ export function BatchAnalysis() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Competitive Comparison - AI Analysis */}
+          {batchResult.comparison && (
+            <Card className="bg-gradient-to-br from-pink-900/20 to-cyan-900/20 border-pink-500/30">
+              <CardHeader>
+                <CardTitle className="text-lg text-white flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-cyan-400" />
+                  {t('Competitive Analysis', 'Analisis Kompetitif')}
+                  <Badge className="bg-pink-500/20 text-pink-300 text-xs ml-2">AI</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Overall Winner */}
+                <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trophy className="w-5 h-5 text-yellow-400" />
+                    <span className="font-bold text-yellow-400">
+                      {t('Overall Winner', 'Pemenang Keseluruhan')}: {batchResult.comparison.overallWinner.videoName}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-300">{batchResult.comparison.overallWinner.reason}</p>
+                </div>
+
+                {/* Dimension Winners */}
+                <div>
+                  <p className="text-sm font-medium text-gray-300 mb-3">
+                    {t('Winners by Category', 'Pemenang per Kategori')}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {batchResult.comparison.dimensionWinners.map((dim, i) => (
+                      <div key={i} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-cyan-400">{dim.dimension}</span>
+                          <Badge className="bg-green-500/20 text-green-300 text-xs">{dim.winner}</Badge>
+                        </div>
+                        <p className="text-xs text-gray-400">{dim.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pairwise Comparisons */}
+                {batchResult.comparison.pairwiseComparisons.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-300 mb-3">
+                      {t('Head-to-Head', 'Perbandingan Langsung')}
+                    </p>
+                    <div className="space-y-2">
+                      {batchResult.comparison.pairwiseComparisons.map((pair, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm">
+                          <TrendingUp className="w-4 h-4 text-pink-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium text-white">{pair.pair}</span>
+                            <p className="text-gray-400">{pair.verdict}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Shared Weaknesses */}
+                {batchResult.comparison.sharedWeaknesses.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-300 mb-3">
+                      {t('Shared Areas to Improve', 'Area yang Perlu Diperbaiki Bersama')}
+                    </p>
+                    <div className="space-y-2">
+                      {batchResult.comparison.sharedWeaknesses.map((weakness, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-gray-400">
+                          <AlertCircle className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                          <span>{weakness}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Winning Combo */}
+                {batchResult.comparison.winningCombo && (
+                  <div className="p-4 bg-gradient-to-r from-pink-500/10 to-cyan-500/10 rounded-lg border border-pink-500/20">
+                    <p className="text-sm font-bold text-white mb-2">
+                      🎯 {t('Winning Formula', 'Formula Pemenang')}
+                    </p>
+                    <p className="text-sm text-gray-300 mb-3">{batchResult.comparison.winningCombo.recommendation}</p>
+                    <div className="p-3 bg-black/30 rounded border border-cyan-500/20">
+                      <p className="text-xs font-medium text-cyan-400 mb-1">
+                        {t('Next Action', 'Langkah Selanjutnya')}:
+                      </p>
+                      <p className="text-sm text-white">{batchResult.comparison.winningCombo.nextAction}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
     </div>

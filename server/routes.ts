@@ -555,6 +555,127 @@ Analisis elemen visual dan presentasi dalam konten ini.`;
     }
   });
 
+  // Compare Videos - Competitive batch comparison
+  app.post("/api/compare-videos", async (req, res) => {
+    try {
+      const schema = z.object({
+        videos: z.array(z.object({
+          name: z.string(),
+          overallScore: z.number(),
+          layers: z.array(z.object({
+            layer: z.string(),
+            score: z.number(),
+            strengths: z.array(z.string()).optional(),
+            weaknesses: z.array(z.string()).optional(),
+            feedback: z.string().optional(),
+          })).optional(),
+          transcriptionPreview: z.string().optional(),
+        })).min(2).max(5),
+        language: z.enum(['en', 'id']).default('id'),
+      });
+
+      const data = schema.parse(req.body);
+      const { videos, language } = data;
+      const isId = language === 'id';
+
+      console.log(`🔄 Comparing ${videos.length} videos competitively...`);
+
+      // Build comparison summary for each video
+      const videoSummaries = videos.map((v, i) => {
+        const layerScores = v.layers?.map(l => `${l.layer.split(' ')[0]}: ${l.score}`).join(', ') || 'N/A';
+        const topStrengths = v.layers?.flatMap(l => l.strengths || []).slice(0, 2).join('; ') || 'N/A';
+        const topWeaknesses = v.layers?.flatMap(l => l.weaknesses || []).slice(0, 2).join('; ') || 'N/A';
+        return `VIDEO ${i + 1} "${v.name}":
+- Overall Score: ${v.overallScore}
+- Layer Scores: ${layerScores}
+- Strengths: ${topStrengths}
+- Weaknesses: ${topWeaknesses}
+- Content Preview: ${v.transcriptionPreview?.substring(0, 150) || 'No transcription'}`;
+      }).join('\n\n');
+
+      const comparisonPrompt = `Kamu expert content analyst. Bandingkan ${videos.length} video TikTok/Marketing ini secara KOMPETITIF.
+
+${videoSummaries}
+
+TUGAS: Buat perbandingan kompetitif yang ACTIONABLE. 
+
+Respond in JSON format:
+{
+  "overallWinner": {
+    "videoName": "nama video pemenang",
+    "reason": "Alasan spesifik kenapa video ini menang (2-3 kalimat dengan reference ke konten)"
+  },
+  "dimensionWinners": [
+    { "dimension": "Hook", "winner": "Video 1", "reason": "Hook 'Halo traders' lebih menarik karena langsung menyapa audiens vs Video 2 yang mulai dengan intro generik" },
+    { "dimension": "Storytelling", "winner": "Video 2", "reason": "Struktur Problem→Solution→CTA lebih jelas" },
+    { "dimension": "Credibility", "winner": "Video 1", "reason": "Menyertakan data dan statistik" },
+    { "dimension": "Engagement", "winner": "Video 3", "reason": "Ada pertanyaan ke audiens di tengah video" },
+    { "dimension": "CTA", "winner": "Video 2", "reason": "CTA lebih jelas dan actionable" }
+  ],
+  "pairwiseComparisons": [
+    { "pair": "Video 1 vs Video 2", "verdict": "Video 1 unggul di hook (+12 poin) tapi kalah di struktur (-8 poin)" },
+    { "pair": "Video 1 vs Video 3", "verdict": "Video 1 lebih kredibel, Video 3 lebih engaging" }
+  ],
+  "sharedWeaknesses": [
+    "Semua video kurang CTA yang jelas di akhir",
+    "Background audio bisa lebih konsisten"
+  ],
+  "winningCombo": {
+    "recommendation": "Gabungan ideal: Ambil hook dari Video 1, storytelling dari Video 2, dan engagement style dari Video 3",
+    "nextAction": "BESOK: Rekam video baru dengan: (1) Hook langsung seperti Video 1, (2) Struktur 3-bagian seperti Video 2, (3) Tambah 1 pertanyaan ke audiens seperti Video 3"
+  }
+}
+
+PENTING:
+- Reference SPESIFIK ke konten video (quote kalau ada transcription)
+- Banding ANGKA (skor) antar video
+- JANGAN generic - harus ada alasan konkret dari analisis
+- ${isId ? 'Respond in Bahasa Indonesia' : 'Respond in English'}`;
+
+      const openai = await import('openai');
+      const client = new openai.default({ apiKey: process.env.OPENAI_API_KEY });
+
+      const completion = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: comparisonPrompt }],
+        max_tokens: 2000,
+        temperature: 0.6,
+        response_format: { type: 'json_object' },
+      });
+
+      const responseContent = completion.choices[0]?.message?.content;
+      if (!responseContent) {
+        console.warn('⚠️ Empty AI response for comparison');
+        return res.json({ success: true, comparison: null });
+      }
+
+      let comparison;
+      try {
+        // Clean potential markdown code fences
+        const cleanedContent = responseContent.replace(/```json\n?|\n?```/g, '').trim();
+        comparison = JSON.parse(cleanedContent);
+      } catch (parseError) {
+        console.warn('⚠️ Failed to parse comparison JSON:', parseError);
+        console.warn('Raw response:', responseContent.substring(0, 500));
+        return res.json({ success: true, comparison: null });
+      }
+
+      console.log(`✅ Competitive comparison completed for ${videos.length} videos`);
+
+      res.json({
+        success: true,
+        comparison,
+      });
+    } catch (error: any) {
+      console.error('Video comparison error:', error);
+      res.status(500).json({
+        error: 'Comparison failed',
+        message: 'Gagal membandingkan video. Pastikan semua video sudah dianalisis.',
+        messageId: 'Gagal membandingkan video. Pastikan semua video sudah dianalisis.',
+      });
+    }
+  });
+
   // Analyze Screenshot with AI Vision
   app.post("/api/analyze-screenshot", async (req, res) => {
     try {
