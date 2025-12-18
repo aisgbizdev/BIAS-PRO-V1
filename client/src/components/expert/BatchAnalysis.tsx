@@ -201,6 +201,7 @@ export function BatchAnalysis() {
       }
 
       // Step 2: Call competitive comparison API
+      console.log('🔄 Starting competitive comparison for', results.length, 'videos');
       setProgress(85);
       let comparison: CompetitiveComparison | undefined;
       
@@ -214,6 +215,8 @@ export function BatchAnalysis() {
           })),
           language: language === 'id' ? 'id' : 'en',
         };
+        
+        console.log('📤 Sending comparison payload:', JSON.stringify(comparePayload).substring(0, 500));
 
         const compareResponse = await fetch('/api/compare-videos', {
           method: 'POST',
@@ -221,12 +224,17 @@ export function BatchAnalysis() {
           body: JSON.stringify(comparePayload),
         });
 
+        console.log('📥 Compare response status:', compareResponse.status);
+
         if (compareResponse.ok) {
           const compareData = await compareResponse.json();
+          console.log('✅ Comparison data received:', compareData.comparison ? 'YES' : 'NO');
           comparison = compareData.comparison;
+        } else {
+          console.log('❌ Compare response not OK:', await compareResponse.text());
         }
       } catch (compareError) {
-        console.log('Competitive comparison failed, using basic insights:', compareError);
+        console.log('❌ Competitive comparison failed:', compareError);
       }
 
       setProgress(100);
