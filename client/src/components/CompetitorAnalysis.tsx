@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,16 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { trackFeatureUsage } from '@/lib/analytics';
+import { 
+  saveComparisonToHistory, 
+  getComparisonHistory, 
+  deleteComparisonFromHistory,
+  type ComparisonHistoryItem,
+  type ComparisonResult 
+} from '@/lib/comparisonHistory';
 
 // Helper to safely extract numeric value from MetricValue objects or primitives
 function getMetricValue(metric: any): number {
@@ -42,11 +49,6 @@ interface AccountData {
   verified?: boolean;
 }
 
-interface ComparisonResult {
-  accounts: AccountData[];
-  winner: string;
-  insights: string[];
-}
 
 export function CompetitorAnalysis() {
   const { t, language } = useLanguage();
@@ -54,6 +56,24 @@ export function CompetitorAnalysis() {
   const [usernames, setUsernames] = useState<string[]>(['', '']);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<ComparisonResult | null>(null);
+  const [history, setHistory] = useState<ComparisonHistoryItem[]>([]);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+  const [showDiscussion, setShowDiscussion] = useState(false);
+  const [discussionMessages, setDiscussionMessages] = useState<{id: string, type: 'user' | 'assistant', content: string}[]>([]);
+  const [discussionInput, setDiscussionInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  const loadHistory = useCallback(() => {
+    const items = getComparisonHistory();
+    setHistory(items);
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+    const handleUpdate = () => loadHistory();
+    window.addEventListener('bias-comparison-updated', handleUpdate);
+    return () => window.removeEventListener('bias-comparison-updated', handleUpdate);
+  }, [loadHistory]);
 
   const addUsername = () => {
     if (usernames.length < 5) {
@@ -160,11 +180,17 @@ export function CompetitorAnalysis() {
 
       const insights = generateInsights(accountsData, language);
 
-      setResults({
+      const comparisonResult: ComparisonResult = {
         accounts: accountsData,
         winner: winner.username,
         insights,
-      });
+      };
+
+      setResults(comparisonResult);
+      setShowDiscussion(true);
+      setDiscussionMessages([]);
+
+      saveComparisonToHistory(comparisonResult, validUsernames);
 
       trackFeatureUsage('comparison', 'tiktok', { count: accountsData.length });
 
@@ -237,6 +263,75 @@ export function CompetitorAnalysis() {
     if (value === min) return <ArrowDown className="w-3 h-3 text-red-400" />;
     return <Minus className="w-3 h-3 text-gray-400" />;
   };
+
+  const handleDeleteHistory = (id: string) => {
+    const success = deleteComparisonFromHistory(id);
+    if (success) {
+      toast({
+        title: t('Deleted', 'Terhapus'),
+        description: t('Comparison removed from history', 'Perbandingan dihapus dari riwayat'),
+      });
+    }
+  };
+
+  const handleViewHistoryItem = (item: ComparisonHistoryItem) => {
+    setResults(item.result);
+    setExpandedHistoryId(null);
+    setShowDiscussion(true);
+    setDiscussionMessages([]);
+    document.getElementById('comparison-results')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleDiscussionSend = async () => {
+    if (!discussionInput.trim() || !results) return;
+    
+    const userMessage = { id: Date.now().toString(), type: 'user' as const, content: discussionInput };
+    setDiscussionMessages(prev => [...prev, userMessage]);
+    setDiscussionInput('');
+    setIsTyping(true);
+
+    try {
+      const context = `
+Hasil Perbandingan Akun TikTok:
+- Pemenang: @${results.winner}
+- Akun: ${results.accounts.map(a => `@${a.username} (${formatNumber(a.followers)} followers, ${a.engagementRate.toFixed(1)}% engagement)`).join(', ')}
+- Insights: ${results.insights.join('; ')}
+      `;
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: discussionInput,
+          context: context,
+          mode: 'tiktok',
+          analysisType: 'comparison'
+        })
+      });
+
+      const data = await response.json();
+      const assistantMessage = { 
+        id: (Date.now() + 1).toString(), 
+        type: 'assistant' as const, 
+        content: data.response || t('Sorry, could not get a response.', 'Maaf, tidak bisa mendapatkan respon.')
+      };
+      setDiscussionMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      setDiscussionMessages(prev => [...prev, { 
+        id: (Date.now() + 1).toString(), 
+        type: 'assistant' as const, 
+        content: t('Network error. Please try again.', 'Error jaringan. Silakan coba lagi.')
+      }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const quickSuggestions = [
+    { text: t('Why is this account winning?', 'Kenapa akun ini menang?'), icon: '🏆' },
+    { text: t('How to beat the competition?', 'Gimana cara menang dari kompetitor?'), icon: '🎯' },
+    { text: t('What makes their engagement high?', 'Apa yang bikin engagement mereka tinggi?'), icon: '📈' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -396,6 +491,184 @@ export function CompetitorAnalysis() {
                 ))}
               </ul>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Discussion Section - After Results */}
+      {results && showDiscussion && (
+        <Card className="border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-500/20">
+                  <MessageCircle className="w-5 h-5 text-purple-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {t('Discuss Your Results', 'Diskusikan Hasilmu')}
+                    <Badge variant="secondary" className="text-[10px] bg-purple-500/20 text-purple-300">AI Chat</Badge>
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {t('Ask BiAS AI about the comparison — get tips to improve!', 'Tanya BIAS Ai tentang perbandingan — dapatkan tips untuk improve!')}
+                  </CardDescription>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setShowDiscussion(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Messages */}
+            <div className="min-h-[120px] max-h-[300px] overflow-y-auto space-y-3 p-3 rounded-lg bg-gray-900/50">
+              {discussionMessages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <Bot className="w-8 h-8 text-purple-400 mb-2" />
+                  <p className="text-sm text-gray-400">
+                    {t('Have questions about the results? Ask me!', 'Punya pertanyaan tentang hasil? Tanya aku!')}
+                  </p>
+                </div>
+              ) : (
+                discussionMessages.map(msg => (
+                  <div key={msg.id} className={`flex gap-2 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {msg.type === 'assistant' && <Bot className="w-5 h-5 text-purple-400 mt-1 shrink-0" />}
+                    <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                      msg.type === 'user' 
+                        ? 'bg-pink-500/20 text-white' 
+                        : 'bg-gray-800 text-gray-200'
+                    }`}>
+                      {msg.content}
+                    </div>
+                  </div>
+                ))
+              )}
+              {isTyping && (
+                <div className="flex gap-2 items-center">
+                  <Bot className="w-5 h-5 text-purple-400" />
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" />
+                    <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                    <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Suggestions */}
+            <div className="flex flex-wrap gap-2">
+              {quickSuggestions.map((suggestion, idx) => (
+                <Button
+                  key={idx}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs bg-gray-900/50 border-gray-700 hover:bg-purple-500/10 hover:border-purple-500/50"
+                  onClick={() => setDiscussionInput(suggestion.text)}
+                >
+                  <span className="mr-1">{suggestion.icon}</span>
+                  {suggestion.text}
+                </Button>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className="flex gap-2">
+              <Input
+                value={discussionInput}
+                onChange={(e) => setDiscussionInput(e.target.value)}
+                placeholder={t('Ask about the comparison...', 'Tanya tentang perbandingan...')}
+                className="flex-1 bg-gray-900/50"
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleDiscussionSend()}
+              />
+              <Button 
+                onClick={handleDiscussionSend} 
+                disabled={!discussionInput.trim() || isTyping}
+                className="bg-purple-500 hover:bg-purple-600"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* History Section */}
+      {history.length > 0 && (
+        <Card className="border-gray-700/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <History className="w-5 h-5 text-gray-400" />
+              <div>
+                <CardTitle className="text-base">
+                  {t('Comparison History', 'Riwayat Perbandingan')}
+                  <Badge variant="secondary" className="ml-2 text-[10px]">{history.length}</Badge>
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {t('Click to view full results (max 3 saved)', 'Klik untuk lihat hasil lengkap (max 3 tersimpan)')}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {history.map((item) => (
+              <div key={item.id} className="border border-gray-800 rounded-lg overflow-hidden">
+                <div 
+                  className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-800/50 transition-colors"
+                  onClick={() => setExpandedHistoryId(expandedHistoryId === item.id ? null : item.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <SiTiktok className="w-4 h-4 text-pink-500" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        {item.usernames.map(u => `@${u}`).join(' vs ')}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {item.timestamp.toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        <span className="ml-2 text-yellow-500">🏆 @{item.result.winner}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleViewHistoryItem(item); }}>
+                      <Eye className="w-4 h-4 text-cyan-400" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleDeleteHistory(item.id); }}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </Button>
+                    {expandedHistoryId === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </div>
+
+                {/* Expanded View */}
+                {expandedHistoryId === item.id && (
+                  <div className="border-t border-gray-800 p-3 bg-gray-900/30 space-y-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                      {item.result.accounts.map((acc) => (
+                        <div key={acc.username} className={`p-2 rounded-lg ${acc.username === item.result.winner ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-gray-800/50'}`}>
+                          <p className="font-medium flex items-center gap-1">
+                            {acc.username === item.result.winner && <Trophy className="w-3 h-3 text-yellow-500" />}
+                            @{acc.username}
+                          </p>
+                          <p className="text-gray-400">{formatNumber(acc.followers)} followers</p>
+                          <p className="text-gray-400">{acc.engagementRate.toFixed(1)}% eng</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-cyan-400">{t('Insights:', 'Insight:')}</p>
+                      <ul className="text-xs text-gray-400 space-y-1">
+                        {item.result.insights.slice(0, 2).map((insight, idx) => (
+                          <li key={idx} className="flex items-start gap-1">
+                            <span className="text-pink-400">•</span>
+                            {insight}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
