@@ -18,15 +18,68 @@ export interface TikTokScrapedProfile {
 }
 
 /**
- * Try TikTok oEmbed API - official but limited data
- * Only returns author name, no follower counts
+ * BIAS TikTok Analyzer API (render.com) - Primary method
+ * Uses our own hosted scraper service
+ */
+async function tryBiasAnalyzerApi(username: string): Promise<TikTokScrapedProfile | null> {
+  try {
+    // Remove @ if present
+    const cleanUsername = username.replace('@', '');
+    const apiUrl = `https://bias-tiktok-analyzer.onrender.com/api/tiktok/${cleanUsername}`;
+    
+    console.log(`[TikTok Scraper] Calling BIAS Analyzer API: ${apiUrl}`);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for render cold start
+    
+    const response = await fetch(apiUrl, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'BiAS-Pro-Replit/1.0',
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      const data = await response.json();
+      
+      if (data.success && data.profile) {
+        const profile = data.profile;
+        console.log(`[TikTok Scraper] BIAS API success! Got data for @${profile.username}`);
+        
+        return {
+          username: profile.username || cleanUsername,
+          nickname: profile.nickname || cleanUsername,
+          signature: profile.bio || '',
+          avatarUrl: profile.avatarUrl || '',
+          verified: profile.isVerified || false,
+          followerCount: parseMetricBigInt(profile.followers || 0),
+          followingCount: parseMetricBigInt(profile.following || 0),
+          videoCount: parseMetricBigInt(profile.videos || 0),
+          likesCount: parseMetricBigInt(profile.likes || 0),
+        };
+      }
+    }
+    
+    console.log(`[TikTok Scraper] BIAS API response not ok: ${response.status}`);
+    return null;
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.log('[TikTok Scraper] BIAS API timeout (cold start?) - will retry');
+    } else {
+      console.log('[TikTok Scraper] BIAS API failed:', error.message);
+    }
+    return null;
+  }
+}
+
+/**
+ * Try TikTok oEmbed API - official but limited data (fallback)
  */
 async function tryOembedApi(username: string): Promise<TikTokScrapedProfile | null> {
   try {
-    // oEmbed API needs a video URL, so we try to get one from the profile page meta tags
-    const profileUrl = `https://www.tiktok.com/@${username}`;
-    
-    // First try the unofficial API endpoint that some scrapers use
     const apiUrl = `https://www.tiktok.com/api/user/detail/?uniqueId=${username}&msToken=`;
     
     const response = await fetch(apiUrl, {
@@ -42,7 +95,7 @@ async function tryOembedApi(username: string): Promise<TikTokScrapedProfile | nu
       const userInfo = data?.userInfo;
       
       if (userInfo?.user && userInfo?.stats) {
-        console.log('[TikTok Scraper] API endpoint success!');
+        console.log('[TikTok Scraper] TikTok API endpoint success!');
         return {
           username: userInfo.user.uniqueId || username,
           nickname: userInfo.user.nickname || username,
@@ -59,7 +112,7 @@ async function tryOembedApi(username: string): Promise<TikTokScrapedProfile | nu
     
     return null;
   } catch (error) {
-    console.log('[TikTok Scraper] API endpoint failed:', error);
+    console.log('[TikTok Scraper] TikTok API endpoint failed:', error);
     return null;
   }
 }
@@ -67,19 +120,29 @@ async function tryOembedApi(username: string): Promise<TikTokScrapedProfile | nu
 export async function scrapeTikTokProfile(username: string): Promise<TikTokScrapedProfile> {
   // Try multiple methods in order of reliability
   
-  // Method 1: Try oEmbed API first (official, limited but stable)
+  // Method 1: Try BIAS Analyzer API first (our own hosted service - most reliable)
   try {
-    console.log(`[TikTok Scraper] Trying oEmbed API for @${username}...`);
+    console.log(`[TikTok Scraper] Trying BIAS Analyzer API for @${username}...`);
+    const biasResult = await tryBiasAnalyzerApi(username);
+    if (biasResult) {
+      return biasResult;
+    }
+  } catch (e) {
+    console.log(`[TikTok Scraper] BIAS API failed, trying fallback...`);
+  }
+  
+  // Method 2: Try TikTok's internal API (often blocked)
+  try {
+    console.log(`[TikTok Scraper] Trying TikTok API for @${username}...`);
     const oembedResult = await tryOembedApi(username);
     if (oembedResult) {
-      console.log(`[TikTok Scraper] oEmbed success for @${username}`);
       return oembedResult;
     }
   } catch (e) {
-    console.log(`[TikTok Scraper] oEmbed failed, trying HTML scrape...`);
+    console.log(`[TikTok Scraper] TikTok API failed, trying HTML scrape...`);
   }
   
-  // Method 2: Direct HTML scraping (may be blocked by TikTok)
+  // Method 3: Direct HTML scraping (fallback, may be blocked by TikTok)
   try {
     const profileUrl = `https://www.tiktok.com/@${username}`;
     console.log(`[TikTok Scraper] Fetching profile: ${profileUrl}`);
