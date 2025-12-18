@@ -115,14 +115,21 @@ ${input.content}
 
 **TASK:** Analyze pakai 8-layer BIAS. WAJIB SPESIFIK!
 
-**CRITICAL:**
-- Quote EXACT dari content user (kata-kata yang dia tulis)
-- Gesture kaku? → "TOMORROW: Practice 5x di cermin, gerakan tangan saat bilang [key point]"
-- Filler words banyak? → "Count: kamu bilang 'eee' ~7x. TARGET: Week 1 max 3x. DRILL: Pause 2 detik instead of saying 'eee'"
-- Monotone? → "Detik X-Y suara flat. FIX: Record ulang bagian itu 3x, setiap recording vary pitch different"
+**CRITICAL - RECOMMENDATIONS MUST BE VARIED:**
+- Quote EXACT dari content user (kata-kata yang dia tulis/bilang)
+- JANGAN COPY-PASTE format yang sama! Gunakan VARIASI rekomendasi berbeda untuk setiap layer:
+
+GESTURE: "BESOK: Record 3 takes, fokus gerakan tangan di '[quote]'" atau "Di menit X, coba pointing gesture"
+VOICE: "BESOK: Rekam ulang bagian '[quote]' dengan intonasi lebih tinggi" atau "Latih variasi nada di '[quote]'"
+EXPRESSION: "BESOK: 3x practice di kamera, fokus senyum/ekspresi saat bilang '[quote]'" 
+HOOK: "BESOK: Tulis 3 versi hook baru, test di Story dulu"
+STRUCTURE: "BESOK: Outline video baru: Hook → Problem → Solution dalam 30 detik"
+CREDIBILITY: "BESOK: Tambah 1 data/statistik pendukung saat bilang '[quote]'"
+ENGAGEMENT: "BESOK: Tambah 1 pertanyaan ke audiens di tengah video"
+FLOW: "BESOK: Potong bagian '[quote]' jadi 2 kalimat pendek"
 
 JANGAN BILANG: "Week 1: Upload video" - USER UDAH UPLOAD!
-HARUS BILANG: "TOMORROW: [Specific action]. Week 1: [Measurable target]. Expected: [Real result]"
+SETIAP LAYER = REKOMENDASI BERBEDA! Jangan sama semua "Practice 5x di cermin"
 
 Platform: ${input.platform || 'general'} - Check community guidelines!
 ${input.mode === 'academic' || input.mode === 'hybrid' ? 'Academic mode: Check citations & logic!' : ''}
@@ -133,11 +140,11 @@ WAJIB return JSON object dengan key "layers" berisi ARRAY of 8 objects:
     {
       "layer": "VBM (Visual Behavior Mapping)",
       "score": 75,
-      "specificObservations": ["Quote exact: 'Halo Traders' - pembukaan langsung engaging", "Di tengah video gesture tangan kaku saat jelaskan data"],
+      "specificObservations": ["Quote exact: 'Halo Traders' - pembukaan langsung engaging", "Di menit 0:45 gesture tangan kaku saat jelaskan data"],
       "strengths": ["Hook kuat di awal - 'saat ini isu yang sering dibahas' langsung menarik perhatian"],
       "weaknesses": ["Bagian tengah (menjelaskan dampak) kurang gesture, tangan di samping"],
-      "actionableRecommendations": ["BESOK: Practice 5x di cermin, fokus gesture saat bilang 'dampaknya adalah...'", "Week 1 target: 3 gesture berbeda per menit. Expected: audiens lebih engaged"],
-      "feedback": "Postur kamu udah bagus bro, tegak dan percaya diri. Gesture tangan di awal ekspresif - terutama pas bilang '[quote dari video]'. Tapi di tengah pas bahas data, tangan agak kaku. FIX: Latihan 5x besok, setiap kali sebut angka, point ke arah tertentu.",
+      "actionableRecommendations": ["BESOK: Record 2 takes baru bagian 'dampaknya adalah...', tambah pointing gesture ke grafik", "Week 1: Setiap bilang angka, tunjuk jari. Expected: +15% retention"],
+      "feedback": "Postur udah bagus, tegak dan percaya diri. Gesture di awal ekspresif saat bilang '[quote]'. Di tengah pas bahas data, tangan agak kaku. Besok coba: setiap kali sebut angka, point ke arah layar.",
       "feedbackId": "Same Indonesian text"
     },
     { "layer": "EPM (Emotional Processing Metric)", ... },

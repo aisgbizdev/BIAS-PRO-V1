@@ -156,16 +156,16 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
         // Start at base progress for this video
         setUploadProgress(baseProgress);
 
-        // Simulate incremental progress during analysis (10%, 25%, 40%, 60%, 80%)
-        const progressSteps = [10, 25, 40, 60, 80];
+        // Simulate incremental progress during analysis (scaled to per-video allocation)
+        const progressSteps = [0.1, 0.25, 0.4, 0.6, 0.8]; // Percentage of this video's progress
         const progressInterval = setInterval(() => {
           setUploadProgress(prev => {
-            const relativeProgress = prev - baseProgress;
+            const relativeProgress = (prev - baseProgress) / progressPerVideo;
             const nextStep = progressSteps.find(step => step > relativeProgress);
             if (nextStep) {
-              return baseProgress + nextStep;
+              return Math.min(baseProgress + (nextStep * progressPerVideo), 100);
             }
-            return prev;
+            return Math.min(prev, 100);
           });
         }, 3000); // Update every 3 seconds
 
@@ -213,8 +213,8 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
         results.push(analysisData);
         console.log(`✅ Video ${i + 1} analyzed successfully`);
         
-        // Update progress AFTER successful analysis
-        const completionProgress = ((i + 1) / uploadedFiles.length) * 100;
+        // Update progress AFTER successful analysis (capped at 100%)
+        const completionProgress = Math.min(((i + 1) / uploadedFiles.length) * 100, 100);
         setUploadProgress(completionProgress);
       }
 
@@ -452,9 +452,9 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                   <span className="font-medium">
                     {t('Deep Ai Analysis in Progress...', 'Analisis Ai Mendalam Sedang Berlangsung...')}
                   </span>
-                  <span className="text-sm text-cyan-300">{Math.round(uploadProgress)}%</span>
+                  <span className="text-sm text-cyan-300">{Math.min(Math.round(uploadProgress), 100)}%</span>
                 </div>
-                <Progress value={uploadProgress} className="h-2" />
+                <Progress value={Math.min(uploadProgress, 100)} className="h-2" />
                 <p className="text-xs text-gray-300 mt-1">
                   {t(
                     'Ai is analyzing your content in detail. This may take 15-30 seconds to give specific and actionable feedback.',
