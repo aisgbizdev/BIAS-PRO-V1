@@ -628,6 +628,10 @@ export interface BiasLayerResult {
   score: number; // 1-10
   feedback: string;
   feedbackId?: string; // Indonesian version
+  strengths?: string[]; // For batch comparison
+  weaknesses?: string[]; // For batch comparison
+  actionableRecommendations?: string[]; // Detailed next steps
+  specificObservations?: string[]; // Concrete examples from content
 }
 
 export interface BiasAnalysisResult {

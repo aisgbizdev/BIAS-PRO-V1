@@ -220,12 +220,16 @@ export async function analyzeText(input: {
       
       // Check if we got valid Ai analysis (not rate limited fallback)
       if (deepLayers && deepLayers.length > 0) {
-        // Convert deep analysis to BiasLayerResult format
+        // Convert deep analysis to BiasLayerResult format - PRESERVE strengths/weaknesses for batch comparison
         const layers: BiasLayerResult[] = deepLayers.map(dl => ({
           layer: dl.layer,
           score: Math.round(dl.score / 10), // Convert 0-100 to 1-10
           feedback: dl.feedback,
           feedbackId: dl.feedbackId,
+          strengths: dl.strengths || [],
+          weaknesses: dl.weaknesses || [],
+          actionableRecommendations: dl.actionableRecommendations || [],
+          specificObservations: dl.specificObservations || [],
         }));
 
         const overallScore = Math.round(
