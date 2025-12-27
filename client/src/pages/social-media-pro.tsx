@@ -10,7 +10,6 @@ import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
-import { ThumbnailGenerator } from '@/components/ThumbnailGenerator';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { MessageSquare } from 'lucide-react';
@@ -59,7 +58,7 @@ export default function SocialMediaPro() {
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
   const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('analytics');
-  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail' | 'batch' | 'hooks'>('account');
+  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'batch' | 'hooks'>('account');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   const handleTikTokAnalysisComplete = useCallback((result: BiasAnalysisResult) => {
@@ -220,7 +219,7 @@ export default function SocialMediaPro() {
           setAnalyticsTab(newTab);
           trackTabSelection('tiktok-pro', newTab);
         }}>
-          <TabsList className="grid w-full grid-cols-7 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
+          <TabsList className="grid w-full grid-cols-6 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
             <TabsTrigger 
               value="account"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
@@ -262,13 +261,6 @@ export default function SocialMediaPro() {
             >
               <BarChart2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('VS', 'VS')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="thumbnail"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Wand2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai', 'Ai')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -360,11 +352,6 @@ export default function SocialMediaPro() {
         {/* Competitor Comparison Mode */}
         {analyticsTab === 'compare' && (
           <CompetitorAnalysis />
-        )}
-
-        {/* Thumbnail Generator Mode */}
-        {analyticsTab === 'thumbnail' && (
-          <ThumbnailGenerator />
         )}
 
         {/* Batch Analysis Mode */}
