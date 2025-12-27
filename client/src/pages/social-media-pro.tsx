@@ -58,7 +58,7 @@ export default function SocialMediaPro() {
   const [analysisMode, setAnalysisMode] = useState<'account' | 'video'>('account');
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
-  const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('mentor');
+  const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('analytics');
   const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail' | 'batch' | 'hooks'>('account');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
@@ -184,24 +184,24 @@ export default function SocialMediaPro() {
             <Button
               variant="ghost"
               onClick={() => {
-                setMainMode('mentor');
-                trackTabSelection('tiktok-pro', 'mentor');
+                setMainMode('analytics');
+                trackTabSelection('tiktok-pro', 'analytics');
               }}
-              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              <Bot className="w-4 h-4 mr-1.5" />
-              {t('Ai Mentor', 'Ai Mentor')}
+              <TrendingUp className="w-4 h-4 mr-1.5" />
+              {t('Analytics', 'Analitik')}
             </Button>
             <Button
               variant="ghost"
               onClick={() => {
-                setMainMode('analytics');
-                trackTabSelection('tiktok-pro', 'analytics');
+                setMainMode('mentor');
+                trackTabSelection('tiktok-pro', 'mentor');
               }}
-              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              <TrendingUp className="w-4 h-4 mr-1.5" />
-              {t('Analytics', 'Analitik')}
+              <Bot className="w-4 h-4 mr-1.5" />
+              {t('Ai Mentor', 'Ai Mentor')}
             </Button>
           </div>
         </div>
