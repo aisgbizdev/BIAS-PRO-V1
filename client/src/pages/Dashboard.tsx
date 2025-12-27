@@ -93,10 +93,10 @@ export default function Dashboard() {
             BiAS²³ Pro
           </p>
           <h1 className="text-lg sm:text-xl font-medium text-white mb-1">
-            Behavioral Risk Audit & Coaching System
+            Behavioral Intelligence Audit System
           </h1>
           <p className="text-gray-500 text-xs">
-            Untuk kreator TikTok & profesional marketing. Audit perilaku, deteksi risiko, dan tingkatkan skill komunikasi.
+            Untuk kreator TikTok & profesional marketing. Audit perilaku, tingkatkan skill komunikasi dengan Ai coaching.
           </p>
         </div>
 
