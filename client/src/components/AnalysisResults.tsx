@@ -202,7 +202,12 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-2xl">{t('Overall Score', 'Skor Keseluruhan')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-2xl">{t('Overall Score', 'Skor Keseluruhan')}</CardTitle>
+                <Badge variant="outline" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/30 text-[10px]">
+                  AI-Generated Insight
+                </Badge>
+              </div>
               <CardDescription className="text-base mt-2">
                 {language === 'en' ? result.summary : result.summaryId}
               </CardDescription>
