@@ -59,14 +59,9 @@ export function BiasHeader() {
           <SheetContent side="left" className="w-[280px] sm:w-[320px]">
             <SheetHeader>
               <SheetTitle className="text-left">
-                <div className="flex flex-col">
-                  <span className={`bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent font-bold`}>
-                    {brand.name}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground font-normal">
-                    {getTagline()}
-                  </span>
-                </div>
+                <span className={`bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent font-bold`}>
+                  {brand.name}
+                </span>
               </SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mt-6">
@@ -130,14 +125,9 @@ export function BiasHeader() {
               alt={`${brand.name} Logo`}
               className="h-8 md:h-10 w-auto object-contain rounded-lg"
             />
-            <div className="flex flex-col leading-none">
-              <span className={`text-sm md:text-base font-bold bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent`}>
-                {brand.name}
-              </span>
-              <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                {getTagline()}
-              </span>
-            </div>
+            <span className={`text-sm md:text-base font-bold bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent`}>
+              {brand.name}
+            </span>
           </div>
         </Link>
 
