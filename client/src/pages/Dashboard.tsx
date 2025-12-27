@@ -27,11 +27,10 @@ export default function Dashboard() {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
 
   useEffect(() => {
-    fetch('/api/success-stories')
+    fetch('/api/success-stories/featured')
       .then(res => res.json())
       .then(data => {
-        const featured = (data || []).filter((s: SuccessStory) => s.featured).slice(0, 5);
-        setSuccessStories(featured.length > 0 ? featured : (data || []).slice(0, 3));
+        setSuccessStories((data || []).slice(0, 5));
       })
       .catch(() => setSuccessStories([]));
   }, []);

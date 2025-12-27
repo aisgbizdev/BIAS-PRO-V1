@@ -120,13 +120,32 @@ export default function Privacy() {
                 {t("Contact", "Kontak")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-400">
+            <CardContent className="text-gray-400 space-y-4">
               <p>
                 {language === 'id' 
-                  ? "Untuk pertanyaan tentang privasi, hubungi kami di:"
-                  : "For privacy questions, contact us at:"}
+                  ? "Untuk pertanyaan atau bantuan, hubungi kami melalui:"
+                  : "For questions or support, contact us via:"}
               </p>
-              <a href="mailto:support@bias23.com" className="text-pink-400 mt-2 hover:underline">support@bias23.com</a>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
+                    <span className="text-pink-400 text-sm">@</span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">{t("Email", "Email")}</p>
+                    <a href="mailto:support@bias23.com" className="text-pink-400 hover:underline">support@bias23.com</a>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
+                    <span className="text-pink-400 text-sm">♪</span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">{t("TikTok DM", "DM TikTok")}</p>
+                    <a href="https://www.tiktok.com/@bias23_pro" target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline">@bias23_pro</a>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
