@@ -7,6 +7,7 @@ import { AnalysisResults } from '@/components/AnalysisResults';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
 import { FileText, Zap, Briefcase, MessageCircle } from 'lucide-react';
+import { IntegrityNotice } from '@/components/ui/IntegrityNotice';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { trackTabSelection } from '@/lib/analytics';
 import { saveAnalysisToHistory } from '@/lib/analysisHistory';
@@ -42,6 +43,8 @@ export default function CreatorAnalysis() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+        <IntegrityNotice />
+        
         {/* Input Mode Selector - Minimal */}
         <Tabs value={inputMode} onValueChange={(v) => {
           const newMode = v as typeof inputMode;

@@ -15,6 +15,7 @@ import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { MessageSquare } from 'lucide-react';
 import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, BarChart3, Wand2 } from 'lucide-react';
+import { IntegrityNotice } from '@/components/ui/IntegrityNotice';
 import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
@@ -175,6 +176,8 @@ export default function SocialMediaPro() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+        <IntegrityNotice />
+        
         {/* Main Mode Selector - Minimal */}
         <div className="flex justify-center">
           <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-xs">
