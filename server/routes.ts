@@ -1579,14 +1579,17 @@ Status: good (di atas rata-rata), average (normal), needs_work (perlu perbaikan)
   // LEARNED RESPONSES (AI Learning) ENDPOINTS
   // ========================================
   
-  // Get all learned responses (admin only)
+  // Get unapproved learned responses (admin only) - approved ones are in library
   app.get("/api/learned-responses", requireAdmin, async (req, res) => {
     try {
       const { db } = await import('../db');
       const { learnedResponses } = await import('@shared/schema');
-      const { desc } = await import('drizzle-orm');
+      const { desc, eq } = await import('drizzle-orm');
       
-      const responses = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.createdAt));
+      // Only show unapproved responses - approved ones are already in library
+      const responses = await db.select().from(learnedResponses)
+        .where(eq(learnedResponses.isApproved, false))
+        .orderBy(desc(learnedResponses.createdAt));
       res.json(responses);
     } catch (error: any) {
       console.error('[AI-LEARNING] Error fetching learned responses:', error);

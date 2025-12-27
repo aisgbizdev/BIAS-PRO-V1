@@ -1,7 +1,7 @@
 // Learning System - Ai answers become local knowledge
 import { db } from '../../db';
 import { learnedResponses } from '@shared/schema';
-import { eq, sql, desc } from 'drizzle-orm';
+import { eq, sql, desc, and, lt } from 'drizzle-orm';
 
 // Indonesian stopwords to filter out
 const STOPWORDS = new Set([
@@ -71,8 +71,10 @@ export async function findSimilarResponse(question: string): Promise<{
 
     console.log(`🔍 Looking for similar response. Keywords: ${queryKeywords.join(', ')}`);
 
-    // Get all learned responses (could optimize with keyword index later)
-    const allResponses = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.useCount));
+    // Get only APPROVED learned responses (admin must verify before use)
+    const allResponses = await db.select().from(learnedResponses)
+      .where(eq(learnedResponses.isApproved, true))
+      .orderBy(desc(learnedResponses.useCount));
 
     let bestMatch: { response: string; similarity: number; id: string } | null = null;
     const SIMILARITY_THRESHOLD = 0.4; // 40% keyword overlap = match
@@ -148,6 +150,30 @@ export async function saveLearnedResponse(question: string, response: string): P
   } catch (error) {
     console.error('Error saving learned response:', error);
     return false;
+  }
+}
+
+// Auto-cleanup: Delete unapproved responses older than 30 days
+export async function cleanupOldUnapprovedResponses(): Promise<number> {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const result = await db.delete(learnedResponses)
+      .where(and(
+        eq(learnedResponses.isApproved, false),
+        lt(learnedResponses.createdAt, thirtyDaysAgo)
+      ))
+      .returning({ id: learnedResponses.id });
+
+    const deletedCount = result.length;
+    if (deletedCount > 0) {
+      console.log(`🧹 Auto-cleanup: Deleted ${deletedCount} unapproved responses older than 30 days`);
+    }
+    return deletedCount;
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+    return 0;
   }
 }
 
