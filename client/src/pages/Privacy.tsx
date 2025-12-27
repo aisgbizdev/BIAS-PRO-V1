@@ -126,7 +126,7 @@ export default function Privacy() {
                   ? "Untuk pertanyaan tentang privasi, hubungi kami di:"
                   : "For privacy questions, contact us at:"}
               </p>
-              <p className="text-pink-400 mt-2">privacy@bias-pro.com</p>
+              <a href="mailto:support@bias23.com" className="text-pink-400 mt-2 hover:underline">support@bias23.com</a>
             </CardContent>
           </Card>
         </div>
