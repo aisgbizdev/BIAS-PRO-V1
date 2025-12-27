@@ -1,0 +1,193 @@
+YOU ARE A REPLIT CODING AGENT (RERE).
+
+READ THIS CAREFULLY BEFORE DOING ANYTHING.
+
+PROJECT NAME:
+BIAS23 Pro – Behavioral Intelligence Audit System
+
+PROJECT STATUS:
+- The system is ALREADY WORKING.
+- Features are COMPLETE and FUNCTIONAL.
+- The current architecture, routing, API calls, state management, and logic MUST NOT be changed.
+
+YOUR TASK IS NOT TO BUILD NEW FEATURES.
+YOUR TASK IS TO CLARIFY POSITIONING, UX GUIDANCE, AND TRUST SIGNALS
+WITHOUT TOUCHING CORE LOGIC.
+
+====================================================
+ABSOLUTE RULES (NON-NEGOTIABLE)
+====================================================
+
+DO NOT:
+- Change folder structure
+- Change routing
+- Change API endpoints
+- Change analysis logic
+- Change AI prompts or inference logic
+- Remove any existing feature
+- Add new heavy dependencies
+- Refactor backend logic
+- Rewrite components unnecessarily
+
+YOU MAY ONLY:
+- Adjust UI text (copywriting)
+- Add small reusable UI components (stateless)
+- Add visual guidance sections
+- Add disclaimer / integrity notices
+- Add labels, subtitles, or helper text
+- Make LIGHT layout additions that do not affect behavior
+
+====================================================
+PRIMARY GOAL
+====================================================
+
+Make it CLEAR that BIAS23 is:
+
+1) A BEHAVIORAL AUDIT & RISK MITIGATION SYSTEM
+2) NOT an SMM Panel
+3) NOT a follower / views / engagement boosting service
+4) A tool for SAFE, EDUCATED, and SUSTAINABLE growth
+
+The system should feel like:
+- A diagnostic & decision-support tool
+NOT
+- An instant growth or “magic” AI tool
+
+====================================================
+TASK 1 — PRODUCT POSITIONING (UI COPY ONLY)
+====================================================
+
+LOCATION: HOME / DASHBOARD LANDING
+
+Replace or update the MAIN HEADLINE TEXT (UI text only).
+
+MAIN HEADLINE:
+“Behavioral Risk Audit & Coaching System for TikTok”
+
+SUBHEADLINE:
+“Audit before growth. Detect risks, avoid false engagement, and improve content behavior safely.”
+
+IMPORTANT:
+- Do NOT remove existing components.
+- Only replace the main headline and subheadline text.
+
+====================================================
+TASK 2 — INTEGRITY / DISCLAIMER COMPONENT
+====================================================
+
+Create ONE reusable UI component.
+Example name (you may choose similar):
+- IntegrityNotice
+- TrustNotice
+- RiskDisclosure
+
+This component must be:
+- Stateless
+- Pure UI
+- Reusable
+- No logic
+- No API calls
+
+CONTENT (USE EXACT TEXT BELOW):
+
+⚠️ Integrity Notice  
+BIAS23 does NOT provide services to increase followers, views, likes, or artificial engagement.  
+This system is designed for behavioral auditing, education, and algorithmic risk mitigation  
+to support safe and sustainable account growth.
+
+====================================================
+WHERE TO DISPLAY THIS COMPONENT
+====================================================
+
+Render this component in the following pages:
+
+1) Home / Dashboard landing
+2) TikTok Pro → Analytics / Analysis pages
+3) Marketing Pro → Analysis pages
+
+DO NOT:
+- Block user actions
+- Add modals
+- Add confirmations
+
+This is an INFORMATIONAL NOTICE ONLY.
+
+====================================================
+TASK 3 — “START HERE” GUIDED SECTION (STATIC)
+====================================================
+
+LOCATION: HOME / DASHBOARD
+
+Add a simple static section titled:
+
+“Start Here”
+
+CONTENT (visual guide only, no logic):
+
+1. Run an account or video audit first  
+2. Review insights and detected risks  
+3. Use AI Mentor to refine strategy and execution
+
+IMPORTANT:
+- This is NOT a wizard.
+- This is NOT conditional.
+- This is NOT interactive logic.
+- This is ONLY visual onboarding guidance.
+
+====================================================
+TASK 4 — TRUST LAYER (NON-FUNCTIONAL LABEL)
+====================================================
+
+LOCATION: ANALYSIS RESULTS (account, video, batch)
+
+Add a small UI label or badge near analysis output:
+
+Example text:
+- “AI-Generated Insight”
+or
+- “AI Insight (Confidence: Medium–High)”
+
+IMPORTANT:
+- DO NOT calculate confidence
+- DO NOT add scoring logic
+- This is a STATIC TRUST INDICATOR ONLY
+
+====================================================
+TASK 5 — MENU & SECTION CLARITY (TEXT ONLY)
+====================================================
+
+DO NOT change routing.
+
+You MAY add small subtitles or helper text.
+
+Example:
+- “Analytics” → subtitle: “Audit & Risk Insights”
+- “AI Mentor” → subtitle: “Guided improvement after audit”
+
+====================================================
+QUALITY CHECK BEFORE FINISHING
+====================================================
+
+Before you consider the task done, VERIFY:
+
+- All existing features still work
+- No errors in build
+- No logic was modified
+- No routing changed
+- No API calls altered
+- Changes are UI-level only
+- The system clearly communicates:
+  “Audit first, then grow — not instant results”
+
+====================================================
+FINAL NOTE
+====================================================
+
+This project will be expanded in future phases.
+Your role now is CLARITY and TRUST, NOT EXPANSION.
+
+If something requires changing logic or structure,
+DO NOT do it.
+STOP and report instead.
+
+END OF INSTRUCTIONS.
