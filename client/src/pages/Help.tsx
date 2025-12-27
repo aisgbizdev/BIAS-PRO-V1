@@ -417,6 +417,102 @@ export default function Help() {
         "Jika disetujui, cerita Anda tampil di homepage"
       ],
       keywords: ["success", "sukses", "story", "cerita", "testimonial", "share", "bagikan", "featured"]
+    },
+    {
+      id: "script-generator",
+      icon: <FileText className="w-5 h-5" />,
+      category: "Marketing Pro",
+      titleEn: "Script Generator",
+      titleId: "Generator Script",
+      descEn: "Ready-to-use sales script templates for cold calls, pitches, objection handling, and follow-ups.",
+      descId: "Template script sales siap pakai untuk cold call, pitch, handling keberatan, dan follow-up.",
+      stepsEn: [
+        "Go to TikTok Pro → AI Coach tab (Script Generator is in chat)",
+        "Ask AI Coach for specific script types",
+        "Request: cold call script, sales pitch, objection handling, follow-up message",
+        "AI generates personalized scripts based on your context",
+        "Copy and customize the scripts for your needs"
+      ],
+      stepsId: [
+        "Buka TikTok Pro → tab AI Coach (Script Generator ada di chat)",
+        "Minta AI Coach untuk tipe script tertentu",
+        "Request: script cold call, sales pitch, handling keberatan, pesan follow-up",
+        "AI generate script personal berdasarkan konteks Anda",
+        "Copy dan sesuaikan script untuk kebutuhan Anda"
+      ],
+      keywords: ["script", "generator", "template", "cold call", "sales", "pitch", "objection", "follow-up"]
+    },
+    {
+      id: "contribute-library",
+      icon: <MessageSquare className="w-5 h-5" />,
+      category: "General",
+      titleEn: "Contribute to Library",
+      titleId: "Kontribusi ke Library",
+      descEn: "Share your knowledge and tips with the community by contributing to the library.",
+      descId: "Bagikan pengetahuan dan tips Anda dengan komunitas dengan berkontribusi ke library.",
+      stepsEn: [
+        "Go to Library → 'Contribute' tab",
+        "Choose category: TikTok, Marketing, or BIAS",
+        "Fill in: term/title, definition, examples",
+        "Submit for admin review",
+        "If approved, your contribution helps others learn"
+      ],
+      stepsId: [
+        "Buka Library → tab 'Contribute'",
+        "Pilih kategori: TikTok, Marketing, atau BIAS",
+        "Isi: istilah/judul, definisi, contoh",
+        "Submit untuk review admin",
+        "Jika disetujui, kontribusi Anda membantu orang lain belajar"
+      ],
+      keywords: ["contribute", "kontribusi", "share", "bagikan", "knowledge", "pengetahuan", "community", "komunitas"]
+    },
+    {
+      id: "discussion-ai",
+      icon: <MessageSquare className="w-5 h-5" />,
+      category: "General",
+      titleEn: "Discuss with AI",
+      titleId: "Diskusi dengan AI",
+      descEn: "After any analysis, continue the conversation with AI to ask follow-up questions.",
+      descId: "Setelah analisis apapun, lanjutkan percakapan dengan AI untuk bertanya lebih lanjut.",
+      stepsEn: [
+        "Complete any video or script analysis",
+        "Scroll down to find 'Discuss with AI' section",
+        "Type your follow-up question",
+        "AI responds with context from your analysis",
+        "Continue asking until you understand fully"
+      ],
+      stepsId: [
+        "Selesaikan analisis video atau script apapun",
+        "Scroll ke bawah untuk menemukan bagian 'Diskusi dengan AI'",
+        "Ketik pertanyaan lanjutan Anda",
+        "AI merespons dengan konteks dari analisis Anda",
+        "Lanjutkan bertanya sampai Anda benar-benar paham"
+      ],
+      keywords: ["discuss", "diskusi", "follow-up", "question", "pertanyaan", "chat", "conversation"]
+    },
+    {
+      id: "language-switch",
+      icon: <BookOpen className="w-5 h-5" />,
+      category: "General",
+      titleEn: "Switch Language",
+      titleId: "Ganti Bahasa",
+      descEn: "Switch between Indonesian and English interface throughout the app.",
+      descId: "Ganti antara antarmuka Bahasa Indonesia dan Inggris di seluruh aplikasi.",
+      stepsEn: [
+        "Look at the header/navigation bar",
+        "Find the language toggle button (ID/EN)",
+        "Click to switch between Indonesian and English",
+        "All text in the app changes immediately",
+        "Your preference is saved for next visit"
+      ],
+      stepsId: [
+        "Lihat di header/navigation bar",
+        "Temukan tombol ganti bahasa (ID/EN)",
+        "Klik untuk ganti antara Indonesia dan Inggris",
+        "Semua teks di aplikasi langsung berubah",
+        "Preferensi Anda tersimpan untuk kunjungan berikutnya"
+      ],
+      keywords: ["language", "bahasa", "switch", "ganti", "english", "indonesian", "indonesia", "inggris"]
     }
   ];
 
