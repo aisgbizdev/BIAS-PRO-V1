@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, CheckCircle, ArrowRight, BookOpen, Sparkles, Zap, Brain, Target, TrendingUp, Trophy, ChevronLeft, ChevronRight, Quote, Shield, Gauge, MessageCircle, Layers } from 'lucide-react';
-import { IntegrityNotice } from '@/components/ui/IntegrityNotice';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
 
@@ -99,8 +98,6 @@ export default function Dashboard() {
             Untuk kreator TikTok & profesional marketing. Audit perilaku, tingkatkan skill komunikasi dengan Ai coaching.
           </p>
         </div>
-
-        <IntegrityNotice />
 
         <div className="bg-[#141414] border border-gray-800 rounded-lg p-4 mb-6">
           <h2 className="text-sm font-medium text-white mb-3">Start Here</h2>
