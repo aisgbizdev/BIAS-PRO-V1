@@ -1680,6 +1680,40 @@ Status: good (di atas rata-rata), average (normal), needs_work (perlu perbaikan)
     }
   });
 
+  // Export all learned data for backup (admin only)
+  app.get("/api/admin/export-learned", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses, libraryContributions } = await import('@shared/schema');
+      const { desc } = await import('drizzle-orm');
+      
+      const learned = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.createdAt));
+      const contributions = await db.select().from(libraryContributions).orderBy(desc(libraryContributions.createdAt));
+      
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        version: '1.0',
+        note: 'Data yang di-generate oleh AI Learning dan User Contributions (bukan data built-in original)',
+        learned_responses: learned,
+        library_contributions: contributions,
+        stats: {
+          total_learned: learned.length,
+          approved_learned: learned.filter(r => r.isApproved).length,
+          pending_learned: learned.filter(r => !r.isApproved).length,
+          total_contributions: contributions.length,
+          approved_contributions: contributions.filter(c => c.isApproved).length,
+        }
+      };
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=bias_learned_data_${new Date().toISOString().split('T')[0]}.json`);
+      res.json(exportData);
+    } catch (error: any) {
+      console.error('[EXPORT] Error exporting learned data:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Analytics - Track page view
   app.post("/api/analytics/pageview", async (req, res) => {
     try {

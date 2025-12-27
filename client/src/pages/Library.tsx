@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight, Brain } from 'lucide-react';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight, Brain, Download } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -3080,6 +3080,16 @@ function LearnedResponsesPanel() {
           <Badge variant="outline" className="text-xs">
             {responses.length} {t('responses', 'respons')}
           </Badge>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              window.open('/api/admin/export-learned', '_blank');
+            }}
+            title={t('Export all learned data for backup', 'Export semua data learned untuk backup')}
+          >
+            <Download className="w-4 h-4" />
+          </Button>
           <Button variant="outline" size="sm" onClick={loadResponses}>
             <RefreshCcw className="w-4 h-4" />
           </Button>
