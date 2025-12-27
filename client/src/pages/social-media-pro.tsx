@@ -200,7 +200,7 @@ export default function SocialMediaPro() {
               className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <Bot className="w-4 h-4 mr-1.5" />
-              {t('Ai Mentor', 'Ai Mentor')}
+              {t('AI Coach', 'AI Coach')}
             </Button>
           </div>
         </div>

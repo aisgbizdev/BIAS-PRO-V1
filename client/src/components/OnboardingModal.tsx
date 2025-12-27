@@ -41,8 +41,8 @@ export function OnboardingModal() {
     {
       title: t('Welcome to BiAS Pro!', 'Selamat Datang di BiAS Pro!'),
       description: t(
-        'Your personal Ai mentor for TikTok creators and marketing professionals.',
-        'Ai mentor pribadimu untuk kreator TikTok dan profesional marketing.'
+        'Your personal AI Coach for TikTok creators and marketing professionals.',
+        'AI Coach pribadimu untuk kreator TikTok dan profesional marketing.'
       ),
       content: (
         <div className="flex flex-col items-center gap-4 py-4">
@@ -64,8 +64,8 @@ export function OnboardingModal() {
     {
       title: t('Choose Your Mode', 'Pilih Mode Kamu'),
       description: t(
-        'BiAS Pro has two specialized Ai mentors for different needs.',
-        'BiAS Pro punya dua Ai mentor khusus untuk kebutuhan berbeda.'
+        'BiAS Pro has two specialized AI Coaches for different needs.',
+        'BiAS Pro punya dua AI Coach khusus untuk kebutuhan berbeda.'
       ),
       content: (
         <div className="grid grid-cols-1 gap-3 py-4">
@@ -117,7 +117,7 @@ export function OnboardingModal() {
               <span className="text-xs text-pink-400 font-bold">1</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-white">{t('Ask your Ai Mentor', 'Tanya Ai Mentormu')}</p>
+              <p className="text-sm font-medium text-white">{t('Ask your AI Coach', 'Tanya AI Coach-mu')}</p>
               <p className="text-xs text-gray-400">{t('Chat about anything - scripts, strategies, analysis', 'Chat tentang apa saja - script, strategi, analisis')}</p>
             </div>
           </div>

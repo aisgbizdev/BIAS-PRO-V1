@@ -225,7 +225,7 @@ Atau refresh dan coba lagi! 🔄`;
             <h2 className="text-sm font-medium text-white flex items-center gap-2">
               {mode === 'marketing' 
                 ? t('BIAS Marketing Coach', 'BIAS Marketing Coach')
-                : t('BIAS TikTok Mentor', 'BIAS TikTok Mentor')
+                : t('BIAS TikTok Coach', 'BIAS TikTok Coach')
               }
               <span className="px-1.5 py-0.5 text-[9px] rounded bg-gray-800 text-gray-400">
                 Ai

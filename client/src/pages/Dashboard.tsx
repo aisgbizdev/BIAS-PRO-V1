@@ -51,12 +51,12 @@ export default function Dashboard() {
       icon: SiTiktok,
       title: t('TikTok Pro', 'TikTok Pro'),
       description: t(
-        'Master TikTok with Ai mentor! FYP secrets, viral hooks, live streaming tips & account analytics all in one place.',
-        'Kuasai TikTok dengan Ai mentor! Rahasia FYP, hook viral, tips live streaming & analitik akun dalam satu tempat.'
+        'Master TikTok with AI Coach! FYP secrets, viral hooks, live streaming tips & account analytics all in one place.',
+        'Kuasai TikTok dengan AI Coach! Rahasia FYP, hook viral, tips live streaming & analitik akun dalam satu tempat.'
       ),
       color: 'from-pink-500 to-cyan-500',
       features: [
-        { en: 'Ai TikTok Mentor (ask anything!)', id: 'Ai Mentor TikTok (tanya apa aja!)' },
+        { en: 'AI TikTok Coach (ask anything!)', id: 'AI Coach TikTok (tanya apa aja!)' },
         { en: 'FYP algorithm & viral secrets', id: 'Algoritma FYP & rahasia viral' },
         { en: 'Live & script generator', id: 'Generator live & script' },
       ],
@@ -112,7 +112,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-start gap-2">
               <span className="bg-pink-500/20 text-pink-400 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-[10px] font-medium">3</span>
-              <span>Gunakan AI Mentor untuk menyusun perbaikan strategi</span>
+              <span>Gunakan AI Coach untuk menyusun perbaikan strategi</span>
             </div>
           </div>
         </div>
@@ -270,7 +270,7 @@ export default function Dashboard() {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">2</p>
-                <p className="text-[10px] text-gray-500">{t('Ai Mentors', 'Ai Mentor')}</p>
+                <p className="text-[10px] text-gray-500">{t('AI Coaches', 'AI Coach')}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-500 bg-clip-text text-transparent">∞</p>
