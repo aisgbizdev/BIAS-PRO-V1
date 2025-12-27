@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
@@ -57,14 +57,7 @@ export function BiasHeader() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[280px] sm:w-[320px]">
-            <SheetHeader>
-              <SheetTitle className="text-left">
-                <span className={`bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent font-bold`}>
-                  {brand.name}
-                </span>
-              </SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col gap-2 mt-6">
+            <div className="flex flex-col gap-2 mt-4">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
