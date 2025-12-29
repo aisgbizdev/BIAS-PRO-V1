@@ -1655,52 +1655,61 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
   }
 
   return (
-    <div className="container max-w-6xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
             {t('Admin Panel', 'Panel Admin')}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             {t('Manage library and view analytics', 'Kelola perpustakaan dan lihat analitik')}
           </p>
         </div>
-        <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
+        <Button variant="outline" onClick={handleLogout} data-testid="button-logout" className="self-end sm:self-auto">
           {t('Logout', 'Keluar')}
         </Button>
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="library" className="gap-2">
-            <BookOpen className="w-4 h-4" />
-            {t('Library', 'Perpustakaan')}
-          </TabsTrigger>
-          <TabsTrigger value="stories" className="gap-2">
-            <Trophy className="w-4 h-4" />
-            {t('Stories', 'Cerita')}
-          </TabsTrigger>
-          <TabsTrigger value="brands" className="gap-2">
-            <Palette className="w-4 h-4" />
-            {t('Brands', 'Partner')}
-          </TabsTrigger>
-          <TabsTrigger value="users" className="gap-2">
-            <Users className="w-4 h-4" />
-            {t('Users', 'Pengguna')}
-          </TabsTrigger>
-          <TabsTrigger value="ai-learning" className="gap-2">
-            <Brain className="w-4 h-4" />
-            {t('AI Learning', 'AI Learning')}
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="gap-2">
-            <Settings className="w-4 h-4" />
-            {t('Settings', 'Pengaturan')}
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="gap-2">
-            <BarChart3 className="w-4 h-4" />
-            {t('Analytics', 'Analitik')}
-          </TabsTrigger>
-        </TabsList>
+        {/* Mobile: horizontal scroll, Desktop: grid */}
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 gap-1 min-w-max sm:min-w-0">
+            <TabsTrigger value="library" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('Library', 'Perpustakaan')}</span>
+              <span className="sm:hidden">Library</span>
+            </TabsTrigger>
+            <TabsTrigger value="stories" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
+              <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('Stories', 'Cerita')}</span>
+              <span className="sm:hidden">Stories</span>
+            </TabsTrigger>
+            <TabsTrigger value="brands" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
+              <Palette className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('Brands', 'Partner')}</span>
+              <span className="sm:hidden">Brands</span>
+            </TabsTrigger>
+            <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('Users', 'Pengguna')}</span>
+              <span className="sm:hidden">Users</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai-learning" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
+              <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
+              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('Settings', 'Pengaturan')}</span>
+              <span className="sm:hidden">Settings</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
+              <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('Analytics', 'Analitik')}</span>
+              <span className="sm:hidden">Stats</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="library" className="space-y-6 mt-6">
           <div className="space-y-4">
