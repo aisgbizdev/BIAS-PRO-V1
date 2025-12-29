@@ -5,7 +5,7 @@ import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info } from 'lucide-react';
+import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info, Settings } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
@@ -106,6 +106,21 @@ export function BiasHeader() {
                 <span>{t('Switch to Indonesian', 'Ganti ke Bahasa Inggris')}</span>
                 <span className="ml-auto font-bold">{language.toUpperCase()}</span>
               </Button>
+
+              {/* Admin Button in Mobile Menu */}
+              <Link href="/admin">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 mt-2 border-zinc-700 text-zinc-400 hover:text-white"
+                  onClick={() => {
+                    trackNavigation('Admin', '/admin');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Settings className="w-4 h-4" />
+                  <span>Admin</span>
+                </Button>
+              </Link>
             </div>
           </SheetContent>
         </Sheet>
