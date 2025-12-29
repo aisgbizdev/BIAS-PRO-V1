@@ -1627,7 +1627,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="superadmin"
+                  placeholder="admin"
                   data-testid="input-admin-username"
                   required
                 />
