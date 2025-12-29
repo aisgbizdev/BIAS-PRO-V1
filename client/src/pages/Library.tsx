@@ -672,43 +672,39 @@ export default function Library() {
 
       {/* Tabs */}
       <Tabs defaultValue="tiktok" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 gap-1">
-          <TabsTrigger value="tiktok" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-tiktok">
-            <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">TikTok ({filteredTikTok.length})</span>
-            <span className="sm:hidden">TikTok</span>
-          </TabsTrigger>
-          <TabsTrigger value="marketing" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-marketing">
-            <Megaphone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Marketing ({filteredMarketing.length})</span>
-            <span className="sm:hidden">Marketing</span>
-          </TabsTrigger>
-          <TabsTrigger value="bias" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-bias">
-            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">BIAS ({filteredBias.length})</span>
-            <span className="sm:hidden">BIAS</span>
-          </TabsTrigger>
-          <TabsTrigger value="ai-learned" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-ai-learned">
-            <Brain className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('AI-Learned', 'AI-Learned')}</span>
-            <span className="sm:hidden">AI</span>
-          </TabsTrigger>
-          <TabsTrigger value="stories" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-stories">
-            <Trophy className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('Success', 'Sukses')}</span>
-            <span className="sm:hidden">{t('Sukses', 'Sukses')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="contribute" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-contribute">
-            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('Promote', 'Promosi')}</span>
-            <span className="sm:hidden">+</span>
-          </TabsTrigger>
-          <TabsTrigger value="rules" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-rules">
-            <Shield className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('Guidelines', 'Panduan')}</span>
-            <span className="sm:hidden">{t('Guidelines', 'Panduan')}</span>
-          </TabsTrigger>
-        </TabsList>
+        {/* Mobile: horizontal scroll, Desktop: grid */}
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 gap-1 min-w-max sm:min-w-0">
+            <TabsTrigger value="tiktok" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-tiktok">
+              <SiTiktok className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>TikTok</span>
+            </TabsTrigger>
+            <TabsTrigger value="marketing" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-marketing">
+              <Megaphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>Marketing</span>
+            </TabsTrigger>
+            <TabsTrigger value="bias" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-bias">
+              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>BIAS</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai-learned" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-ai-learned">
+              <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="stories" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-stories">
+              <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>{t('Sukses', 'Sukses')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="contribute" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-contribute">
+              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>{t('Promosi', 'Promosi')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="rules" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-rules">
+              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>{t('Panduan', 'Panduan')}</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="bias" className="space-y-4 mt-6">
           {filteredBias.length === 0 ? (
