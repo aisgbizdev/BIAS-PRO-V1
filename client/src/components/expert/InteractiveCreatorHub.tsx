@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, Camera, Image, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -8,6 +8,7 @@ interface Message {
   type: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  image?: string;
 }
 
 interface ConversationContext {
@@ -36,14 +37,56 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
   const [isTyping, setIsTyping] = useState(false);
   const [context, setContext] = useState<ConversationContext>({});
   const [isMinimized, setIsMinimized] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleClearChat = () => {
     setMessages([]);
     setInput('');
     setContext({});
+    setImagePreview(null);
     setIsMinimized(false);
+  };
+
+  // Handle image from file input or camera
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = '';
+  };
+
+  // Handle Ctrl+V paste
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          e.preventDefault();
+          const file = items[i].getAsFile();
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+          }
+          break;
+        }
+      }
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
   };
 
   const scrollToBottom = () => {
@@ -136,24 +179,70 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && !imagePreview) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: input.trim(),
+      content: input.trim() || (imagePreview ? t('(Sent an image)', '(Mengirim gambar)') : ''),
       timestamp: new Date(),
+      image: imagePreview || undefined,
     };
 
     setMessages(prev => [...prev, userMessage]);
     const userInput = input.trim();
+    const currentImage = imagePreview;
     setInput('');
+    setImagePreview(null);
     setIsTyping(true);
 
     // Short delay for natural feel
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Try local response first
+    // If image is present, skip local and go straight to AI
+    if (currentImage) {
+      try {
+        const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
+        const res = await fetch('/api/chat/hybrid', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message: userInput || t('Please analyze this image', 'Tolong analisis gambar ini'), 
+            sessionId, 
+            mode: mode === 'marketing' ? 'marketing' : 'expert',
+            image: currentImage,
+          }),
+        });
+        
+        const data = await res.json();
+        let finalResponse = data.response || 'Maaf bro, ada gangguan. Coba lagi ya!';
+        finalResponse = finalResponse + '\n\n---\n*✨ Fresh from BIAS Brain*';
+        
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: finalResponse,
+          timestamp: new Date(),
+        };
+
+        setIsTyping(false);
+        setMessages(prev => [...prev, assistantMessage]);
+        return;
+      } catch (err) {
+        console.error('Image chat error:', err);
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: '⚠️ Gagal menganalisis gambar. Coba lagi ya!',
+          timestamp: new Date(),
+        };
+        setIsTyping(false);
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+    }
+
+    // Try local response first (text only)
     const localResult = generateResponse(userInput, context);
     setContext(localResult.newContext);
     
@@ -166,7 +255,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
         const res = await fetch('/api/chat/hybrid', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userInput, sessionId, mode: 'expert' }),
+          body: JSON.stringify({ message: userInput, sessionId, mode: mode === 'marketing' ? 'marketing' : 'expert' }),
         });
         
         const data = await res.json();
@@ -321,6 +410,13 @@ Atau refresh dan coba lagi! 🔄`;
                         : 'bg-gray-800 text-gray-200'
                     }`}
                   >
+                    {message.image && (
+                      <img 
+                        src={message.image} 
+                        alt="Sent image" 
+                        className="max-h-24 rounded-lg mb-2" 
+                      />
+                    )}
                     <div className="text-xs whitespace-pre-wrap">
                       <FormattedMessage content={message.content} />
                     </div>
@@ -360,17 +456,67 @@ Atau refresh dan coba lagi! 🔄`;
 
       {/* Input Area - Minimal */}
       <div className="px-4 py-3 border-t border-gray-800">
+        {/* Image Preview */}
+        {imagePreview && (
+          <div className="relative inline-block mb-2">
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className="max-h-20 rounded-lg border border-gray-700" 
+            />
+            <button
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+            >
+              <X className="w-3 h-3 text-white" />
+            </button>
+          </div>
+        )}
+
         <div className="flex gap-2 items-end">
+          {/* Hidden file inputs */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+
+          {/* Image upload buttons */}
+          <div className="flex gap-1">
+            <button
+              onClick={() => cameraInputRef.current?.click()}
+              className="h-10 w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors"
+              title={t('Take photo', 'Ambil foto')}
+            >
+              <Camera className="w-4 h-4 text-gray-400" />
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="h-10 w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors"
+              title={t('Upload image', 'Upload gambar')}
+            >
+              <Image className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+
           <div className="flex-1 relative">
             <textarea
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={mode === 'marketing' 
-                ? t('Ask me about sales, pitch, negotiation, presentation...', 'Tanya soal sales, pitch, negosiasi, presentasi...')
-                : t('Video topic, style, target audience, problem you want to solve...', 'Topik video, style, target audiens, masalah yang mau diselesaikan...')
-              }
+              onPaste={handlePaste}
+              placeholder={t('Ask or paste image (Ctrl+V)...', 'Tanya atau paste gambar (Ctrl+V)...')}
               className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 resize-none text-xs transition-colors"
               rows={1}
               style={{ minHeight: '40px', maxHeight: '100px' }}
@@ -378,7 +524,7 @@ Atau refresh dan coba lagi! 🔄`;
           </div>
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isTyping}
+            disabled={(!input.trim() && !imagePreview) || isTyping}
             className="h-10 w-10 rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
           >
             <Send className="w-4 h-4 text-white" />

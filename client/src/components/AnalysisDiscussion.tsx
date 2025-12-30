@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, MessageCircle, Camera, Image, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ interface Message {
   type: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  image?: string;
 }
 
 interface AnalysisDiscussionProps {
@@ -28,8 +29,11 @@ export function AnalysisDiscussion({ analysisResult, analysisContext, mode = 'ti
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -49,7 +53,46 @@ export function AnalysisDiscussion({ analysisResult, analysisContext, mode = 'ti
   const handleClearChat = () => {
     setMessages([]);
     setInput('');
+    setImagePreview(null);
     setIsMinimized(false);
+  };
+
+  // Handle image from file input or camera
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = '';
+  };
+
+  // Handle Ctrl+V paste
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          e.preventDefault();
+          const file = items[i].getAsFile();
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+          }
+          break;
+        }
+      }
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
   };
 
   // Build context from analysis result or custom context
@@ -154,18 +197,21 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && !imagePreview) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: input.trim(),
+      content: input.trim() || (imagePreview ? t('(Sent an image)', '(Mengirim gambar)') : ''),
       timestamp: new Date(),
+      image: imagePreview || undefined,
     };
 
     setMessages(prev => [...prev, userMessage]);
     const userInput = input.trim();
+    const currentImage = imagePreview;
     setInput('');
+    setImagePreview(null);
     setIsTyping(true);
 
     try {
@@ -175,7 +221,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
       // Include analysis context in the message
       const messageWithContext = analysisContext 
         ? `${userInput}\n\n[CONTEXT: User is asking about their analysis result]\n${analysisContext}`
-        : userInput;
+        : userInput || t('Please analyze this image', 'Tolong analisis gambar ini');
 
       const res = await fetch('/api/chat/hybrid', {
         method: 'POST',
@@ -183,7 +229,8 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
         body: JSON.stringify({ 
           message: messageWithContext, 
           sessionId, 
-          mode: mode === 'marketing' ? 'marketing' : 'expert' 
+          mode: mode === 'marketing' ? 'marketing' : 'expert',
+          image: currentImage || undefined,
         }),
       });
       
@@ -331,6 +378,13 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
                             : 'bg-white/5 border border-white/10 text-gray-200'
                         }`}
                       >
+                        {message.image && (
+                          <img 
+                            src={message.image} 
+                            alt="Sent image" 
+                            className="max-h-32 rounded-lg mb-2" 
+                          />
+                        )}
                         <div className="text-sm whitespace-pre-wrap">
                           <FormattedMessage content={message.content} />
                         </div>
@@ -367,17 +421,70 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
             )}
           </div>
 
+          {/* Image Preview */}
+          {imagePreview && (
+            <div className="relative inline-block mb-2">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="max-h-24 rounded-lg border border-gray-700" 
+              />
+              <button
+                onClick={removeImage}
+                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+              >
+                <X className="w-3 h-3 text-white" />
+              </button>
+            </div>
+          )}
+
           {/* Input Area */}
           <div className="flex gap-2 items-end">
+            {/* Hidden file inputs */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+
+            {/* Image upload buttons */}
+            <div className="flex gap-1">
+              <button
+                onClick={() => cameraInputRef.current?.click()}
+                className="h-11 w-11 rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors"
+                title={t('Take photo', 'Ambil foto')}
+              >
+                <Camera className="w-4 h-4 text-gray-400" />
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="h-11 w-11 rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors"
+                title={t('Upload image', 'Upload gambar')}
+              >
+                <Image className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
+                onPaste={handlePaste}
                 placeholder={mode === 'tiktok' 
-                  ? t('Ask about your TikTok analysis...', 'Tanya tentang hasil analisis TikTok...')
-                  : t('Ask about your analysis...', 'Tanya tentang hasil analisismu...')
+                  ? t('Ask or paste image (Ctrl+V)...', 'Tanya atau paste gambar (Ctrl+V)...')
+                  : t('Ask or paste image (Ctrl+V)...', 'Tanya atau paste gambar (Ctrl+V)...')
                 }
                 className={`w-full bg-[#1E1E1E] border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 resize-none min-h-[44px] max-h-[120px] ${
                   mode === 'tiktok' 
@@ -389,7 +496,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
             </div>
             <Button
               onClick={handleSend}
-              disabled={!input.trim() || isTyping}
+              disabled={(!input.trim() && !imagePreview) || isTyping}
               size="sm"
               className={`rounded-xl h-11 w-11 p-0 ${
                 mode === 'tiktok'

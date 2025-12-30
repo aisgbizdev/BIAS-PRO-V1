@@ -8,6 +8,7 @@ interface ChatRequest {
   message: string;
   sessionId?: string;
   mode?: 'beginner' | 'expert' | 'home' | 'marketing';
+  image?: string; // Base64 data URL for image analysis
 }
 
 interface ChatResponse {
@@ -470,22 +471,90 @@ User ini baru mulai. Penyesuaian:
     const relevantKnowledge = getRelevantKnowledge(request.message);
     console.log(`📚 Loaded ${relevantKnowledge.length} chars of relevant knowledge`);
     
-    console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
     const startTime = Date.now();
+    let completion;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: fullPrompt },
-        { 
-          role: 'system', 
-          content: `📚 KNOWLEDGE BASE (gunakan untuk menjawab dengan akurat):\n\n${relevantKnowledge}` 
-        },
-        { role: 'user', content: request.message }
-      ],
-      temperature: 0.7,
-      max_tokens: mode === 'expert' ? 2000 : 1500,
-    });
+    // STEP 4A: If image is present, use Vision API
+    if (request.image) {
+      // Validate image is a data URL and not too large (max ~4MB base64)
+      if (!request.image.startsWith('data:image/')) {
+        return {
+          response: '⚠️ Format gambar tidak valid. Pastikan gambar dalam format JPG, PNG, atau GIF.',
+          source: 'local',
+        };
+      }
+      
+      // Rough check for base64 size (4MB image = ~5.3MB base64)
+      if (request.image.length > 6 * 1024 * 1024) {
+        return {
+          response: '⚠️ Gambar terlalu besar! Maksimal 4MB. Coba kompres atau resize gambar dulu ya.',
+          source: 'local',
+        };
+      }
+      
+      console.log(`🖼️ Calling OpenAI Vision for image analysis (${mode}), size: ${(request.image.length / 1024).toFixed(0)}KB`);
+      
+      const visionPrompt = mode === 'marketing' 
+        ? `Kamu adalah BIAS Marketing Coach. Analisis gambar ini dari perspektif marketing, sales, atau presentasi. Berikan insight tentang:
+- Apa yang terlihat di gambar
+- Saran perbaikan dari sisi BIAS framework (visual, emosional, storytelling)
+- Rekomendasi actionable
+
+User's question: ${request.message}`
+        : `Kamu adalah BIAS TikTok Coach. Analisis gambar ini dari perspektif content creator TikTok. Berikan insight tentang:
+- Apa yang terlihat di gambar (bisa screenshot analytics, thumbnail, atau konten)
+- Saran perbaikan dari sisi BIAS framework (visual, hook, engagement)
+- Rekomendasi actionable untuk FYP
+
+User's question: ${request.message}`;
+
+      try {
+        completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: fullPrompt },
+            { 
+              role: 'user', 
+              content: [
+                { type: 'text', text: visionPrompt },
+                { 
+                  type: 'image_url', 
+                  image_url: { 
+                    url: request.image,
+                    detail: 'low' 
+                  } 
+                }
+              ]
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1500,
+        });
+      } catch (visionError: any) {
+        console.error('🖼️ Vision API error:', visionError.message);
+        return {
+          response: `⚠️ Gagal menganalisis gambar: ${visionError.message?.slice(0, 100) || 'Unknown error'}. Coba gambar lain atau tanya tanpa gambar.`,
+          source: 'local',
+        };
+      }
+    } else {
+      // STEP 4B: Text-only chat
+      console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
+      
+      completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: fullPrompt },
+          { 
+            role: 'system', 
+            content: `📚 KNOWLEDGE BASE (gunakan untuk menjawab dengan akurat):\n\n${relevantKnowledge}` 
+          },
+          { role: 'user', content: request.message }
+        ],
+        temperature: 0.7,
+        max_tokens: mode === 'expert' ? 2000 : 1500,
+      });
+    }
 
     const duration = Date.now() - startTime;
     const tokensUsed = completion.usage?.total_tokens || 0;

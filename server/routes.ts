@@ -2112,7 +2112,7 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
   
   app.post("/api/chat/hybrid", async (req, res) => {
     try {
-      const { message, sessionId } = req.body;
+      const { message, sessionId, mode, image } = req.body;
       
       if (!message || typeof message !== 'string') {
         return res.status(400).json({ error: 'Message is required' });
@@ -2121,7 +2121,9 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
       const { hybridChat } = await import('./chat/hybrid-chat');
       const result = await hybridChat({ 
         message, 
-        sessionId: sessionId || 'anonymous' 
+        sessionId: sessionId || 'anonymous',
+        mode: mode || 'home',
+        image: image || undefined,
       });
       
       res.json(result);
