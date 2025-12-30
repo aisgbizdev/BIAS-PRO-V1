@@ -674,7 +674,7 @@ export default function Library() {
       <Tabs defaultValue="tiktok" className="w-full">
         {/* Mobile: horizontal scroll, Desktop: grid */}
         <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0">
-          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 gap-1 min-w-max sm:min-w-0">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-6 gap-1 min-w-max sm:min-w-0">
             <TabsTrigger value="tiktok" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-tiktok">
               <SiTiktok className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
               <span>TikTok</span>
@@ -686,10 +686,6 @@ export default function Library() {
             <TabsTrigger value="bias" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-bias">
               <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
               <span>BIAS</span>
-            </TabsTrigger>
-            <TabsTrigger value="ai-learned" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-ai-learned">
-              <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span>AI</span>
             </TabsTrigger>
             <TabsTrigger value="stories" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-stories">
               <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -752,10 +748,6 @@ export default function Library() {
               ))}
             </div>
           )}
-        </TabsContent>
-
-        <TabsContent value="ai-learned" className="space-y-6 mt-6">
-          <AILearnedKnowledgePanel search={search} />
         </TabsContent>
 
         <TabsContent value="rules" className="space-y-6 mt-6">
