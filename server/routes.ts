@@ -1,6 +1,8 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "../db";
+import { appSettings } from "@shared/schema";
 import multer from "multer";
 import { randomUUID, timingSafeEqual } from "crypto";
 import { 
@@ -2492,6 +2494,65 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
       });
     } catch (error: any) {
       console.error('[ADMIN_ACCOUNTS] Error getting analyzed accounts:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Get TikTok guidelines reminder status
+  app.get("/api/admin/tiktok-reminder", requireAdmin, async (req, res) => {
+    try {
+      const lastCheck = await storage.getSetting('last_tiktok_guidelines_check');
+      const lastCheckDate = lastCheck?.value ? new Date(lastCheck.value) : null;
+      const now = new Date();
+      
+      let daysAgo: number | null = null;
+      let needsCheck = true; // Default: needs check if never checked
+      
+      if (lastCheckDate) {
+        daysAgo = Math.floor((now.getTime() - lastCheckDate.getTime()) / (1000 * 60 * 60 * 24));
+        needsCheck = daysAgo >= 30; // Only needs check if 30+ days since last check
+      }
+      
+      res.json({
+        lastCheckDate: lastCheckDate?.toISOString() || null,
+        daysAgo,
+        needsCheck,
+        checkUrl: 'https://www.tiktok.com/community-guidelines/en/',
+        newsroomUrl: 'https://newsroom.tiktok.com/',
+      });
+    } catch (error: any) {
+      console.error('[ADMIN_REMINDER] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Mark TikTok guidelines as checked
+  app.post("/api/admin/tiktok-reminder/mark-checked", requireAdmin, async (req, res) => {
+    try {
+      const adminUser = (req as any).adminUser;
+      const now = new Date().toISOString();
+      
+      // Create or update the setting
+      const existing = await storage.getSetting('last_tiktok_guidelines_check');
+      if (existing) {
+        await storage.updateSetting('last_tiktok_guidelines_check', now, adminUser);
+      } else {
+        await db.insert(appSettings).values({
+          key: 'last_tiktok_guidelines_check',
+          value: now,
+          valueType: 'string',
+          category: 'admin',
+          labelEn: 'Last TikTok Guidelines Check',
+          labelId: 'Terakhir Cek Panduan TikTok',
+          descriptionEn: 'When admin last verified TikTok guidelines are up to date',
+          descriptionId: 'Kapan terakhir admin verifikasi panduan TikTok masih terbaru',
+          isEditable: true,
+        });
+      }
+      
+      res.json({ success: true, checkedAt: now });
+    } catch (error: any) {
+      console.error('[ADMIN_REMINDER] Error marking checked:', error);
       res.status(500).json({ error: error.message });
     }
   });

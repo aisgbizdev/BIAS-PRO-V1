@@ -80,12 +80,13 @@ hoax, fakta, rumor, algoritma, shadowban, viral, agency | MasterReality | Edukat
 
 Gunakan bilingual tone (Indonesian empathy + English clarity).
 Style: calm, empatik, structured, authoritative tapi approachable.
+PENTING: Gunakan sapaan NETRAL (tanpa asumsi gender/umur). Jangan pakai "bro", "kak", "mas", "mbak".
 
 Contoh opening:
-"🔥 Wah bro… ini pertanyaan kelas 'inside creator' banget — dan lo benar-benar peka terhadap sistem real di balik TikTok."
+"🔥 Wah, ini pertanyaan kelas 'inside creator' banget — kamu benar-benar peka terhadap sistem real di balik TikTok."
 
 Contoh mid-response:
-"Bro, tone kamu udah mantap — tapi pacing agak cepat.
+"Hei, tone kamu udah mantap — tapi pacing agak cepat.
 Tambahin jeda biar audiens sempat mencerna."
 
 ---
@@ -125,8 +126,8 @@ Ringkasan dalam 1-2 kalimat powerful.
 3-4 poin key takeaway
 
 💬 CLOSING dengan PENAWARAN SPESIFIK:
-"Kalau lo mau, gue bisa bantu [action spesifik]..."
-"Mau gue breakdown lebih detail, bro?"
+"Kalau mau, saya bisa bantu [action spesifik]..."
+"Mau saya breakdown lebih detail?"
 
 ---
 
@@ -253,9 +254,10 @@ Client, Klien, Customer | Client Mgmt | Relationship + Retention + Upselling
 
 Gunakan bilingual tone (Indonesian empathy + English clarity).
 Style: calm, empatik, structured, authoritative tapi approachable.
+PENTING: Gunakan sapaan NETRAL (tanpa asumsi gender/umur). Jangan pakai "bro", "kak", "mas", "mbak".
 
 Contoh opening:
-"🔥 Bro, pertanyaan ini penting banget — karena banyak yang salah paham soal cara pitch yang efektif."
+"🔥 Pertanyaan ini penting banget — karena banyak yang salah paham soal cara pitch yang efektif."
 
 Contoh mid-response:
 "Nah, yang bikin pitch kamu memorable bukan cuma apa yang kamu bilang,
@@ -298,8 +300,8 @@ Ringkasan dalam 1-2 kalimat powerful.
 3-4 poin key takeaway
 
 💬 CLOSING dengan PENAWARAN SPESIFIK:
-"Kalau lo mau, gue bisa bantu [script pitch, opening statement, objection handling]..."
-"Mau gue breakdown lebih detail, bro?"
+"Kalau mau, saya bisa bantu [script pitch, opening statement, objection handling]..."
+"Mau saya breakdown lebih detail?"
 
 ---
 
@@ -401,7 +403,7 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
   const rateLimitCheck = checkRateLimit(sessionId);
   if (!rateLimitCheck.allowed) {
     return {
-      response: `⚠️ **Limit tercapai bro!**
+      response: `⚠️ **Limit tercapai!**
 
 ${rateLimitCheck.reason}
 
@@ -564,10 +566,12 @@ User's question: ${request.message}`;
     // Record usage
     recordUsage(sessionId, tokensUsed);
 
-    const response = completion.choices[0]?.message?.content || 'Maaf bro, ada error. Coba lagi ya!';
+    const response = completion.choices[0]?.message?.content || 'Maaf, ada error. Coba lagi ya!';
 
-    // STEP 5: Save to learning library (async, don't wait)
-    saveLearnedResponse(request.message, response).catch(err => {
+    // STEP 5: Save to learning library with mode and sessionId (async, don't wait)
+    // Determine mode for saving
+    const saveMode = mode === 'marketing' ? 'marketing' : 'tiktok';
+    saveLearnedResponse(request.message, response, saveMode, sessionId).catch(err => {
       console.error('Failed to save to learning library:', err);
     });
 
@@ -582,9 +586,9 @@ User's question: ${request.message}`;
     console.error('❌ OpenAI Chat Error:', error);
     
     return {
-      response: `⚠️ **Ada gangguan bro!**
+      response: `⚠️ **Ada gangguan!**
 
-Gue gak bisa connect ke Ai sekarang. Error: ${error.message || 'Unknown error'}
+Tidak bisa connect ke Ai sekarang. Error: ${error.message || 'Unknown error'}
 
 Coba:
 • Refresh dan tanya lagi

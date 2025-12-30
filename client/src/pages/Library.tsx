@@ -3241,10 +3241,56 @@ function PlatformSettingsPanel() {
   const [activeTab, setActiveTab] = useState<'settings' | 'pricing'>('settings');
   const [editingTiers, setEditingTiers] = useState<Record<string, TierEditState>>({});
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [tiktokReminder, setTiktokReminder] = useState<{
+    needsCheck: boolean;
+    daysAgo: number | null;
+    lastCheckDate: string | null;
+    checkUrl: string;
+    newsroomUrl: string;
+  } | null>(null);
+  const [markingChecked, setMarkingChecked] = useState(false);
 
   useEffect(() => {
     fetchData();
+    fetchTiktokReminder();
   }, []);
+
+  const fetchTiktokReminder = async () => {
+    try {
+      const res = await fetch('/api/admin/tiktok-reminder', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setTiktokReminder(data);
+      }
+    } catch (error) {
+      console.error('Error fetching TikTok reminder:', error);
+    }
+  };
+
+  const markTiktokChecked = async () => {
+    setMarkingChecked(true);
+    try {
+      const res = await fetch('/api/admin/tiktok-reminder/mark-checked', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        toast({
+          title: t('Marked as checked', 'Ditandai sudah dicek'),
+          description: t('Next reminder in 30 days', 'Reminder berikutnya 30 hari lagi'),
+        });
+        fetchTiktokReminder();
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to save', 'Gagal menyimpan'),
+        variant: 'destructive',
+      });
+    } finally {
+      setMarkingChecked(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -3598,6 +3644,60 @@ function PlatformSettingsPanel() {
           </div>
         </CardContent>
       </Card>
+
+      {tiktokReminder && tiktokReminder.needsCheck && (
+        <Card className="border-yellow-500/50 bg-yellow-500/10 mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h3 className="font-bold text-white flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-500" />
+                  {t('TikTok Guidelines Review', 'Review Panduan TikTok')}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {tiktokReminder.daysAgo === null 
+                    ? t('Never checked. Please verify TikTok guidelines are current.', 'Belum pernah dicek. Silakan verifikasi panduan TikTok masih berlaku.')
+                    : t(`Last checked ${tiktokReminder.daysAgo} days ago. Time for a review!`, `Terakhir dicek ${tiktokReminder.daysAgo} hari lalu. Saatnya review!`)
+                  }
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(tiktokReminder.checkUrl, '_blank')}
+                  className="text-xs"
+                >
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                  {t('View Guidelines', 'Lihat Panduan')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(tiktokReminder.newsroomUrl, '_blank')}
+                  className="text-xs"
+                >
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                  Newsroom
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={markTiktokChecked}
+                  disabled={markingChecked}
+                  className="bg-green-600 hover:bg-green-700 text-xs"
+                >
+                  {markingChecked ? (
+                    <RefreshCcw className="w-3 h-3 mr-1 animate-spin" />
+                  ) : (
+                    <Check className="w-3 h-3 mr-1" />
+                  )}
+                  {t('Mark Checked', 'Tandai Dicek')}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pricing.map((tier) => {
