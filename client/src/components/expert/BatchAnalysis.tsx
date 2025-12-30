@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { 
   Upload, 
   X, 
@@ -16,7 +17,9 @@ import {
   BarChart3,
   Trophy,
   AlertCircle,
-  MessageSquare
+  MessageSquare,
+  Brain,
+  Sparkles
 } from 'lucide-react';
 import { getRemainingVideoAnalysis, incrementVideoUsage } from '@/lib/usageLimit';
 import { AnalysisDiscussion } from '../AnalysisDiscussion';
@@ -388,10 +391,24 @@ export function BatchAnalysis() {
             {/* Analyze Button */}
             <div className="mt-6">
               {isAnalyzing ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm text-gray-400">
-                    <span>{t('Analyzing video', 'Menganalisis video')} {currentVideoIndex + 1}/{videos.length}</span>
-                    <span>{progress}%</span>
+                <div className="space-y-4">
+                  <div className="flex flex-col items-center justify-center gap-3 py-4">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 p-[2px] animate-spin" style={{ animationDuration: '3s' }}>
+                        <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center">
+                          <Brain className="w-8 h-8 text-pink-500" />
+                        </div>
+                      </div>
+                      <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-cyan-400 animate-pulse" />
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+                        {progress}%
+                      </div>
+                      <p className="text-sm text-gray-400 mt-1">
+                        {t('Analyzing video', 'Menganalisis video')} {currentVideoIndex + 1}/{videos.length}
+                      </p>
+                    </div>
                   </div>
                   <Progress value={progress} className="h-2" />
                 </div>

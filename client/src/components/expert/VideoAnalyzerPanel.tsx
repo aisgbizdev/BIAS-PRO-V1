@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { 
   Upload, 
   Image, 
@@ -287,6 +288,19 @@ export function VideoAnalyzerPanel() {
               </>
             )}
           </Button>
+
+          <AnalysisProgress 
+            isAnalyzing={isAnalyzing} 
+            duration={10000}
+            steps={[
+              t('Processing video frames...', 'Memproses frame video...'),
+              t('Extracting audio...', 'Mengekstrak audio...'),
+              t('Analyzing visual quality...', 'Menganalisis kualitas visual...'),
+              t('Evaluating hook strength...', 'Mengevaluasi kekuatan hook...'),
+              t('Calculating engagement potential...', 'Menghitung potensi engagement...'),
+              t('Generating recommendations...', 'Membuat rekomendasi...'),
+            ]}
+          />
         </CardContent>
       </Card>
 

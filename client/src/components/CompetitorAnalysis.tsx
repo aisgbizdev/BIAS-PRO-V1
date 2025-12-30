@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
@@ -412,6 +413,19 @@ Hasil Perbandingan Akun TikTok:
               </>
             )}
           </Button>
+
+          <AnalysisProgress 
+            isAnalyzing={isAnalyzing} 
+            duration={10000}
+            steps={[
+              t('Fetching account data...', 'Mengambil data akun...'),
+              t('Analyzing followers...', 'Menganalisis followers...'),
+              t('Comparing engagement...', 'Membandingkan engagement...'),
+              t('Calculating rankings...', 'Menghitung peringkat...'),
+              t('Generating insights...', 'Membuat insights...'),
+              t('Finalizing comparison...', 'Finalisasi perbandingan...'),
+            ]}
+          />
         </CardContent>
       </Card>
 

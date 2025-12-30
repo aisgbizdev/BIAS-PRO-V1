@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { 
   Zap, 
   Plus, 
@@ -251,6 +252,18 @@ export function ABHookTester() {
               </>
             )}
           </Button>
+
+          <AnalysisProgress 
+            isAnalyzing={isAnalyzing} 
+            duration={6000}
+            steps={[
+              t('Evaluating hook structures...', 'Mengevaluasi struktur hook...'),
+              t('Analyzing viral potential...', 'Menganalisis potensi viral...'),
+              t('Comparing effectiveness...', 'Membandingkan efektivitas...'),
+              t('Determining winner...', 'Menentukan pemenang...'),
+              t('Generating suggestions...', 'Membuat saran...'),
+            ]}
+          />
         </CardContent>
       </Card>
 

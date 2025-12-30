@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { 
   Camera, Upload, Loader2, CheckCircle2, AlertCircle, 
   TrendingUp, Users, Eye, Heart, MessageSquare, Share2,
@@ -331,23 +332,36 @@ export function ScreenshotAnalyticsPanel() {
             </div>
             
             {!analysisResult && (
-              <Button
-                onClick={analyzeScreenshot}
-                disabled={isAnalyzing}
-                className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t('Analyzing...', 'Menganalisis...')}
-                  </>
-                ) : (
-                  <>
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    {t('Analyze Screenshot', 'Analisis Screenshot')}
-                  </>
-                )}
-              </Button>
+              <>
+                <Button
+                  onClick={analyzeScreenshot}
+                  disabled={isAnalyzing}
+                  className="bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {t('Analyzing...', 'Menganalisis...')}
+                    </>
+                  ) : (
+                    <>
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      {t('Analyze Screenshot', 'Analisis Screenshot')}
+                    </>
+                  )}
+                </Button>
+                <AnalysisProgress 
+                  isAnalyzing={isAnalyzing} 
+                  duration={8000}
+                  steps={[
+                    t('Processing screenshot...', 'Memproses screenshot...'),
+                    t('Detecting metrics...', 'Mendeteksi metrik...'),
+                    t('Analyzing performance...', 'Menganalisis performa...'),
+                    t('Generating insights...', 'Membuat insights...'),
+                    t('Finalizing results...', 'Finalisasi hasil...'),
+                  ]}
+                />
+              </>
             )}
           </div>
         ) : (

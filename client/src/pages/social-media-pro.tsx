@@ -12,6 +12,7 @@ import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { MessageSquare } from 'lucide-react';
 import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, BarChart3, Wand2 } from 'lucide-react';
 import { IntegrityNotice } from '@/components/ui/IntegrityNotice';
@@ -319,6 +320,19 @@ export default function SocialMediaPro() {
                 </Button>
               </div>
             </div>
+
+            <AnalysisProgress 
+              isAnalyzing={isAnalyzing} 
+              duration={8000}
+              steps={[
+                t('Fetching account data...', 'Mengambil data akun...'),
+                t('Analyzing profile metrics...', 'Menganalisis metrik profil...'),
+                t('Applying BIAS framework...', 'Menerapkan framework BIAS...'),
+                t('Calculating engagement rate...', 'Menghitung engagement rate...'),
+                t('Generating recommendations...', 'Membuat rekomendasi...'),
+                t('Finalizing results...', 'Finalisasi hasil...'),
+              ]}
+            />
               
             {/* Error Message */}
             {error && (
