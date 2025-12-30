@@ -641,76 +641,87 @@ export default function Help() {
               />
             </div>
             {searchQuery && (
-              <div className="mt-2 text-center">
+              <div className="mt-2 flex items-center justify-center gap-3">
                 <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/50">
                   {filteredTutorials.length + filteredFaqs.length} {t("results", "hasil")}
                 </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSearchQuery("")}
+                  className="text-xs border-zinc-700 text-gray-400 hover:text-white hover:bg-zinc-800"
+                >
+                  <ArrowRight className="w-3 h-3 mr-1 rotate-180" />
+                  {t("Back to Help", "Kembali ke Bantuan")}
+                </Button>
               </div>
             )}
           </div>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
-          <Card className="bg-zinc-900/50 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Sparkles className="w-5 h-5 text-pink-500" />
-                {t("Quick Start Guide", "Panduan Cepat")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3">
-                <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
-                  <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">1</div>
-                  <div>
-                    <h3 className="font-semibold text-white">{t("Choose Your Mode", "Pilih Mode Anda")}</h3>
-                    <p className="text-gray-400 text-sm">
-                      {t(
-                        "TikTok Pro for content creators, Marketing Pro for business professionals.",
-                        "TikTok Pro untuk kreator konten, Marketing Pro untuk profesional bisnis."
-                      )}
-                    </p>
+          {!searchQuery && (
+            <Card className="bg-zinc-900/50 border-zinc-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Sparkles className="w-5 h-5 text-pink-500" />
+                  {t("Quick Start Guide", "Panduan Cepat")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-3">
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
+                    <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">1</div>
+                    <div>
+                      <h3 className="font-semibold text-white">{t("Choose Your Mode", "Pilih Mode Anda")}</h3>
+                      <p className="text-gray-400 text-sm">
+                        {t(
+                          "TikTok Pro for content creators, Marketing Pro for business professionals.",
+                          "TikTok Pro untuk kreator konten, Marketing Pro untuk profesional bisnis."
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
+                    <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">2</div>
+                    <div>
+                      <h3 className="font-semibold text-white">{t("Run an Audit First", "Jalankan Audit Dulu")}</h3>
+                      <p className="text-gray-400 text-sm">
+                        {t(
+                          "Analyze your account, video, or script to get baseline insights.",
+                          "Analisis akun, video, atau script Anda untuk mendapatkan insight awal."
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
+                    <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">3</div>
+                    <div>
+                      <h3 className="font-semibold text-white">{t("Review the 8-Layer Analysis", "Review Analisis 8 Layer")}</h3>
+                      <p className="text-gray-400 text-sm">
+                        {t(
+                          "Understand your strengths and areas for improvement across behavioral dimensions.",
+                          "Pahami kekuatan dan area perbaikan Anda di berbagai dimensi perilaku."
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
+                    <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">4</div>
+                    <div>
+                      <h3 className="font-semibold text-white">{t("Chat with AI Coach", "Chat dengan AI Coach")}</h3>
+                      <p className="text-gray-400 text-sm">
+                        {t(
+                          "Ask follow-up questions and get personalized strategies for improvement.",
+                          "Tanyakan lebih lanjut dan dapatkan strategi personal untuk perbaikan."
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
-                  <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">2</div>
-                  <div>
-                    <h3 className="font-semibold text-white">{t("Run an Audit First", "Jalankan Audit Dulu")}</h3>
-                    <p className="text-gray-400 text-sm">
-                      {t(
-                        "Analyze your account, video, or script to get baseline insights.",
-                        "Analisis akun, video, atau script Anda untuk mendapatkan insight awal."
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
-                  <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">3</div>
-                  <div>
-                    <h3 className="font-semibold text-white">{t("Review the 8-Layer Analysis", "Review Analisis 8 Layer")}</h3>
-                    <p className="text-gray-400 text-sm">
-                      {t(
-                        "Understand your strengths and areas for improvement across behavioral dimensions.",
-                        "Pahami kekuatan dan area perbaikan Anda di berbagai dimensi perilaku."
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-4 rounded-lg bg-zinc-800/50">
-                  <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold flex-shrink-0">4</div>
-                  <div>
-                    <h3 className="font-semibold text-white">{t("Chat with AI Coach", "Chat dengan AI Coach")}</h3>
-                    <p className="text-gray-400 text-sm">
-                      {t(
-                        "Ask follow-up questions and get personalized strategies for improvement.",
-                        "Tanyakan lebih lanjut dan dapatkan strategi personal untuk perbaikan."
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {categories.map(category => {
             const categoryTutorials = filteredTutorials.filter(t => t.category === category);
@@ -794,52 +805,54 @@ export default function Help() {
             </Card>
           )}
 
-          <Card className="bg-zinc-900/50 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Shield className="w-5 h-5 text-green-500" />
-                {t("Privacy & Security", "Privasi & Keamanan")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
-                <p className="text-gray-400">
-                  {t(
-                    "Analysis results are NOT stored on our servers - your data stays private",
-                    "Hasil analisis TIDAK disimpan di server kami - data Anda tetap privat"
-                  )}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
-                <p className="text-gray-400">
-                  {t(
-                    "History is saved locally in your browser only - you control your data",
-                    "Riwayat hanya tersimpan lokal di browser Anda - Anda mengontrol data Anda"
-                  )}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
-                <p className="text-gray-400">
-                  {t(
-                    "Clear your history anytime by clearing browser data or using delete buttons",
-                    "Hapus riwayat kapan saja dengan menghapus data browser atau menggunakan tombol hapus"
-                  )}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
-                <p className="text-gray-400">
-                  {t(
-                    "No personal data collection, tracking, or third-party sharing",
-                    "Tidak ada pengumpulan data pribadi, tracking, atau berbagi ke pihak ketiga"
-                  )}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {!searchQuery && (
+            <Card className="bg-zinc-900/50 border-zinc-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Shield className="w-5 h-5 text-green-500" />
+                  {t("Privacy & Security", "Privasi & Keamanan")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                  <p className="text-gray-400">
+                    {t(
+                      "Analysis results are NOT stored on our servers - your data stays private",
+                      "Hasil analisis TIDAK disimpan di server kami - data Anda tetap privat"
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                  <p className="text-gray-400">
+                    {t(
+                      "History is saved locally in your browser only - you control your data",
+                      "Riwayat hanya tersimpan lokal di browser Anda - Anda mengontrol data Anda"
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                  <p className="text-gray-400">
+                    {t(
+                      "Clear your history anytime by clearing browser data or using delete buttons",
+                      "Hapus riwayat kapan saja dengan menghapus data browser atau menggunakan tombol hapus"
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                  <p className="text-gray-400">
+                    {t(
+                      "No personal data collection, tracking, or third-party sharing",
+                      "Tidak ada pengumpulan data pribadi, tracking, atau berbagi ke pihak ketiga"
+                    )}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {filteredFaqs.length > 0 && (
             <Card className="bg-zinc-900/50 border-zinc-800">
