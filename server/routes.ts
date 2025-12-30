@@ -1725,7 +1725,7 @@ Status: good (di atas rata-rata), average (normal), needs_work (perlu perbaikan)
           approved_learned: learned.filter(r => r.isApproved).length,
           pending_learned: learned.filter(r => !r.isApproved).length,
           total_contributions: contributions.length,
-          approved_contributions: contributions.filter(c => c.isApproved).length,
+          approved_contributions: contributions.filter(c => c.status === 'approved').length,
         }
       };
       
