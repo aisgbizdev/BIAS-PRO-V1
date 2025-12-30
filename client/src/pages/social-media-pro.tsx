@@ -219,50 +219,52 @@ export default function SocialMediaPro() {
           setAnalyticsTab(newTab);
           trackTabSelection('tiktok-pro', newTab);
         }}>
-          <TabsList className="grid w-full grid-cols-6 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
-            <TabsTrigger 
-              value="account"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Akun', 'Akun')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="video"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Video', 'Video')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="batch"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <BarChart3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Batch', 'Batch')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="hooks"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('A/B', 'A/B')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="screenshot"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('SS', 'SS')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="compare"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <BarChart2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('VS', 'VS')}</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0">
+            <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-6 bg-[#141414] border border-gray-800 p-0.5 rounded-lg gap-1 min-w-max sm:min-w-0">
+              <TabsTrigger 
+                value="account"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Users className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('Akun', 'Akun')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="video"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Upload className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('Video', 'Video')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="batch"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <BarChart3 className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('Batch', 'Batch')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="hooks"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Zap className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('A/B', 'A/B')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="screenshot"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Camera className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('SS', 'SS')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="compare"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <BarChart2 className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('VS', 'VS')}</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </Tabs>
 
         {/* Account Analysis Mode */}
