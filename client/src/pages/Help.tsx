@@ -611,19 +611,23 @@ export default function Help() {
             )}
           </p>
 
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input
-              type="text"
-              placeholder={t("Search features, tutorials, FAQ...", "Cari fitur, tutorial, FAQ...")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
-            />
+          <div className="max-w-md mx-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder={t("Search features, tutorials, FAQ...", "Cari fitur, tutorial, FAQ...")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
+              />
+            </div>
             {searchQuery && (
-              <Badge className="absolute right-3 top-1/2 -translate-y-1/2 bg-pink-500/20 text-pink-400 border-pink-500/50">
-                {filteredTutorials.length + filteredFaqs.length} {t("results", "hasil")}
-              </Badge>
+              <div className="mt-2 text-center">
+                <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/50">
+                  {filteredTutorials.length + filteredFaqs.length} {t("results", "hasil")}
+                </Badge>
+              </div>
             )}
           </div>
         </div>
@@ -737,6 +741,34 @@ export default function Help() {
               </Card>
             );
           })}
+
+          {searchQuery && filteredTutorials.length === 0 && filteredFaqs.length === 0 && (
+            <Card className="bg-zinc-900/50 border-zinc-800">
+              <CardContent className="py-8 text-center">
+                <Search className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">
+                  {t("No results found", "Tidak ada hasil")}
+                </h3>
+                <p className="text-gray-400 mb-4">
+                  {t(
+                    `No tutorials or FAQ match "${searchQuery}". Try searching for:`,
+                    `Tidak ada tutorial atau FAQ yang cocok dengan "${searchQuery}". Coba cari:`
+                  )}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {["video", "account", "hook", "marketing", "pdf", "voice"].map(term => (
+                    <Badge 
+                      key={term}
+                      className="bg-zinc-800 hover:bg-pink-500/20 text-gray-300 hover:text-pink-400 cursor-pointer border-zinc-700 transition-colors"
+                      onClick={() => setSearchQuery(term)}
+                    >
+                      {term}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
