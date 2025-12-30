@@ -25,11 +25,13 @@ import {
   Save,
   Bot,
   Trophy,
-  ScrollText
+  ScrollText,
+  Library
 } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import { useLanguage } from "@/lib/languageContext";
 import { Link } from "wouter";
+import { searchGlossary, type GlossaryTerm } from "@/data/glossaryTerms";
 
 export default function Help() {
   const { t, language } = useLanguage();
@@ -592,7 +594,12 @@ export default function Help() {
     );
   }, [searchQuery]);
 
+  const filteredGlossary = useMemo(() => {
+    return searchGlossary(searchQuery);
+  }, [searchQuery]);
+
   const categories = ["TikTok Pro", "Marketing Pro", "General"];
+  const totalResults = filteredTutorials.length + filteredFaqs.length + filteredGlossary.length;
 
   // Auto-expand matching tutorials when searching
   useEffect(() => {
@@ -643,7 +650,7 @@ export default function Help() {
             {searchQuery && (
               <div className="mt-2 flex items-center justify-center gap-3">
                 <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/50">
-                  {filteredTutorials.length + filteredFaqs.length} {t("results", "hasil")}
+                  {totalResults} {t("results", "hasil")}
                 </Badge>
                 <Button
                   variant="outline"
@@ -777,7 +784,46 @@ export default function Help() {
             );
           })}
 
-          {searchQuery && filteredTutorials.length === 0 && filteredFaqs.length === 0 && (
+          {searchQuery && filteredGlossary.length > 0 && (
+            <Card className="bg-zinc-900/50 border-zinc-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Library className="w-5 h-5 text-cyan-500" />
+                  {t("From Library", "Dari Perpustakaan")}
+                  <Badge variant="outline" className="ml-2 text-xs">
+                    {filteredGlossary.length} {t("terms", "istilah")}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {filteredGlossary.slice(0, 5).map((term, idx) => (
+                  <div key={idx} className="p-3 bg-zinc-800/50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-white">
+                        {language === 'id' ? term.termId : term.term}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {term.source === 'tiktok' ? 'TikTok' : term.source === 'marketing' ? 'Marketing' : 'BIAS'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-400">
+                      {language === 'id' ? term.definitionId : term.definition}
+                    </p>
+                  </div>
+                ))}
+                {filteredGlossary.length > 5 && (
+                  <Link href="/library">
+                    <Button variant="outline" size="sm" className="w-full border-zinc-700 text-gray-400 hover:text-white">
+                      {t(`View all ${filteredGlossary.length} terms in Library`, `Lihat semua ${filteredGlossary.length} istilah di Perpustakaan`)}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {searchQuery && totalResults === 0 && (
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardContent className="py-8 text-center">
                 <Search className="w-12 h-12 text-gray-600 mx-auto mb-4" />
@@ -786,8 +832,8 @@ export default function Help() {
                 </h3>
                 <p className="text-gray-400 mb-4">
                   {t(
-                    `No tutorials or FAQ match "${searchQuery}". Try searching for:`,
-                    `Tidak ada tutorial atau FAQ yang cocok dengan "${searchQuery}". Coba cari:`
+                    `No tutorials, library terms, or FAQ match "${searchQuery}". Try searching for:`,
+                    `Tidak ada tutorial, istilah perpustakaan, atau FAQ yang cocok dengan "${searchQuery}". Coba cari:`
                   )}
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
