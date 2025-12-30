@@ -307,6 +307,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const likesMetric = toMetricValue(scrapedData.likesCount);
       const videosMetric = toMetricValue(scrapedData.videoCount);
       
+      // Save analyzed account to database for admin tracking
+      try {
+        await storage.createTiktokAccount({
+          sessionId: req.ip || 'anonymous',
+          username: scrapedData.username,
+          displayName: scrapedData.nickname,
+          followers: followersMetric.approx,
+          following: followingMetric.approx,
+          totalLikes: likesMetric.approx,
+          totalVideos: videosMetric.approx,
+          bio: scrapedData.signature,
+          verified: scrapedData.verified,
+          avatarUrl: scrapedData.avatarUrl,
+          engagementRate: parseFloat(engagementRate.toFixed(2)),
+          avgViews: avgViews,
+        });
+        console.log(`[TRACKING] Saved analyzed account @${scrapedData.username} to database`);
+      } catch (saveError) {
+        console.error('[TRACKING] Failed to save account to database:', saveError);
+        // Don't fail the request if tracking fails
+      }
+
       // Return real data with BigInt-safe metrics
       res.json({
         success: true,
