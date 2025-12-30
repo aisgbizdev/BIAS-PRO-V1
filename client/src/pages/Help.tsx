@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,7 @@ import { Link } from "wouter";
 export default function Help() {
   const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
+  const [openAccordions, setOpenAccordions] = useState<Record<string, string>>({});
 
   const tutorials = [
     {
@@ -593,6 +594,23 @@ export default function Help() {
 
   const categories = ["TikTok Pro", "Marketing Pro", "General"];
 
+  // Auto-expand matching tutorials when searching
+  useEffect(() => {
+    if (searchQuery.trim() && filteredTutorials.length > 0) {
+      const newOpenState: Record<string, string> = {};
+      categories.forEach(category => {
+        const categoryMatches = filteredTutorials.filter(t => t.category === category);
+        if (categoryMatches.length > 0) {
+          // Auto-open the first matching item in each category
+          newOpenState[category] = categoryMatches[0].id;
+        }
+      });
+      setOpenAccordions(newOpenState);
+    } else if (!searchQuery.trim()) {
+      setOpenAccordions({});
+    }
+  }, [searchQuery, filteredTutorials]);
+
   return (
     <div className="flex-1 bg-[#0A0A0A] text-white">
       <div className="container mx-auto px-4 py-8 md:py-12">
@@ -712,7 +730,13 @@ export default function Help() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Accordion type="single" collapsible className="w-full">
+                  <Accordion 
+                    type="single" 
+                    collapsible 
+                    className="w-full"
+                    value={openAccordions[category] || ""}
+                    onValueChange={(value) => setOpenAccordions(prev => ({ ...prev, [category]: value }))}
+                  >
                     {categoryTutorials.map((tutorial) => (
                       <AccordionItem key={tutorial.id} value={tutorial.id} className="border-zinc-700">
                         <AccordionTrigger className="text-white hover:text-pink-400">
