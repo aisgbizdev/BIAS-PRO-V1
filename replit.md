@@ -77,6 +77,7 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **User Tracking System**: TikTok accounts analyzed are now persisted to PostgreSQL database (`tiktok_accounts` table) for marketing/promo purposes. Data includes username, followers, likes, engagement rate, and analysis timestamp.
 - **Admin Users Panel**: New "Users" tab in Admin Panel showing all analyzed TikTok accounts with links to profiles, follower counts, engagement rates, and analysis dates. Useful for promotional outreach.
 - **Admin AI Learning Panel**: New "AI Learning" tab in Admin Panel to manage the self-learning library (learned_responses table). Admins can view, search, edit, and delete auto-saved AI responses from chat conversations. Keywords auto-recalculate when questions are edited.
+- **Chat Image Analysis**: All AI chat boxes (AnalysisDiscussion, InteractiveCreatorHub) now support image upload via camera capture, gallery upload, or Ctrl+V paste. Uses OpenAI Vision API (gpt-4o-mini) for image analysis with mode-specific prompts (TikTok/Marketing). Includes validation for image format (JPG/PNG/GIF) and size (max 4MB).
 
 ## External Dependencies
 
