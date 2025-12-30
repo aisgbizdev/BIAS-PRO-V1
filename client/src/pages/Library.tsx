@@ -1663,42 +1663,36 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        {/* Mobile: horizontal scroll, Desktop: grid */}
-        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0">
-          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 gap-1 min-w-max sm:min-w-0">
-            <TabsTrigger value="library" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
-              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t('Library', 'Perpustakaan')}</span>
-              <span className="sm:hidden">Library</span>
+        {/* Mobile: horizontal scroll with visible tabs, Desktop: grid */}
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0 scrollbar-thin">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 gap-1 min-w-max sm:min-w-0 bg-zinc-900/50 p-1">
+            <TabsTrigger value="library" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Library', 'Perpustakaan')}</span>
             </TabsTrigger>
-            <TabsTrigger value="stories" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
-              <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t('Stories', 'Cerita')}</span>
-              <span className="sm:hidden">Stories</span>
+            <TabsTrigger value="stories" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Trophy className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Stories', 'Cerita')}</span>
             </TabsTrigger>
-            <TabsTrigger value="brands" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
-              <Palette className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t('Brands', 'Partner')}</span>
-              <span className="sm:hidden">Brands</span>
+            <TabsTrigger value="brands" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Palette className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Brands', 'Partner')}</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
-              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t('Users', 'Pengguna')}</span>
-              <span className="sm:hidden">Users</span>
+            <TabsTrigger value="users" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Users className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Users', 'Pengguna')}</span>
             </TabsTrigger>
-            <TabsTrigger value="ai-learning" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
-              <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <TabsTrigger value="ai-learning" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Brain className="w-3.5 h-3.5 flex-shrink-0" />
               <span>AI</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
-              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t('Settings', 'Pengaturan')}</span>
-              <span className="sm:hidden">Settings</span>
+            <TabsTrigger value="settings" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Settings className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Settings', 'Pengaturan')}</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-1.5 text-xs sm:text-sm px-3 whitespace-nowrap">
-              <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t('Analytics', 'Analitik')}</span>
-              <span className="sm:hidden">Stats</span>
+            <TabsTrigger value="analytics" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <BarChart3 className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Analytics', 'Analitik')}</span>
             </TabsTrigger>
           </TabsList>
         </div>
