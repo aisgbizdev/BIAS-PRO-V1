@@ -78,6 +78,9 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Admin Users Panel**: New "Users" tab in Admin Panel showing all analyzed TikTok accounts with links to profiles, follower counts, engagement rates, and analysis dates. Useful for promotional outreach.
 - **Admin AI Learning Panel**: New "AI Learning" tab in Admin Panel to manage the self-learning library (learned_responses table). Admins can view, search, edit, and delete auto-saved AI responses from chat conversations. Keywords auto-recalculate when questions are edited.
 - **Chat Image Analysis**: All AI chat boxes (AnalysisDiscussion, InteractiveCreatorHub) now support image upload via camera capture, gallery upload, or Ctrl+V paste. Uses OpenAI Vision API (gpt-4o-mini) for image analysis with mode-specific prompts (TikTok/Marketing). Includes validation for image format (JPG/PNG/GIF) and size (max 4MB).
+- **Enhanced AI Learning Filters (Dec 2024)**: Comprehensive filtering for learned_responses to improve quality: blocks spam/gibberish, personal data (phone/email), analysis requests (@username), duplicates (80%+ similarity), rate limiting (5/session), max 500 entries. Mode-aware context (tiktok/marketing) for accurate matching.
+- **Gender-Neutral Language**: Removed all gendered greetings (bro, kak, mas, mbak) from AI prompts. Using neutral greetings: Halo, Hai, Baik throughout all AI responses.
+- **Admin TikTok Guidelines Reminder**: 30-day reminder system for admin to verify TikTok community guidelines are still current. Notification appears in Settings tab with links to official guidelines and TikTok newsroom. Stores last check date in app_settings.
 
 ## External Dependencies
 
