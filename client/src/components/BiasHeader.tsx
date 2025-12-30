@@ -47,7 +47,7 @@ export function BiasHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+    <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 safe-area-top">
       <div className="flex h-16 items-center justify-between px-3 md:px-6 gap-2 md:gap-4">
         {/* Mobile Menu (Hamburger) */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

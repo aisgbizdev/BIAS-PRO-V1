@@ -87,14 +87,14 @@ function AppContent() {
   const { brand } = useBrand();
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col safe-area-x">
       <BiasHeader />
       <main className="flex-1 overflow-auto">
         <Router />
       </main>
       <FloatingChatGPT />
       <OnboardingModal />
-      <footer className="border-t border-zinc-800 py-4 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-zinc-800 py-4 text-center text-sm text-muted-foreground safe-area-bottom">
         <p className="mb-2">
           {brand.shortName} • Behavioral Intelligence Audit System •{' '}
           <span className="font-medium">
