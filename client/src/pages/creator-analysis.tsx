@@ -58,20 +58,20 @@ export default function CreatorAnalysis() {
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Analyze', 'Analisis')}</span>
             </TabsTrigger>
             <TabsTrigger 
-              value="form"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-              data-testid="tab-input-form"
-            >
-              <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Review', 'Review')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
               value="coach"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
               data-testid="tab-input-coach"
             >
               <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('AI Coach', 'AI Coach')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="form"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              data-testid="tab-input-form"
+            >
+              <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Review', 'Review')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
