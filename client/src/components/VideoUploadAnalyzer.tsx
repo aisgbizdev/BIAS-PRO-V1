@@ -291,40 +291,11 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Platform Tabs - Only show for Social Pro mode */}
+          {/* Platform indicator - Professional option hidden for now */}
           {mode === 'creator' && (
-            <div>
-              <Label className="text-white mb-2 block">
-                {t('Select Social Media Platform', 'Pilih Platform Media Sosial')}
-              </Label>
-              <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
-                <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-2">
-                  <TabsTrigger 
-                    value="tiktok" 
-                    className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-tiktok"
-                  >
-                    <SiTiktok className="w-4 h-4" />
-                    <span className="hidden sm:inline">TikTok</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="non-social"
-                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-nonsocial"
-                  >
-                    <Presentation className="w-4 h-4" />
-                    <span className="hidden sm:inline">{t('Professional', 'Profesional')}</span>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-              {selectedPlatform === 'non-social' && (
-                <p className="text-xs text-gray-400 mt-2">
-                  {t(
-                    'For presentations, speeches, meetings, talkshows, podcasts, or any professional communication',
-                    'Untuk presentasi, pidato, meeting, talkshow, podcast, atau komunikasi profesional lainnya'
-                  )}
-                </p>
-              )}
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <SiTiktok className="w-4 h-4 text-pink-500" />
+              <span>{t('Analyzing for TikTok', 'Analisis untuk TikTok')}</span>
             </div>
           )}
 
