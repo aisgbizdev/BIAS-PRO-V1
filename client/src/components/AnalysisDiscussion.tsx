@@ -457,22 +457,30 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
               className="hidden"
             />
 
-            {/* Image upload buttons - smaller on mobile */}
-            <div className="flex gap-1">
+            {/* Single image button with dropdown */}
+            <div className="relative group flex-shrink-0">
               <button
-                onClick={() => cameraInputRef.current?.click()}
-                className="h-9 w-9 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
-                title={t('Take photo', 'Ambil foto')}
-              >
-                <Camera className="w-4 h-4 text-gray-400" />
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="h-9 w-9 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
-                title={t('Upload image', 'Upload gambar')}
+                className="h-9 w-9 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors"
+                title={t('Add image', 'Tambah gambar')}
               >
                 <Image className="w-4 h-4 text-gray-400" />
               </button>
+              <div className="absolute bottom-full left-0 mb-1 hidden group-hover:flex flex-col bg-[#1E1E1E] border border-gray-700 rounded-lg overflow-hidden shadow-lg z-10 min-w-[140px]">
+                <button
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>{t('Take photo', 'Ambil foto')}</span>
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                >
+                  <Image className="w-4 h-4" />
+                  <span>{t('Upload', 'Unggah')}</span>
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 min-w-0">
@@ -483,7 +491,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
                 onKeyDown={handleKeyDown}
                 onPaste={handlePaste}
                 placeholder={t('Ask...', 'Tanya...')}
-                className={`w-full bg-[#1E1E1E] border border-gray-700 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 resize-none min-h-[36px] sm:min-h-[44px] max-h-[120px] ${
+                className={`w-full bg-[#1E1E1E] border border-gray-700 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 resize-none min-h-[36px] sm:min-h-[44px] max-h-[150px] ${
                   mode === 'tiktok' 
                     ? 'focus:ring-pink-500/50 focus:border-pink-500'
                     : 'focus:ring-purple-500/50 focus:border-purple-500'

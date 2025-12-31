@@ -491,22 +491,30 @@ Atau refresh dan coba lagi! 🔄`;
             className="hidden"
           />
 
-          {/* Image upload buttons - smaller on mobile */}
-          <div className="flex gap-1">
+          {/* Single image button with dropdown */}
+          <div className="relative group flex-shrink-0">
             <button
-              onClick={() => cameraInputRef.current?.click()}
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
-              title={t('Take photo', 'Ambil foto')}
-            >
-              <Camera className="w-4 h-4 text-gray-400" />
-            </button>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
-              title={t('Upload image', 'Upload gambar')}
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors"
+              title={t('Add image', 'Tambah gambar')}
             >
               <Image className="w-4 h-4 text-gray-400" />
             </button>
+            <div className="absolute bottom-full left-0 mb-1 hidden group-hover:flex flex-col bg-[#1E1E1E] border border-gray-700 rounded-lg overflow-hidden shadow-lg z-10 min-w-[140px]">
+              <button
+                onClick={() => cameraInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+                <span>{t('Take photo', 'Ambil foto')}</span>
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+              >
+                <Image className="w-4 h-4" />
+                <span>{t('Upload', 'Unggah')}</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 min-w-0">
@@ -519,7 +527,7 @@ Atau refresh dan coba lagi! 🔄`;
               placeholder={t('Ask...', 'Tanya...')}
               className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 resize-none text-xs transition-colors"
               rows={1}
-              style={{ minHeight: '36px', maxHeight: '100px' }}
+              style={{ minHeight: '36px', maxHeight: '150px' }}
             />
           </div>
           <button
