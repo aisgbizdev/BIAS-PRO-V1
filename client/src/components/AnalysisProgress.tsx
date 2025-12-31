@@ -57,13 +57,13 @@ export function AnalysisProgress({
       progressRef.current = 0;
       
       const intervalTime = 50;
-      const progressPerInterval = 95 / (duration / intervalTime);
+      const progressPerInterval = 100 / (duration / intervalTime);
       
       intervalRef.current = setInterval(() => {
         progressRef.current += progressPerInterval;
         
-        if (progressRef.current >= 95) {
-          progressRef.current = 95;
+        if (progressRef.current >= 100) {
+          progressRef.current = 100;
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
@@ -97,7 +97,7 @@ export function AnalysisProgress({
         setCurrentStep(0);
         setIsComplete(false);
         progressRef.current = 0;
-      }, 1500);
+      }, 800);
     }
   }, [isAnalyzing, duration, steps.length, onComplete]);
 
@@ -233,8 +233,8 @@ export function AnalysisProgressInline({
 
       intervalRef.current = setInterval(() => {
         progressRef.current += Math.random() * 8 + 2;
-        if (progressRef.current >= 95) {
-          progressRef.current = 95;
+        if (progressRef.current >= 100) {
+          progressRef.current = 100;
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
@@ -255,7 +255,7 @@ export function AnalysisProgressInline({
         setIsVisible(false);
         setProgress(0);
         progressRef.current = 0;
-      }, 500);
+      }, 300);
     }
   }, [isAnalyzing]);
 
