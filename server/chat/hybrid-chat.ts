@@ -9,6 +9,9 @@ interface ChatRequest {
   sessionId?: string;
   mode?: 'beginner' | 'expert' | 'home' | 'marketing';
   image?: string; // Base64 data URL for image analysis
+  images?: string[]; // Multiple images for comparison
+  outputLanguage?: 'id' | 'en'; // Preferred output language
+  previousImageContext?: string; // Context from previous image analysis
 }
 
 interface ChatResponse {
@@ -496,88 +499,144 @@ User ini baru mulai. Penyesuaian:
       
       console.log(`🖼️ Calling OpenAI Vision for image analysis (${mode}), size: ${(request.image.length / 1024).toFixed(0)}KB`);
       
-      // Detailed TikTok screenshot analysis prompt
-      const tiktokVisionPrompt = `🔍 ANALISIS SCREENSHOT TIKTOK - MODE DETAIL
+      // Language preference
+      const outputLang = request.outputLanguage || 'id';
+      const langInstruction = outputLang === 'en' 
+        ? 'RESPOND IN ENGLISH ONLY.' 
+        : 'JAWAB DALAM BAHASA INDONESIA.';
+      
+      // Previous context if available
+      const contextSection = request.previousImageContext 
+        ? `\n📝 KONTEKS SEBELUMNYA:\n${request.previousImageContext}\n` 
+        : '';
+      
+      // Detailed TikTok screenshot analysis prompt with auto-detection, benchmarks, and trends
+      const tiktokVisionPrompt = `🔍 ANALISIS SCREENSHOT TIKTOK - MODE DETAIL PRO
 
-Kamu adalah BIAS TikTok Expert dengan kemampuan membaca dan menganalisis screenshot TikTok secara menyeluruh.
+${langInstruction}
 
-📋 TUGAS UTAMA:
-BACA dan EKSTRAK semua data yang terlihat di gambar ini dengan TELITI. Jangan asumsikan - hanya laporkan apa yang BENAR-BENAR terlihat.
+Kamu adalah BIAS TikTok Expert dengan kemampuan OCR dan analisis mendalam.
+${contextSection}
 
-📊 EKSTRAKSI DATA (sebutkan semua yang terlihat):
+🎯 LANGKAH 1: AUTO-DETEKSI TIPE SCREENSHOT
+Identifikasi tipe gambar ini:
+- 📱 PROFIL: Halaman profil dengan avatar, bio, grid video
+- 📊 ANALYTICS: Dashboard analytics dengan grafik/angka performa
+- 🎬 VIDEO: Detail satu video dengan likes/comments/shares
+- 💬 KOMENTAR: Thread komentar
+- 🔍 SEARCH/FYP: Hasil pencarian atau halaman For You
+- 📸 THUMBNAIL: Desain thumbnail video
+- ⚙️ SETTINGS: Pengaturan akun
 
-1️⃣ **PROFIL INFO** (jika terlihat):
-   - Username & display name
-   - Jumlah Followers, Following, Likes
-   - Bio/deskripsi profil
-   - Link di bio
-   - Status verified (centang biru)
+📋 LANGKAH 2: EKSTRAKSI DATA LENGKAP
+BACA SEMUA teks dan angka yang terlihat. TULIS PERSIS seperti yang terlihat!
 
-2️⃣ **VIDEO/KONTEN** (jika terlihat):
-   - Jumlah views per video (sebutkan angka spesifik!)
-   - Judul/hook text di thumbnail
-   - Thumbnail design (warna, teks, gambar)
-   - Jumlah video yang dipinned
-   - Pattern posting (konsistensi thumbnail, branding)
+**Untuk PROFIL:**
+| Data | Nilai |
+|------|-------|
+| Username | @... |
+| Display Name | ... |
+| Followers | ... |
+| Following | ... |
+| Total Likes | ... |
+| Bio | "..." |
+| Link | ... |
+| Verified | Ya/Tidak |
 
-3️⃣ **ANALYTICS** (jika screenshot analytics):
-   - Views, likes, comments, shares
-   - Watch time / retention
-   - Traffic sources
-   - Audience demographics
+**Video Grid (tulis SEMUA yang terlihat):**
+| No | Views | Hook/Judul di Thumbnail | Pinned? |
+|----|-------|-------------------------|---------|
+| 1 | ... | "..." | Ya/Tidak |
+| 2 | ... | "..." | Ya/Tidak |
+(lanjutkan semua video yang terlihat)
 
-4️⃣ **BENCHMARK & EVALUASI**:
-   Setelah ekstraksi data, berikan:
-   - Rasio followers:likes (normal: 1:2-1:5)
-   - Rasio views:followers (sehat: 10-30%)
-   - Konsistensi thumbnail branding
-   - Hook text effectiveness
-   - Pinned video strategy
+**Untuk ANALYTICS:**
+- Total Views: ...
+- Avg Watch Time: ...
+- Traffic Sources: FYP ...%, Following ...%, Search ...%
+- Top Performing Content: ...
+- Audience: Gender ...%, Age ...
 
-5️⃣ **REKOMENDASI ACTIONABLE**:
-   Berikan 3-5 saran SPESIFIK berdasarkan data yang terlihat, bukan saran generik!
+📊 LANGKAH 3: BENCHMARK ANALYSIS
 
-FORMAT: Gunakan tabel untuk data numerik, emoji untuk visual, dan bullet points untuk saran.
+**TikTok Benchmark Standards:**
+| Metrik | Kamu | Standar Sehat | Status |
+|--------|------|---------------|--------|
+| Likes:Followers | ? | 2:1 - 5:1 | ✅/⚠️/❌ |
+| Views:Followers | ? | 10-30% | ✅/⚠️/❌ |
+| Engagement Rate | ? | 3-9% | ✅/⚠️/❌ |
+| Posting Frequency | ? | 1-3x/day | ✅/⚠️/❌ |
+
+**Benchmark per Niche (jika teridentifikasi):**
+- Edukasi: Views 5-15% of followers, ER 5-8%
+- Entertainment: Views 15-40%, ER 8-15%
+- Lifestyle: Views 10-25%, ER 4-7%
+- Business/B2B: Views 3-10%, ER 2-5%
+
+🔥 LANGKAH 4: TREND DETECTION
+Identifikasi trend dari konten yang terlihat:
+- Format video yang digunakan (talking head, POV, tutorial, etc)
+- Warna/style thumbnail yang dominan
+- Pattern hook text (pertanyaan, statement, controversy)
+- Niche/topik utama
+
+💡 LANGKAH 5: REKOMENDASI ACTIONABLE (SPESIFIK!)
+Berdasarkan data yang diekstrak, berikan:
+1. ✅ Yang sudah bagus (sebutkan spesifik)
+2. ⚠️ Yang perlu diperbaiki (dengan data)
+3. 🎯 3-5 aksi konkret dengan contoh
 
 ---
 User's question: ${request.message}`;
 
-      const marketingVisionPrompt = `🔍 ANALISIS GAMBAR MARKETING - MODE DETAIL
+      const marketingVisionPrompt = `🔍 ANALISIS GAMBAR MARKETING - MODE DETAIL PRO
 
-Kamu adalah BIAS Marketing Expert dengan kemampuan menganalisis materi marketing secara menyeluruh.
+${langInstruction}
 
-📋 TUGAS UTAMA:
-BACA dan EKSTRAK semua elemen yang terlihat di gambar ini dengan TELITI.
+Kamu adalah BIAS Marketing Expert dengan kemampuan OCR dan analisis mendalam.
+${contextSection}
 
-📊 EKSTRAKSI DATA:
+🎯 LANGKAH 1: AUTO-DETEKSI TIPE MATERI
+Identifikasi tipe gambar:
+- 📱 SOCIAL POST: Instagram, Facebook, LinkedIn post
+- 🎨 BANNER/AD: Iklan display, banner web
+- 📧 EMAIL: Email marketing
+- 🌐 LANDING PAGE: Halaman website
+- 📊 INFOGRAPHIC: Visualisasi data
+- 🎬 VIDEO THUMBNAIL: Thumbnail YouTube/video
+- 📄 PRESENTATION: Slide presentasi
 
-1️⃣ **VISUAL ELEMENTS**:
-   - Headline/judul utama (tulis persis)
-   - Sub-headline
-   - Body copy/text
-   - Call-to-action (CTA)
-   - Images/graphics
+📋 LANGKAH 2: EKSTRAKSI ELEMEN
+TULIS PERSIS semua teks yang terlihat!
 
-2️⃣ **DESIGN ANALYSIS**:
-   - Color scheme
-   - Typography
-   - Layout/composition
-   - Brand elements
+| Elemen | Konten |
+|--------|--------|
+| Headline | "..." |
+| Sub-headline | "..." |
+| Body Copy | "..." |
+| CTA Button | "..." |
+| Social Proof | "..." |
+| Price/Offer | "..." |
 
-3️⃣ **PERSUASION ELEMENTS**:
-   - Emotional triggers
-   - Social proof
-   - Urgency/scarcity
-   - Value proposition
+📊 LANGKAH 3: BIAS FRAMEWORK SCORING
 
-4️⃣ **BIAS FRAMEWORK EVALUATION**:
-   - VBM (Visual Behavior): Eye-catching? Clear hierarchy?
-   - EPM (Emotional): What emotions triggered?
-   - NLP (Narrative): Is the story clear?
-   - ETH (Ethics): Any misleading claims?
+| Layer | Score (1-10) | Analisis |
+|-------|--------------|----------|
+| VBM (Visual) | ? | Eye-catching? Hierarchy? |
+| EPM (Emotional) | ? | Emosi apa yang triggered? |
+| NLP (Narrative) | ? | Cerita jelas? Benefit clear? |
+| ETH (Ethics) | ? | Klaim valid? Tidak misleading? |
 
-5️⃣ **REKOMENDASI ACTIONABLE**:
-   Berikan 3-5 saran SPESIFIK berdasarkan apa yang terlihat!
+**Benchmark Marketing:**
+- Headline: Max 10 kata, benefit-focused
+- CTA: Action verb + urgency
+- Visual: 60% image, 40% text
+- Trust: Testimonial/social proof wajib
+
+💡 LANGKAH 4: REKOMENDASI SPESIFIK
+1. ✅ Yang sudah efektif
+2. ⚠️ Yang perlu diperbaiki
+3. 🎯 3-5 aksi konkret dengan contoh copy
 
 ---
 User's question: ${request.message}`;

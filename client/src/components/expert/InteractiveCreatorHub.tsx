@@ -38,6 +38,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
   const [context, setContext] = useState<ConversationContext>({});
   const [isMinimized, setIsMinimized] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [lastImageContext, setLastImageContext] = useState<string>(''); // Store last image analysis for follow-up
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -211,11 +212,19 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
             sessionId, 
             mode: mode === 'marketing' ? 'marketing' : 'expert',
             image: currentImage,
+            outputLanguage: language === 'en' ? 'en' : 'id', // Bilingual toggle
+            previousImageContext: lastImageContext || undefined, // Follow-up context
           }),
         });
         
         const data = await res.json();
         let finalResponse = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
+        
+        // Store context for follow-up questions
+        if (finalResponse && !finalResponse.includes('⚠️')) {
+          setLastImageContext(finalResponse.slice(0, 500));
+        }
+        
         finalResponse = finalResponse + '\n\n---\n*✨ Fresh from BIAS Brain*';
         
         const assistantMessage: Message = {
@@ -470,6 +479,61 @@ Atau refresh dan coba lagi! 🔄`;
             >
               <X className="w-3 h-3 text-white" />
             </button>
+          </div>
+        )}
+
+        {/* Quick Template Questions - Show when image is present */}
+        {imagePreview && (
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {mode === 'tiktok' ? (
+              <>
+                <button
+                  onClick={() => setInput(t('Full profile analysis', 'Analisis profil lengkap'))}
+                  className="px-2 py-1 text-xs bg-pink-500/20 text-pink-300 rounded-full hover:bg-pink-500/30 transition-colors border border-pink-500/30"
+                >
+                  📊 {t('Analysis', 'Analisis')}
+                </button>
+                <button
+                  onClick={() => setInput(t('Views tips', 'Tips views'))}
+                  className="px-2 py-1 text-xs bg-cyan-500/20 text-cyan-300 rounded-full hover:bg-cyan-500/30 transition-colors border border-cyan-500/30"
+                >
+                  👁️ Views
+                </button>
+                <button
+                  onClick={() => setInput(t('Thumbnail review', 'Review thumbnail'))}
+                  className="px-2 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-full hover:bg-purple-500/30 transition-colors border border-purple-500/30"
+                >
+                  🎨 Thumbnail
+                </button>
+                <button
+                  onClick={() => setInput(t('Pinned strategy', 'Strategi pinned'))}
+                  className="px-2 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded-full hover:bg-yellow-500/30 transition-colors border border-yellow-500/30"
+                >
+                  📌 Pin
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setInput(t('Full analysis', 'Analisis lengkap'))}
+                  className="px-2 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-full hover:bg-purple-500/30 transition-colors border border-purple-500/30"
+                >
+                  📊 {t('Analysis', 'Analisis')}
+                </button>
+                <button
+                  onClick={() => setInput(t('CTA improvement', 'Perbaiki CTA'))}
+                  className="px-2 py-1 text-xs bg-pink-500/20 text-pink-300 rounded-full hover:bg-pink-500/30 transition-colors border border-pink-500/30"
+                >
+                  🎯 CTA
+                </button>
+                <button
+                  onClick={() => setInput(t('Headline check', 'Cek headline'))}
+                  className="px-2 py-1 text-xs bg-cyan-500/20 text-cyan-300 rounded-full hover:bg-cyan-500/30 transition-colors border border-cyan-500/30"
+                >
+                  📝 Headline
+                </button>
+              </>
+            )}
           </div>
         )}
 

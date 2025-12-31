@@ -30,6 +30,7 @@ export function AnalysisDiscussion({ analysisResult, analysisContext, mode = 'ti
   const [isTyping, setIsTyping] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [lastImageContext, setLastImageContext] = useState<string>(''); // Store last image analysis for follow-up
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -122,7 +123,7 @@ KONTEKS ANALISIS SEBELUMNYA:
 Layer Scores:
 ${layers}
 
-Narrative: ${analysisAny.narrativeDiagnosis || analysisResult.narrative || ''}
+Narrative: ${analysisAny.narrativeDiagnosis || analysisAny.narrative || ''}
 Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
 `;
   };
@@ -216,11 +217,11 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
 
     try {
       const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
-      const analysisContext = getAnalysisContext();
+      const analysisContextStr = getAnalysisContext();
       
       // Include analysis context in the message
-      const messageWithContext = analysisContext 
-        ? `${userInput}\n\n[CONTEXT: User is asking about their analysis result]\n${analysisContext}`
+      const messageWithContext = analysisContextStr 
+        ? `${userInput}\n\n[CONTEXT: User is asking about their analysis result]\n${analysisContextStr}`
         : userInput || t('Please analyze this image', 'Tolong analisis gambar ini');
 
       const res = await fetch('/api/chat/hybrid', {
@@ -231,11 +232,19 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
           sessionId, 
           mode: mode === 'marketing' ? 'marketing' : 'expert',
           image: currentImage || undefined,
+          outputLanguage: language === 'en' ? 'en' : 'id', // Bilingual toggle based on current language
+          previousImageContext: lastImageContext || undefined, // Pass previous image context for follow-up
         }),
       });
       
       const data = await res.json();
       let finalResponse = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
+      
+      // Store image analysis context for follow-up questions
+      if (currentImage && finalResponse && !finalResponse.includes('⚠️')) {
+        // Extract key insights from response for follow-up context (first 500 chars)
+        setLastImageContext(finalResponse.slice(0, 500));
+      }
       
       // Add source indicator
       if (data.source === 'ai') {
@@ -435,6 +444,73 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
               >
                 <X className="w-3 h-3 text-white" />
               </button>
+            </div>
+          )}
+
+          {/* Quick Template Questions - Show when image is present */}
+          {imagePreview && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {mode === 'tiktok' ? (
+                <>
+                  <button
+                    onClick={() => setInput(t('Full profile analysis', 'Analisis profil lengkap'))}
+                    className="px-2.5 py-1 text-xs bg-pink-500/20 text-pink-300 rounded-full hover:bg-pink-500/30 transition-colors border border-pink-500/30"
+                  >
+                    📊 {t('Full Analysis', 'Analisis Lengkap')}
+                  </button>
+                  <button
+                    onClick={() => setInput(t('How to get more views?', 'Cara naikkan views?'))}
+                    className="px-2.5 py-1 text-xs bg-cyan-500/20 text-cyan-300 rounded-full hover:bg-cyan-500/30 transition-colors border border-cyan-500/30"
+                  >
+                    👁️ Views
+                  </button>
+                  <button
+                    onClick={() => setInput(t('Check thumbnail quality', 'Cek kualitas thumbnail'))}
+                    className="px-2.5 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-full hover:bg-purple-500/30 transition-colors border border-purple-500/30"
+                  >
+                    🎨 Thumbnail
+                  </button>
+                  <button
+                    onClick={() => setInput(t('Pinned video strategy?', 'Strategi video pinned?'))}
+                    className="px-2.5 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded-full hover:bg-yellow-500/30 transition-colors border border-yellow-500/30"
+                  >
+                    📌 Pinned
+                  </button>
+                  <button
+                    onClick={() => setInput(t('Blue checkmark chance?', 'Peluang centang biru?'))}
+                    className="px-2.5 py-1 text-xs bg-blue-500/20 text-blue-300 rounded-full hover:bg-blue-500/30 transition-colors border border-blue-500/30"
+                  >
+                    ✅ Verified
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setInput(t('Full marketing analysis', 'Analisis marketing lengkap'))}
+                    className="px-2.5 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-full hover:bg-purple-500/30 transition-colors border border-purple-500/30"
+                  >
+                    📊 {t('Full Analysis', 'Analisis Lengkap')}
+                  </button>
+                  <button
+                    onClick={() => setInput(t('How to improve CTA?', 'Cara improve CTA?'))}
+                    className="px-2.5 py-1 text-xs bg-pink-500/20 text-pink-300 rounded-full hover:bg-pink-500/30 transition-colors border border-pink-500/30"
+                  >
+                    🎯 CTA
+                  </button>
+                  <button
+                    onClick={() => setInput(t('Check headline effectiveness', 'Cek efektivitas headline'))}
+                    className="px-2.5 py-1 text-xs bg-cyan-500/20 text-cyan-300 rounded-full hover:bg-cyan-500/30 transition-colors border border-cyan-500/30"
+                  >
+                    📝 Headline
+                  </button>
+                  <button
+                    onClick={() => setInput(t('Rate visual design', 'Nilai desain visual'))}
+                    className="px-2.5 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded-full hover:bg-yellow-500/30 transition-colors border border-yellow-500/30"
+                  >
+                    🎨 Design
+                  </button>
+                </>
+              )}
             </div>
           )}
 
