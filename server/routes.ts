@@ -2154,7 +2154,7 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
     } catch (error: any) {
       console.error('[HYBRID_CHAT] Error:', error);
       res.status(500).json({ 
-        response: 'Maaf bro, ada error. Coba lagi ya!',
+        response: 'Maaf, ada error. Coba lagi ya!',
         source: 'local',
         error: error.message 
       });

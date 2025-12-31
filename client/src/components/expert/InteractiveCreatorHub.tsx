@@ -215,7 +215,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
         });
         
         const data = await res.json();
-        let finalResponse = data.response || 'Maaf bro, ada gangguan. Coba lagi ya!';
+        let finalResponse = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
         finalResponse = finalResponse + '\n\n---\n*✨ Fresh from BIAS Brain*';
         
         const assistantMessage: Message = {
@@ -259,7 +259,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
         });
         
         const data = await res.json();
-        finalResponse = data.response || 'Maaf bro, ada gangguan. Coba lagi ya!';
+        finalResponse = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
         
         // Add source indicator
         if (data.source === 'ai') {
@@ -270,7 +270,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
         }
       } catch (err) {
         console.error('Hybrid chat error:', err);
-        finalResponse = `⚠️ **Gak bisa connect ke Ai bro**
+        finalResponse = `⚠️ **Gak bisa connect ke Ai**
 
 Sementara itu, coba:
 • Pakai template: "Live 60 menit" atau "VT 30 detik"
