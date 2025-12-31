@@ -2825,7 +2825,7 @@ INGAT: User frustasi dengan generic advice. Berikan VALUE MAKSIMAL - specific ob
 // server/analyzers/text-formatter.ts
 function simplifyDiagnosis(text2) {
   let result = text2;
-  result = result.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, "");
+  result = result.replace(/[\u1F300-\u1F9FF]|[\u2600-\u26FF]|[\u2700-\u27BF]/g, "");
   result = result.replace(/\blo\b/gi, "Anda");
   result = result.replace(/\bLo\b/g, "Anda");
   result = result.replace(/udah/gi, "sudah");
@@ -4908,6 +4908,8 @@ ${rawAnswer}
       answerTikTok(question) {
         if (question.includes("fyp") || question.includes("viral")) {
           const fyp = TikTokKnowledge.algorithm.fyp;
+          const factor1 = fyp.rankingFactors?.[0];
+          const factor2 = fyp.rankingFactors?.[1];
           return {
             answer: `**Cara Masuk FYP TikTok:**
 
@@ -4915,13 +4917,13 @@ ${fyp.howItWorks}
 
 **Faktor Penting (urut prioritas):**
 
-1. ${fyp.rankingFactors[0].factor} (${fyp.rankingFactors[0].importance})
-   - ${fyp.rankingFactors[0].explanation}
-   - Cara improve: ${fyp.rankingFactors[0].howToImprove.join(", ")}
+1. ${factor1?.factor || "Watch Time"} (${factor1?.importance || "Critical"})
+   - ${factor1?.explanation || "Berapa lama viewer menonton"}
+   - Cara improve: ${(factor1?.howToImprove || ["Hook kuat"]).join(", ")}
 
-2. ${fyp.rankingFactors[1].factor}
-   - ${fyp.rankingFactors[1].explanation}
-   - Cara improve: ${fyp.rankingFactors[1].howToImprove.join(", ")}
+2. ${factor2?.factor || "Engagement"}
+   - ${factor2?.explanation || "Like, comment, share"}
+   - Cara improve: ${(factor2?.howToImprove || ["CTA jelas"]).join(", ")}
 
 **Quick Tip:** ${getTikTokTip("fyp")}`,
             source: "library",
@@ -5020,21 +5022,23 @@ Tanya lebih detail tentang: Reels strategy, growth tactics, engagement tips, has
       answerYouTube(question) {
         if (question.includes("thumbnail") || question.includes("ctr") || question.includes("click")) {
           const ctr = YouTubeKnowledge.algorithm.rankingFactors[0];
+          const benchmark = ctr?.benchmark || { poor: "<2%", good: "4-6%", excellent: ">8%" };
+          const optimization = ctr?.optimization || { thumbnail: [], title: [] };
           return {
             answer: `**YouTube CTR (Click-Through Rate) Optimization:**
 
-${ctr.explanation}
+${ctr?.explanation || "CTR adalah rasio klik terhadap impressi thumbnail."}
 
 **Benchmark:**
-- Poor: ${ctr.benchmark.poor}
-- Good: ${ctr.benchmark.good}
-- Excellent: ${ctr.benchmark.excellent}
+- Poor: ${benchmark.poor}
+- Good: ${benchmark.good}
+- Excellent: ${benchmark.excellent}
 
 **Thumbnail Best Practices:**
-${ctr.optimization.thumbnail.map((t) => `- ${t}`).join("\n")}
+${(optimization.thumbnail || []).map((t) => `- ${t}`).join("\n")}
 
 **Title Best Practices:**
-${ctr.optimization.title.map((t) => `- ${t}`).join("\n")}
+${(optimization.title || []).map((t) => `- ${t}`).join("\n")}
 
 **Quick Tip:** ${getYouTubeTip("ctr")}`,
             source: "library",
@@ -6668,17 +6672,141 @@ User ini baru mulai. Penyesuaian:
         };
       }
       console.log(`\u{1F5BC}\uFE0F Calling OpenAI Vision for image analysis (${mode}), size: ${(request.image.length / 1024).toFixed(0)}KB`);
-      const visionPrompt = mode === "marketing" ? `Kamu adalah BIAS Marketing Coach. Analisis gambar ini dari perspektif marketing, sales, atau presentasi. Berikan insight tentang:
-- Apa yang terlihat di gambar
-- Saran perbaikan dari sisi BIAS framework (visual, emosional, storytelling)
-- Rekomendasi actionable
+      const outputLang = request.outputLanguage || "id";
+      const langInstruction = outputLang === "en" ? "RESPOND IN ENGLISH ONLY." : "JAWAB DALAM BAHASA INDONESIA.";
+      const contextSection = request.previousImageContext ? `
+\u{1F4DD} KONTEKS SEBELUMNYA:
+${request.previousImageContext}
+` : "";
+      const tiktokVisionPrompt = `\u{1F50D} ANALISIS SCREENSHOT TIKTOK - MODE DETAIL PRO
 
-User's question: ${request.message}` : `Kamu adalah BIAS TikTok Coach. Analisis gambar ini dari perspektif content creator TikTok. Berikan insight tentang:
-- Apa yang terlihat di gambar (bisa screenshot analytics, thumbnail, atau konten)
-- Saran perbaikan dari sisi BIAS framework (visual, hook, engagement)
-- Rekomendasi actionable untuk FYP
+${langInstruction}
 
+Kamu adalah BIAS TikTok Expert dengan kemampuan OCR dan analisis mendalam.
+${contextSection}
+
+\u{1F3AF} LANGKAH 1: AUTO-DETEKSI TIPE SCREENSHOT
+Identifikasi tipe gambar ini:
+- \u{1F4F1} PROFIL: Halaman profil dengan avatar, bio, grid video
+- \u{1F4CA} ANALYTICS: Dashboard analytics dengan grafik/angka performa
+- \u{1F3AC} VIDEO: Detail satu video dengan likes/comments/shares
+- \u{1F4AC} KOMENTAR: Thread komentar
+- \u{1F50D} SEARCH/FYP: Hasil pencarian atau halaman For You
+- \u{1F4F8} THUMBNAIL: Desain thumbnail video
+- \u2699\uFE0F SETTINGS: Pengaturan akun
+
+\u{1F4CB} LANGKAH 2: EKSTRAKSI DATA LENGKAP
+BACA SEMUA teks dan angka yang terlihat. TULIS PERSIS seperti yang terlihat!
+
+**Untuk PROFIL:**
+| Data | Nilai |
+|------|-------|
+| Username | @... |
+| Display Name | ... |
+| Followers | ... |
+| Following | ... |
+| Total Likes | ... |
+| Bio | "..." |
+| Link | ... |
+| Verified | Ya/Tidak |
+
+**Video Grid (tulis SEMUA yang terlihat):**
+| No | Views | Hook/Judul di Thumbnail | Pinned? |
+|----|-------|-------------------------|---------|
+| 1 | ... | "..." | Ya/Tidak |
+| 2 | ... | "..." | Ya/Tidak |
+(lanjutkan semua video yang terlihat)
+
+**Untuk ANALYTICS:**
+- Total Views: ...
+- Avg Watch Time: ...
+- Traffic Sources: FYP ...%, Following ...%, Search ...%
+- Top Performing Content: ...
+- Audience: Gender ...%, Age ...
+
+\u{1F4CA} LANGKAH 3: BENCHMARK ANALYSIS
+
+**TikTok Benchmark Standards:**
+| Metrik | Kamu | Standar Sehat | Status |
+|--------|------|---------------|--------|
+| Likes:Followers | ? | 2:1 - 5:1 | \u2705/\u26A0\uFE0F/\u274C |
+| Views:Followers | ? | 10-30% | \u2705/\u26A0\uFE0F/\u274C |
+| Engagement Rate | ? | 3-9% | \u2705/\u26A0\uFE0F/\u274C |
+| Posting Frequency | ? | 1-3x/day | \u2705/\u26A0\uFE0F/\u274C |
+
+**Benchmark per Niche (jika teridentifikasi):**
+- Edukasi: Views 5-15% of followers, ER 5-8%
+- Entertainment: Views 15-40%, ER 8-15%
+- Lifestyle: Views 10-25%, ER 4-7%
+- Business/B2B: Views 3-10%, ER 2-5%
+
+\u{1F525} LANGKAH 4: TREND DETECTION
+Identifikasi trend dari konten yang terlihat:
+- Format video yang digunakan (talking head, POV, tutorial, etc)
+- Warna/style thumbnail yang dominan
+- Pattern hook text (pertanyaan, statement, controversy)
+- Niche/topik utama
+
+\u{1F4A1} LANGKAH 5: REKOMENDASI ACTIONABLE (SPESIFIK!)
+Berdasarkan data yang diekstrak, berikan:
+1. \u2705 Yang sudah bagus (sebutkan spesifik)
+2. \u26A0\uFE0F Yang perlu diperbaiki (dengan data)
+3. \u{1F3AF} 3-5 aksi konkret dengan contoh
+
+---
 User's question: ${request.message}`;
+      const marketingVisionPrompt = `\u{1F50D} ANALISIS GAMBAR MARKETING - MODE DETAIL PRO
+
+${langInstruction}
+
+Kamu adalah BIAS Marketing Expert dengan kemampuan OCR dan analisis mendalam.
+${contextSection}
+
+\u{1F3AF} LANGKAH 1: AUTO-DETEKSI TIPE MATERI
+Identifikasi tipe gambar:
+- \u{1F4F1} SOCIAL POST: Instagram, Facebook, LinkedIn post
+- \u{1F3A8} BANNER/AD: Iklan display, banner web
+- \u{1F4E7} EMAIL: Email marketing
+- \u{1F310} LANDING PAGE: Halaman website
+- \u{1F4CA} INFOGRAPHIC: Visualisasi data
+- \u{1F3AC} VIDEO THUMBNAIL: Thumbnail YouTube/video
+- \u{1F4C4} PRESENTATION: Slide presentasi
+
+\u{1F4CB} LANGKAH 2: EKSTRAKSI ELEMEN
+TULIS PERSIS semua teks yang terlihat!
+
+| Elemen | Konten |
+|--------|--------|
+| Headline | "..." |
+| Sub-headline | "..." |
+| Body Copy | "..." |
+| CTA Button | "..." |
+| Social Proof | "..." |
+| Price/Offer | "..." |
+
+\u{1F4CA} LANGKAH 3: BIAS FRAMEWORK SCORING
+
+| Layer | Score (1-10) | Analisis |
+|-------|--------------|----------|
+| VBM (Visual) | ? | Eye-catching? Hierarchy? |
+| EPM (Emotional) | ? | Emosi apa yang triggered? |
+| NLP (Narrative) | ? | Cerita jelas? Benefit clear? |
+| ETH (Ethics) | ? | Klaim valid? Tidak misleading? |
+
+**Benchmark Marketing:**
+- Headline: Max 10 kata, benefit-focused
+- CTA: Action verb + urgency
+- Visual: 60% image, 40% text
+- Trust: Testimonial/social proof wajib
+
+\u{1F4A1} LANGKAH 4: REKOMENDASI SPESIFIK
+1. \u2705 Yang sudah efektif
+2. \u26A0\uFE0F Yang perlu diperbaiki
+3. \u{1F3AF} 3-5 aksi konkret dengan contoh copy
+
+---
+User's question: ${request.message}`;
+      const visionPrompt = mode === "marketing" ? marketingVisionPrompt : tiktokVisionPrompt;
       try {
         completion = await openai.chat.completions.create({
           model: "gpt-4o-mini",
@@ -6692,14 +6820,14 @@ User's question: ${request.message}`;
                   type: "image_url",
                   image_url: {
                     url: request.image,
-                    detail: "low"
+                    detail: "high"
                   }
                 }
               ]
             }
           ],
           temperature: 0.7,
-          max_tokens: 1500
+          max_tokens: 2500
         });
       } catch (visionError) {
         console.error("\u{1F5BC}\uFE0F Vision API error:", visionError.message);
@@ -7338,7 +7466,9 @@ var MemStorage = class {
       status: insertContribution.status ?? "pending",
       id,
       createdAt: /* @__PURE__ */ new Date(),
-      approvedAt: null
+      approvedAt: null,
+      rejectionReason: null,
+      reviewedBy: null
     };
     this.libraryContributions.set(id, contribution);
     return contribution;
@@ -8130,6 +8260,7 @@ init_schema();
 init_bias_engine();
 import multer from "multer";
 import { randomUUID as randomUUID3, timingSafeEqual } from "crypto";
+import OpenAI4 from "openai";
 
 // server/utils/metrics.ts
 function parseMetricBigInt(value) {
@@ -9298,8 +9429,8 @@ async function registerRoutes(app2) {
       const platform = req.body.platform || "tiktok";
       const mimeType = req.file.mimetype;
       const isVideo = mimeType.startsWith("video/");
-      const OpenAI4 = (await import("openai")).default;
-      const openai = new OpenAI4({ apiKey: process.env.OPENAI_API_KEY });
+      const OpenAI5 = (await import("openai")).default;
+      const openai = new OpenAI5({ apiKey: process.env.OPENAI_API_KEY });
       const fs4 = await import("fs");
       const { analyzeBehavior: analyzeBehavior2 } = await Promise.resolve().then(() => (init_bias_engine(), bias_engine_exports));
       let transcription = "";
@@ -9621,8 +9752,8 @@ Respond in JSON:
 }
 
 Status: good (di atas rata-rata), average (normal), needs_work (perlu perbaikan)`;
-      const OpenAI4 = (await import("openai")).default;
-      const openai = new OpenAI4({ apiKey: process.env.OPENAI_API_KEY });
+      const OpenAI5 = (await import("openai")).default;
+      const openai = new OpenAI5({ apiKey: process.env.OPENAI_API_KEY });
       const visionResponse = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -10673,8 +10804,8 @@ Respond in JSON:
 }
 
 WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstrak!`;
-      const OpenAI4 = (await import("openai")).default;
-      const openai = new OpenAI4({ apiKey: process.env.OPENAI_API_KEY });
+      const OpenAI5 = (await import("openai")).default;
+      const openai = new OpenAI5({ apiKey: process.env.OPENAI_API_KEY });
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
@@ -10709,7 +10840,7 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
   });
   app2.post("/api/chat/hybrid", async (req, res) => {
     try {
-      const { message, sessionId, mode, image } = req.body;
+      const { message, sessionId, mode, image, images, outputLanguage, previousImageContext } = req.body;
       if (!message || typeof message !== "string") {
         return res.status(400).json({ error: "Message is required" });
       }
@@ -10718,15 +10849,102 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
         message,
         sessionId: sessionId || "anonymous",
         mode: mode || "home",
-        image: image || void 0
+        image: image || void 0,
+        images: images || void 0,
+        outputLanguage: outputLanguage || "id",
+        previousImageContext: previousImageContext || void 0
       });
       res.json(result);
     } catch (error) {
       console.error("[HYBRID_CHAT] Error:", error);
       res.status(500).json({
-        response: "Maaf bro, ada error. Coba lagi ya!",
+        response: "Maaf, ada error. Coba lagi ya!",
         source: "local",
         error: error.message
+      });
+    }
+  });
+  app2.post("/api/compare-images", async (req, res) => {
+    try {
+      const { images, question, mode, sessionId, outputLanguage } = req.body;
+      if (!images || !Array.isArray(images) || images.length < 2) {
+        return res.status(400).json({ error: "Minimal 2 gambar diperlukan untuk perbandingan" });
+      }
+      if (images.length > 4) {
+        return res.status(400).json({ error: "Maksimal 4 gambar untuk perbandingan" });
+      }
+      const openai = new OpenAI4({ apiKey: process.env.OPENAI_API_KEY });
+      const langInstruction = outputLanguage === "en" ? "RESPOND IN ENGLISH ONLY." : "JAWAB DALAM BAHASA INDONESIA.";
+      const comparePrompt = mode === "marketing" ? `\u{1F50D} PERBANDINGAN MATERI MARKETING
+
+${langInstruction}
+
+Analisis dan bandingkan ${images.length} gambar marketing berikut secara detail.
+
+\u{1F4CA} FORMAT ANALISIS:
+1. **Ringkasan tiap gambar** - Identifikasi elemen utama
+2. **Tabel perbandingan** - Bandingkan: Headline, CTA, Visual, Trust Signal
+3. **Pemenang & Alasan** - Mana yang paling efektif dan kenapa
+4. **Rekomendasi** - Saran konkret untuk improvement
+
+User's question: ${question || "Bandingkan semua gambar ini"}` : `\u{1F50D} PERBANDINGAN PROFIL/KONTEN TIKTOK
+
+${langInstruction}
+
+Analisis dan bandingkan ${images.length} screenshot TikTok berikut secara detail.
+
+\u{1F4CA} FORMAT ANALISIS:
+
+**1\uFE0F\u20E3 EKSTRAKSI DATA TIAP GAMBAR:**
+| Gambar | Username | Followers | Likes | Views | Highlight |
+|--------|----------|-----------|-------|-------|-----------|
+| 1 | ... | ... | ... | ... | ... |
+| 2 | ... | ... | ... | ... | ... |
+
+**2\uFE0F\u20E3 PERBANDINGAN METRIK:**
+| Metrik | Gambar 1 | Gambar 2 | Pemenang |
+|--------|----------|----------|----------|
+| Engagement | ... | ... | ... |
+| Thumbnail | ... | ... | ... |
+| Hook | ... | ... | ... |
+
+**3\uFE0F\u20E3 PEMENANG & ALASAN:**
+- Siapa yang menang secara keseluruhan?
+- Mengapa mereka lebih baik?
+
+**4\uFE0F\u20E3 REKOMENDASI:**
+- Apa yang bisa dipelajari dari pemenang?
+- Saran konkret untuk improvement
+
+User's question: ${question || "Bandingkan semua profil/konten ini"}`;
+      const messageContent = [{ type: "text", text: comparePrompt }];
+      for (const img of images) {
+        if (img.startsWith("data:image/")) {
+          messageContent.push({
+            type: "image_url",
+            image_url: { url: img, detail: "high" }
+          });
+        }
+      }
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "user", content: messageContent }
+        ],
+        temperature: 0.7,
+        max_tokens: 3e3
+      });
+      const response = completion.choices[0]?.message?.content || "Gagal membandingkan gambar.";
+      res.json({
+        response,
+        source: "ai",
+        imagesCompared: images.length
+      });
+    } catch (error) {
+      console.error("[COMPARE_IMAGES] Error:", error);
+      res.status(500).json({
+        error: "Comparison failed",
+        message: "Gagal membandingkan gambar. Coba lagi."
       });
     }
   });
