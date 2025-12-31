@@ -439,7 +439,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
           )}
 
           {/* Input Area */}
-          <div className="flex gap-2 items-end">
+          <div className="flex gap-1.5 sm:gap-2 items-end">
             {/* Hidden file inputs */}
             <input
               ref={fileInputRef}
@@ -457,36 +457,33 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
               className="hidden"
             />
 
-            {/* Image upload buttons */}
+            {/* Image upload buttons - smaller on mobile */}
             <div className="flex gap-1">
               <button
                 onClick={() => cameraInputRef.current?.click()}
-                className="h-11 w-11 rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors"
+                className="h-9 w-9 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
                 title={t('Take photo', 'Ambil foto')}
               >
                 <Camera className="w-4 h-4 text-gray-400" />
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="h-11 w-11 rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors"
+                className="h-9 w-9 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
                 title={t('Upload image', 'Upload gambar')}
               >
                 <Image className="w-4 h-4 text-gray-400" />
               </button>
             </div>
 
-            <div className="flex-1 relative">
+            <div className="flex-1 min-w-0">
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onPaste={handlePaste}
-                placeholder={mode === 'tiktok' 
-                  ? t('Ask or paste image (Ctrl+V)...', 'Tanya atau paste gambar (Ctrl+V)...')
-                  : t('Ask or paste image (Ctrl+V)...', 'Tanya atau paste gambar (Ctrl+V)...')
-                }
-                className={`w-full bg-[#1E1E1E] border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 resize-none min-h-[44px] max-h-[120px] ${
+                placeholder={t('Ask...', 'Tanya...')}
+                className={`w-full bg-[#1E1E1E] border border-gray-700 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 resize-none min-h-[36px] sm:min-h-[44px] max-h-[120px] ${
                   mode === 'tiktok' 
                     ? 'focus:ring-pink-500/50 focus:border-pink-500'
                     : 'focus:ring-purple-500/50 focus:border-purple-500'
@@ -498,7 +495,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
               onClick={handleSend}
               disabled={(!input.trim() && !imagePreview) || isTyping}
               size="sm"
-              className={`rounded-xl h-11 w-11 p-0 ${
+              className={`rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-11 p-0 flex-shrink-0 ${
                 mode === 'tiktok'
                   ? 'bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600'
                   : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'

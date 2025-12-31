@@ -473,7 +473,7 @@ Atau refresh dan coba lagi! 🔄`;
           </div>
         )}
 
-        <div className="flex gap-2 items-end">
+        <div className="flex gap-1.5 sm:gap-2 items-end">
           {/* Hidden file inputs */}
           <input
             ref={fileInputRef}
@@ -491,41 +491,41 @@ Atau refresh dan coba lagi! 🔄`;
             className="hidden"
           />
 
-          {/* Image upload buttons */}
+          {/* Image upload buttons - smaller on mobile */}
           <div className="flex gap-1">
             <button
               onClick={() => cameraInputRef.current?.click()}
-              className="h-10 w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
               title={t('Take photo', 'Ambil foto')}
             >
               <Camera className="w-4 h-4 text-gray-400" />
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="h-10 w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
               title={t('Upload image', 'Upload gambar')}
             >
               <Image className="w-4 h-4 text-gray-400" />
             </button>
           </div>
 
-          <div className="flex-1 relative">
+          <div className="flex-1 min-w-0">
             <textarea
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              placeholder={t('Ask or paste image (Ctrl+V)...', 'Tanya atau paste gambar (Ctrl+V)...')}
+              placeholder={t('Ask...', 'Tanya...')}
               className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 resize-none text-xs transition-colors"
               rows={1}
-              style={{ minHeight: '40px', maxHeight: '100px' }}
+              style={{ minHeight: '36px', maxHeight: '100px' }}
             />
           </div>
           <button
             onClick={handleSend}
             disabled={(!input.trim() && !imagePreview) || isTyping}
-            className="h-10 w-10 rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors flex-shrink-0"
           >
             <Send className="w-4 h-4 text-white" />
           </button>
