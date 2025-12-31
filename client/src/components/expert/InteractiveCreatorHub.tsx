@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, Camera, Image, X } from 'lucide-react';
+import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, Camera, Image, X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -50,6 +50,37 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
     setContext({});
     setImagePreview(null);
     setIsMinimized(false);
+  };
+
+  // Export chat to text file
+  const handleExportChat = () => {
+    if (messages.length === 0) return;
+    
+    try {
+      const exportContent = messages.map(m => {
+        const role = m.type === 'user' ? 'USER' : 'BIAS AI';
+        const time = m.timestamp.toLocaleString('id-ID');
+        return `[${time}] ${role}:\n${m.content}\n`;
+      }).join('\n---\n\n');
+      
+      const header = `BIAS Pro - ${mode === 'tiktok' ? 'TikTok' : 'Marketing'} Creator Hub Chat Export\n`;
+      const date = `Exported: ${new Date().toLocaleString('id-ID')}\n`;
+      const divider = '='.repeat(50) + '\n\n';
+      
+      const fullContent = header + date + divider + exportContent;
+      
+      const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bias-chat-${mode}-${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export error:', err);
+    }
   };
 
   // Handle image from file input or camera
@@ -340,6 +371,15 @@ Atau refresh dan coba lagi! 🔄`;
         
         {/* Chat Controls */}
         <div className="flex items-center gap-1">
+          {messages.length > 0 && (
+            <button
+              onClick={handleExportChat}
+              className="p-1.5 hover:bg-gray-800 rounded transition-colors"
+              title={t('Export Chat', 'Export Chat')}
+            >
+              <Download className="w-4 h-4 text-gray-400 hover:text-green-400" />
+            </button>
+          )}
           <button
             onClick={() => setIsMinimized(!isMinimized)}
             className="p-1.5 hover:bg-gray-800 rounded transition-colors"

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, MessageCircle, Camera, Image, X } from 'lucide-react';
+import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, MessageCircle, Camera, Image, X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -285,6 +285,39 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
   const quickSuggestions = getQuickSuggestions();
   const themeColor = mode === 'tiktok' ? 'pink' : 'purple';
 
+  // Export chat to PDF (simple text export)
+  const handleExportPDF = async () => {
+    if (messages.length === 0) return;
+    
+    try {
+      // Create simple text content for export
+      const exportContent = messages.map(m => {
+        const role = m.type === 'user' ? 'USER' : 'BIAS AI';
+        const time = m.timestamp.toLocaleString('id-ID');
+        return `[${time}] ${role}:\n${m.content}\n`;
+      }).join('\n---\n\n');
+      
+      const header = `BIAS Pro - ${mode === 'tiktok' ? 'TikTok' : 'Marketing'} Analysis Chat Export\n`;
+      const date = `Exported: ${new Date().toLocaleString('id-ID')}\n`;
+      const divider = '='.repeat(50) + '\n\n';
+      
+      const fullContent = header + date + divider + exportContent;
+      
+      // Create blob and download
+      const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bias-chat-export-${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export error:', err);
+    }
+  };
+
   return (
     <Card className="bg-[#141414] border-gray-800 mt-6">
       <CardHeader className="pb-3">
@@ -302,6 +335,15 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
           </CardTitle>
           
           <div className="flex items-center gap-1">
+            {messages.length > 0 && (
+              <button
+                onClick={handleExportPDF}
+                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                title={t('Export Chat', 'Export Chat')}
+              >
+                <Download className="w-4 h-4 text-gray-400 hover:text-green-400" />
+              </button>
+            )}
             <button
               onClick={() => setIsMinimized(!isMinimized)}
               className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"

@@ -5,6 +5,7 @@ import { db } from "../db";
 import { appSettings } from "@shared/schema";
 import multer from "multer";
 import { randomUUID, timingSafeEqual } from "crypto";
+import OpenAI from "openai";
 import { 
   analyzeBehavior, 
   generateChatResponse, 
@@ -2136,7 +2137,7 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
   
   app.post("/api/chat/hybrid", async (req, res) => {
     try {
-      const { message, sessionId, mode, image } = req.body;
+      const { message, sessionId, mode, image, images, outputLanguage, previousImageContext } = req.body;
       
       if (!message || typeof message !== 'string') {
         return res.status(400).json({ error: 'Message is required' });
@@ -2148,6 +2149,9 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
         sessionId: sessionId || 'anonymous',
         mode: mode || 'home',
         image: image || undefined,
+        images: images || undefined,
+        outputLanguage: outputLanguage || 'id',
+        previousImageContext: previousImageContext || undefined,
       });
       
       res.json(result);
@@ -2157,6 +2161,106 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
         response: 'Maaf, ada error. Coba lagi ya!',
         source: 'local',
         error: error.message 
+      });
+    }
+  });
+
+  // Multi-image comparison endpoint
+  app.post("/api/compare-images", async (req, res) => {
+    try {
+      const { images, question, mode, sessionId, outputLanguage } = req.body;
+      
+      if (!images || !Array.isArray(images) || images.length < 2) {
+        return res.status(400).json({ error: 'Minimal 2 gambar diperlukan untuk perbandingan' });
+      }
+      
+      if (images.length > 4) {
+        return res.status(400).json({ error: 'Maksimal 4 gambar untuk perbandingan' });
+      }
+      
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      
+      const langInstruction = outputLanguage === 'en' 
+        ? 'RESPOND IN ENGLISH ONLY.' 
+        : 'JAWAB DALAM BAHASA INDONESIA.';
+      
+      const comparePrompt = mode === 'marketing' 
+        ? `🔍 PERBANDINGAN MATERI MARKETING
+
+${langInstruction}
+
+Analisis dan bandingkan ${images.length} gambar marketing berikut secara detail.
+
+📊 FORMAT ANALISIS:
+1. **Ringkasan tiap gambar** - Identifikasi elemen utama
+2. **Tabel perbandingan** - Bandingkan: Headline, CTA, Visual, Trust Signal
+3. **Pemenang & Alasan** - Mana yang paling efektif dan kenapa
+4. **Rekomendasi** - Saran konkret untuk improvement
+
+User's question: ${question || 'Bandingkan semua gambar ini'}`
+        : `🔍 PERBANDINGAN PROFIL/KONTEN TIKTOK
+
+${langInstruction}
+
+Analisis dan bandingkan ${images.length} screenshot TikTok berikut secara detail.
+
+📊 FORMAT ANALISIS:
+
+**1️⃣ EKSTRAKSI DATA TIAP GAMBAR:**
+| Gambar | Username | Followers | Likes | Views | Highlight |
+|--------|----------|-----------|-------|-------|-----------|
+| 1 | ... | ... | ... | ... | ... |
+| 2 | ... | ... | ... | ... | ... |
+
+**2️⃣ PERBANDINGAN METRIK:**
+| Metrik | Gambar 1 | Gambar 2 | Pemenang |
+|--------|----------|----------|----------|
+| Engagement | ... | ... | ... |
+| Thumbnail | ... | ... | ... |
+| Hook | ... | ... | ... |
+
+**3️⃣ PEMENANG & ALASAN:**
+- Siapa yang menang secara keseluruhan?
+- Mengapa mereka lebih baik?
+
+**4️⃣ REKOMENDASI:**
+- Apa yang bisa dipelajari dari pemenang?
+- Saran konkret untuk improvement
+
+User's question: ${question || 'Bandingkan semua profil/konten ini'}`;
+
+      // Build message content with all images
+      const messageContent: any[] = [{ type: 'text', text: comparePrompt }];
+      for (const img of images) {
+        if (img.startsWith('data:image/')) {
+          messageContent.push({
+            type: 'image_url',
+            image_url: { url: img, detail: 'high' }
+          });
+        }
+      }
+      
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'user', content: messageContent }
+        ],
+        temperature: 0.7,
+        max_tokens: 3000,
+      });
+      
+      const response = completion.choices[0]?.message?.content || 'Gagal membandingkan gambar.';
+      
+      res.json({
+        response,
+        source: 'ai',
+        imagesCompared: images.length,
+      });
+    } catch (error: any) {
+      console.error('[COMPARE_IMAGES] Error:', error);
+      res.status(500).json({ 
+        error: 'Comparison failed',
+        message: 'Gagal membandingkan gambar. Coba lagi.',
       });
     }
   });
