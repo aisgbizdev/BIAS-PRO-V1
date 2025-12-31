@@ -5,7 +5,7 @@ import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info, Settings } from 'lucide-react';
+import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info, Settings, ArrowLeft } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
@@ -37,6 +37,16 @@ export function BiasHeader() {
   }, []);
   
   const remaining = Math.max(0, dailyLimit - usageToday);
+  
+  const isHomePage = location === '/' || location === '';
+  
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = '/';
+    }
+  };
 
   const menuItems = [
     { href: '/', icon: Home, label: t('Home', 'Beranda') },
@@ -49,13 +59,27 @@ export function BiasHeader() {
   return (
     <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 safe-area-top">
       <div className="flex h-16 items-center justify-between px-3 md:px-6 gap-2 md:gap-4">
-        {/* Mobile Menu (Hamburger) */}
-        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="md:hidden h-8 w-8 px-0">
-              <Menu className="h-5 w-5" />
+        {/* Back Button + Mobile Menu */}
+        <div className="flex items-center gap-1">
+          {!isHomePage && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-9 w-9 sm:h-8 sm:w-auto sm:px-3 px-0"
+              onClick={handleBack}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">{t('Back', 'Kembali')}</span>
             </Button>
-          </SheetTrigger>
+          )}
+          
+          {/* Mobile Menu (Hamburger) */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="md:hidden h-9 w-9 px-0">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
           <SheetContent side="left" className="w-[280px] sm:w-[320px]">
             <div className="flex flex-col gap-2 mt-4">
               {menuItems.map((item) => {
@@ -124,6 +148,7 @@ export function BiasHeader() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
 
         {/* Logo + Brand Name - Clickable to Home */}
         <Link href="/">
