@@ -12,7 +12,7 @@
 export function simplifyDiagnosis(text: string): string {
   // Step 1: Remove ALL emoji (NO emoji allowed per user requirement)
   let result = text;
-  result = result.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
+  result = result.replace(/[\u1F300-\u1F9FF]|[\u2600-\u26FF]|[\u2700-\u27BF]/g, '');
   
   // Step 2: Replace "lo" with formal alternatives
   result = result.replace(/\blo\b/gi, 'Anda');
