@@ -496,19 +496,93 @@ User ini baru mulai. Penyesuaian:
       
       console.log(`🖼️ Calling OpenAI Vision for image analysis (${mode}), size: ${(request.image.length / 1024).toFixed(0)}KB`);
       
-      const visionPrompt = mode === 'marketing' 
-        ? `Kamu adalah BIAS Marketing Coach. Analisis gambar ini dari perspektif marketing, sales, atau presentasi. Berikan insight tentang:
-- Apa yang terlihat di gambar
-- Saran perbaikan dari sisi BIAS framework (visual, emosional, storytelling)
-- Rekomendasi actionable
+      // Detailed TikTok screenshot analysis prompt
+      const tiktokVisionPrompt = `🔍 ANALISIS SCREENSHOT TIKTOK - MODE DETAIL
 
-User's question: ${request.message}`
-        : `Kamu adalah BIAS TikTok Coach. Analisis gambar ini dari perspektif content creator TikTok. Berikan insight tentang:
-- Apa yang terlihat di gambar (bisa screenshot analytics, thumbnail, atau konten)
-- Saran perbaikan dari sisi BIAS framework (visual, hook, engagement)
-- Rekomendasi actionable untuk FYP
+Kamu adalah BIAS TikTok Expert dengan kemampuan membaca dan menganalisis screenshot TikTok secara menyeluruh.
 
+📋 TUGAS UTAMA:
+BACA dan EKSTRAK semua data yang terlihat di gambar ini dengan TELITI. Jangan asumsikan - hanya laporkan apa yang BENAR-BENAR terlihat.
+
+📊 EKSTRAKSI DATA (sebutkan semua yang terlihat):
+
+1️⃣ **PROFIL INFO** (jika terlihat):
+   - Username & display name
+   - Jumlah Followers, Following, Likes
+   - Bio/deskripsi profil
+   - Link di bio
+   - Status verified (centang biru)
+
+2️⃣ **VIDEO/KONTEN** (jika terlihat):
+   - Jumlah views per video (sebutkan angka spesifik!)
+   - Judul/hook text di thumbnail
+   - Thumbnail design (warna, teks, gambar)
+   - Jumlah video yang dipinned
+   - Pattern posting (konsistensi thumbnail, branding)
+
+3️⃣ **ANALYTICS** (jika screenshot analytics):
+   - Views, likes, comments, shares
+   - Watch time / retention
+   - Traffic sources
+   - Audience demographics
+
+4️⃣ **BENCHMARK & EVALUASI**:
+   Setelah ekstraksi data, berikan:
+   - Rasio followers:likes (normal: 1:2-1:5)
+   - Rasio views:followers (sehat: 10-30%)
+   - Konsistensi thumbnail branding
+   - Hook text effectiveness
+   - Pinned video strategy
+
+5️⃣ **REKOMENDASI ACTIONABLE**:
+   Berikan 3-5 saran SPESIFIK berdasarkan data yang terlihat, bukan saran generik!
+
+FORMAT: Gunakan tabel untuk data numerik, emoji untuk visual, dan bullet points untuk saran.
+
+---
 User's question: ${request.message}`;
+
+      const marketingVisionPrompt = `🔍 ANALISIS GAMBAR MARKETING - MODE DETAIL
+
+Kamu adalah BIAS Marketing Expert dengan kemampuan menganalisis materi marketing secara menyeluruh.
+
+📋 TUGAS UTAMA:
+BACA dan EKSTRAK semua elemen yang terlihat di gambar ini dengan TELITI.
+
+📊 EKSTRAKSI DATA:
+
+1️⃣ **VISUAL ELEMENTS**:
+   - Headline/judul utama (tulis persis)
+   - Sub-headline
+   - Body copy/text
+   - Call-to-action (CTA)
+   - Images/graphics
+
+2️⃣ **DESIGN ANALYSIS**:
+   - Color scheme
+   - Typography
+   - Layout/composition
+   - Brand elements
+
+3️⃣ **PERSUASION ELEMENTS**:
+   - Emotional triggers
+   - Social proof
+   - Urgency/scarcity
+   - Value proposition
+
+4️⃣ **BIAS FRAMEWORK EVALUATION**:
+   - VBM (Visual Behavior): Eye-catching? Clear hierarchy?
+   - EPM (Emotional): What emotions triggered?
+   - NLP (Narrative): Is the story clear?
+   - ETH (Ethics): Any misleading claims?
+
+5️⃣ **REKOMENDASI ACTIONABLE**:
+   Berikan 3-5 saran SPESIFIK berdasarkan apa yang terlihat!
+
+---
+User's question: ${request.message}`;
+
+      const visionPrompt = mode === 'marketing' ? marketingVisionPrompt : tiktokVisionPrompt;
 
       try {
         completion = await openai.chat.completions.create({
@@ -523,14 +597,14 @@ User's question: ${request.message}`;
                   type: 'image_url', 
                   image_url: { 
                     url: request.image,
-                    detail: 'low' 
+                    detail: 'high' 
                   } 
                 }
               ]
             }
           ],
           temperature: 0.7,
-          max_tokens: 1500,
+          max_tokens: 2500,
         });
       } catch (visionError: any) {
         console.error('🖼️ Vision API error:', visionError.message);
