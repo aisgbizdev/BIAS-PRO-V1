@@ -21,16 +21,15 @@ export interface TikTokScrapedProfile {
  * BIAS TikTok Analyzer API (render.com) - Primary method
  * Uses our own hosted scraper service
  */
-async function tryBiasAnalyzerApi(username: string): Promise<TikTokScrapedProfile | null> {
+async function tryBiasAnalyzerApi(username: string, retryCount = 0): Promise<TikTokScrapedProfile | null> {
   try {
-    // Remove @ if present
     const cleanUsername = username.replace('@', '');
     const apiUrl = `https://bias-tiktok-analyzer.onrender.com/api/tiktok/${cleanUsername}`;
     
-    console.log(`[TikTok Scraper] Calling BIAS Analyzer API: ${apiUrl}`);
+    console.log(`[TikTok Scraper] Calling BIAS Analyzer API: ${apiUrl} (attempt ${retryCount + 1})`);
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for render cold start
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout for render cold start
     
     const response = await fetch(apiUrl, {
       signal: controller.signal,
@@ -67,7 +66,11 @@ async function tryBiasAnalyzerApi(username: string): Promise<TikTokScrapedProfil
     return null;
   } catch (error: any) {
     if (error.name === 'AbortError') {
-      console.log('[TikTok Scraper] BIAS API timeout (cold start?) - will retry');
+      console.log('[TikTok Scraper] BIAS API timeout (cold start?)');
+      if (retryCount < 1) {
+        console.log('[TikTok Scraper] Retrying BIAS API...');
+        return tryBiasAnalyzerApi(username, retryCount + 1);
+      }
     } else {
       console.log('[TikTok Scraper] BIAS API failed:', error.message);
     }

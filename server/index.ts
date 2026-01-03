@@ -7,6 +7,21 @@ import { initializeDefaultSettings } from "./init-settings";
 import { loadSettingsFromDatabase } from "./utils/ai-rate-limiter";
 import { cleanupOldUnapprovedResponses } from "./utils/learning-system";
 
+async function prewarmBiasApi() {
+  try {
+    console.log('[Prewarm] Waking up BIAS TikTok API...');
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 10000);
+    await fetch('https://bias-tiktok-analyzer.onrender.com/health', {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'BiAS-Pro-Replit/1.0' }
+    }).catch(() => {});
+    console.log('[Prewarm] BIAS API ping sent');
+  } catch (e) {
+    console.log('[Prewarm] BIAS API prewarm skipped');
+  }
+}
+
 const app = express();
 
 // Parse cookies
@@ -67,6 +82,9 @@ app.use((req, res, next) => {
   
   // Cleanup old unapproved AI responses (>30 days)
   await cleanupOldUnapprovedResponses();
+  
+  // Prewarm external APIs (non-blocking)
+  prewarmBiasApi();
   
   const server = await registerRoutes(app);
 
