@@ -18,11 +18,12 @@ declare module 'http' {
   }
 }
 app.use(express.json({
+  limit: '20mb',
   verify: (req, _res, buf) => {
     req.rawBody = buf;
   }
 }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: '20mb' }));
 
 // Serve static files from public folder (for service-worker.js, manifest.json, icons, etc.)
 app.use(express.static("public"));
