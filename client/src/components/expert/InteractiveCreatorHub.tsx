@@ -231,6 +231,12 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
     // Short delay for natural feel
     await new Promise(resolve => setTimeout(resolve, 300));
 
+    // Build conversation history for context continuity
+    const conversationHistory = messages.map(msg => ({
+      role: msg.type as 'user' | 'assistant',
+      content: msg.content
+    }));
+
     // If image is present, skip local and go straight to AI
     if (currentImage) {
       try {
@@ -245,6 +251,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
             image: currentImage,
             outputLanguage: language === 'en' ? 'en' : 'id', // Bilingual toggle
             previousImageContext: lastImageContext || undefined, // Follow-up context
+            conversationHistory, // Send full conversation history
           }),
         });
         
@@ -295,7 +302,12 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
         const res = await fetch('/api/chat/hybrid', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userInput, sessionId, mode: mode === 'marketing' ? 'marketing' : 'expert' }),
+          body: JSON.stringify({ 
+            message: userInput, 
+            sessionId, 
+            mode: mode === 'marketing' ? 'marketing' : 'expert',
+            conversationHistory, // Send full conversation history for context
+          }),
         });
         
         const data = await res.json();

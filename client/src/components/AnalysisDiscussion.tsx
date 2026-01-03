@@ -219,10 +219,17 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
       const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
       const analysisContextStr = getAnalysisContext();
       
-      // Include analysis context in the message
-      const messageWithContext = analysisContextStr 
+      // Include analysis context in the first message only, or when messages are empty
+      const isFirstMessage = messages.length === 0;
+      const messageWithContext = isFirstMessage && analysisContextStr 
         ? `${userInput}\n\n[CONTEXT: User is asking about their analysis result]\n${analysisContextStr}`
         : userInput || t('Please analyze this image', 'Tolong analisis gambar ini');
+
+      // Build conversation history from existing messages (for context continuity)
+      const conversationHistory = messages.map(msg => ({
+        role: msg.type as 'user' | 'assistant',
+        content: msg.content
+      }));
 
       const res = await fetch('/api/chat/hybrid', {
         method: 'POST',
@@ -234,6 +241,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
           image: currentImage || undefined,
           outputLanguage: language === 'en' ? 'en' : 'id', // Bilingual toggle based on current language
           previousImageContext: lastImageContext || undefined, // Pass previous image context for follow-up
+          conversationHistory, // Send full conversation history for context
         }),
       });
       

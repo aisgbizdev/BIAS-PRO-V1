@@ -4,6 +4,11 @@ import { checkRateLimit, recordUsage } from '../utils/ai-rate-limiter';
 import { findSimilarResponse, saveLearnedResponse } from '../utils/learning-system';
 import { getRelevantKnowledge } from './knowledge-loader';
 
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 interface ChatRequest {
   message: string;
   sessionId?: string;
@@ -12,6 +17,7 @@ interface ChatRequest {
   images?: string[]; // Multiple images for comparison
   outputLanguage?: 'id' | 'en'; // Preferred output language
   previousImageContext?: string; // Context from previous image analysis
+  conversationHistory?: ConversationMessage[]; // Full conversation history for context
 }
 
 interface ChatResponse {
@@ -676,19 +682,58 @@ User's question: ${request.message}`;
         };
       }
     } else {
-      // STEP 4B: Text-only chat
+      // STEP 4B: Text-only chat with conversation history
       console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
+      
+      // Build conversation history for context continuity
+      const conversationMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+        { role: 'system', content: fullPrompt },
+        { 
+          role: 'system', 
+          content: `📚 KNOWLEDGE BASE (gunakan untuk menjawab dengan akurat):\n\n${relevantKnowledge}` 
+        },
+        {
+          role: 'system',
+          content: `🔄 ATURAN PERCAKAPAN KONSULTAN:
+Kamu adalah konsultan yang sedang berdiskusi dengan klien. WAJIB ikuti aturan ini:
+
+1. **INGAT KONTEKS** - Selalu merujuk ke pertanyaan/jawaban sebelumnya. Jangan jawab seolah-olah ini pertanyaan baru.
+2. **BANGUN DARI SEBELUMNYA** - Kalau user bertanya follow-up, jawab dengan "Berdasarkan yang kita bahas tadi...", "Melanjutkan dari analisis sebelumnya..."
+3. **KONSISTEN** - Jangan kontradiksi jawaban sebelumnya. Kalau sebelumnya bilang engagement bagus, jangan tiba-tiba bilang jelek.
+4. **PROGRESIF** - Setiap jawaban harus maju, bukan mengulang. Kalau sudah jelaskan X, jangan ulang X di jawaban berikutnya.
+5. **REFERENSI SPESIFIK** - Sebut data/angka spesifik dari konteks sebelumnya, bukan generik.
+6. **ALUR NATURAL** - Jawab seperti konsultan yang sudah kenal klien, bukan robot yang baru ketemu.
+
+Contoh flow yang BENAR:
+- User: "Gimana engagement saya?" → Kamu jelaskan detail
+- User: "Terus gimana cara naikkannya?" → "Nah, tadi kan engagement kamu 247%... untuk naikkan, strateginya..."
+- User: "Yang paling prioritas apa?" → "Dari 3 strategi tadi, yang paling urgent adalah..."
+
+Contoh yang SALAH:
+- User bertanya follow-up, kamu mulai dari awal seolah tidak pernah diskusi sebelumnya.`
+        }
+      ];
+      
+      // Add conversation history from previous exchanges
+      if (request.conversationHistory && request.conversationHistory.length > 0) {
+        // Limit to last 10 exchanges to avoid token overflow
+        const recentHistory = request.conversationHistory.slice(-20);
+        console.log(`📜 Including ${recentHistory.length} messages from conversation history`);
+        
+        for (const msg of recentHistory) {
+          conversationMessages.push({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          });
+        }
+      }
+      
+      // Add current message
+      conversationMessages.push({ role: 'user', content: request.message });
       
       completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: fullPrompt },
-          { 
-            role: 'system', 
-            content: `📚 KNOWLEDGE BASE (gunakan untuk menjawab dengan akurat):\n\n${relevantKnowledge}` 
-          },
-          { role: 'user', content: request.message }
-        ],
+        messages: conversationMessages,
         temperature: 0.7,
         max_tokens: mode === 'expert' ? 2000 : 1500,
       });
