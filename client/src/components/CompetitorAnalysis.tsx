@@ -288,33 +288,52 @@ export function CompetitorAnalysis() {
     
     const userMessage = { id: Date.now().toString(), type: 'user' as const, content: discussionInput };
     setDiscussionMessages(prev => [...prev, userMessage]);
+    const userInput = discussionInput;
     setDiscussionInput('');
     setIsTyping(true);
 
     try {
-      const context = `
+      // Build context for first message only
+      const isFirstMessage = discussionMessages.length === 0;
+      const context = isFirstMessage ? `
 Hasil Perbandingan Akun TikTok:
 - Pemenang: @${results.winner}
 - Akun: ${results.accounts.map(a => `@${a.username} (${formatNumber(a.followers)} followers, ${a.engagementRate.toFixed(1)}% engagement)`).join(', ')}
 - Insights: ${results.insights.join('; ')}
-      `;
+      ` : '';
 
-      const response = await fetch('/api/chat', {
+      // Build conversation history for context continuity
+      const conversationHistory = discussionMessages.map(msg => ({
+        role: msg.type as 'user' | 'assistant',
+        content: msg.content
+      }));
+
+      const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
+      const response = await fetch('/api/chat/hybrid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: discussionInput,
-          context: context,
-          mode: 'tiktok',
-          analysisType: 'comparison'
+          message: isFirstMessage ? `${userInput}\n\n[CONTEXT: Competitor Analysis]\n${context}` : userInput,
+          sessionId,
+          mode: 'expert',
+          conversationHistory, // Send full conversation history for context
         })
       });
 
       const data = await response.json();
+      let finalResponse = data.response || t('Sorry, could not get a response.', 'Maaf, tidak bisa mendapatkan respon.');
+      
+      // Add source indicator
+      if (data.source === 'ai') {
+        finalResponse += '\n\n---\n*✨ Fresh from BIAS Brain*';
+      } else if (data.source === 'local' && !finalResponse.includes('⚠️')) {
+        finalResponse += '\n\n---\n*📚 Dari Learning Library*';
+      }
+      
       const assistantMessage = { 
         id: (Date.now() + 1).toString(), 
         type: 'assistant' as const, 
-        content: data.response || t('Sorry, could not get a response.', 'Maaf, tidak bisa mendapatkan respon.')
+        content: finalResponse
       };
       setDiscussionMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
