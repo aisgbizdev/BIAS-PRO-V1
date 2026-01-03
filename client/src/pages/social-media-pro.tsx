@@ -747,26 +747,16 @@ export default function SocialMediaPro() {
               </div>
               
               {/* Discussion Chat Box for Account Analysis */}
-              <Card className="border-pink-500/20 bg-[#141414]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <MessageSquare className="w-5 h-5 text-pink-500" />
-                    {t('Discuss Your Results', 'Diskusikan Hasilmu')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <AnalysisDiscussion
-                    analysisType="account"
-                    analysisContext={`TikTok Account Analysis for @${username}:
+              <AnalysisDiscussion
+                analysisType="account"
+                analysisContext={`TikTok Account Analysis for @${username}:
 - Followers: ${followersDisplay}
 - Total Likes: ${likesDisplay}
 - Videos: ${videosDisplay}
 - Engagement Rate: ${engagementRate}%
 - Likes per Video: ${formatMetric(likesPerVideo)}`}
-                    mode="tiktok"
-                  />
-                </CardContent>
-              </Card>
+                mode="tiktok"
+              />
             </>
           );
         })()}
