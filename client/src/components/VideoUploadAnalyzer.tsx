@@ -15,7 +15,6 @@ import { SiTiktok } from 'react-icons/si';
 import { apiRequest } from '@/lib/queryClient';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { AnalysisResults } from '@/components/AnalysisResults';
-import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { trackFeatureUsage } from '@/lib/analytics';
 import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 
@@ -492,12 +491,6 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             </div>
           ))}
           
-          {/* Discussion Chat Box - After All Results */}
-          <AnalysisDiscussion 
-            analysisResult={analysisResults[0]} 
-            mode={selectedPlatform === 'tiktok' ? 'tiktok' : 'marketing'} 
-            analysisType="video" 
-          />
         </div>
       )}
     </div>

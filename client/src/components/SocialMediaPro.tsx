@@ -557,17 +557,9 @@ export function SocialMediaPro() {
                   )}
 
                   {/* Discussion Chat */}
-                  <Card className="border-pink-500/20 mt-6">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <MessageSquare className="w-5 h-5 text-pink-500" />
-                        {t('Discuss Your Results', 'Diskusikan Hasilmu')}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <AnalysisDiscussion
-                        analysisType="account"
-                        analysisContext={`TikTok Account Analysis for @${accountData.username || 'user'}:
+                  <AnalysisDiscussion
+                    analysisType="account"
+                    analysisContext={`TikTok Account Analysis for @${accountData.username || 'user'}:
 - Overall Score: ${accountAnalysis.overallScore}/10
 - Followers: ${accountData.followers?.toLocaleString() || 'N/A'}
 - Total Likes: ${accountData.totalLikes?.toLocaleString() || 'N/A'}
@@ -580,10 +572,8 @@ ${Object.entries(accountAnalysis.biasLayers).map(([layer, data]) => `- ${layer}:
 Strengths: ${accountAnalysis.strengths.join(', ')}
 Weaknesses: ${accountAnalysis.weaknesses.join(', ')}
 Recommendations: ${accountAnalysis.recommendations.join(', ')}`}
-                        mode="tiktok"
-                      />
-                    </CardContent>
-                  </Card>
+                    mode="tiktok"
+                  />
                 </div>
               )}
             </CardContent>

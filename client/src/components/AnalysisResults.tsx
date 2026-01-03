@@ -383,21 +383,11 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
       )}
 
       {/* Discussion Chat */}
-      <Card className="border-pink-500/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-pink-500" />
-            {t('Discuss Your Results', 'Diskusikan Hasilmu')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AnalysisDiscussion
-            analysisResult={result}
-            analysisType="text"
-            mode={mode}
-          />
-        </CardContent>
-      </Card>
+      <AnalysisDiscussion
+        analysisResult={result}
+        analysisType="video"
+        mode={mode}
+      />
     </div>
   );
 }

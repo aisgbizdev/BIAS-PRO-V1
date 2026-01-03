@@ -446,17 +446,9 @@ export function ScreenshotAnalyticsPanel() {
           </Card>
 
           {/* Discussion Chat */}
-          <Card className="border-pink-500/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg text-white">
-                <MessageSquare className="w-5 h-5 text-pink-500" />
-                {t('Discuss Your Results', 'Diskusikan Hasilmu')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AnalysisDiscussion
-                analysisType="screenshot"
-                analysisContext={`TikTok Screenshot Analysis:
+          <AnalysisDiscussion
+            analysisType="screenshot"
+            analysisContext={`TikTok Screenshot Analysis:
 - Overall Score: ${analysisResult.overallScore}/100
 - Screenshot Type: ${selectedGuide}
 
@@ -465,10 +457,8 @@ ${analysisResult.metrics.map(m => `- ${m.name}: ${m.value} (${m.status}) - ${m.i
 
 Recommendations:
 ${analysisResult.recommendations.join('\n')}`}
-                mode="tiktok"
-              />
-            </CardContent>
-          </Card>
+            mode="tiktok"
+          />
 
           <div className="flex justify-center">
             <Button variant="outline" onClick={clearUpload}>
