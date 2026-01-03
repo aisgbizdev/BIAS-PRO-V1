@@ -666,9 +666,12 @@ User's question: ${request.message}`;
           max_tokens: 2500,
         });
       } catch (visionError: any) {
-        console.error('🖼️ Vision API error:', visionError.message);
+        console.error('🖼️ Vision API error:', visionError);
+        console.error('🖼️ Vision API error message:', visionError.message);
+        console.error('🖼️ Vision API error status:', visionError.status);
+        console.error('🖼️ Vision API error code:', visionError.code);
         return {
-          response: `⚠️ Gagal menganalisis gambar: ${visionError.message?.slice(0, 100) || 'Unknown error'}. Coba gambar lain atau tanya tanpa gambar.`,
+          response: `⚠️ Gagal menganalisis gambar: ${visionError.message?.slice(0, 200) || 'Unknown error'}. Coba gambar lain atau tanya tanpa gambar.`,
           source: 'local',
         };
       }
