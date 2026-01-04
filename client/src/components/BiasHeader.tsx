@@ -5,11 +5,12 @@ import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
+import { getVideoUsageToday, getRemainingVideoAnalysis, getDailyLimit } from '@/lib/usageLimit';
 import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info, Settings, ArrowLeft } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { openExternalLink } from '@/lib/external-link-handler';
 import { trackNavigation, trackButtonClick } from '@/lib/analytics';
 
@@ -21,22 +22,32 @@ export function BiasHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const brandLogo = getActiveBrandLogo();
   
-  const [usageToday, setUsageToday] = useState(0);
-  const starterPlan = pricing.find(p => p.slug === 'gratis');
-  const dailyLimit = starterPlan?.videoLimit || 10;
+  const starterPlan = pricing.find(p => p.slug === 'gratis' || p.slug === 'starter');
+  const serverLimit = starterPlan?.videoLimit || 10;
+  
+  const [remaining, setRemaining] = useState(() => getRemainingVideoAnalysis(serverLimit));
+  const [dailyLimit, setDailyLimit] = useState(() => getDailyLimit(serverLimit));
+  
+  const refreshUsage = useCallback(() => {
+    setRemaining(getRemainingVideoAnalysis(serverLimit));
+    setDailyLimit(getDailyLimit(serverLimit));
+  }, [serverLimit]);
   
   useEffect(() => {
-    const stored = localStorage.getItem('bias-usage-today');
-    if (stored) {
-      const data = JSON.parse(stored);
-      const today = new Date().toDateString();
-      if (data.date === today) {
-        setUsageToday(data.count);
-      }
-    }
-  }, []);
-  
-  const remaining = Math.max(0, dailyLimit - usageToday);
+    refreshUsage();
+    
+    const handleUsageUpdate = () => refreshUsage();
+    window.addEventListener('bias-usage-updated', handleUsageUpdate);
+    window.addEventListener('storage', handleUsageUpdate);
+    
+    const interval = setInterval(refreshUsage, 5000);
+    
+    return () => {
+      window.removeEventListener('bias-usage-updated', handleUsageUpdate);
+      window.removeEventListener('storage', handleUsageUpdate);
+      clearInterval(interval);
+    };
+  }, [refreshUsage]);
   
   const isHomePage = location === '/' || location === '';
   
