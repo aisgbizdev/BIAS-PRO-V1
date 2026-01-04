@@ -13,6 +13,7 @@ import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { AnalysisProgress } from '@/components/AnalysisProgress';
+import { incrementVideoUsage, canUseVideoAnalysis } from '@/lib/usageLimit';
 import { MessageSquare } from 'lucide-react';
 import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, BarChart3, Wand2 } from 'lucide-react';
 import { IntegrityNotice } from '@/components/ui/IntegrityNotice';
@@ -82,6 +83,15 @@ export default function SocialMediaPro() {
   const handleAnalyzeAccount = async () => {
     if (!username.trim()) return;
     
+    if (!canUseVideoAnalysis()) {
+      toast({
+        variant: 'destructive',
+        title: t('Daily Limit Reached', 'Batas Harian Tercapai'),
+        description: t('Upgrade to Pro for unlimited analysis', 'Upgrade ke Pro untuk analisis unlimited'),
+      });
+      return;
+    }
+    
     setIsAnalyzing(true);
     setError(null);
     
@@ -111,7 +121,8 @@ export default function SocialMediaPro() {
       setAccountData(data);
       setPhotoLoadError(false); // Reset photo error state on new analysis
       
-      // Track analytics
+      // Track usage and analytics
+      incrementVideoUsage();
       trackFeatureUsage('analysis', platform, { type: 'account', username });
       
       toast({

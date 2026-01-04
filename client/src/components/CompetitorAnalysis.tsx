@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
+import { incrementVideoUsage, canUseVideoAnalysis } from '@/lib/usageLimit';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
@@ -107,6 +108,15 @@ export function CompetitorAnalysis() {
       return;
     }
 
+    if (!canUseVideoAnalysis()) {
+      toast({
+        title: t('Daily Limit Reached', 'Batas Harian Tercapai'),
+        description: t('Upgrade to Pro for unlimited analysis', 'Upgrade ke Pro untuk analisis unlimited'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     setResults(null);
 
@@ -193,6 +203,7 @@ export function CompetitorAnalysis() {
       setDiscussionMessages([]);
 
       saveComparisonToHistory(comparisonResult, validUsernames);
+      incrementVideoUsage();
 
       trackFeatureUsage('comparison', 'tiktok', { count: accountsData.length });
 

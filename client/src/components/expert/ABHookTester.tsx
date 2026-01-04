@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
+import { incrementVideoUsage, canUseVideoAnalysis, getRemainingVideoAnalysis } from '@/lib/usageLimit';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -104,6 +105,15 @@ export function ABHookTester() {
       return;
     }
 
+    if (!canUseVideoAnalysis()) {
+      toast({
+        title: t('Daily Limit Reached', 'Batas Harian Tercapai'),
+        description: t('Upgrade to Pro for unlimited analysis', 'Upgrade ke Pro untuk analisis unlimited'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     setResult(null);
 
@@ -128,6 +138,7 @@ export function ABHookTester() {
       }
 
       setResult(data);
+      incrementVideoUsage();
 
       toast({
         title: t('Analysis Complete!', 'Analisis Selesai!'),
