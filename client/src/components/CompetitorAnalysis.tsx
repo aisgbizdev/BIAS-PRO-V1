@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AnalysisProgress } from '@/components/AnalysisProgress';
+import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
@@ -566,12 +567,15 @@ Hasil Perbandingan Akun TikTok:
                 discussionMessages.map(msg => (
                   <div key={msg.id} className={`flex gap-2 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.type === 'assistant' && <Bot className="w-5 h-5 text-purple-400 mt-1 shrink-0" />}
-                    <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                    <div className={`max-w-[85%] rounded-lg px-3 py-2 ${
                       msg.type === 'user' 
-                        ? 'bg-pink-500/20 text-white' 
+                        ? 'bg-pink-500/20 text-white text-sm' 
                         : 'bg-gray-800 text-gray-200'
                     }`}>
-                      {msg.content}
+                      {msg.type === 'assistant' 
+                        ? <FormattedChatMessage content={msg.content} mode="tiktok" />
+                        : msg.content
+                      }
                     </div>
                   </div>
                 ))

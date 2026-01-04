@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, Camera, Image, X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
 
 interface Message {
   id: string;
@@ -478,9 +479,7 @@ Atau refresh dan coba lagi! 🔄`;
                         className="max-h-24 rounded-lg mb-2" 
                       />
                     )}
-                    <div className="text-xs whitespace-pre-wrap">
-                      <FormattedMessage content={message.content} />
-                    </div>
+                    <FormattedChatMessage content={message.content} mode={mode} />
                   </div>
                   {message.type === 'user' && (
                     <div className="w-6 h-6 rounded-md bg-gray-800 flex items-center justify-center flex-shrink-0 mt-1">
@@ -655,79 +654,6 @@ Atau refresh dan coba lagi! 🔄`;
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function FormattedMessage({ content }: { content: string }) {
-  const lines = content.split('\n');
-  
-  return (
-    <div className="space-y-1">
-      {lines.map((line, index) => {
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-base font-semibold text-white mt-3 mb-1">{line.slice(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-sm font-medium text-pink-400 mt-2">{line.slice(4)}</h3>;
-        }
-        
-        if (line.includes('|') && line.trim().startsWith('|')) {
-          const cells = line.split('|').filter(cell => cell.trim());
-          if (line.includes('---')) {
-            return <div key={index} className="border-b border-white/10 my-1" />;
-          }
-          const colCount = cells.length;
-          return (
-            <div key={index} className="flex gap-2 text-xs py-1 bg-white/5 px-2 rounded overflow-x-auto">
-              {cells.map((cell, i) => (
-                <span 
-                  key={i} 
-                  className={`${i === 0 ? 'text-pink-400 font-medium min-w-[80px]' : 'text-gray-400 min-w-[60px]'} flex-shrink-0`}
-                  style={{ flex: i === 0 ? '0 0 auto' : '1 1 0' }}
-                >
-                  {cell.trim()}
-                </span>
-              ))}
-            </div>
-          );
-        }
-        
-        let formattedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
-        
-        if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
-          return (
-            <div key={index} className="flex gap-2 pl-2">
-              <span className="text-pink-400">•</span>
-              <span dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^[•-]\s*/, '') }} />
-            </div>
-          );
-        }
-        
-        const numberedMatch = line.match(/^(\d+)\.\s/);
-        if (numberedMatch) {
-          return (
-            <div key={index} className="flex gap-2 pl-2">
-              <span className="text-cyan-400 font-medium">{numberedMatch[1]}.</span>
-              <span dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^\d+\.\s*/, '') }} />
-            </div>
-          );
-        }
-        
-        if (line.startsWith('>')) {
-          return (
-            <div key={index} className="border-l-2 border-pink-500 pl-3 py-1 bg-pink-500/5 rounded-r text-gray-300 italic">
-              {line.slice(1).trim()}
-            </div>
-          );
-        }
-        
-        if (!line.trim()) {
-          return <div key={index} className="h-2" />;
-        }
-        
-        return <p key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
-      })}
     </div>
   );
 }

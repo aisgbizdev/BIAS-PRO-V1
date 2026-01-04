@@ -4,6 +4,7 @@ import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, MessageCircl
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
 import type { BiasAnalysisResult } from '@shared/schema';
 
 interface Message {
@@ -444,9 +445,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
                             className="max-h-32 rounded-lg mb-2" 
                           />
                         )}
-                        <div className="text-sm whitespace-pre-wrap">
-                          <FormattedMessage content={message.content} />
-                        </div>
+                        <FormattedChatMessage content={message.content} mode={mode} />
                       </div>
                       {message.type === 'user' && (
                         <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
@@ -641,46 +640,5 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
         </CardContent>
       )}
     </Card>
-  );
-}
-
-// Helper component to format messages with markdown-like syntax
-function FormattedMessage({ content }: { content: string }) {
-  const lines = content.split('\n');
-  
-  return (
-    <div className="space-y-1">
-      {lines.map((line, index) => {
-        // Headers
-        if (line.startsWith('### ')) {
-          return <h4 key={index} className="font-semibold text-white mt-2">{line.replace('### ', '')}</h4>;
-        }
-        if (line.startsWith('## ')) {
-          return <h3 key={index} className="font-bold text-white mt-3">{line.replace('## ', '')}</h3>;
-        }
-        
-        // Bold and italic
-        let formattedLine = line
-          .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
-          .replace(/\*(.+?)\*/g, '<em class="text-gray-400">$1</em>');
-        
-        // Lists
-        if (line.trim().startsWith('- ') || line.trim().startsWith('• ')) {
-          return <p key={index} className="pl-3" dangerouslySetInnerHTML={{ __html: '• ' + formattedLine.replace(/^[-•]\s*/, '') }} />;
-        }
-        
-        // Dividers
-        if (line.trim() === '---') {
-          return <hr key={index} className="border-gray-700 my-2" />;
-        }
-        
-        // Empty lines
-        if (line.trim() === '') {
-          return <div key={index} className="h-2" />;
-        }
-        
-        return <p key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
-      })}
-    </div>
   );
 }
