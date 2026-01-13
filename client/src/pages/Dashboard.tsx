@@ -93,9 +93,21 @@ export default function Dashboard() {
           <h1 className="text-lg sm:text-xl font-medium text-white mb-1">
             Behavioral Intelligence Audit System
           </h1>
-          <p className="text-gray-500 text-xs">
+          <p className="text-gray-500 text-xs mb-3">
             Untuk kreator TikTok & profesional marketing. Audit perilaku, tingkatkan skill komunikasi dengan Ai coaching.
           </p>
+          <a 
+            href="https://play.google.com/store/apps/details?id=com.bias23.app" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" 
+              alt="Get it on Google Play" 
+              className="h-12"
+            />
+          </a>
         </div>
 
         <div className="bg-[#141414] border border-gray-800 rounded-lg p-4 mb-6">
