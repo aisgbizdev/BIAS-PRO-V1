@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3100:3100"
+    env_file:
+      - .env
+    #environment:
+     # - NODE_ENV=production
+     # - DATABASE_URL=postgresql://user:password@db:5432/bias_pro_db
+    depends_on:
+      - db
+    volumes:
+      - ./attached_assets:/app/attached_assets:ro
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bias_pro_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -88,6 +88,11 @@ export function incrementVideoUsage(): void {
   const data = getUsageData();
   data.count += 1;
   setUsageData(data);
+  
+  // Dispatch custom event so header can update in real-time
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('bias-usage-updated'));
+  }
 }
 
 export function getDailyLimit(serverLimit?: number): number {

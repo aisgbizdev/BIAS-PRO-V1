@@ -4,6 +4,23 @@ import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDefaultSettings } from "./init-settings";
+import { loadSettingsFromDatabase } from "./utils/ai-rate-limiter";
+import { cleanupOldUnapprovedResponses } from "./utils/learning-system";
+
+async function prewarmBiasApi() {
+  try {
+    console.log('[Prewarm] Waking up BIAS TikTok API...');
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 10000);
+    await fetch('https://bias-tiktok-analyzer.onrender.com/health', {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'BiAS-Pro-Replit/1.0' }
+    }).catch(() => {});
+    console.log('[Prewarm] BIAS API ping sent');
+  } catch (e) {
+    console.log('[Prewarm] BIAS API prewarm skipped');
+  }
+}
 
 const app = express();
 
@@ -16,11 +33,12 @@ declare module 'http' {
   }
 }
 app.use(express.json({
+  limit: '20mb',
   verify: (req, _res, buf) => {
     req.rawBody = buf;
   }
 }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: '20mb' }));
 
 // Serve static files from public folder (for service-worker.js, manifest.json, icons, etc.)
 app.use(express.static("public"));
@@ -58,6 +76,15 @@ app.use((req, res, next) => {
 (async () => {
   // Initialize default settings if database is empty
   await initializeDefaultSettings();
+  
+  // Load AI rate limiter settings from database
+  await loadSettingsFromDatabase();
+  
+  // Cleanup old unapproved AI responses (>30 days)
+  await cleanupOldUnapprovedResponses();
+  
+  // Prewarm external APIs (non-blocking)
+  prewarmBiasApi();
   
   const server = await registerRoutes(app);
 

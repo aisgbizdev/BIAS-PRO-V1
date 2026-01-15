@@ -5,10 +5,11 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, Share2, Link2, Check, FileDown, Loader2 } from 'lucide-react';
+import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, Share2, Link2, Check, FileDown, Loader2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { exportAnalysisToPDF } from '@/lib/pdfExport';
+import { AnalysisDiscussion } from './AnalysisDiscussion';
 import type { BiasAnalysisResult } from '@shared/schema';
 
 const LAYER_TOOLTIPS: Record<string, { en: string; id: string }> = {
@@ -86,25 +87,27 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         }
       }, duration / steps);
 
-      // Animate layer scores with stagger
-      result.layers.forEach((layer, idx) => {
-        setTimeout(() => {
-          const layerTargetScore = layer.score;
-          const layerSteps = 20;
-          const layerIncrement = layerTargetScore / layerSteps;
-          let layerStep = 0;
+      // Animate layer scores with stagger (only if layers exist)
+      if (result.layers && result.layers.length > 0) {
+        result.layers.forEach((layer, idx) => {
+          setTimeout(() => {
+            const layerTargetScore = layer.score;
+            const layerSteps = 20;
+            const layerIncrement = layerTargetScore / layerSteps;
+            let layerStep = 0;
 
-          const layerInterval = setInterval(() => {
-            layerStep++;
-            if (layerStep >= layerSteps) {
-              setAnimatedLayers(prev => ({ ...prev, [idx]: layerTargetScore }));
-              clearInterval(layerInterval);
-            } else {
-              setAnimatedLayers(prev => ({ ...prev, [idx]: Math.floor(layerIncrement * layerStep) }));
-            }
-          }, 800 / layerSteps);
-        }, idx * 100); // Stagger by 100ms
-      });
+            const layerInterval = setInterval(() => {
+              layerStep++;
+              if (layerStep >= layerSteps) {
+                setAnimatedLayers(prev => ({ ...prev, [idx]: layerTargetScore }));
+                clearInterval(layerInterval);
+              } else {
+                setAnimatedLayers(prev => ({ ...prev, [idx]: Math.floor(layerIncrement * layerStep) }));
+              }
+            }, 800 / layerSteps);
+          }, idx * 100); // Stagger by 100ms
+        });
+      }
 
       return () => {
         clearInterval(scoreInterval);
@@ -199,7 +202,12 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-2xl">{t('Overall Score', 'Skor Keseluruhan')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-2xl">{t('Overall Score', 'Skor Keseluruhan')}</CardTitle>
+                <Badge variant="outline" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/30 text-[10px]">
+                  AI-Generated Insight
+                </Badge>
+              </div>
               <CardDescription className="text-base mt-2">
                 {language === 'en' ? result.summary : result.summaryId}
               </CardDescription>
@@ -267,14 +275,17 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         </CardHeader>
       </Card>
 
-      {/* Radar Chart Visualization */}
-      <RadarChart8Layer 
-        layers={result.layers}
-        title={t('Behavioral Intelligence Radar', 'Radar Behavioral Intelligence')}
-        description={t('Visual representation of your 8-layer analysis', 'Representasi visual dari analisis 8-layer Anda')}
-      />
+      {/* Radar Chart Visualization - only show if layers exist */}
+      {result.layers && result.layers.length > 0 && (
+        <RadarChart8Layer 
+          layers={result.layers}
+          title={t('Behavioral Intelligence Radar', 'Radar Behavioral Intelligence')}
+          description={t('Visual representation of your 8-layer analysis', 'Representasi visual dari analisis 8-layer Anda')}
+        />
+      )}
 
-      {/* Layer Scores */}
+      {/* Layer Scores - only show if layers exist */}
+      {result.layers && result.layers.length > 0 && (
       <Card>
         <CardHeader>
           <CardTitle>{t('Layer Details', 'Detail Layer')}</CardTitle>
@@ -347,8 +358,10 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
           })}
         </CardContent>
       </Card>
+      )}
 
       {/* Recommendations */}
+      {(result.recommendations || result.recommendationsId) && (
       <Card>
         <CardHeader>
           <CardTitle>{t('Recommendations', 'Rekomendasi')}</CardTitle>
@@ -358,7 +371,7 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
-            {(language === 'en' ? result.recommendations : result.recommendationsId).map((rec, idx) => (
+            {(language === 'en' ? (result.recommendations || []) : (result.recommendationsId || result.recommendations || [])).map((rec, idx) => (
               <li key={idx} className="flex items-start gap-2">
                 <span className="text-primary mt-1">•</span>
                 <span className="text-sm">{rec}</span>
@@ -367,6 +380,14 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
           </ul>
         </CardContent>
       </Card>
+      )}
+
+      {/* Discussion Chat */}
+      <AnalysisDiscussion
+        analysisResult={result}
+        analysisType="video"
+        mode={mode}
+      />
     </div>
   );
 }

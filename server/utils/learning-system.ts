@@ -1,7 +1,12 @@
 // Learning System - Ai answers become local knowledge
 import { db } from '../../db';
 import { learnedResponses } from '@shared/schema';
-import { eq, sql, desc } from 'drizzle-orm';
+import { eq, sql, desc, and, lt } from 'drizzle-orm';
+
+// Rate limiting for learning (per session)
+const sessionSaveCount = new Map<string, { count: number; resetAt: number }>();
+const MAX_SAVES_PER_SESSION = 5;
+const SESSION_RESET_MS = 60 * 60 * 1000; // 1 hour
 
 // Indonesian stopwords to filter out
 const STOPWORDS = new Set([
@@ -15,6 +20,45 @@ const STOPWORDS = new Set([
   'how', 'what', 'why', 'when', 'where', 'who', 'which', 'can', 'bro', 'mas',
   'bang', 'kak', 'min', 'mau', 'minta', 'tolong', 'kasih', 'tau', 'tanya',
 ]);
+
+// Patterns that indicate analysis requests (NOT knowledge questions)
+const ANALYSIS_REQUEST_PATTERNS = [
+  /@\w+/i, // @username
+  /analisa\s+(akun|video|account)/i,
+  /analyze\s+(account|video|my)/i,
+  /cek\s+(akun|video)/i,
+  /check\s+(account|video)/i,
+  /review\s+(my|akun|video)/i,
+  /hasil\s+(analisis|analysis)/i,
+  /my\s+(analysis|result)/i,
+  /skor\s+saya/i,
+  /score\s+saya/i,
+  /kelemahan\s+saya/i,
+  /my\s+weakness/i,
+  /kelebihan\s+saya/i,
+  /my\s+strength/i,
+  /apa\s+yang\s+harus\s+diperbaiki/i,
+  /what\s+should\s+i\s+improve/i,
+];
+
+// Spam/gibberish patterns
+const SPAM_PATTERNS = [
+  /^[a-z]{1,3}$/i, // Single letters or very short
+  /^test+$/i,
+  /^aaa+$/i,
+  /^asdf+/i,
+  /^qwer+/i,
+  /^[0-9]+$/,
+  /(.)\1{4,}/, // Repeated characters (5+ times)
+];
+
+// Personal data patterns
+const PERSONAL_DATA_PATTERNS = [
+  /\b\d{10,13}\b/, // Phone numbers (10-13 digits)
+  /\+62\d{9,12}/, // Indonesian phone with country code
+  /08\d{8,11}/, // Indonesian mobile number
+  /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/, // Email
+];
 
 // Extract meaningful keywords from a question
 export function extractKeywords(text: string): string[] {
@@ -56,8 +100,71 @@ function calculateSimilarity(keywords1: string[], keywords2: string[]): number {
   return matches / combined.length;
 }
 
-// Find similar learned response
-export async function findSimilarResponse(question: string): Promise<{
+// Check if question should be saved (all filters)
+export function shouldSaveQuestion(question: string, sessionId?: string): {
+  shouldSave: boolean;
+  reason?: string;
+} {
+  const q = question.trim();
+  
+  // 1. Minimum length check
+  if (q.length < 10) {
+    return { shouldSave: false, reason: 'Question too short (<10 chars)' };
+  }
+  
+  // 2. Spam/gibberish check
+  for (const pattern of SPAM_PATTERNS) {
+    if (pattern.test(q)) {
+      return { shouldSave: false, reason: 'Detected as spam/gibberish' };
+    }
+  }
+  
+  // 3. Analysis request check (not knowledge questions)
+  for (const pattern of ANALYSIS_REQUEST_PATTERNS) {
+    if (pattern.test(q)) {
+      return { shouldSave: false, reason: 'Analysis request, not knowledge question' };
+    }
+  }
+  
+  // 4. Personal data check
+  for (const pattern of PERSONAL_DATA_PATTERNS) {
+    if (pattern.test(q)) {
+      return { shouldSave: false, reason: 'Contains personal data (phone/email)' };
+    }
+  }
+  
+  // 5. Rate limit check per session
+  if (sessionId) {
+    const now = Date.now();
+    const sessionData = sessionSaveCount.get(sessionId);
+    
+    if (sessionData) {
+      if (now > sessionData.resetAt) {
+        // Reset counter
+        sessionSaveCount.set(sessionId, { count: 0, resetAt: now + SESSION_RESET_MS });
+      } else if (sessionData.count >= MAX_SAVES_PER_SESSION) {
+        return { shouldSave: false, reason: `Rate limit exceeded (>${MAX_SAVES_PER_SESSION}/session)` };
+      }
+    }
+  }
+  
+  return { shouldSave: true };
+}
+
+// Increment session save counter
+function incrementSessionSaveCount(sessionId: string): void {
+  const now = Date.now();
+  const sessionData = sessionSaveCount.get(sessionId);
+  
+  if (sessionData && now <= sessionData.resetAt) {
+    sessionData.count++;
+  } else {
+    sessionSaveCount.set(sessionId, { count: 1, resetAt: now + SESSION_RESET_MS });
+  }
+}
+
+// Find similar learned response (with mode context)
+export async function findSimilarResponse(question: string, mode?: string): Promise<{
   found: boolean;
   response?: string;
   similarity?: number;
@@ -69,17 +176,32 @@ export async function findSimilarResponse(question: string): Promise<{
       return { found: false };
     }
 
-    console.log(`🔍 Looking for similar response. Keywords: ${queryKeywords.join(', ')}`);
+    console.log(`🔍 Looking for similar response. Keywords: ${queryKeywords.join(', ')}, Mode: ${mode || 'any'}`);
 
-    // Get all learned responses (could optimize with keyword index later)
-    const allResponses = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.useCount));
+    // Get only APPROVED learned responses (admin must verify before use)
+    let query = db.select().from(learnedResponses)
+      .where(eq(learnedResponses.isApproved, true))
+      .orderBy(desc(learnedResponses.useCount));
+
+    const allResponses = await query;
 
     let bestMatch: { response: string; similarity: number; id: string } | null = null;
     const SIMILARITY_THRESHOLD = 0.4; // 40% keyword overlap = match
 
     for (const lr of allResponses) {
+      // If mode is specified, prefer same-mode responses
+      const storedMode = lr.mode || 'tiktok';
+      const modeMatch = !mode || storedMode === mode;
+      
       const storedKeywords = lr.keywords || [];
-      const similarity = calculateSimilarity(queryKeywords, storedKeywords);
+      let similarity = calculateSimilarity(queryKeywords, storedKeywords);
+      
+      // Boost similarity if mode matches
+      if (modeMatch) {
+        similarity *= 1.2; // 20% boost for same mode
+      } else {
+        similarity *= 0.8; // 20% penalty for different mode
+      }
       
       if (similarity >= SIMILARITY_THRESHOLD) {
         if (!bestMatch || similarity > bestMatch.similarity) {
@@ -120,19 +242,38 @@ export async function findSimilarResponse(question: string): Promise<{
   }
 }
 
-// Save Ai response to learned library
-export async function saveLearnedResponse(question: string, response: string): Promise<boolean> {
+// Save Ai response to learned library (with all filters)
+export async function saveLearnedResponse(
+  question: string, 
+  response: string, 
+  mode?: string,
+  sessionId?: string
+): Promise<boolean> {
   try {
+    // Apply all filters first
+    const filterResult = shouldSaveQuestion(question, sessionId);
+    if (!filterResult.shouldSave) {
+      console.log(`⚠️ Skipping save: ${filterResult.reason}`);
+      return false;
+    }
+
     const keywords = extractKeywords(question);
     if (keywords.length === 0) {
       console.log('⚠️ No keywords extracted, skipping save');
       return false;
     }
 
-    // Check if very similar question already exists
-    const existing = await findSimilarResponse(question);
+    // Check if very similar question already exists (80%+ similarity)
+    const existing = await findSimilarResponse(question, mode);
     if (existing.found && existing.similarity && existing.similarity > 0.8) {
-      console.log('📦 Very similar question already exists, skipping save');
+      console.log('📦 Very similar question already exists (80%+), skipping save');
+      return false;
+    }
+
+    // Check max entries limit (500)
+    const allResponses = await db.select({ id: learnedResponses.id }).from(learnedResponses);
+    if (allResponses.length >= 500) {
+      console.log('⚠️ Max entries limit reached (500), skipping save');
       return false;
     }
 
@@ -140,9 +281,15 @@ export async function saveLearnedResponse(question: string, response: string): P
       question,
       keywords,
       response,
+      mode: mode || 'tiktok',
     });
 
-    console.log(`📚 Saved to learned library! Keywords: ${keywords.join(', ')}`);
+    // Increment session counter
+    if (sessionId) {
+      incrementSessionSaveCount(sessionId);
+    }
+
+    console.log(`📚 Saved to learned library! Keywords: ${keywords.join(', ')}, Mode: ${mode || 'tiktok'}`);
     return true;
 
   } catch (error) {
@@ -151,9 +298,59 @@ export async function saveLearnedResponse(question: string, response: string): P
   }
 }
 
+// Auto-cleanup: Delete unapproved responses older than 30 days
+export async function cleanupOldUnapprovedResponses(): Promise<number> {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const result = await db.delete(learnedResponses)
+      .where(and(
+        eq(learnedResponses.isApproved, false),
+        lt(learnedResponses.createdAt, thirtyDaysAgo)
+      ))
+      .returning({ id: learnedResponses.id });
+
+    const deletedCount = result.length;
+    if (deletedCount > 0) {
+      console.log(`🧹 Auto-cleanup: Deleted ${deletedCount} unapproved responses older than 30 days`);
+    }
+    return deletedCount;
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+    return 0;
+  }
+}
+
+// Cleanup unused responses (not used in 3 months)
+export async function cleanupUnusedResponses(): Promise<number> {
+  try {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    const result = await db.delete(learnedResponses)
+      .where(and(
+        eq(learnedResponses.isApproved, false),
+        lt(learnedResponses.lastUsedAt, threeMonthsAgo)
+      ))
+      .returning({ id: learnedResponses.id });
+
+    const deletedCount = result.length;
+    if (deletedCount > 0) {
+      console.log(`🧹 Cleanup: Deleted ${deletedCount} unused responses (>3 months)`);
+    }
+    return deletedCount;
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+    return 0;
+  }
+}
+
 // Get learning stats
 export async function getLearningStats(): Promise<{
   totalResponses: number;
+  pendingCount: number;
+  approvedCount: number;
   totalUses: number;
   topKeywords: string[];
 }> {
@@ -161,6 +358,8 @@ export async function getLearningStats(): Promise<{
     const allResponses = await db.select().from(learnedResponses);
     
     const totalResponses = allResponses.length;
+    const pendingCount = allResponses.filter(r => !r.isApproved).length;
+    const approvedCount = allResponses.filter(r => r.isApproved).length;
     const totalUses = allResponses.reduce((sum: number, r: typeof allResponses[0]) => sum + r.useCount, 0);
     
     // Count keyword frequency
@@ -176,9 +375,9 @@ export async function getLearningStats(): Promise<{
       .slice(0, 10)
       .map(([kw]) => kw);
 
-    return { totalResponses, totalUses, topKeywords };
+    return { totalResponses, pendingCount, approvedCount, totalUses, topKeywords };
   } catch (error) {
     console.error('Error getting learning stats:', error);
-    return { totalResponses: 0, totalUses: 0, topKeywords: [] };
+    return { totalResponses: 0, pendingCount: 0, approvedCount: 0, totalUses: 0, topKeywords: [] };
   }
 }

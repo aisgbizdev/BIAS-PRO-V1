@@ -1,15 +1,16 @@
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info } from 'lucide-react';
+import { getVideoUsageToday, getRemainingVideoAnalysis, getDailyLimit } from '@/lib/usageLimit';
+import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info, Settings, ArrowLeft } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiTiktok } from 'react-icons/si';
 import { Link, useLocation } from 'wouter';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { openExternalLink } from '@/lib/external-link-handler';
 import { trackNavigation, trackButtonClick } from '@/lib/analytics';
 
@@ -21,22 +22,42 @@ export function BiasHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const brandLogo = getActiveBrandLogo();
   
-  const [usageToday, setUsageToday] = useState(0);
-  const starterPlan = pricing.find(p => p.slug === 'gratis');
-  const dailyLimit = starterPlan?.videoLimit || 10;
+  const starterPlan = pricing.find(p => p.slug === 'gratis' || p.slug === 'starter');
+  const serverLimit = starterPlan?.videoLimit || 10;
+  
+  const [remaining, setRemaining] = useState(() => getRemainingVideoAnalysis(serverLimit));
+  const [dailyLimit, setDailyLimit] = useState(() => getDailyLimit(serverLimit));
+  
+  const refreshUsage = useCallback(() => {
+    setRemaining(getRemainingVideoAnalysis(serverLimit));
+    setDailyLimit(getDailyLimit(serverLimit));
+  }, [serverLimit]);
   
   useEffect(() => {
-    const stored = localStorage.getItem('bias-usage-today');
-    if (stored) {
-      const data = JSON.parse(stored);
-      const today = new Date().toDateString();
-      if (data.date === today) {
-        setUsageToday(data.count);
-      }
-    }
-  }, []);
+    refreshUsage();
+    
+    const handleUsageUpdate = () => refreshUsage();
+    window.addEventListener('bias-usage-updated', handleUsageUpdate);
+    window.addEventListener('storage', handleUsageUpdate);
+    
+    const interval = setInterval(refreshUsage, 5000);
+    
+    return () => {
+      window.removeEventListener('bias-usage-updated', handleUsageUpdate);
+      window.removeEventListener('storage', handleUsageUpdate);
+      clearInterval(interval);
+    };
+  }, [refreshUsage]);
   
-  const remaining = Math.max(0, dailyLimit - usageToday);
+  const isHomePage = location === '/' || location === '';
+  
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = '/';
+    }
+  };
 
   const menuItems = [
     { href: '/', icon: Home, label: t('Home', 'Beranda') },
@@ -47,29 +68,31 @@ export function BiasHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+    <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 safe-area-top">
       <div className="flex h-16 items-center justify-between px-3 md:px-6 gap-2 md:gap-4">
-        {/* Mobile Menu (Hamburger) */}
-        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="md:hidden h-8 w-8 px-0">
-              <Menu className="h-5 w-5" />
+        {/* Back Button + Mobile Menu */}
+        <div className="flex items-center gap-1">
+          {!isHomePage && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-9 w-9 sm:h-8 sm:w-auto sm:px-3 px-0"
+              onClick={handleBack}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">{t('Back', 'Kembali')}</span>
             </Button>
-          </SheetTrigger>
+          )}
+          
+          {/* Mobile Menu (Hamburger) */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="md:hidden h-9 w-9 px-0">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
           <SheetContent side="left" className="w-[280px] sm:w-[320px]">
-            <SheetHeader>
-              <SheetTitle className="text-left">
-                <div className="flex flex-col">
-                  <span className={`bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent font-bold`}>
-                    {brand.name}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground font-normal">
-                    {getTagline()}
-                  </span>
-                </div>
-              </SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col gap-2 mt-6">
+            <div className="flex flex-col gap-2 mt-4">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -118,26 +141,34 @@ export function BiasHeader() {
                 <span>{t('Switch to Indonesian', 'Ganti ke Bahasa Inggris')}</span>
                 <span className="ml-auto font-bold">{language.toUpperCase()}</span>
               </Button>
+
+              {/* Admin Button in Mobile Menu */}
+              <Link href="/admin">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 mt-2 border-zinc-700 text-zinc-400 hover:text-white"
+                  onClick={() => {
+                    trackNavigation('Admin', '/admin');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Settings className="w-4 h-4" />
+                  <span>Admin</span>
+                </Button>
+              </Link>
             </div>
           </SheetContent>
         </Sheet>
+        </div>
 
         {/* Logo + Brand Name - Clickable to Home */}
         <Link href="/">
-          <div className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+          <div className="flex items-center shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
             <img 
               src={brandLogo} 
               alt={`${brand.name} Logo`}
               className="h-8 md:h-10 w-auto object-contain rounded-lg"
             />
-            <div className="flex flex-col leading-none">
-              <span className={`text-sm md:text-base font-bold bg-gradient-to-r ${brand.colors.primary} bg-clip-text text-transparent`}>
-                {brand.name}
-              </span>
-              <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                {getTagline()}
-              </span>
-            </div>
           </div>
         </Link>
 

@@ -299,8 +299,10 @@ Coba tanya tentang salah satu topik di atas, atau rephrase pertanyaan dengan leb
     // Check for specific subtopics
     if (question.includes('fyp') || question.includes('viral')) {
       const fyp = TikTokKnowledge.algorithm.fyp;
+      const factor1 = fyp.rankingFactors?.[0];
+      const factor2 = fyp.rankingFactors?.[1];
       return {
-        answer: `**Cara Masuk FYP TikTok:**\n\n${fyp.howItWorks}\n\n**Faktor Penting (urut prioritas):**\n\n1. ${fyp.rankingFactors[0].factor} (${fyp.rankingFactors[0].importance})\n   - ${fyp.rankingFactors[0].explanation}\n   - Cara improve: ${fyp.rankingFactors[0].howToImprove.join(', ')}\n\n2. ${fyp.rankingFactors[1].factor}\n   - ${fyp.rankingFactors[1].explanation}\n   - Cara improve: ${fyp.rankingFactors[1].howToImprove.join(', ')}\n\n**Quick Tip:** ${getTikTokTip('fyp')}`,
+        answer: `**Cara Masuk FYP TikTok:**\n\n${fyp.howItWorks}\n\n**Faktor Penting (urut prioritas):**\n\n1. ${factor1?.factor || 'Watch Time'} (${factor1?.importance || 'Critical'})\n   - ${factor1?.explanation || 'Berapa lama viewer menonton'}\n   - Cara improve: ${(factor1?.howToImprove || ['Hook kuat']).join(', ')}\n\n2. ${factor2?.factor || 'Engagement'}\n   - ${factor2?.explanation || 'Like, comment, share'}\n   - Cara improve: ${(factor2?.howToImprove || ['CTA jelas']).join(', ')}\n\n**Quick Tip:** ${getTikTokTip('fyp')}`,
         source: 'library',
         confidence: 'high',
         relatedTopics: ['tiktok-growth', 'tiktok-content-strategy']
@@ -365,8 +367,10 @@ Coba tanya tentang salah satu topik di atas, atau rephrase pertanyaan dengan leb
   private answerYouTube(question: string): KnowledgeResponse {
     if (question.includes('thumbnail') || question.includes('ctr') || question.includes('click')) {
       const ctr = YouTubeKnowledge.algorithm.rankingFactors[0];
+      const benchmark = ctr?.benchmark || { poor: '<2%', good: '4-6%', excellent: '>8%' };
+      const optimization = ctr?.optimization || { thumbnail: [], title: [] };
       return {
-        answer: `**YouTube CTR (Click-Through Rate) Optimization:**\n\n${ctr.explanation}\n\n**Benchmark:**\n- Poor: ${ctr.benchmark.poor}\n- Good: ${ctr.benchmark.good}\n- Excellent: ${ctr.benchmark.excellent}\n\n**Thumbnail Best Practices:**\n${ctr.optimization.thumbnail.map(t => `- ${t}`).join('\n')}\n\n**Title Best Practices:**\n${ctr.optimization.title.map(t => `- ${t}`).join('\n')}\n\n**Quick Tip:** ${getYouTubeTip('ctr')}`,
+        answer: `**YouTube CTR (Click-Through Rate) Optimization:**\n\n${ctr?.explanation || 'CTR adalah rasio klik terhadap impressi thumbnail.'}\n\n**Benchmark:**\n- Poor: ${benchmark.poor}\n- Good: ${benchmark.good}\n- Excellent: ${benchmark.excellent}\n\n**Thumbnail Best Practices:**\n${(optimization.thumbnail || []).map(t => `- ${t}`).join('\n')}\n\n**Title Best Practices:**\n${(optimization.title || []).map(t => `- ${t}`).join('\n')}\n\n**Quick Tip:** ${getYouTubeTip('ctr')}`,
         source: 'library',
         confidence: 'high'
       };

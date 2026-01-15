@@ -386,6 +386,8 @@ export class MemStorage implements IStorage {
       id,
       createdAt: new Date(),
       approvedAt: null,
+      rejectionReason: null,
+      reviewedBy: null,
     };
     this.libraryContributions.set(id, contribution);
     return contribution;

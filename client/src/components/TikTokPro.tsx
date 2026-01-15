@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { useSession } from '@/lib/sessionContext';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { Video, User, BarChart3, TrendingUp } from 'lucide-react';
+import { Video, User, BarChart3, TrendingUp, Loader2 } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import type { TikTokAccountAnalysis, TikTokVideoAnalysis, Session } from '@shared/schema';
 
@@ -274,9 +275,26 @@ export function TikTokPro() {
                 className="w-full"
                 data-testid="button-analyze-account"
               >
-                {loading ? t('Analyzing...', 'Menganalisis...') : t('Analyze Account (3 tokens)', 'Analisis Akun (3 token)')}
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t('Analyzing...', 'Menganalisis...')}
+                  </span>
+                ) : t('Analyze Account (3 tokens)', 'Analisis Akun (3 token)')}
               </Button>
               </form>
+
+              <AnalysisProgress 
+                isAnalyzing={loading} 
+                duration={6000}
+                steps={[
+                  t('Fetching profile data...', 'Mengambil data profil...'),
+                  t('Analyzing engagement patterns...', 'Menganalisis pola engagement...'),
+                  t('Applying BIAS framework...', 'Menerapkan framework BIAS...'),
+                  t('Generating recommendations...', 'Membuat rekomendasi...'),
+                  t('Finalizing results...', 'Finalisasi hasil...'),
+                ]}
+              />
 
               {/* Account Results */}
               {accountAnalysis && (
@@ -483,9 +501,27 @@ export function TikTokPro() {
                 className="w-full"
                 data-testid="button-analyze-video"
               >
-                {loading ? t('Analyzing...', 'Menganalisis...') : t('Analyze Video (4 tokens)', 'Analisis Video (4 token)')}
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t('Analyzing...', 'Menganalisis...')}
+                  </span>
+                ) : t('Analyze Video (4 tokens)', 'Analisis Video (4 token)')}
               </Button>
               </form>
+
+              <AnalysisProgress 
+                isAnalyzing={loading} 
+                duration={8000}
+                steps={[
+                  t('Processing video data...', 'Memproses data video...'),
+                  t('Analyzing engagement metrics...', 'Menganalisis metrik engagement...'),
+                  t('Evaluating content quality...', 'Mengevaluasi kualitas konten...'),
+                  t('Checking viral potential...', 'Memeriksa potensi viral...'),
+                  t('Generating recommendations...', 'Membuat rekomendasi...'),
+                  t('Finalizing results...', 'Finalisasi hasil...'),
+                ]}
+              />
 
               {/* Video Results */}
               {videoAnalysis && (

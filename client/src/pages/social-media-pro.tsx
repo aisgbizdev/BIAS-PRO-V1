@@ -10,9 +10,13 @@ import { MetricCard } from '@/components/MetricCard';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { CompetitorAnalysis } from '@/components/CompetitorAnalysis';
-import { ThumbnailGenerator } from '@/components/ThumbnailGenerator';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
+import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
+import { incrementVideoUsage, canUseVideoAnalysis } from '@/lib/usageLimit';
+import { MessageSquare } from 'lucide-react';
 import { Users, Heart, Video, TrendingUp, Eye, Zap, Target, Award, Upload, Loader2, AlertCircle, CheckCircle2, GraduationCap, BookOpen, Lightbulb, Sparkles, Radio, FileText, DollarSign, Image, Camera, PlayCircle, Rocket, Bot, BarChart2, BarChart3, Wand2 } from 'lucide-react';
+import { IntegrityNotice } from '@/components/ui/IntegrityNotice';
 import { SiTiktok } from 'react-icons/si';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
@@ -55,8 +59,8 @@ export default function SocialMediaPro() {
   const [analysisMode, setAnalysisMode] = useState<'account' | 'video'>('account');
   const [accountData, setAccountData] = useState<any>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
-  const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('mentor');
-  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'thumbnail' | 'batch' | 'hooks'>('account');
+  const [mainMode, setMainMode] = useState<'mentor' | 'analytics'>('analytics');
+  const [analyticsTab, setAnalyticsTab] = useState<'account' | 'video' | 'screenshot' | 'compare' | 'batch' | 'hooks'>('account');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   const handleTikTokAnalysisComplete = useCallback((result: BiasAnalysisResult) => {
@@ -78,6 +82,15 @@ export default function SocialMediaPro() {
 
   const handleAnalyzeAccount = async () => {
     if (!username.trim()) return;
+    
+    if (!canUseVideoAnalysis()) {
+      toast({
+        variant: 'destructive',
+        title: t('Daily Limit Reached', 'Batas Harian Tercapai'),
+        description: t('Upgrade to Pro for unlimited analysis', 'Upgrade ke Pro untuk analisis unlimited'),
+      });
+      return;
+    }
     
     setIsAnalyzing(true);
     setError(null);
@@ -108,7 +121,8 @@ export default function SocialMediaPro() {
       setAccountData(data);
       setPhotoLoadError(false); // Reset photo error state on new analysis
       
-      // Track analytics
+      // Track usage and analytics
+      incrementVideoUsage();
       trackFeatureUsage('analysis', platform, { type: 'account', username });
       
       toast({
@@ -173,30 +187,32 @@ export default function SocialMediaPro() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+        <IntegrityNotice />
+        
         {/* Main Mode Selector - Minimal */}
         <div className="flex justify-center">
           <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-xs">
             <Button
               variant="ghost"
               onClick={() => {
-                setMainMode('mentor');
-                trackTabSelection('tiktok-pro', 'mentor');
+                setMainMode('analytics');
+                trackTabSelection('tiktok-pro', 'analytics');
               }}
-              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              <Bot className="w-4 h-4 mr-1.5" />
-              {t('Ai Mentor', 'Ai Mentor')}
+              <TrendingUp className="w-4 h-4 mr-1.5" />
+              {t('Analytics', 'Analitik')}
             </Button>
             <Button
               variant="ghost"
               onClick={() => {
-                setMainMode('analytics');
-                trackTabSelection('tiktok-pro', 'analytics');
+                setMainMode('mentor');
+                trackTabSelection('tiktok-pro', 'mentor');
               }}
-              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              <TrendingUp className="w-4 h-4 mr-1.5" />
-              {t('Analytics', 'Analitik')}
+              <Bot className="w-4 h-4 mr-1.5" />
+              {t('AI Coach', 'AI Coach')}
             </Button>
           </div>
         </div>
@@ -215,57 +231,52 @@ export default function SocialMediaPro() {
           setAnalyticsTab(newTab);
           trackTabSelection('tiktok-pro', newTab);
         }}>
-          <TabsList className="grid w-full grid-cols-7 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
-            <TabsTrigger 
-              value="account"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Akun', 'Akun')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="video"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Video', 'Video')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="batch"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <BarChart3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Batch', 'Batch')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="hooks"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('A/B', 'A/B')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="screenshot"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('SS', 'SS')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="compare"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <BarChart2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('VS', 'VS')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="thumbnail"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-            >
-              <Wand2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai', 'Ai')}</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0">
+            <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-6 bg-[#141414] border border-gray-800 p-0.5 rounded-lg gap-1 min-w-max sm:min-w-0">
+              <TabsTrigger 
+                value="account"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Users className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('Akun', 'Akun')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="video"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Upload className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('Video', 'Video')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="batch"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <BarChart3 className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('Batch', 'Batch')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="hooks"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Zap className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('A/B', 'A/B')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="screenshot"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <Camera className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('SS', 'SS')}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="compare"
+                className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-xs px-3 py-1.5 rounded-md gap-1.5 whitespace-nowrap"
+              >
+                <BarChart2 className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t('VS', 'VS')}</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </Tabs>
 
         {/* Account Analysis Mode */}
@@ -320,6 +331,19 @@ export default function SocialMediaPro() {
                 </Button>
               </div>
             </div>
+
+            <AnalysisProgress 
+              isAnalyzing={isAnalyzing} 
+              duration={8000}
+              steps={[
+                t('Fetching account data...', 'Mengambil data akun...'),
+                t('Analyzing profile metrics...', 'Menganalisis metrik profil...'),
+                t('Applying BIAS framework...', 'Menerapkan framework BIAS...'),
+                t('Calculating engagement rate...', 'Menghitung engagement rate...'),
+                t('Generating recommendations...', 'Membuat rekomendasi...'),
+                t('Finalizing results...', 'Finalisasi hasil...'),
+              ]}
+            />
               
             {/* Error Message */}
             {error && (
@@ -357,11 +381,6 @@ export default function SocialMediaPro() {
           <CompetitorAnalysis />
         )}
 
-        {/* Thumbnail Generator Mode */}
-        {analyticsTab === 'thumbnail' && (
-          <ThumbnailGenerator />
-        )}
-
         {/* Batch Analysis Mode */}
         {analyticsTab === 'batch' && (
           <BatchAnalysis />
@@ -370,11 +389,6 @@ export default function SocialMediaPro() {
         {/* A/B Hook Tester Mode */}
         {analyticsTab === 'hooks' && (
           <ABHookTester />
-        )}
-
-        {/* Analysis History */}
-        {(analyticsTab === 'video' || analyticsTab === 'account') && (
-          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
         )}
 
         {/* Account Profile Card - Show after analysis */}
@@ -742,9 +756,26 @@ export default function SocialMediaPro() {
             </CardContent>
           </Card>
               </div>
+              
+              {/* Discussion Chat Box for Account Analysis */}
+              <AnalysisDiscussion
+                analysisType="account"
+                analysisContext={`TikTok Account Analysis for @${username}:
+- Followers: ${followersDisplay}
+- Total Likes: ${likesDisplay}
+- Videos: ${videosDisplay}
+- Engagement Rate: ${engagementRate}%
+- Likes per Video: ${formatMetric(likesPerVideo)}`}
+                mode="tiktok"
+              />
             </>
           );
         })()}
+        
+        {/* Analysis History - Always at Bottom */}
+        {(analyticsTab === 'video' || analyticsTab === 'account') && (
+          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
+        )}
         </div>
       )}
       </div>

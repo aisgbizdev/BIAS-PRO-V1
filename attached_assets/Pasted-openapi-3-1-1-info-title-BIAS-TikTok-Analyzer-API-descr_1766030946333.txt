@@ -1,0 +1,75 @@
+openapi: 3.1.1
+info:
+  title: BIAS TikTok Analyzer API
+  description: API to fetch TikTok user data for Behavioral Intelligence Analysis.
+  version: 1.0.0
+servers:
+  - url: https://bias-tiktok-analyzer.onrender.com
+paths:
+  /api/tiktok/{username}:
+    get:
+      summary: Get TikTok profile data
+      description: Fetches real-time TikTok profile information for a given username.
+      operationId: getTikTokProfileData
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+          description: TikTok username (without @ or with encoded @)
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  analyzed_by:
+                    type: string
+                    example: BIAS TikTok Analyzer
+                  profile:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: solid_news
+                      nickname:
+                        type: string
+                        example: SOLID
+                      bio:
+                        type: string
+                        example: Informasi & Edukasi Bisnis
+                      avatarUrl:
+                        type: string
+                        example: https://p16-sign-sg.tiktokcdn.com/...
+                      followers:
+                        type: integer
+                        example: 27100
+                      following:
+                        type: integer
+                        example: 146
+                      likes:
+                        type: integer
+                        example: 59000
+                      videos:
+                        type: integer
+                        example: 145
+                      isVerified:
+                        type: boolean
+                        example: false
+                      externalLinks:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            platform:
+                              type: string
+                              example: Website
+                            url:
+                              type: string
+                              example: https://www.sg-insight.com

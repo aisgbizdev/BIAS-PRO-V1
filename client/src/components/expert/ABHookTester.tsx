@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
+import { incrementVideoUsage, canUseVideoAnalysis, getRemainingVideoAnalysis } from '@/lib/usageLimit';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { 
   Zap, 
   Plus, 
@@ -16,8 +18,10 @@ import {
   Lightbulb,
   Loader2,
   Copy,
-  Check
+  Check,
+  MessageSquare
 } from 'lucide-react';
+import { AnalysisDiscussion } from '../AnalysisDiscussion';
 
 interface HookInput {
   id: string;
@@ -101,6 +105,15 @@ export function ABHookTester() {
       return;
     }
 
+    if (!canUseVideoAnalysis()) {
+      toast({
+        title: t('Daily Limit Reached', 'Batas Harian Tercapai'),
+        description: t('Upgrade to Pro for unlimited analysis', 'Upgrade ke Pro untuk analisis unlimited'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     setResult(null);
 
@@ -125,6 +138,7 @@ export function ABHookTester() {
       }
 
       setResult(data);
+      incrementVideoUsage();
 
       toast({
         title: t('Analysis Complete!', 'Analisis Selesai!'),
@@ -249,6 +263,18 @@ export function ABHookTester() {
               </>
             )}
           </Button>
+
+          <AnalysisProgress 
+            isAnalyzing={isAnalyzing} 
+            duration={6000}
+            steps={[
+              t('Evaluating hook structures...', 'Mengevaluasi struktur hook...'),
+              t('Analyzing viral potential...', 'Menganalisis potensi viral...'),
+              t('Comparing effectiveness...', 'Membandingkan efektivitas...'),
+              t('Determining winner...', 'Menentukan pemenang...'),
+              t('Generating suggestions...', 'Membuat saran...'),
+            ]}
+          />
         </CardContent>
       </Card>
 
@@ -366,6 +392,21 @@ export function ABHookTester() {
               );
             })}
           </div>
+
+          {/* Discussion Chat */}
+          <AnalysisDiscussion
+            analysisType="hook"
+            analysisContext={`A/B Hook Test Results:
+- Winner: Hook ${result.winner} (Score: ${result.winnerScore}/100)
+- Comparison: ${result.comparison}
+
+Hook Scores:
+${result.results.map(r => `- Hook ${r.hookId}: "${r.hookText.substring(0, 50)}..." - Score: ${r.score}/100, Viral: ${r.viralPotential}`).join('\n')}
+
+Strengths & Weaknesses:
+${result.results.map(r => `Hook ${r.hookId}: Strengths: ${r.strengths.join(', ')}. Weaknesses: ${r.weaknesses.join(', ')}`).join('\n')}`}
+            mode="tiktok"
+          />
         </div>
       )}
     </div>

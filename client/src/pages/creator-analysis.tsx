@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VideoUploadAnalyzer } from '@/components/VideoUploadAnalyzer';
 import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
-import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
 import { FileText, Zap, Briefcase, MessageCircle } from 'lucide-react';
@@ -14,7 +13,7 @@ import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
-  const [inputMode, setInputMode] = useState<'upload' | 'form' | 'coach'>('coach');
+  const [inputMode, setInputMode] = useState<'upload' | 'form' | 'coach'>('upload');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
   const handleAnalysisComplete = useCallback((result: BiasAnalysisResult, inputType: 'text' | 'video' = 'text', preview: string = '') => {
@@ -51,20 +50,20 @@ export default function CreatorAnalysis() {
         }}>
           <TabsList className="grid w-full grid-cols-3 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
             <TabsTrigger 
-              value="coach"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
-              data-testid="tab-input-coach"
-            >
-              <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Coach', 'Coach')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
               value="upload"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
               data-testid="tab-input-upload"
             >
               <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Analyze', 'Analisis')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="coach"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
+              data-testid="tab-input-coach"
+            >
+              <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('AI Coach', 'AI Coach')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="form"
@@ -95,17 +94,10 @@ export default function CreatorAnalysis() {
           <VideoUploadAnalyzer onAnalysisComplete={(result) => handleAnalysisComplete(result, 'video', 'Video Analysis')} mode="academic" />
         )}
 
-        {/* Analysis Results */}
+        {/* Analysis Results - AnalysisResults already includes AnalysisDiscussion */}
         {currentAnalysis && (
           <div data-results-container>
             <AnalysisResults result={currentAnalysis} mode="marketing" />
-            
-            {/* Discussion Chat Box */}
-            <AnalysisDiscussion 
-              analysisResult={currentAnalysis} 
-              mode="marketing" 
-              analysisType={inputMode === 'upload' ? 'video' : 'text'} 
-            />
           </div>
         )}
 

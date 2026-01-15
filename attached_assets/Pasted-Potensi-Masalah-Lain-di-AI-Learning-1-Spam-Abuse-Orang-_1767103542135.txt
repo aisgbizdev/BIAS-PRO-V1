@@ -1,0 +1,80 @@
+Potensi Masalah Lain di AI Learning:
+1. Spam/Abuse
+Orang bisa sengaja spam pertanyaan random untuk mengisi database dengan sampah.
+
+Solusi:
+
+Minimum panjang pertanyaan (misal >10 karakter)
+Rate limit: max 5 pertanyaan baru per sesi yang bisa disimpan
+Block pertanyaan yang isinya cuma "test", "aaa", gibberish
+2. Duplikasi
+Pertanyaan sama ditanya berkali-kali → banyak entry duplicate.
+
+Solusi:
+
+Sebelum simpan, cek apakah pertanyaan serupa sudah ada (similarity check)
+Kalau sudah ada yang mirip 80%+, jangan simpan lagi
+3. Privasi & Data Sensitif
+Pertanyaan bisa mengandung info pribadi (nomor HP, email, nama lengkap).
+
+Solusi:
+
+Filter: jangan simpan pertanyaan yang mengandung:
+Nomor telepon (regex pattern)
+Email addresses
+Username TikTok (@xxx) - ini sudah dibahas
+4. Konteks Hilang
+Response yang disimpan tanpa konteks mode (TikTok/Marketing) bisa salah kalau disajikan di mode berbeda.
+
+Solusi:
+
+Simpan mode (tiktok/marketing) bersama setiap entry
+Hanya match responses dengan mode yang sama
+5. Kualitas Response
+Tidak semua jawaban OpenAI itu bagus/akurat.
+
+Solusi:
+
+Status default: pending (belum approved)
+Admin harus review & approve sebelum response bisa auto-serve ke user lain
+Tombol: Approve / Edit / Reject
+6. Outdated Information
+Info lama bisa jadi tidak relevan (misal: aturan TikTok berubah).
+
+Solusi:
+
+Tambah field last_verified timestamp
+Admin bisa mark sebagai "outdated"
+Response yang >6 bulan tidak diverifikasi ulang, kasih warning
+7. Storage Bloat
+Lama-lama database membengkak.
+
+Solusi:
+
+Limit max entries (misal 500)
+Auto-cleanup: hapus entries yang tidak pernah dipakai selama 3 bulan
+Atau: Admin bisa bulk delete yang "rejected"
+Ringkasan Lengkap Filter AI Learning:
+JANGAN SIMPAN kalau:
+├── Sumber jawaban = template/library lokal
+├── Pertanyaan = request analisis (@username, "analisa akun")
+├── Pertanyaan = tentang hasil analisis sendiri
+├── Pertanyaan terlalu pendek (<10 karakter)
+├── Pertanyaan = spam/gibberish
+├── Pertanyaan mengandung data pribadi (HP, email)
+├── Pertanyaan sudah ada yang mirip 80%+ di database
+└── Rate limit exceeded (>5 new questions per session)
+SIMPAN kalau:
+├── Sumber = OpenAI API
+├── Pertanyaan = genuine knowledge question
+├── Belum ada di database
+└── Status = "pending" (perlu admin approval)
+Field Database yang Perlu:
+Field	Keterangan
+mode	tiktok / marketing
+status	pending / approved / rejected
+use_count	Berapa kali response ini dipakai
+last_used	Terakhir dipakai kapan
+last_verified	Terakhir diverifikasi admin
+created_at	Waktu dibuat
+Gimana? Ada yang mau ditambah atau diubah? Kalau sudah oke, baru kita eksekusi semuanya sekaligus biar gak bolak-balik.

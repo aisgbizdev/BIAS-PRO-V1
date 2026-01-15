@@ -87,20 +87,34 @@ function AppContent() {
   const { brand } = useBrand();
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col safe-area-x">
       <BiasHeader />
       <main className="flex-1 overflow-auto">
         <Router />
       </main>
       <FloatingChatGPT />
       <OnboardingModal />
-      <footer className="border-t border-zinc-800 py-4 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-zinc-800 py-4 text-center text-sm text-muted-foreground safe-area-bottom">
         <p className="mb-2">
           {brand.shortName} • Behavioral Intelligence Audit System •{' '}
           <span className="font-medium">
             Powered by 8-Layer Framework
           </span>
         </p>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <a 
+            href="https://play.google.com/store/apps/details?id=com.bias23.app" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" 
+              alt="Get it on Google Play" 
+              className="h-10"
+            />
+          </a>
+        </div>
         <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
           <Link href="/privacy" className="hover:text-pink-400 transition-colors">
             Privacy Policy

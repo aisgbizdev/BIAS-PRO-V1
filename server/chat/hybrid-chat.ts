@@ -4,10 +4,20 @@ import { checkRateLimit, recordUsage } from '../utils/ai-rate-limiter';
 import { findSimilarResponse, saveLearnedResponse } from '../utils/learning-system';
 import { getRelevantKnowledge } from './knowledge-loader';
 
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 interface ChatRequest {
   message: string;
   sessionId?: string;
   mode?: 'beginner' | 'expert' | 'home' | 'marketing';
+  image?: string; // Base64 data URL for image analysis
+  images?: string[]; // Multiple images for comparison
+  outputLanguage?: 'id' | 'en'; // Preferred output language
+  previousImageContext?: string; // Context from previous image analysis
+  conversationHistory?: ConversationMessage[]; // Full conversation history for context
 }
 
 interface ChatResponse {
@@ -79,12 +89,13 @@ hoax, fakta, rumor, algoritma, shadowban, viral, agency | MasterReality | Edukat
 
 Gunakan bilingual tone (Indonesian empathy + English clarity).
 Style: calm, empatik, structured, authoritative tapi approachable.
+PENTING: Gunakan sapaan NETRAL (tanpa asumsi gender/umur). Jangan pakai "bro", "kak", "mas", "mbak".
 
 Contoh opening:
-"🔥 Wah bro… ini pertanyaan kelas 'inside creator' banget — dan lo benar-benar peka terhadap sistem real di balik TikTok."
+"🔥 Wah, ini pertanyaan kelas 'inside creator' banget — kamu benar-benar peka terhadap sistem real di balik TikTok."
 
 Contoh mid-response:
-"Bro, tone kamu udah mantap — tapi pacing agak cepat.
+"Hei, tone kamu udah mantap — tapi pacing agak cepat.
 Tambahin jeda biar audiens sempat mencerna."
 
 ---
@@ -124,8 +135,8 @@ Ringkasan dalam 1-2 kalimat powerful.
 3-4 poin key takeaway
 
 💬 CLOSING dengan PENAWARAN SPESIFIK:
-"Kalau lo mau, gue bisa bantu [action spesifik]..."
-"Mau gue breakdown lebih detail, bro?"
+"Kalau mau, saya bisa bantu [action spesifik]..."
+"Mau saya breakdown lebih detail?"
 
 ---
 
@@ -252,9 +263,10 @@ Client, Klien, Customer | Client Mgmt | Relationship + Retention + Upselling
 
 Gunakan bilingual tone (Indonesian empathy + English clarity).
 Style: calm, empatik, structured, authoritative tapi approachable.
+PENTING: Gunakan sapaan NETRAL (tanpa asumsi gender/umur). Jangan pakai "bro", "kak", "mas", "mbak".
 
 Contoh opening:
-"🔥 Bro, pertanyaan ini penting banget — karena banyak yang salah paham soal cara pitch yang efektif."
+"🔥 Pertanyaan ini penting banget — karena banyak yang salah paham soal cara pitch yang efektif."
 
 Contoh mid-response:
 "Nah, yang bikin pitch kamu memorable bukan cuma apa yang kamu bilang,
@@ -297,8 +309,8 @@ Ringkasan dalam 1-2 kalimat powerful.
 3-4 poin key takeaway
 
 💬 CLOSING dengan PENAWARAN SPESIFIK:
-"Kalau lo mau, gue bisa bantu [script pitch, opening statement, objection handling]..."
-"Mau gue breakdown lebih detail, bro?"
+"Kalau mau, saya bisa bantu [script pitch, opening statement, objection handling]..."
+"Mau saya breakdown lebih detail?"
 
 ---
 
@@ -400,7 +412,7 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
   const rateLimitCheck = checkRateLimit(sessionId);
   if (!rateLimitCheck.allowed) {
     return {
-      response: `⚠️ **Limit tercapai bro!**
+      response: `⚠️ **Limit tercapai!**
 
 ${rateLimitCheck.reason}
 
@@ -470,22 +482,262 @@ User ini baru mulai. Penyesuaian:
     const relevantKnowledge = getRelevantKnowledge(request.message);
     console.log(`📚 Loaded ${relevantKnowledge.length} chars of relevant knowledge`);
     
-    console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
     const startTime = Date.now();
+    let completion;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
+    // STEP 4A: If image is present, use Vision API
+    if (request.image) {
+      // Validate image is a data URL and not too large (max ~4MB base64)
+      if (!request.image.startsWith('data:image/')) {
+        return {
+          response: '⚠️ Format gambar tidak valid. Pastikan gambar dalam format JPG, PNG, atau GIF.',
+          source: 'local',
+        };
+      }
+      
+      // Rough check for base64 size (4MB image = ~5.3MB base64)
+      if (request.image.length > 6 * 1024 * 1024) {
+        return {
+          response: '⚠️ Gambar terlalu besar! Maksimal 4MB. Coba kompres atau resize gambar dulu ya.',
+          source: 'local',
+        };
+      }
+      
+      console.log(`🖼️ Calling OpenAI Vision for image analysis (${mode}), size: ${(request.image.length / 1024).toFixed(0)}KB`);
+      
+      // Language preference
+      const outputLang = request.outputLanguage || 'id';
+      const langInstruction = outputLang === 'en' 
+        ? 'RESPOND IN ENGLISH ONLY.' 
+        : 'JAWAB DALAM BAHASA INDONESIA.';
+      
+      // Previous context if available
+      const contextSection = request.previousImageContext 
+        ? `\n📝 KONTEKS SEBELUMNYA:\n${request.previousImageContext}\n` 
+        : '';
+      
+      // Detailed TikTok screenshot analysis prompt with auto-detection, benchmarks, and trends
+      const tiktokVisionPrompt = `🔍 ANALISIS SCREENSHOT TIKTOK - MODE DETAIL PRO
+
+${langInstruction}
+
+Kamu adalah BIAS TikTok Expert dengan kemampuan OCR dan analisis mendalam.
+${contextSection}
+
+🎯 LANGKAH 1: AUTO-DETEKSI TIPE SCREENSHOT
+Identifikasi tipe gambar ini:
+- 📱 PROFIL: Halaman profil dengan avatar, bio, grid video
+- 📊 ANALYTICS: Dashboard analytics dengan grafik/angka performa
+- 🎬 VIDEO: Detail satu video dengan likes/comments/shares
+- 💬 KOMENTAR: Thread komentar
+- 🔍 SEARCH/FYP: Hasil pencarian atau halaman For You
+- 📸 THUMBNAIL: Desain thumbnail video
+- ⚙️ SETTINGS: Pengaturan akun
+
+📋 LANGKAH 2: EKSTRAKSI DATA LENGKAP
+BACA SEMUA teks dan angka yang terlihat. TULIS PERSIS seperti yang terlihat!
+
+**Untuk PROFIL:**
+| Data | Nilai |
+|------|-------|
+| Username | @... |
+| Display Name | ... |
+| Followers | ... |
+| Following | ... |
+| Total Likes | ... |
+| Bio | "..." |
+| Link | ... |
+| Verified | Ya/Tidak |
+
+**Video Grid (tulis SEMUA yang terlihat):**
+| No | Views | Hook/Judul di Thumbnail | Pinned? |
+|----|-------|-------------------------|---------|
+| 1 | ... | "..." | Ya/Tidak |
+| 2 | ... | "..." | Ya/Tidak |
+(lanjutkan semua video yang terlihat)
+
+**Untuk ANALYTICS:**
+- Total Views: ...
+- Avg Watch Time: ...
+- Traffic Sources: FYP ...%, Following ...%, Search ...%
+- Top Performing Content: ...
+- Audience: Gender ...%, Age ...
+
+📊 LANGKAH 3: BENCHMARK ANALYSIS
+
+**TikTok Benchmark Standards:**
+| Metrik | Kamu | Standar Sehat | Status |
+|--------|------|---------------|--------|
+| Likes:Followers | ? | 2:1 - 5:1 | ✅/⚠️/❌ |
+| Views:Followers | ? | 10-30% | ✅/⚠️/❌ |
+| Engagement Rate | ? | 3-9% | ✅/⚠️/❌ |
+| Posting Frequency | ? | 1-3x/day | ✅/⚠️/❌ |
+
+**Benchmark per Niche (jika teridentifikasi):**
+- Edukasi: Views 5-15% of followers, ER 5-8%
+- Entertainment: Views 15-40%, ER 8-15%
+- Lifestyle: Views 10-25%, ER 4-7%
+- Business/B2B: Views 3-10%, ER 2-5%
+
+🔥 LANGKAH 4: TREND DETECTION
+Identifikasi trend dari konten yang terlihat:
+- Format video yang digunakan (talking head, POV, tutorial, etc)
+- Warna/style thumbnail yang dominan
+- Pattern hook text (pertanyaan, statement, controversy)
+- Niche/topik utama
+
+💡 LANGKAH 5: REKOMENDASI ACTIONABLE (SPESIFIK!)
+Berdasarkan data yang diekstrak, berikan:
+1. ✅ Yang sudah bagus (sebutkan spesifik)
+2. ⚠️ Yang perlu diperbaiki (dengan data)
+3. 🎯 3-5 aksi konkret dengan contoh
+
+---
+User's question: ${request.message}`;
+
+      const marketingVisionPrompt = `🔍 ANALISIS GAMBAR MARKETING - MODE DETAIL PRO
+
+${langInstruction}
+
+Kamu adalah BIAS Marketing Expert dengan kemampuan OCR dan analisis mendalam.
+${contextSection}
+
+🎯 LANGKAH 1: AUTO-DETEKSI TIPE MATERI
+Identifikasi tipe gambar:
+- 📱 SOCIAL POST: Instagram, Facebook, LinkedIn post
+- 🎨 BANNER/AD: Iklan display, banner web
+- 📧 EMAIL: Email marketing
+- 🌐 LANDING PAGE: Halaman website
+- 📊 INFOGRAPHIC: Visualisasi data
+- 🎬 VIDEO THUMBNAIL: Thumbnail YouTube/video
+- 📄 PRESENTATION: Slide presentasi
+
+📋 LANGKAH 2: EKSTRAKSI ELEMEN
+TULIS PERSIS semua teks yang terlihat!
+
+| Elemen | Konten |
+|--------|--------|
+| Headline | "..." |
+| Sub-headline | "..." |
+| Body Copy | "..." |
+| CTA Button | "..." |
+| Social Proof | "..." |
+| Price/Offer | "..." |
+
+📊 LANGKAH 3: BIAS FRAMEWORK SCORING
+
+| Layer | Score (1-10) | Analisis |
+|-------|--------------|----------|
+| VBM (Visual) | ? | Eye-catching? Hierarchy? |
+| EPM (Emotional) | ? | Emosi apa yang triggered? |
+| NLP (Narrative) | ? | Cerita jelas? Benefit clear? |
+| ETH (Ethics) | ? | Klaim valid? Tidak misleading? |
+
+**Benchmark Marketing:**
+- Headline: Max 10 kata, benefit-focused
+- CTA: Action verb + urgency
+- Visual: 60% image, 40% text
+- Trust: Testimonial/social proof wajib
+
+💡 LANGKAH 4: REKOMENDASI SPESIFIK
+1. ✅ Yang sudah efektif
+2. ⚠️ Yang perlu diperbaiki
+3. 🎯 3-5 aksi konkret dengan contoh copy
+
+---
+User's question: ${request.message}`;
+
+      const visionPrompt = mode === 'marketing' ? marketingVisionPrompt : tiktokVisionPrompt;
+
+      try {
+        completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: fullPrompt },
+            { 
+              role: 'user', 
+              content: [
+                { type: 'text', text: visionPrompt },
+                { 
+                  type: 'image_url', 
+                  image_url: { 
+                    url: request.image,
+                    detail: 'high' 
+                  } 
+                }
+              ]
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 2500,
+        });
+      } catch (visionError: any) {
+        console.error('🖼️ Vision API error:', visionError);
+        console.error('🖼️ Vision API error message:', visionError.message);
+        console.error('🖼️ Vision API error status:', visionError.status);
+        console.error('🖼️ Vision API error code:', visionError.code);
+        return {
+          response: `⚠️ Gagal menganalisis gambar: ${visionError.message?.slice(0, 200) || 'Unknown error'}. Coba gambar lain atau tanya tanpa gambar.`,
+          source: 'local',
+        };
+      }
+    } else {
+      // STEP 4B: Text-only chat with conversation history
+      console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
+      
+      // Build conversation history for context continuity
+      const conversationMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
         { role: 'system', content: fullPrompt },
         { 
           role: 'system', 
           content: `📚 KNOWLEDGE BASE (gunakan untuk menjawab dengan akurat):\n\n${relevantKnowledge}` 
         },
-        { role: 'user', content: request.message }
-      ],
-      temperature: 0.7,
-      max_tokens: mode === 'expert' ? 2000 : 1500,
-    });
+        {
+          role: 'system',
+          content: `🔄 ATURAN PERCAKAPAN KONSULTAN:
+Kamu adalah konsultan yang sedang berdiskusi dengan klien. WAJIB ikuti aturan ini:
+
+1. **INGAT KONTEKS** - Selalu merujuk ke pertanyaan/jawaban sebelumnya. Jangan jawab seolah-olah ini pertanyaan baru.
+2. **BANGUN DARI SEBELUMNYA** - Kalau user bertanya follow-up, jawab dengan "Berdasarkan yang kita bahas tadi...", "Melanjutkan dari analisis sebelumnya..."
+3. **KONSISTEN** - Jangan kontradiksi jawaban sebelumnya. Kalau sebelumnya bilang engagement bagus, jangan tiba-tiba bilang jelek.
+4. **PROGRESIF** - Setiap jawaban harus maju, bukan mengulang. Kalau sudah jelaskan X, jangan ulang X di jawaban berikutnya.
+5. **REFERENSI SPESIFIK** - Sebut data/angka spesifik dari konteks sebelumnya, bukan generik.
+6. **ALUR NATURAL** - Jawab seperti konsultan yang sudah kenal klien, bukan robot yang baru ketemu.
+
+Contoh flow yang BENAR:
+- User: "Gimana engagement saya?" → Kamu jelaskan detail
+- User: "Terus gimana cara naikkannya?" → "Nah, tadi kan engagement kamu 247%... untuk naikkan, strateginya..."
+- User: "Yang paling prioritas apa?" → "Dari 3 strategi tadi, yang paling urgent adalah..."
+
+Contoh yang SALAH:
+- User bertanya follow-up, kamu mulai dari awal seolah tidak pernah diskusi sebelumnya.`
+        }
+      ];
+      
+      // Add conversation history from previous exchanges
+      if (request.conversationHistory && request.conversationHistory.length > 0) {
+        // Limit to last 10 exchanges to avoid token overflow
+        const recentHistory = request.conversationHistory.slice(-20);
+        console.log(`📜 Including ${recentHistory.length} messages from conversation history`);
+        
+        for (const msg of recentHistory) {
+          conversationMessages.push({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          });
+        }
+      }
+      
+      // Add current message
+      conversationMessages.push({ role: 'user', content: request.message });
+      
+      completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: conversationMessages,
+        temperature: 0.7,
+        max_tokens: mode === 'expert' ? 2000 : 1500,
+      });
+    }
 
     const duration = Date.now() - startTime;
     const tokensUsed = completion.usage?.total_tokens || 0;
@@ -495,10 +747,12 @@ User ini baru mulai. Penyesuaian:
     // Record usage
     recordUsage(sessionId, tokensUsed);
 
-    const response = completion.choices[0]?.message?.content || 'Maaf bro, ada error. Coba lagi ya!';
+    const response = completion.choices[0]?.message?.content || 'Maaf, ada error. Coba lagi ya!';
 
-    // STEP 5: Save to learning library (async, don't wait)
-    saveLearnedResponse(request.message, response).catch(err => {
+    // STEP 5: Save to learning library with mode and sessionId (async, don't wait)
+    // Determine mode for saving
+    const saveMode = mode === 'marketing' ? 'marketing' : 'tiktok';
+    saveLearnedResponse(request.message, response, saveMode, sessionId).catch(err => {
       console.error('Failed to save to learning library:', err);
     });
 
@@ -513,9 +767,9 @@ User ini baru mulai. Penyesuaian:
     console.error('❌ OpenAI Chat Error:', error);
     
     return {
-      response: `⚠️ **Ada gangguan bro!**
+      response: `⚠️ **Ada gangguan!**
 
-Gue gak bisa connect ke Ai sekarang. Error: ${error.message || 'Unknown error'}
+Tidak bisa connect ke Ai sekarang. Error: ${error.message || 'Unknown error'}
 
 Coba:
 • Refresh dan tanya lagi

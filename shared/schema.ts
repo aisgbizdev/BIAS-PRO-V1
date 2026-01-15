@@ -39,10 +39,12 @@ export const learnedResponses = pgTable("learned_responses", {
   question: text("question").notNull(), // Original question
   keywords: text("keywords").array().notNull(), // Extracted keywords for matching
   response: text("response").notNull(), // AI response
+  mode: text("mode").default('tiktok'), // tiktok or marketing - context for matching
   useCount: integer("use_count").notNull().default(1), // How many times this was used
   quality: integer("quality").default(0), // User feedback (-1, 0, 1)
   isApproved: boolean("is_approved").notNull().default(false), // Admin approved for library
   approvedAt: timestamp("approved_at"), // When approved
+  lastVerifiedAt: timestamp("last_verified_at"), // Last admin verification date
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
 });
@@ -628,6 +630,10 @@ export interface BiasLayerResult {
   score: number; // 1-10
   feedback: string;
   feedbackId?: string; // Indonesian version
+  strengths?: string[]; // For batch comparison
+  weaknesses?: string[]; // For batch comparison
+  actionableRecommendations?: string[]; // Detailed next steps
+  specificObservations?: string[]; // Concrete examples from content
 }
 
 export interface BiasAnalysisResult {
