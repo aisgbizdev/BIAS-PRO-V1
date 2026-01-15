@@ -2524,6 +2524,15 @@ User's question: ${question || 'Bandingkan semua profil/konten ini'}`;
       }
       
       const setting = await storage.updateSetting(key, validatedValue, adminUser);
+      // Keep in-memory AI rate limiter config in sync with DB-backed settings
+      if (setting && (key === 'global_token_per_day' || key === 'global_token_per_request')) {
+        try {
+          const { reloadSettings } = await import('./utils/ai-rate-limiter');
+          await reloadSettings();
+        } catch (e) {
+          console.error('[ADMIN_SETTINGS] Failed to reload AI rate limiter settings:', e);
+        }
+      }
       res.json(setting);
     } catch (error: any) {
       console.error('[ADMIN_SETTINGS] Error updating setting:', error);
