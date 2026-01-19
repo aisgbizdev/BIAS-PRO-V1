@@ -7,6 +7,9 @@ import { Sparkles, ArrowRight, Mic, BookOpen, CheckCircle } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 
 const ONBOARDING_KEY = 'bias_onboarding_complete';
+const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.bias23.app';
+const GOOGLE_PLAY_BADGE_SRC =
+  'https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png';
 
 export function OnboardingModal() {
   const { t } = useLanguage();
@@ -188,6 +191,22 @@ export function OnboardingModal() {
               </Button>
             )}
           </div>
+        </div>
+
+        <div className="flex items-center justify-center pt-3">
+          <a
+            href={GOOGLE_PLAY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+            aria-label={t('Download on Google Play', 'Download di Google Play')}
+          >
+            <img
+              src={GOOGLE_PLAY_BADGE_SRC}
+              alt={t('Get it on Google Play', 'Dapatkan di Google Play')}
+              className="h-10"
+            />
+          </a>
         </div>
 
         <button
