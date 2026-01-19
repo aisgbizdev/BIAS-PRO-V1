@@ -194,19 +194,27 @@ export function OnboardingModal() {
         </div>
 
         <div className="flex items-center justify-center pt-3">
-          <a
-            href={GOOGLE_PLAY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block hover:opacity-80 transition-opacity"
-            aria-label={t('Download on Google Play', 'Download di Google Play')}
-          >
-            <img
-              src={GOOGLE_PLAY_BADGE_SRC}
-              alt={t('Get it on Google Play', 'Dapatkan di Google Play')}
-              className="h-10"
-            />
-          </a>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xs text-gray-400 text-center">
+              {t(
+                'Prefer the app? Download BiAS Pro on the Play Store.',
+                'Mau versi aplikasi? Download BiAS Pro di Play Store.'
+              )}
+            </p>
+            <a
+              href={GOOGLE_PLAY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block hover:opacity-80 transition-opacity"
+              aria-label={t('Download on Google Play', 'Download di Google Play')}
+            >
+              <img
+                src={GOOGLE_PLAY_BADGE_SRC}
+                alt={t('Get it on Google Play', 'Dapatkan di Google Play')}
+                className="h-10"
+              />
+            </a>
+          </div>
         </div>
 
         <button
