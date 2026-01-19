@@ -18,14 +18,25 @@ export function OnboardingModal() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    const onboardingParam = new URLSearchParams(window.location.search).get('onboarding');
+    const shouldForceShow = onboardingParam === '1' || onboardingParam === 'true';
+    if (shouldForceShow) {
+      setStep(0);
+      const timer = setTimeout(() => setOpen(true), 100);
+      return () => clearTimeout(timer);
+    }
+
     try {
-      const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
+      const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY) === 'true';
       if (!hasCompletedOnboarding) {
         const timer = setTimeout(() => setOpen(true), 500);
         return () => clearTimeout(timer);
       }
     } catch (e) {
       console.warn('LocalStorage not available:', e);
+      const timer = setTimeout(() => setOpen(true), 500);
+      return () => clearTimeout(timer);
     }
   }, []);
 
