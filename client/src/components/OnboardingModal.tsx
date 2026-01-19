@@ -13,7 +13,18 @@ const GOOGLE_PLAY_BADGE_SRC =
 
 export function OnboardingModal() {
   const { t } = useLanguage();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const onboardingParam = new URLSearchParams(window.location.search).get('onboarding');
+    const shouldForceShow = onboardingParam === '1' || onboardingParam === 'true';
+    if (shouldForceShow) return true;
+
+    try {
+      return sessionStorage.getItem(ONBOARDING_KEY) !== 'true';
+    } catch {
+      return true;
+    }
+  });
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -23,19 +34,19 @@ export function OnboardingModal() {
     const shouldForceShow = onboardingParam === '1' || onboardingParam === 'true';
     if (shouldForceShow) {
       setStep(0);
-      const timer = setTimeout(() => setOpen(true), 100);
+      const timer = setTimeout(() => setOpen(true), 0);
       return () => clearTimeout(timer);
     }
 
     try {
-      const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY) === 'true';
+      const hasCompletedOnboarding = sessionStorage.getItem(ONBOARDING_KEY) === 'true';
       if (!hasCompletedOnboarding) {
-        const timer = setTimeout(() => setOpen(true), 500);
+        const timer = setTimeout(() => setOpen(true), 0);
         return () => clearTimeout(timer);
       }
     } catch (e) {
       console.warn('LocalStorage not available:', e);
-      const timer = setTimeout(() => setOpen(true), 500);
+      const timer = setTimeout(() => setOpen(true), 0);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -43,7 +54,7 @@ export function OnboardingModal() {
   const completeOnboarding = () => {
     try {
       if (typeof window !== 'undefined') {
-        localStorage.setItem(ONBOARDING_KEY, 'true');
+        sessionStorage.setItem(ONBOARDING_KEY, 'true');
       }
     } catch (e) {
       console.warn('LocalStorage not available:', e);
