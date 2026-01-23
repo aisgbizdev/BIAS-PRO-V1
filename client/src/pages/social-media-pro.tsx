@@ -34,6 +34,9 @@ import illustrationMoney from '@assets/stock_images/cartoon_money_bag_co_6c35492
 import illustrationAudience from '@assets/stock_images/cartoon_group_people_b64a8e7c.jpg';
 import illustrationSchedule from '@assets/stock_images/cartoon_clock_calend_b3f6ced4.jpg';
 
+const CHATGPTS_URL =
+  'https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-adaptive-behavioral-ai-for-creators-marketers';
+
 // Utility: Extract metric value (supports both old number format and new {raw, approx} format)
 function getMetricValue(metric: any): number {
   if (typeof metric === 'number') return metric;
@@ -189,14 +192,14 @@ export default function SocialMediaPro() {
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
         <IntegrityNotice />
         
-        {/* Main Mode Selector - Minimal */}
-        <div className="flex justify-center">
-          <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-xs">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setMainMode('analytics');
-                trackTabSelection('tiktok-pro', 'analytics');
+	        {/* Main Mode Selector - Minimal */}
+	        <div className="flex justify-center">
+	          <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-md">
+	            <Button
+	              variant="ghost"
+	              onClick={() => {
+	                setMainMode('analytics');
+	                trackTabSelection('tiktok-pro', 'analytics');
               }}
               className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
@@ -211,11 +214,22 @@ export default function SocialMediaPro() {
               }}
               className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              <Bot className="w-4 h-4 mr-1.5" />
-              {t('AI Coach', 'AI Coach')}
-            </Button>
-          </div>
-        </div>
+	              <Bot className="w-4 h-4 mr-1.5" />
+	              {t('Ai Coach', 'Ai Coach')}
+	            </Button>
+	            <Button
+	              variant="ghost"
+	              onClick={() => {
+	                trackButtonClick('Ai ChatGPTs', 'tiktok-pro');
+	                window.open(CHATGPTS_URL, '_blank', 'noopener,noreferrer');
+	              }}
+	              className="flex-1 px-4 py-2 text-sm rounded-md transition-colors text-gray-400 hover:text-white"
+	            >
+	              <MessageSquare className="w-4 h-4 mr-1.5" />
+	              {t('Ai ChatGPTs', 'Ai ChatGPTs')}
+	            </Button>
+	          </div>
+	        </div>
 
         {/* MENTOR HUB - Ai Chat */}
         {mainMode === 'mentor' && (

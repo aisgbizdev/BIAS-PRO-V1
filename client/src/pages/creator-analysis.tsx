@@ -63,7 +63,7 @@ export default function CreatorAnalysis() {
               data-testid="tab-input-coach"
             >
               <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('AI Coach', 'AI Coach')}</span>
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai Coach', 'Ai Coach')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="form"
