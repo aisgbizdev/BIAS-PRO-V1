@@ -6,10 +6,13 @@ import { AnalysisInput } from '@/components/AnalysisInput';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { AnalysisHistory } from '@/components/AnalysisHistory';
 import { InteractiveCreatorHub, MotivationalQuote } from '@/components/expert';
-import { FileText, Zap, Briefcase, MessageCircle } from 'lucide-react';
+import { FileText, Zap, Briefcase, MessageCircle, MessageSquare } from 'lucide-react';
 import type { BiasAnalysisResult } from '@shared/schema';
-import { trackTabSelection } from '@/lib/analytics';
+import { trackTabSelection, trackButtonClick } from '@/lib/analytics';
 import { saveAnalysisToHistory } from '@/lib/analysisHistory';
+
+const CHATGPTS_URL =
+  'https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-adaptive-behavioral-ai-for-creators-marketers';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
@@ -48,7 +51,7 @@ export default function CreatorAnalysis() {
           setInputMode(newMode);
           trackTabSelection('marketing-pro', newMode);
         }}>
-          <TabsList className="grid w-full grid-cols-3 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
+          <TabsList className="grid w-full grid-cols-4 bg-[#141414] border border-gray-800 p-0.5 rounded-lg">
             <TabsTrigger 
               value="upload"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 text-[10px] sm:text-xs px-1 py-1.5 rounded-md"
@@ -73,6 +76,18 @@ export default function CreatorAnalysis() {
               <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="sr-only sm:not-sr-only sm:ml-1">{t('Review', 'Review')}</span>
             </TabsTrigger>
+            <button
+              type="button"
+              onClick={() => {
+                trackButtonClick('Ai ChatGPTs', 'marketing-pro');
+                window.open(CHATGPTS_URL, '_blank', 'noopener,noreferrer');
+              }}
+              className="text-gray-400 hover:text-white text-[10px] sm:text-xs px-1 py-1.5 rounded-md flex items-center justify-center"
+              aria-label={t('Ai ChatGPTs', 'Ai ChatGPTs')}
+            >
+              <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai ChatGPTs', 'Ai ChatGPTs')}</span>
+            </button>
           </TabsList>
         </Tabs>
 
