@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, Share2, Link2, Check, FileDown, Loader2, MessageSquare } from 'lucide-react';
+import { CheckCircle2, TrendingUp, MessageCircle, HelpCircle, FileDown, Loader2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadarChart8Layer } from '@/components/RadarChart8Layer';
 import { exportAnalysisToPDF } from '@/lib/pdfExport';
@@ -59,7 +59,6 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
   const [animatedScore, setAnimatedScore] = useState(0);
   const [animatedLayers, setAnimatedLayers] = useState<Record<number, number>>({});
   const [isAnimating, setIsAnimating] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
 
   // Animate overall score on result change
@@ -114,28 +113,6 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
       };
     }
   }, [result]);
-
-  const handleCopyLink = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      setLinkCopied(true);
-      toast({
-        title: t('Link Copied!', 'Link Tersalin!'),
-        description: t('Share this link with others', 'Bagikan link ini ke orang lain'),
-      });
-      setTimeout(() => setLinkCopied(false), 2000);
-    });
-  };
-
-  const handleShareWhatsApp = () => {
-    if (!result) return;
-    const message = language === 'id'
-      ? `Lihat hasil analisis BIAS saya! Skor: ${result.overallScore}/10\n\n${window.location.href}`
-      : `Check out my BIAS analysis results! Score: ${result.overallScore}/10\n\n${window.location.href}`;
-    
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
 
   const handleExportPDF = async () => {
     if (!result) return;
@@ -222,40 +199,11 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
             </div>
           </div>
           
-          {/* Share Buttons */}
+          {/* Export Button */}
           <div className="flex items-center gap-2 mt-4 pt-4 border-t">
             <span className="text-sm text-muted-foreground mr-2">
-              {t('Share:', 'Bagikan:')}
+              {t('Export:', 'Ekspor:')}
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopyLink}
-              className="gap-2"
-              data-testid="button-copy-link"
-            >
-              {linkCopied ? (
-                <>
-                  <Check className="w-3.5 h-3.5" />
-                  <span className="text-xs">{t('Copied!', 'Tersalin!')}</span>
-                </>
-              ) : (
-                <>
-                  <Link2 className="w-3.5 h-3.5" />
-                  <span className="text-xs">{t('Copy Link', 'Salin Link')}</span>
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShareWhatsApp}
-              className="gap-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 border-[#25D366]/30"
-              data-testid="button-share-whatsapp"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span className="text-xs">WhatsApp</span>
-            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -269,7 +217,7 @@ export function AnalysisResults({ result, onDiscussLayer, mode = 'tiktok' }: Ana
               ) : (
                 <FileDown className="w-3.5 h-3.5" />
               )}
-              <span className="text-xs">{t('PDF', 'PDF')}</span>
+              <span className="text-xs">{t('Download PDF', 'Unduh PDF')}</span>
             </Button>
           </div>
         </CardHeader>
