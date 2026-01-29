@@ -443,6 +443,54 @@ Sementara itu, kamu bisa pakai:
     };
   }
 
+  // STEP 3.5: Cross-tab topic detection - redirect users to correct tab
+  const analysisType = request.analysisType || 'video';
+  const msgLower = request.message.toLowerCase();
+  
+  // Detect account-related questions in non-account tabs
+  const accountKeywords = ['akun', 'akunku', 'account', 'profil', 'profile', 'followers', 'following', 'bio'];
+  const isAccountQuestion = accountKeywords.some(kw => msgLower.includes(kw)) && 
+    (msgLower.includes('bagus') || msgLower.includes('gimana') || msgLower.includes('analisis') || 
+     msgLower.includes('cek') || msgLower.includes('review') || msgLower.includes('audit'));
+  
+  if (isAccountQuestion && analysisType !== 'account' && analysisType !== 'coach') {
+    return {
+      response: `🎯 **Pertanyaan bagus!**
+
+Untuk menganalisis akun TikTok, silakan:
+1. Buka tab **Account** di bagian atas
+2. Masukkan username TikTok yang ingin dianalisis
+3. Sistem akan memberikan analisis lengkap: followers, engagement rate, optimasi profil, dan strategi pertumbuhan
+
+📊 Tab Account khusus untuk: audit akun, strategi followers, optimasi bio, dan pertumbuhan akun.
+
+Di tab ini (${analysisType === 'video' ? 'Video' : analysisType}) kita fokus bahas konten video ya!`,
+      source: 'local',
+    };
+  }
+  
+  // Detect video analysis questions in non-video tabs (except coach which can discuss both)
+  const videoKeywords = ['video', 'konten', 'hook', 'opening', 'thumbnail', 'edit'];
+  const isVideoQuestion = videoKeywords.some(kw => msgLower.includes(kw)) && 
+    (msgLower.includes('bagus') || msgLower.includes('gimana') || msgLower.includes('analisis') || 
+     msgLower.includes('cek') || msgLower.includes('review') || msgLower.includes('upload'));
+  
+  if (isVideoQuestion && analysisType === 'account') {
+    return {
+      response: `🎯 **Pertanyaan bagus!**
+
+Untuk menganalisis video TikTok, silakan:
+1. Buka tab **Video** di bagian atas
+2. Upload video yang ingin dianalisis
+3. Sistem akan memberikan analisis 8-layer BIAS lengkap
+
+🎬 Tab Video khusus untuk: analisis konten, hook, delivery, dan kualitas video.
+
+Di tab ini (Account) kita fokus bahas strategi pertumbuhan akun ya!`,
+      source: 'local',
+    };
+  }
+
   // STEP 4: Call OpenAI API
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -477,9 +525,8 @@ User ini baru mulai. Penyesuaian:
 - Tetap pakai format section bernomor, tapi lebih singkat`;
     }
     
-    // Add tab-specific focus context
+    // Add tab-specific focus context (analysisType already defined in STEP 3.5)
     let tabFocusContext = '';
-    const analysisType = request.analysisType || 'video';
     
     const tabTopics: Record<string, { topic: string; redirect: string }> = {
       'account': {
