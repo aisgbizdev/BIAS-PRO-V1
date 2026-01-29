@@ -187,7 +187,8 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCatego
             {history.map((item) => (
               <div
                 key={item.id}
-                className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group"
+                className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group cursor-pointer"
+                onClick={() => onSelectAnalysis(item.result)}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -221,7 +222,7 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCatego
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onSelectAnalysis(item.result)}
+                      onClick={(e) => { e.stopPropagation(); onSelectAnalysis(item.result); }}
                       className="h-8 px-2"
                     >
                       <Eye className="w-4 h-4" />
@@ -229,7 +230,7 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCatego
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(item.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
                       className="h-8 px-2 hover:text-destructive"
                     >
                       <Trash2 className="w-4 h-4" />

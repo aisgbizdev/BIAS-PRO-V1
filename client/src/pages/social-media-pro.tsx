@@ -128,18 +128,18 @@ export default function SocialMediaPro() {
       const engagementScore = data.metrics?.engagementRate >= 8 ? 9 : data.metrics?.engagementRate >= 4 ? 7 : data.metrics?.engagementRate >= 2 ? 5 : 3;
       const accountResult = {
         overallScore: engagementScore,
-        summary: `@${username}: ${formatMetric(data.metrics?.followers || 0)} followers, ${formatMetric(data.metrics?.videos || 0)} videos, ${data.metrics?.engagementRate?.toFixed(1) || '0'}% engagement`,
+        summary: `@${username}: ${formatMetric(getMetricValue(data.metrics?.followers))} followers, ${formatMetric(getMetricValue(data.metrics?.videos))} videos, ${data.metrics?.engagementRate?.toFixed(1) || '0'}% engagement`,
         summaryId: `account_${username}_${Date.now()}`,
         mode: 'creator' as const,
         layers: [],
         biasBreakdown: [],
-        strengths: [`${formatMetric(data.metrics?.followers || 0)} followers`, `${formatMetric(data.metrics?.videos || 0)} videos`],
+        strengths: [`${formatMetric(getMetricValue(data.metrics?.followers))} followers`, `${formatMetric(getMetricValue(data.metrics?.videos))} videos`],
         improvements: [],
         recommendations: [],
         recommendationsId: [],
         actionPlan: [],
       };
-      saveAnalysisToHistory(accountResult, 'tiktok', 'url', `@${username} - ${formatMetric(data.metrics?.followers || 0)} followers`, 'account');
+      saveAnalysisToHistory(accountResult, 'tiktok', 'url', `@${username} - ${formatMetric(getMetricValue(data.metrics?.followers))} followers`, 'account');
       
       // Track usage and analytics
       incrementVideoUsage();
