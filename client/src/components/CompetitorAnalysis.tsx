@@ -10,7 +10,7 @@ import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
 import { incrementVideoUsage, canUseVideoAnalysis } from '@/lib/usageLimit';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles, Brain, CheckCircle, Lightbulb } from 'lucide-react';
+import { Plus, X, Users, TrendingUp, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles, Brain, CheckCircle, Lightbulb } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { trackFeatureUsage } from '@/lib/analytics';
 import { 
@@ -371,10 +371,10 @@ export function CompetitorAnalysis() {
       // Build context for first message only
       const isFirstMessage = discussionMessages.length === 0;
       const context = isFirstMessage ? `
-Hasil Perbandingan Akun TikTok:
-- Pemenang: @${results.winner}
+Hasil Perbandingan Akun TikTok (Saling Belajar):
+- Engagement Tertinggi: @${results.winner}
 - Akun: ${results.accounts.map(a => `@${a.username} (${formatNumber(a.followers)} followers, ${a.engagementRate.toFixed(1)}% engagement)`).join(', ')}
-- Insights: ${results.insights.join('; ')}
+- Pembelajaran: ${results.insights.join('; ')}
       ` : '';
 
       // Build conversation history for context continuity
@@ -423,8 +423,8 @@ Hasil Perbandingan Akun TikTok:
   };
 
   const quickSuggestions = [
-    { text: t('Why is this account winning?', 'Kenapa akun ini menang?'), icon: '🏆' },
-    { text: t('How to beat the competition?', 'Gimana cara menang dari kompetitor?'), icon: '🎯' },
+    { text: t('What can I learn from each account?', 'Apa yang bisa dipelajari dari setiap akun?'), icon: '📚' },
+    { text: t('How to combine their strengths?', 'Gimana gabungin kelebihan mereka?'), icon: '✨' },
     { text: t('What makes their engagement high?', 'Apa yang bikin engagement mereka tinggi?'), icon: '📈' },
   ];
 
@@ -786,7 +786,7 @@ Hasil Perbandingan Akun TikTok:
                       </p>
                       <p className="text-xs text-gray-400">
                         {item.timestamp.toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        <span className="ml-2 text-yellow-500">🏆 @{item.result.winner}</span>
+                        <span className="ml-2 text-cyan-400">★ @{item.result.winner}</span>
                       </p>
                     </div>
                   </div>
@@ -806,9 +806,9 @@ Hasil Perbandingan Akun TikTok:
                   <div className="border-t border-gray-800 p-3 bg-gray-900/30 space-y-3">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                       {item.result.accounts.map((acc) => (
-                        <div key={acc.username} className={`p-2 rounded-lg ${acc.username === item.result.winner ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-gray-800/50'}`}>
+                        <div key={acc.username} className={`p-2 rounded-lg ${acc.username === item.result.winner ? 'bg-cyan-500/10 border border-cyan-500/30' : 'bg-gray-800/50'}`}>
                           <p className="font-medium flex items-center gap-1">
-                            {acc.username === item.result.winner && <Trophy className="w-3 h-3 text-yellow-500" />}
+                            {acc.username === item.result.winner && <span className="text-cyan-400 text-xs">★</span>}
                             @{acc.username}
                           </p>
                           <p className="text-gray-400">{formatNumber(acc.followers)} followers</p>

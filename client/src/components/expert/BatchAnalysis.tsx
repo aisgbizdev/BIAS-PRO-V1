@@ -15,7 +15,6 @@ import {
   Minus,
   FileVideo,
   BarChart3,
-  Trophy,
   AlertCircle,
   MessageSquare,
   Brain,
@@ -670,15 +669,15 @@ export function BatchAnalysis() {
           {/* Discussion Chat */}
           <AnalysisDiscussion
             analysisType="batch"
-            analysisContext={`Batch Video Analysis Results:
+            analysisContext={`Batch Video Analysis Results (Saling Belajar):
 - Videos Analyzed: ${batchResult.results.length}
-- Best Performer: ${batchResult.comparison?.overallWinner?.videoName || 'N/A'} - ${batchResult.comparison?.overallWinner?.reason || ''}
+- Key Learning: ${batchResult.comparison?.overallWinner?.videoName || 'N/A'} - ${batchResult.comparison?.overallWinner?.reason || ''}
 - Average Score: ${Math.round(batchResult.results.reduce((sum, r) => sum + r.overallScore, 0) / batchResult.results.length)}
 
-Individual Scores:
+Learn from Each Video:
 ${batchResult.results.map(r => `- ${r.videoName}: ${r.overallScore}/100`).join('\n')}
 
-Insights:
+Key Insights:
 ${batchResult.insights.join('\n')}`}
             mode="tiktok"
           />

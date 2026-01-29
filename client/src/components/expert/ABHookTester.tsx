@@ -12,7 +12,6 @@ import {
   Zap, 
   Plus, 
   X, 
-  Trophy,
   Target,
   TrendingUp,
   Lightbulb,
@@ -398,14 +397,14 @@ export function ABHookTester() {
           <AnalysisDiscussion
             analysisType="hook"
             analysisContext={`A/B Hook Test Results:
-- Winner: Hook ${result.winner} (Score: ${result.winnerScore}/100)
-- Comparison: ${result.comparison}
+- Most Effective: Hook ${result.winner} (Score: ${result.winnerScore}/100)
+- Learning Summary: ${result.comparison}
 
 Hook Scores:
 ${result.results.map(r => `- Hook ${r.hookId}: "${r.hookText.substring(0, 50)}..." - Score: ${r.score}/100, Viral: ${r.viralPotential}`).join('\n')}
 
-Strengths & Weaknesses:
-${result.results.map(r => `Hook ${r.hookId}: Strengths: ${r.strengths.join(', ')}. Weaknesses: ${r.weaknesses.join(', ')}`).join('\n')}`}
+Learn from Each Hook:
+${result.results.map(r => `Hook ${r.hookId}: Strengths: ${r.strengths.join(', ')}. Areas to Improve: ${r.weaknesses.join(', ')}`).join('\n')}`}
             mode="tiktok"
           />
         </div>

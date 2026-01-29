@@ -141,30 +141,30 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
       ];
     }
     
-    // Comparison-specific suggestions
+    // Comparison-specific suggestions (mutual learning focus)
     if (analysisType === 'comparison') {
       return [
-        { text: t('Why did this account win?', 'Kenapa akun ini menang?'), icon: '🏆' },
-        { text: t('How to beat my competitor?', 'Gimana cara menang dari kompetitor?'), icon: '⚔️' },
-        { text: t('What can I learn from the winner?', 'Apa yang bisa dipelajari dari pemenang?'), icon: '📚' },
-        { text: t('Weakness of top performer?', 'Kelemahan akun teratas?'), icon: '🎯' },
+        { text: t('What can I learn from each account?', 'Apa yang bisa dipelajari dari setiap akun?'), icon: '📚' },
+        { text: t('What makes their engagement high?', 'Apa yang bikin engagement mereka tinggi?'), icon: '📈' },
+        { text: t('How to combine their strengths?', 'Gimana gabungin kelebihan mereka?'), icon: '✨' },
+        { text: t('Unique opportunity for me?', 'Peluang unik buat saya?'), icon: '🎯' },
       ];
     }
     
-    // Hook test specific suggestions
+    // Hook test specific suggestions (learning focus)
     if (analysisType === 'hook') {
       return [
-        { text: t('Why did this hook win?', 'Kenapa hook ini menang?'), icon: '🏆' },
+        { text: t('What makes this hook effective?', 'Apa yang bikin hook ini efektif?'), icon: '✨' },
         { text: t('How to make my hook more viral?', 'Gimana buat hook lebih viral?'), icon: '🔥' },
         { text: t('What makes a great opening?', 'Apa yang bikin opening bagus?'), icon: '🎣' },
         { text: t('Combine strengths of all hooks?', 'Gabungin kekuatan semua hook?'), icon: '💡' },
       ];
     }
     
-    // Batch video analysis suggestions
+    // Batch video analysis suggestions (learning focus)
     if (analysisType === 'batch') {
       return [
-        { text: t('Why did this video win?', 'Kenapa video ini menang?'), icon: '🏆' },
+        { text: t('What can I learn from this video?', 'Apa yang bisa dipelajari dari video ini?'), icon: '📚' },
         { text: t('Common pattern in my best videos?', 'Pola umum di video terbaik?'), icon: '📊' },
         { text: t('How to improve consistency?', 'Gimana improve konsistensi?'), icon: '🎯' },
         { text: t('What to avoid in future?', 'Apa yang harus dihindari?'), icon: '⚠️' },
