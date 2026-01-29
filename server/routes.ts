@@ -456,6 +456,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
 
         try {
+          // Use a neutral prompt that focuses on content quality rather than personal analysis
+          // This helps avoid content moderation filters
+          const visionPrompt = `Jelaskan konten visual ini untuk keperluan coaching presentasi dan komunikasi profesional.
+
+Fokus pada aspek TEKNIS yang bisa diperbaiki:
+1. KOMPOSISI FRAME: Bagaimana framing/angle kamera? Ada teks overlay? Background jelas atau berantakan?
+2. PENCAHAYAAN: Apakah wajah terlihat jelas? Ada bayangan mengganggu?
+3. KUALITAS TEKNIS: Resolusi cukup? Ada blur/noise?
+4. ELEMEN VISUAL: Ada grafik/chart? Properti yang digunakan? Warna dominan?
+5. SETUP PROFESIONAL: Apakah terlihat profesional atau casual? Apa yang bisa ditingkatkan?
+
+Berikan observasi FAKTUAL dan TEKNIS saja. Jangan menilai individu, fokus pada aspek produksi konten.
+Response dalam Bahasa Indonesia.`;
+          
           const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -467,11 +481,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               messages: [{
                 role: 'user',
                 content: [
-                  { type: 'text', text: `Describe this ${isVideo ? 'video content' : 'image'} in detail for behavioral analysis. Focus on: presenter appearance, body language, facial expressions, background setting, visual quality, text overlays, and overall presentation style. Be specific and descriptive. Response in Indonesian.` },
+                  { type: 'text', text: visionPrompt },
                   ...imageContent,
                 ],
               }],
-              max_tokens: 500,
+              max_tokens: 600,
             }),
           });
 

@@ -17,6 +17,7 @@ import type { BiasAnalysisResult } from '@shared/schema';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { trackFeatureUsage } from '@/lib/analytics';
 import { saveAnalysisToHistory } from '@/lib/analysisHistory';
+import { AnalysisHistory } from '@/components/AnalysisHistory';
 
 type Platform = 'tiktok' | 'non-social';
 
@@ -45,6 +46,15 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisResults, setAnalysisResults] = useState<BiasAnalysisResult[]>([]);
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+  
+  // Handler for when a history item is clicked - restore the analysis
+  const handleHistorySelect = (result: BiasAnalysisResult, accountData?: any) => {
+    setAnalysisResults([result]);
+    if (onAnalysisComplete) {
+      onAnalysisComplete(result);
+    }
+  };
 
   const platformConfig = {
     tiktok: {
@@ -227,6 +237,8 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
         const preview = videoFile?.description || videoFile?.file.name || 'Video Analysis';
         saveAnalysisToHistory(result, historyMode, 'video', preview);
       }
+      // Refresh history display
+      setHistoryRefreshTrigger(prev => prev + 1);
       
       if (onAnalysisComplete && results.length > 0) {
         onAnalysisComplete(results[0]);
@@ -493,6 +505,13 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           
         </div>
       )}
+      
+      {/* Analysis History - Click to restore previous analyses */}
+      <AnalysisHistory 
+        onSelectAnalysis={handleHistorySelect}
+        refreshTrigger={historyRefreshTrigger}
+        filterCategory="video"
+      />
     </div>
   );
 }

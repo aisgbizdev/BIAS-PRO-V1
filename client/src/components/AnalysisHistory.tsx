@@ -211,10 +211,10 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCatego
                     <div className="flex items-center gap-3 mt-1.5">
                       <span className="text-xs text-muted-foreground">{formatDate(item.timestamp)}</span>
                       <span className={`text-xs font-medium ${
-                        item.result.overallScore >= 7 ? 'text-green-400' : 
-                        item.result.overallScore >= 5 ? 'text-yellow-400' : 'text-red-400'
+                        item.result.overallScore >= 70 ? 'text-green-400' : 
+                        item.result.overallScore >= 50 ? 'text-yellow-400' : 'text-red-400'
                       }`}>
-                        Score: {item.result.overallScore}/10
+                        Score: {item.result.overallScore}
                       </span>
                     </div>
                   </div>
