@@ -52,14 +52,14 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
       color: '#FF0050',
       name: 'TikTok',
       accept: 'video/mp4,video/quicktime',
-      maxSize: 100, // MB
+      maxSize: 200, // MB - allows 2-3 min HD TikTok videos
     },
     'non-social': {
       icon: Presentation,
       color: '#8B5CF6',
       name: language === 'id' ? 'Profesional' : 'Professional',
       accept: 'video/mp4,video/quicktime,video/avi,video/webm',
-      maxSize: 100,
+      maxSize: 300, // MB - allows 5-7 min presentations/pitches
     },
   };
 
