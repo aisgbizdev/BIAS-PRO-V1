@@ -449,32 +449,31 @@ export function BatchAnalysis() {
           <Card className="bg-gray-900/50 border-gray-800">
             <CardHeader>
               <CardTitle className="text-lg text-white flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-yellow-400" />
-                {t('Performance Summary', 'Ringkasan Performa')}
+                <Brain className="w-5 h-5 text-purple-400" />
+                {t('Learning Summary', 'Ringkasan Pembelajaran')}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                  <p className="text-xs text-gray-400 mb-1">{t('Best Performer', 'Terbaik')}</p>
-                  <p className="text-green-400 font-semibold truncate">{batchResult.bestPerformer}</p>
-                </div>
-                <div className="text-center p-4 bg-gray-500/10 rounded-lg border border-gray-500/20">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
                   <p className="text-xs text-gray-400 mb-1">{t('Average Score', 'Skor Rata-rata')}</p>
                   <p className="text-2xl font-bold text-white">{batchResult.averageScore}</p>
                 </div>
-                <div className="text-center p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                  <p className="text-xs text-gray-400 mb-1">{t('Needs Work', 'Perlu Perbaikan')}</p>
-                  <p className="text-red-400 font-semibold truncate">{batchResult.worstPerformer}</p>
+                <div className="text-center p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
+                  <p className="text-xs text-gray-400 mb-1">{t('Videos Analyzed', 'Video Dianalisis')}</p>
+                  <p className="text-2xl font-bold text-cyan-400">{batchResult.results.length}</p>
                 </div>
               </div>
 
-              {/* Insights */}
+              {/* Learning Insights */}
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-300">{t('Key Insights', 'Insight Utama')}</p>
+                <p className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-pink-400" />
+                  {t('What You Can Learn', 'Yang Bisa Dipelajari')}
+                </p>
                 {batchResult.insights.map((insight, i) => (
                   <div key={i} className="flex items-start gap-2 text-sm text-gray-400">
-                    <AlertCircle className="w-4 h-4 text-pink-400 mt-0.5 flex-shrink-0" />
+                    <span className="text-cyan-400">💡</span>
                     <span>{insight}</span>
                   </div>
                 ))}
@@ -482,97 +481,129 @@ export function BatchAnalysis() {
             </CardContent>
           </Card>
 
-          {/* Individual Results */}
+          {/* Individual Results - Learn from Each Video */}
           <Card className="bg-gray-900/50 border-gray-800">
             <CardHeader>
-              <CardTitle className="text-lg text-white">
-                {t('Video Comparison', 'Perbandingan Video')}
+              <CardTitle className="text-lg text-white flex items-center gap-2">
+                <FileVideo className="w-5 h-5 text-pink-400" />
+                {t('Learn From Each Video', 'Belajar dari Setiap Video')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {batchResult.results.map((result, index) => (
-                  <div
-                    key={result.videoId}
-                    className={`p-4 rounded-lg border ${
-                      index === 0 ? 'border-green-500/30 bg-green-500/5' : 'border-gray-700 bg-gray-800/30'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <Badge className={`${getScoreBg(result.overallScore)} ${getScoreColor(result.overallScore)}`}>
-                          #{index + 1}
-                        </Badge>
-                        <span className="font-medium text-white">{result.videoName}</span>
-                        {index === 0 && (
-                          <Trophy className="w-4 h-4 text-yellow-400" />
-                        )}
+                {batchResult.results.map((result, index) => {
+                  // Find best scores across all videos
+                  const bestHook = Math.max(...batchResult.results.map(r => r.hookStrength));
+                  const bestVisual = Math.max(...batchResult.results.map(r => r.visualQuality));
+                  const bestEngage = Math.max(...batchResult.results.map(r => r.engagement));
+                  const bestRetain = Math.max(...batchResult.results.map(r => r.retention));
+                  
+                  return (
+                    <div
+                      key={result.videoId}
+                      className="p-4 rounded-lg border border-gray-700 bg-gray-800/30 hover:bg-gray-800/50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <Badge className="bg-purple-500/20 text-purple-300">
+                            Video {index + 1}
+                          </Badge>
+                          <span className="font-medium text-white">{result.videoName}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-2xl font-bold ${getScoreColor(result.overallScore)}`}>
+                            {result.overallScore}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getTrendIcon(result.overallScore, batchResult.averageScore)}
-                        <span className={`text-2xl font-bold ${getScoreColor(result.overallScore)}`}>
-                          {result.overallScore}
-                        </span>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-4 gap-2 text-xs">
-                      <div className="text-center p-2 bg-gray-800/50 rounded">
-                        <p className="text-gray-500">Hook</p>
-                        <p className={getScoreColor(result.hookStrength)}>{result.hookStrength}</p>
+                      <div className="grid grid-cols-4 gap-2 text-xs mb-3">
+                        <div className={`text-center p-2 rounded ${result.hookStrength === bestHook ? 'bg-green-500/20 border border-green-500/30' : 'bg-gray-800/50'}`}>
+                          <p className="text-gray-500">Hook</p>
+                          <p className={getScoreColor(result.hookStrength)}>
+                            {result.hookStrength} {result.hookStrength === bestHook && '★'}
+                          </p>
+                        </div>
+                        <div className={`text-center p-2 rounded ${result.visualQuality === bestVisual ? 'bg-green-500/20 border border-green-500/30' : 'bg-gray-800/50'}`}>
+                          <p className="text-gray-500">Visual</p>
+                          <p className={getScoreColor(result.visualQuality)}>
+                            {result.visualQuality} {result.visualQuality === bestVisual && '★'}
+                          </p>
+                        </div>
+                        <div className={`text-center p-2 rounded ${result.engagement === bestEngage ? 'bg-green-500/20 border border-green-500/30' : 'bg-gray-800/50'}`}>
+                          <p className="text-gray-500">Engage</p>
+                          <p className={getScoreColor(result.engagement)}>
+                            {result.engagement} {result.engagement === bestEngage && '★'}
+                          </p>
+                        </div>
+                        <div className={`text-center p-2 rounded ${result.retention === bestRetain ? 'bg-green-500/20 border border-green-500/30' : 'bg-gray-800/50'}`}>
+                          <p className="text-gray-500">Retain</p>
+                          <p className={getScoreColor(result.retention)}>
+                            {result.retention} {result.retention === bestRetain && '★'}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-center p-2 bg-gray-800/50 rounded">
-                        <p className="text-gray-500">Visual</p>
-                        <p className={getScoreColor(result.visualQuality)}>{result.visualQuality}</p>
-                      </div>
-                      <div className="text-center p-2 bg-gray-800/50 rounded">
-                        <p className="text-gray-500">Engage</p>
-                        <p className={getScoreColor(result.engagement)}>{result.engagement}</p>
-                      </div>
-                      <div className="text-center p-2 bg-gray-800/50 rounded">
-                        <p className="text-gray-500">Retain</p>
-                        <p className={getScoreColor(result.retention)}>{result.retention}</p>
+                      
+                      {/* Strengths & Improvements for this video */}
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="p-2 bg-green-500/10 rounded border border-green-500/20">
+                          <p className="text-green-400 font-medium mb-1">✓ {t('Strengths', 'Kekuatan')}</p>
+                          <ul className="text-gray-300 space-y-0.5">
+                            {result.strengths.slice(0, 2).map((s, i) => (
+                              <li key={i}>• {s}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="p-2 bg-cyan-500/10 rounded border border-cyan-500/20">
+                          <p className="text-cyan-400 font-medium mb-1">↑ {t('Can Improve', 'Bisa Ditingkatkan')}</p>
+                          <ul className="text-gray-300 space-y-0.5">
+                            {result.improvements.slice(0, 2).map((s, i) => (
+                              <li key={i}>• {s}</li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
 
-          {/* Competitive Comparison - AI Analysis */}
+          {/* Mutual Learning Analysis - AI Analysis */}
           {batchResult.comparison && (
-            <Card className="bg-gradient-to-br from-pink-900/20 to-cyan-900/20 border-pink-500/30">
+            <Card className="bg-gradient-to-br from-purple-900/20 to-cyan-900/20 border-purple-500/30">
               <CardHeader>
                 <CardTitle className="text-lg text-white flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-cyan-400" />
-                  {t('Competitive Analysis', 'Analisis Kompetitif')}
-                  <Badge className="bg-pink-500/20 text-pink-300 text-xs ml-2">AI</Badge>
+                  <Brain className="w-5 h-5 text-purple-400" />
+                  {t('Mutual Learning Analysis', 'Analisis Saling Belajar')}
+                  <Badge className="bg-purple-500/20 text-purple-300 text-xs ml-2">AI</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Overall Winner */}
-                <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                {/* Key Learning */}
+                <div className="p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/30">
                   <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="w-5 h-5 text-yellow-400" />
-                    <span className="font-bold text-yellow-400">
-                      {t('Overall Winner', 'Pemenang Keseluruhan')}: {batchResult.comparison.overallWinner.videoName}
+                    <Sparkles className="w-5 h-5 text-cyan-400" />
+                    <span className="font-bold text-cyan-400">
+                      {t('Key Learning', 'Pembelajaran Utama')}: {batchResult.comparison.overallWinner.videoName}
                     </span>
                   </div>
                   <p className="text-sm text-gray-300">{batchResult.comparison.overallWinner.reason}</p>
                 </div>
 
-                {/* Dimension Winners */}
+                {/* Best Elements to Learn */}
                 <div>
-                  <p className="text-sm font-medium text-gray-300 mb-3">
-                    {t('Winners by Category', 'Pemenang per Kategori')}
+                  <p className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-green-400" />
+                    {t('Best Elements to Learn', 'Elemen Terbaik untuk Dipelajari')}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {batchResult.comparison.dimensionWinners.map((dim, i) => (
                       <div key={i} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-medium text-cyan-400">{dim.dimension}</span>
-                          <Badge className="bg-green-500/20 text-green-300 text-xs">{dim.winner}</Badge>
+                          <Badge className="bg-purple-500/20 text-purple-300 text-xs">{t('Learn from', 'Pelajari dari')} {dim.winner}</Badge>
                         </div>
                         <p className="text-xs text-gray-400">{dim.reason}</p>
                       </div>
@@ -580,16 +611,16 @@ export function BatchAnalysis() {
                   </div>
                 </div>
 
-                {/* Pairwise Comparisons */}
+                {/* Cross-Learning Insights */}
                 {batchResult.comparison.pairwiseComparisons.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-gray-300 mb-3">
-                      {t('Head-to-Head', 'Perbandingan Langsung')}
+                    <p className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      🔄 {t('Cross-Learning Insights', 'Insight Saling Belajar')}
                     </p>
                     <div className="space-y-2">
                       {batchResult.comparison.pairwiseComparisons.map((pair, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
-                          <TrendingUp className="w-4 h-4 text-pink-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-purple-400">💡</span>
                           <div>
                             <span className="font-medium text-white">{pair.pair}</span>
                             <p className="text-gray-400">{pair.verdict}</p>
@@ -600,16 +631,16 @@ export function BatchAnalysis() {
                   </div>
                 )}
 
-                {/* Shared Weaknesses */}
+                {/* Shared Areas to Improve */}
                 {batchResult.comparison.sharedWeaknesses.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-gray-300 mb-3">
-                      {t('Shared Areas to Improve', 'Area yang Perlu Diperbaiki Bersama')}
+                    <p className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      📈 {t('Shared Growth Areas', 'Area Pertumbuhan Bersama')}
                     </p>
                     <div className="space-y-2">
                       {batchResult.comparison.sharedWeaknesses.map((weakness, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm text-gray-400">
-                          <AlertCircle className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-cyan-400">→</span>
                           <span>{weakness}</span>
                         </div>
                       ))}
@@ -617,11 +648,11 @@ export function BatchAnalysis() {
                   </div>
                 )}
 
-                {/* Winning Combo */}
+                {/* Combined Best Formula */}
                 {batchResult.comparison.winningCombo && (
-                  <div className="p-4 bg-gradient-to-r from-pink-500/10 to-cyan-500/10 rounded-lg border border-pink-500/20">
+                  <div className="p-4 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-lg border border-purple-500/20">
                     <p className="text-sm font-bold text-white mb-2">
-                      🎯 {t('Winning Formula', 'Formula Pemenang')}
+                      🎯 {t('Combined Best Formula', 'Formula Gabungan Terbaik')}
                     </p>
                     <p className="text-sm text-gray-300 mb-3">{batchResult.comparison.winningCombo.recommendation}</p>
                     <div className="p-3 bg-black/30 rounded border border-cyan-500/20">
