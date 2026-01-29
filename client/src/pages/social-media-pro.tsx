@@ -1159,22 +1159,7 @@ export default function SocialMediaPro() {
         })()}
         
         {/* Analysis History - Filtered by current tab */}
-        {analyticsTab === 'video' && (
-          <AnalysisHistory 
-            onSelectAnalysis={(result) => {
-              setCurrentAnalysis(result);
-              toast({
-                title: t('History Loaded', 'Riwayat Dimuat'),
-                description: t('Showing previous analysis', 'Menampilkan analisis sebelumnya'),
-              });
-              // Scroll to results
-              setTimeout(() => {
-                document.querySelector('[data-results-container]')?.scrollIntoView({ behavior: 'smooth' });
-              }, 300);
-            }} 
-            filterCategory="video" 
-          />
-        )}
+        {/* Note: Video tab history is integrated directly in VideoUploadAnalyzer component */}
         {analyticsTab === 'account' && (
           <AnalysisHistory 
             onSelectAnalysis={(result, accountData) => {
