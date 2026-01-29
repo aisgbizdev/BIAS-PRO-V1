@@ -33,7 +33,7 @@ export const chats = pgTable("chats", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Learned responses - AI answers that become local knowledge
+// Learned responses - AI answers that become local knowledge (legacy, kept for backward compatibility)
 export const learnedResponses = pgTable("learned_responses", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   question: text("question").notNull(), // Original question
@@ -55,6 +55,36 @@ export const insertLearnedResponseSchema = createInsertSchema(learnedResponses).
   quality: true,
   createdAt: true,
   lastUsedAt: true,
+});
+
+// Knowledge Base - Extracted knowledge from conversations (new system)
+export const knowledgeBase = pgTable("knowledge_base", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  topic: text("topic").notNull(), // Knowledge title/topic
+  narrative: text("narrative").notNull(), // Extracted essence in narrative form
+  keywords: text("keywords").array().notNull(), // Keywords for matching
+  category: text("category").notNull().default('tiktok'), // tiktok, marketing
+  subcategory: text("subcategory"), // fyp, hook, sales, pitch, etc
+  sourceQuestion: text("source_question"), // Original question for reference
+  sourceSession: text("source_session"), // Session ID for tracking
+  confidenceScore: real("confidence_score").default(0.8), // AI confidence 0-1
+  status: text("status").notNull().default('pending'), // pending, approved, rejected
+  useCount: integer("use_count").notNull().default(0), // Times used
+  helpfulCount: integer("helpful_count").notNull().default(0), // Positive ratings
+  notHelpfulCount: integer("not_helpful_count").notNull().default(0), // Negative ratings
+  approvedBy: text("approved_by"), // Admin who approved
+  rejectionReason: text("rejection_reason"), // If rejected, why
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  approvedAt: timestamp("approved_at"),
+  lastUsedAt: timestamp("last_used_at"),
+});
+
+export const insertKnowledgeBaseSchema = createInsertSchema(knowledgeBase).omit({
+  id: true,
+  useCount: true,
+  helpfulCount: true,
+  notHelpfulCount: true,
+  createdAt: true,
 });
 
 // TikTok account data
