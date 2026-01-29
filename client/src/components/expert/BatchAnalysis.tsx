@@ -88,8 +88,8 @@ export function BatchAnalysis() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const validFiles = files.filter(f => 
-      f.type.startsWith('image/') || f.type.startsWith('video/')
-    ).slice(0, 3); // Max 3 files
+      f.type.startsWith('video/')
+    ).slice(0, 3); // Max 3 video files only
 
     const newVideos: VideoFile[] = validFiles.map(file => ({
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -316,26 +316,41 @@ export function BatchAnalysis() {
         </p>
       </div>
 
-      {/* Upload Area */}
+      {/* Upload Area - Matching Video tab design */}
       <Card className="bg-gray-900/50 border-gray-800">
         <CardContent className="p-6">
           <div
-            className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center cursor-pointer hover:border-pink-500/50 transition-colors"
+            className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center cursor-pointer hover:border-pink-500/50 transition-all duration-300 group"
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-400 mb-2">
-              {t('Click to upload videos (max 3)', 'Klik untuk upload video (maks 3)')}
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:brightness-125 transition-all duration-300">
+              <Upload className="w-7 h-7 text-pink-400" />
+            </div>
+            <p className="text-gray-300 mb-1">
+              {t('Click to upload or drag & drop', 'Klik untuk upload atau drag & drop')}
             </p>
-            <p className="text-gray-500 text-sm">
-              {t('Support: MP4, MOV, JPG, PNG', 'Mendukung: MP4, MOV, JPG, PNG')}
+            <p className="text-gray-500 text-sm mb-4">
+              {t('Video TikTok (Max 200MB per file, max 3 videos)', 'Video TikTok (Maks 200MB per file, maks 3 video)')}
             </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2 border-pink-500/50 text-pink-400 hover:bg-pink-500/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+            >
+              <FileVideo className="w-4 h-4" />
+              {t('Select Videos', 'Pilih Video')}
+            </Button>
           </div>
           <input
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/*,video/*"
+            accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
             onChange={handleFileSelect}
             className="hidden"
           />
