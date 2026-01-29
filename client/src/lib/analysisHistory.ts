@@ -13,6 +13,7 @@ export interface AnalysisHistoryItem {
   inputPreview: string;
   timestamp: Date;
   category?: AnalysisCategory;
+  accountData?: any; // Store full account data for account analyses
 }
 
 export interface StoredHistoryItem {
@@ -23,6 +24,7 @@ export interface StoredHistoryItem {
   inputPreview: string;
   timestamp: string;
   category?: AnalysisCategory;
+  accountData?: any; // Store full account data for account analyses
 }
 
 export function saveAnalysisToHistory(
@@ -30,7 +32,8 @@ export function saveAnalysisToHistory(
   mode: 'tiktok' | 'marketing',
   inputType: 'text' | 'video' | 'url',
   inputPreview: string,
-  category: AnalysisCategory = 'video'
+  category: AnalysisCategory = 'video',
+  accountData?: any
 ): AnalysisHistoryItem {
   const newItem: StoredHistoryItem = {
     id: `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -40,6 +43,7 @@ export function saveAnalysisToHistory(
     inputPreview: inputPreview.substring(0, 100) + (inputPreview.length > 100 ? '...' : ''),
     timestamp: new Date().toISOString(),
     category,
+    accountData,
   };
 
   const history = getStoredHistory();

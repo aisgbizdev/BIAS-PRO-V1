@@ -139,7 +139,7 @@ export default function SocialMediaPro() {
         recommendationsId: [],
         actionPlan: [],
       };
-      saveAnalysisToHistory(accountResult, 'tiktok', 'url', `@${username} - ${formatMetric(getMetricValue(data.metrics?.followers))} followers`, 'account');
+      saveAnalysisToHistory(accountResult, 'tiktok', 'url', `@${username} - ${formatMetric(getMetricValue(data.metrics?.followers))} followers`, 'account', data);
       
       // Track usage and analytics
       incrementVideoUsage();
@@ -1160,10 +1160,30 @@ export default function SocialMediaPro() {
         
         {/* Analysis History - Filtered by current tab */}
         {analyticsTab === 'video' && (
-          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} filterCategory="video" />
+          <AnalysisHistory onSelectAnalysis={(result) => setCurrentAnalysis(result)} filterCategory="video" />
         )}
         {analyticsTab === 'account' && (
-          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} filterCategory="account" />
+          <AnalysisHistory 
+            onSelectAnalysis={(result, accountData) => {
+              setCurrentAnalysis(result);
+              if (accountData) {
+                setAccountData(accountData);
+                setPhotoLoadError(false);
+                // Extract username from summary and set it
+                const match = result.summary?.match(/@(\w+)/);
+                if (match) setUsername(match[1]);
+                // Scroll to results
+                setTimeout(() => {
+                  document.getElementById('account-profile')?.scrollIntoView({ behavior: 'smooth' });
+                }, 300);
+                toast({
+                  title: t('History Loaded', 'Riwayat Dimuat'),
+                  description: t('Showing previous analysis', 'Menampilkan analisis sebelumnya'),
+                });
+              }
+            }} 
+            filterCategory="account" 
+          />
         )}
         </div>
       )}

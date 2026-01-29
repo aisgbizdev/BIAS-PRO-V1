@@ -27,7 +27,7 @@ import {
 import type { BiasAnalysisResult } from '@shared/schema';
 
 interface AnalysisHistoryProps {
-  onSelectAnalysis: (result: BiasAnalysisResult) => void;
+  onSelectAnalysis: (result: BiasAnalysisResult, accountData?: any) => void;
   refreshTrigger?: number;
   filterCategory?: AnalysisCategory;
 }
@@ -188,7 +188,7 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCatego
               <div
                 key={item.id}
                 className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group cursor-pointer"
-                onClick={() => onSelectAnalysis(item.result)}
+                onClick={() => onSelectAnalysis(item.result, item.accountData)}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -222,7 +222,7 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCatego
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={(e) => { e.stopPropagation(); onSelectAnalysis(item.result); }}
+                      onClick={(e) => { e.stopPropagation(); onSelectAnalysis(item.result, item.accountData); }}
                       className="h-8 px-2"
                     >
                       <Eye className="w-4 h-4" />
