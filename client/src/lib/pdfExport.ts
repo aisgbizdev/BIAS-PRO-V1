@@ -162,7 +162,7 @@ export async function exportAnalysisToPDF(
   doc.text(date, pageWidth - margin - 5, yPos + 6, { align: 'right' });
   
   doc.setTextColor(236, 72, 153);
-  doc.text('@bias_pro', margin + 5, yPos + 11);
+  doc.text('@bias23_pro', margin + 5, yPos + 11);
   doc.setTextColor(156, 163, 175);
   doc.text('bias-pro.replit.app', pageWidth - margin - 5, yPos + 11, { align: 'right' });
 
@@ -240,7 +240,7 @@ export async function exportChatToPDF(
   yPos = pageHeight - 15;
   doc.setTextColor(156, 163, 175);
   doc.setFontSize(8);
-  doc.text('@bias_pro', margin, yPos);
+  doc.text('@bias23_pro', margin, yPos);
   doc.text(new Date().toLocaleDateString(), pageWidth - margin, yPos, { align: 'right' });
 
   const filename = `BiAS_Chat_${new Date().toISOString().split('T')[0]}.pdf`;

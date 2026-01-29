@@ -15,8 +15,9 @@ import { SiTiktok } from 'react-icons/si';
 import { apiRequest } from '@/lib/queryClient';
 import type { BiasAnalysisResult } from '@shared/schema';
 import { AnalysisResults } from '@/components/AnalysisResults';
-import { AnalysisDiscussion } from '@/components/AnalysisDiscussion';
 import { trackFeatureUsage } from '@/lib/analytics';
+import { saveAnalysisToHistory } from '@/lib/analysisHistory';
+import { AnalysisHistory } from '@/components/AnalysisHistory';
 
 type Platform = 'tiktok' | 'non-social';
 
@@ -45,6 +46,15 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisResults, setAnalysisResults] = useState<BiasAnalysisResult[]>([]);
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+  
+  // Handler for when a history item is clicked - restore the analysis
+  const handleHistorySelect = (result: BiasAnalysisResult, accountData?: any) => {
+    setAnalysisResults([result]);
+    if (onAnalysisComplete) {
+      onAnalysisComplete(result);
+    }
+  };
 
   const platformConfig = {
     tiktok: {
@@ -52,14 +62,14 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
       color: '#FF0050',
       name: 'TikTok',
       accept: 'video/mp4,video/quicktime',
-      maxSize: 100, // MB
+      maxSize: 200, // MB - allows 2-3 min HD TikTok videos
     },
     'non-social': {
       icon: Presentation,
       color: '#8B5CF6',
       name: language === 'id' ? 'Profesional' : 'Professional',
       accept: 'video/mp4,video/quicktime,video/avi,video/webm',
-      maxSize: 100,
+      maxSize: 300, // MB - allows 5-7 min presentations/pitches
     },
   };
 
@@ -155,16 +165,16 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
         // Start at base progress for this video
         setUploadProgress(baseProgress);
 
-        // Simulate incremental progress during analysis (10%, 25%, 40%, 60%, 80%)
-        const progressSteps = [10, 25, 40, 60, 80];
+        // Simulate incremental progress during analysis (scaled to per-video allocation)
+        const progressSteps = [0.1, 0.25, 0.4, 0.6, 0.8]; // Percentage of this video's progress
         const progressInterval = setInterval(() => {
           setUploadProgress(prev => {
-            const relativeProgress = prev - baseProgress;
+            const relativeProgress = (prev - baseProgress) / progressPerVideo;
             const nextStep = progressSteps.find(step => step > relativeProgress);
             if (nextStep) {
-              return baseProgress + nextStep;
+              return Math.min(baseProgress + (nextStep * progressPerVideo), 100);
             }
-            return prev;
+            return Math.min(prev, 100);
           });
         }, 3000); // Update every 3 seconds
 
@@ -178,7 +188,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
         }
         formData.append('content', videoFile.description || `Video file: ${videoFile.file.name}`);
 
-        const response = await fetch('/api/analyze', {
+        const response = await fetch('/api/analyze-video', {
           method: 'POST',
           body: formData,
         });
@@ -199,7 +209,9 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
 
         const data = await response.json();
         
-        if (!data.analysis) {
+        // Server returns 'result', not 'analysis'
+        const analysisData = data.analysis || data.result;
+        if (!analysisData) {
           console.error('❌ Missing analysis in response:', data);
           throw new Error(t(
             'Invalid response from server. Please try again.',
@@ -207,15 +219,26 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           ));
         }
         
-        results.push(data.analysis);
+        results.push(analysisData);
         console.log(`✅ Video ${i + 1} analyzed successfully`);
         
-        // Update progress AFTER successful analysis
-        const completionProgress = ((i + 1) / uploadedFiles.length) * 100;
+        // Update progress AFTER successful analysis (capped at 100%)
+        const completionProgress = Math.min(((i + 1) / uploadedFiles.length) * 100, 100);
         setUploadProgress(completionProgress);
       }
 
       setAnalysisResults(results);
+      
+      // Save each result to history
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        const videoFile = uploadedFiles[i];
+        const historyMode = selectedPlatform === 'tiktok' ? 'tiktok' : 'marketing';
+        const preview = videoFile?.description || videoFile?.file.name || 'Video Analysis';
+        saveAnalysisToHistory(result, historyMode, 'video', preview);
+      }
+      // Refresh history display
+      setHistoryRefreshTrigger(prev => prev + 1);
       
       if (onAnalysisComplete && results.length > 0) {
         onAnalysisComplete(results[0]);
@@ -279,40 +302,11 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Platform Tabs - Only show for Social Pro mode */}
+          {/* Platform indicator - Professional option hidden for now */}
           {mode === 'creator' && (
-            <div>
-              <Label className="text-white mb-2 block">
-                {t('Select Social Media Platform', 'Pilih Platform Media Sosial')}
-              </Label>
-              <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
-                <TabsList className="bg-[#1E1E1E] border border-gray-700 p-1 grid grid-cols-2">
-                  <TabsTrigger 
-                    value="tiktok" 
-                    className="data-[state=active]:bg-pink-500 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-tiktok"
-                  >
-                    <SiTiktok className="w-4 h-4" />
-                    <span className="hidden sm:inline">TikTok</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="non-social"
-                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white gap-2"
-                    data-testid="tab-platform-nonsocial"
-                  >
-                    <Presentation className="w-4 h-4" />
-                    <span className="hidden sm:inline">{t('Professional', 'Profesional')}</span>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-              {selectedPlatform === 'non-social' && (
-                <p className="text-xs text-gray-400 mt-2">
-                  {t(
-                    'For presentations, speeches, meetings, talkshows, podcasts, or any professional communication',
-                    'Untuk presentasi, pidato, meeting, talkshow, podcast, atau komunikasi profesional lainnya'
-                  )}
-                </p>
-              )}
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <SiTiktok className="w-4 h-4 text-pink-500" />
+              <span>{t('Analyzing for TikTok', 'Analisis untuk TikTok')}</span>
             </div>
           )}
 
@@ -331,7 +325,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
               />
               <label htmlFor="video-upload" className="cursor-pointer">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="p-4 rounded-full bg-gradient-to-br from-pink-500/20 to-cyan-400/20">
+                  <div className="p-4 rounded-full bg-gradient-to-br from-pink-500/20 to-cyan-400/20 cursor-pointer hover:from-pink-500/40 hover:to-cyan-400/40 hover:scale-110 transition-all duration-200">
                     <Upload className="w-8 h-8 text-pink-500" />
                   </div>
                   <div>
@@ -409,28 +403,19 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                           </Button>
                         </div>
                         <div className="space-y-1">
-                          <Label className="text-xs text-pink-400 font-medium flex items-center gap-1">
-                            <span className="text-red-500">*</span>
-                            {t('Video Description (REQUIRED for Ai Analysis)', 'Deskripsi Video (WAJIB untuk Analisis Ai)')}
+                          <Label className="text-xs text-gray-400 font-medium">
+                            {t('Additional Context (Optional)', 'Konteks Tambahan (Opsional)')}
                           </Label>
                           <Textarea
                             placeholder={t(
-                              'EXAMPLE: "In this sales pitch video, I start with a question about their biggest challenge. My voice is energetic at first but gets monotone around 0:30. I say \'eee\' about 5 times. My hand gestures are good when explaining benefits but I fidget when discussing pricing. The closing feels weak..."',
-                              'CONTOH: "Di video sales pitch ini, saya buka dengan pertanyaan soal masalah terbesar mereka. Suara saya energik di awal tapi jadi monoton sekitar 0:30. Saya bilang \'eee\' sekitar 5 kali. Gestur tangan bagus saat jelaskan benefit tapi nervous saat bahas harga. Closing terasa lemah..."'
+                              'Optional: Add extra context about the video if you want more specific feedback...',
+                              'Opsional: Tambahkan konteks tambahan tentang video jika ingin feedback lebih spesifik...'
                             )}
                             value={videoFile.description}
                             onChange={(e) => updateFileDescription(videoFile.id, e.target.value)}
-                            className={`bg-[#0A0A0A] border-gray-700 text-white text-sm min-h-[100px] ${
-                              videoFile.description.length < 50 ? 'border-yellow-500/50' : 'border-green-500/50'
-                            }`}
+                            className="bg-[#0A0A0A] border-gray-700 text-white text-sm min-h-[60px]"
                             data-testid={`textarea-description-${videoFile.id}`}
                           />
-                          <p className={`text-xs ${videoFile.description.length < 50 ? 'text-yellow-400' : 'text-green-400'}`}>
-                            {videoFile.description.length}/50 {t('chars minimum', 'karakter minimum')} 
-                            {videoFile.description.length < 50 
-                              ? ` - ${t('Need more detail!', 'Butuh lebih detail!')}`
-                              : ` - ${t('Good!', 'Bagus!')}`}
-                          </p>
                         </div>
                       </div>
                     </div>
@@ -449,9 +434,9 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
                   <span className="font-medium">
                     {t('Deep Ai Analysis in Progress...', 'Analisis Ai Mendalam Sedang Berlangsung...')}
                   </span>
-                  <span className="text-sm text-cyan-300">{Math.round(uploadProgress)}%</span>
+                  <span className="text-sm text-cyan-300">{Math.min(Math.round(uploadProgress), 100)}%</span>
                 </div>
-                <Progress value={uploadProgress} className="h-2" />
+                <Progress value={Math.min(uploadProgress, 100)} className="h-2" />
                 <p className="text-xs text-gray-300 mt-1">
                   {t(
                     'Ai is analyzing your content in detail. This may take 15-30 seconds to give specific and actionable feedback.',
@@ -465,7 +450,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
           {/* Analyze Button */}
           <Button
             onClick={analyzeVideos}
-            disabled={uploadedFiles.length === 0 || isAnalyzing || uploadedFiles.some(f => f.description.length < 50)}
+            disabled={uploadedFiles.length === 0 || isAnalyzing}
             className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-pink-500/20"
             data-testid="button-analyze-videos"
           >
@@ -484,26 +469,13 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             )}
           </Button>
 
-          {/* Description Requirement Warning */}
-          {uploadedFiles.length > 0 && uploadedFiles.some(f => f.description.length < 50) && (
-            <Alert className="border-yellow-500/30 bg-yellow-500/10">
-              <AlertCircle className="w-4 h-4 text-yellow-400" />
-              <AlertDescription className="text-yellow-300 text-sm">
-                {t(
-                  'Ai cannot watch videos directly. Please describe each video in detail (min 50 chars) including: speaking style, gestures, tone, filler words, timestamps, etc. The more detail you provide, the more specific your feedback will be!',
-                  'Ai tidak bisa langsung menonton video. Mohon deskripsikan setiap video secara detail (min 50 karakter) termasuk: gaya bicara, gestur, tone, filler words, timestamps, dll. Makin detail deskripsimu, makin spesifik feedback yang kamu dapat!'
-                )}
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Info Alert */}
-          <Alert className="border-gray-700 bg-gray-800/50">
-            <AlertCircle className="w-4 h-4 text-gray-400" />
-            <AlertDescription className="text-gray-400 text-sm">
+          <Alert className="border-cyan-500/30 bg-cyan-500/10">
+            <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+            <AlertDescription className="text-cyan-300 text-sm">
               {t(
-                'Tip: Ai reads your DESCRIPTION, not the video file. Better description = better analysis!',
-                'Tips: Ai membaca DESKRIPSI kamu, bukan file video. Deskripsi lebih detail = analisis lebih akurat!'
+                'Ai analyzes your video comprehensively: Audio transcription (Whisper) + Visual frames (Vision) for detailed feedback on speech, visuals, and content quality.',
+                'Ai menganalisis video secara komprehensif: Transkripsi audio (Whisper) + Frame visual (Vision) untuk feedback detail tentang cara bicara, visual, dan kualitas konten.'
               )}
             </AlertDescription>
           </Alert>
@@ -531,14 +503,15 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
             </div>
           ))}
           
-          {/* Discussion Chat Box - After All Results */}
-          <AnalysisDiscussion 
-            analysisResult={analysisResults[0]} 
-            mode={selectedPlatform === 'tiktok' ? 'tiktok' : 'marketing'} 
-            analysisType="video" 
-          />
         </div>
       )}
+      
+      {/* Analysis History - Click to restore previous analyses */}
+      <AnalysisHistory 
+        onSelectAnalysis={handleHistorySelect}
+        refreshTrigger={historyRefreshTrigger}
+        filterCategory="video"
+      />
     </div>
   );
 }

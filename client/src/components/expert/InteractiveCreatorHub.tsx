@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
-import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Sparkles, Bot, User, Trash2, ChevronDown, ChevronUp, Camera, Image, X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
 
 interface Message {
   id: string;
   type: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  image?: string;
 }
 
 interface ConversationContext {
@@ -36,14 +38,88 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
   const [isTyping, setIsTyping] = useState(false);
   const [context, setContext] = useState<ConversationContext>({});
   const [isMinimized, setIsMinimized] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [lastImageContext, setLastImageContext] = useState<string>(''); // Store last image analysis for follow-up
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleClearChat = () => {
     setMessages([]);
     setInput('');
     setContext({});
+    setImagePreview(null);
     setIsMinimized(false);
+  };
+
+  // Export chat to text file
+  const handleExportChat = () => {
+    if (messages.length === 0) return;
+    
+    try {
+      const exportContent = messages.map(m => {
+        const role = m.type === 'user' ? 'USER' : 'BIAS AI';
+        const time = m.timestamp.toLocaleString('id-ID');
+        return `[${time}] ${role}:\n${m.content}\n`;
+      }).join('\n---\n\n');
+      
+      const header = `BIAS Pro - ${mode === 'tiktok' ? 'TikTok' : 'Marketing'} Creator Hub Chat Export\n`;
+      const date = `Exported: ${new Date().toLocaleString('id-ID')}\n`;
+      const divider = '='.repeat(50) + '\n\n';
+      
+      const fullContent = header + date + divider + exportContent;
+      
+      const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bias-chat-${mode}-${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export error:', err);
+    }
+  };
+
+  // Handle image from file input or camera
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = '';
+  };
+
+  // Handle Ctrl+V paste
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          e.preventDefault();
+          const file = items[i].getAsFile();
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+          }
+          break;
+        }
+      }
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
   };
 
   const scrollToBottom = () => {
@@ -136,24 +212,86 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && !imagePreview) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: input.trim(),
+      content: input.trim() || (imagePreview ? t('(Sent an image)', '(Mengirim gambar)') : ''),
       timestamp: new Date(),
+      image: imagePreview || undefined,
     };
 
     setMessages(prev => [...prev, userMessage]);
     const userInput = input.trim();
+    const currentImage = imagePreview;
     setInput('');
+    setImagePreview(null);
     setIsTyping(true);
 
     // Short delay for natural feel
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Try local response first
+    // Build conversation history for context continuity
+    const conversationHistory = messages.map(msg => ({
+      role: msg.type as 'user' | 'assistant',
+      content: msg.content
+    }));
+
+    // If image is present, skip local and go straight to AI
+    if (currentImage) {
+      try {
+        const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
+        const res = await fetch('/api/chat/hybrid', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message: userInput || t('Please analyze this image', 'Tolong analisis gambar ini'), 
+            sessionId, 
+            mode: mode === 'marketing' ? 'marketing' : 'expert',
+            image: currentImage,
+            outputLanguage: language === 'en' ? 'en' : 'id', // Bilingual toggle
+            previousImageContext: lastImageContext || undefined, // Follow-up context
+            conversationHistory, // Send full conversation history
+            analysisType: mode === 'marketing' ? 'coach' : 'video', // Tab-specific focus
+          }),
+        });
+        
+        const data = await res.json();
+        let finalResponse = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
+        
+        // Store context for follow-up questions
+        if (finalResponse && !finalResponse.includes('⚠️')) {
+          setLastImageContext(finalResponse.slice(0, 500));
+        }
+        
+        finalResponse = finalResponse + '\n\n---\n*✨ Fresh from BIAS Brain*';
+        
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: finalResponse,
+          timestamp: new Date(),
+        };
+
+        setIsTyping(false);
+        setMessages(prev => [...prev, assistantMessage]);
+        return;
+      } catch (err) {
+        console.error('Image chat error:', err);
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: '⚠️ Gagal menganalisis gambar. Coba lagi ya!',
+          timestamp: new Date(),
+        };
+        setIsTyping(false);
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+    }
+
+    // Try local response first (text only)
     const localResult = generateResponse(userInput, context);
     setContext(localResult.newContext);
     
@@ -166,11 +304,17 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
         const res = await fetch('/api/chat/hybrid', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userInput, sessionId, mode: 'expert' }),
+          body: JSON.stringify({ 
+            message: userInput, 
+            sessionId, 
+            mode: mode === 'marketing' ? 'marketing' : 'expert',
+            conversationHistory, // Send full conversation history for context
+            analysisType: mode === 'marketing' ? 'coach' : 'video', // Tab-specific focus
+          }),
         });
         
         const data = await res.json();
-        finalResponse = data.response || 'Maaf bro, ada gangguan. Coba lagi ya!';
+        finalResponse = data.response || 'Maaf, ada gangguan. Coba lagi ya!';
         
         // Add source indicator
         if (data.source === 'ai') {
@@ -181,7 +325,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
         }
       } catch (err) {
         console.error('Hybrid chat error:', err);
-        finalResponse = `⚠️ **Gak bisa connect ke Ai bro**
+        finalResponse = `⚠️ **Gak bisa connect ke Ai**
 
 Sementara itu, coba:
 • Pakai template: "Live 60 menit" atau "VT 30 detik"
@@ -225,7 +369,7 @@ Atau refresh dan coba lagi! 🔄`;
             <h2 className="text-sm font-medium text-white flex items-center gap-2">
               {mode === 'marketing' 
                 ? t('BIAS Marketing Coach', 'BIAS Marketing Coach')
-                : t('BIAS TikTok Mentor', 'BIAS TikTok Mentor')
+                : t('BIAS TikTok Coach', 'BIAS TikTok Coach')
               }
               <span className="px-1.5 py-0.5 text-[9px] rounded bg-gray-800 text-gray-400">
                 Ai
@@ -242,6 +386,15 @@ Atau refresh dan coba lagi! 🔄`;
         
         {/* Chat Controls */}
         <div className="flex items-center gap-1">
+          {messages.length > 0 && (
+            <button
+              onClick={handleExportChat}
+              className="p-1.5 hover:bg-gray-800 rounded transition-colors"
+              title={t('Export Chat', 'Export Chat')}
+            >
+              <Download className="w-4 h-4 text-gray-400 hover:text-green-400" />
+            </button>
+          )}
           <button
             onClick={() => setIsMinimized(!isMinimized)}
             className="p-1.5 hover:bg-gray-800 rounded transition-colors"
@@ -321,9 +474,14 @@ Atau refresh dan coba lagi! 🔄`;
                         : 'bg-gray-800 text-gray-200'
                     }`}
                   >
-                    <div className="text-xs whitespace-pre-wrap">
-                      <FormattedMessage content={message.content} />
-                    </div>
+                    {message.image && (
+                      <img 
+                        src={message.image} 
+                        alt="Sent image" 
+                        className="max-h-24 rounded-lg mb-2" 
+                      />
+                    )}
+                    <FormattedChatMessage content={message.content} mode={mode} />
                   </div>
                   {message.type === 'user' && (
                     <div className="w-6 h-6 rounded-md bg-gray-800 flex items-center justify-center flex-shrink-0 mt-1">
@@ -360,104 +518,144 @@ Atau refresh dan coba lagi! 🔄`;
 
       {/* Input Area - Minimal */}
       <div className="px-4 py-3 border-t border-gray-800">
-        <div className="flex gap-2 items-end">
-          <div className="flex-1 relative">
+        {/* Image Preview */}
+        {imagePreview && (
+          <div className="relative inline-block mb-2">
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className="max-h-20 rounded-lg border border-gray-700" 
+            />
+            <button
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+            >
+              <X className="w-3 h-3 text-white" />
+            </button>
+          </div>
+        )}
+
+        {/* Quick Template Questions - Show when image is present */}
+        {imagePreview && (
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {mode === 'tiktok' ? (
+              <>
+                <button
+                  onClick={() => setInput(t('Full profile analysis', 'Analisis profil lengkap'))}
+                  className="px-2 py-1 text-xs bg-pink-500/20 text-pink-300 rounded-full hover:bg-pink-500/30 transition-colors border border-pink-500/30"
+                >
+                  📊 {t('Analysis', 'Analisis')}
+                </button>
+                <button
+                  onClick={() => setInput(t('Views tips', 'Tips views'))}
+                  className="px-2 py-1 text-xs bg-cyan-500/20 text-cyan-300 rounded-full hover:bg-cyan-500/30 transition-colors border border-cyan-500/30"
+                >
+                  👁️ Views
+                </button>
+                <button
+                  onClick={() => setInput(t('Thumbnail review', 'Review thumbnail'))}
+                  className="px-2 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-full hover:bg-purple-500/30 transition-colors border border-purple-500/30"
+                >
+                  🎨 Thumbnail
+                </button>
+                <button
+                  onClick={() => setInput(t('Pinned strategy', 'Strategi pinned'))}
+                  className="px-2 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded-full hover:bg-yellow-500/30 transition-colors border border-yellow-500/30"
+                >
+                  📌 Pin
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setInput(t('Full analysis', 'Analisis lengkap'))}
+                  className="px-2 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-full hover:bg-purple-500/30 transition-colors border border-purple-500/30"
+                >
+                  📊 {t('Analysis', 'Analisis')}
+                </button>
+                <button
+                  onClick={() => setInput(t('CTA improvement', 'Perbaiki CTA'))}
+                  className="px-2 py-1 text-xs bg-pink-500/20 text-pink-300 rounded-full hover:bg-pink-500/30 transition-colors border border-pink-500/30"
+                >
+                  🎯 CTA
+                </button>
+                <button
+                  onClick={() => setInput(t('Headline check', 'Cek headline'))}
+                  className="px-2 py-1 text-xs bg-cyan-500/20 text-cyan-300 rounded-full hover:bg-cyan-500/30 transition-colors border border-cyan-500/30"
+                >
+                  📝 Headline
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-1.5 sm:gap-2 items-end">
+          {/* Hidden file inputs */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+
+          {/* Single image button with dropdown */}
+          <div className="relative group flex-shrink-0">
+            <button
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center transition-colors"
+              title={t('Add image', 'Tambah gambar')}
+            >
+              <Image className="w-4 h-4 text-gray-400" />
+            </button>
+            <div className="absolute bottom-full left-0 mb-1 hidden group-hover:flex flex-col bg-[#1E1E1E] border border-gray-700 rounded-lg overflow-hidden shadow-lg z-10 min-w-[140px]">
+              <button
+                onClick={() => cameraInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+                <span>{t('Take photo', 'Ambil foto')}</span>
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+              >
+                <Image className="w-4 h-4" />
+                <span>{t('Upload', 'Unggah')}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0">
             <textarea
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={mode === 'marketing' 
-                ? t('Ask me about sales, pitch, negotiation, presentation...', 'Tanya soal sales, pitch, negosiasi, presentasi...')
-                : t('Video topic, style, target audience, problem you want to solve...', 'Topik video, style, target audiens, masalah yang mau diselesaikan...')
-              }
+              onPaste={handlePaste}
+              placeholder={t('Ask...', 'Tanya...')}
               className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 resize-none text-xs transition-colors"
               rows={1}
-              style={{ minHeight: '40px', maxHeight: '100px' }}
+              style={{ minHeight: '36px', maxHeight: '150px' }}
             />
           </div>
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isTyping}
-            className="h-10 w-10 rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+            disabled={(!input.trim() && !imagePreview) || isTyping}
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors flex-shrink-0"
           >
             <Send className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function FormattedMessage({ content }: { content: string }) {
-  const lines = content.split('\n');
-  
-  return (
-    <div className="space-y-1">
-      {lines.map((line, index) => {
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-base font-semibold text-white mt-3 mb-1">{line.slice(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-sm font-medium text-pink-400 mt-2">{line.slice(4)}</h3>;
-        }
-        
-        if (line.includes('|') && line.trim().startsWith('|')) {
-          const cells = line.split('|').filter(cell => cell.trim());
-          if (line.includes('---')) {
-            return <div key={index} className="border-b border-white/10 my-1" />;
-          }
-          const colCount = cells.length;
-          return (
-            <div key={index} className="flex gap-2 text-xs py-1 bg-white/5 px-2 rounded overflow-x-auto">
-              {cells.map((cell, i) => (
-                <span 
-                  key={i} 
-                  className={`${i === 0 ? 'text-pink-400 font-medium min-w-[80px]' : 'text-gray-400 min-w-[60px]'} flex-shrink-0`}
-                  style={{ flex: i === 0 ? '0 0 auto' : '1 1 0' }}
-                >
-                  {cell.trim()}
-                </span>
-              ))}
-            </div>
-          );
-        }
-        
-        let formattedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
-        
-        if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
-          return (
-            <div key={index} className="flex gap-2 pl-2">
-              <span className="text-pink-400">•</span>
-              <span dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^[•-]\s*/, '') }} />
-            </div>
-          );
-        }
-        
-        const numberedMatch = line.match(/^(\d+)\.\s/);
-        if (numberedMatch) {
-          return (
-            <div key={index} className="flex gap-2 pl-2">
-              <span className="text-cyan-400 font-medium">{numberedMatch[1]}.</span>
-              <span dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^\d+\.\s*/, '') }} />
-            </div>
-          );
-        }
-        
-        if (line.startsWith('>')) {
-          return (
-            <div key={index} className="border-l-2 border-pink-500 pl-3 py-1 bg-pink-500/5 rounded-r text-gray-300 italic">
-              {line.slice(1).trim()}
-            </div>
-          );
-        }
-        
-        if (!line.trim()) {
-          return <div key={index} className="h-2" />;
-        }
-        
-        return <p key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
-      })}
     </div>
   );
 }

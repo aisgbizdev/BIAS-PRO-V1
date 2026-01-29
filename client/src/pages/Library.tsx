@@ -10,10 +10,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { setAdminUnlimited } from '@/lib/usageLimit';
+import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight, Brain, Download } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
+import { KnowledgeBasePanel } from '@/components/admin/KnowledgeBasePanel';
 
 interface GlossaryTerm {
   term: string;
@@ -672,38 +674,35 @@ export default function Library() {
 
       {/* Tabs */}
       <Tabs defaultValue="tiktok" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
-          <TabsTrigger value="tiktok" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-tiktok">
-            <SiTiktok className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">TikTok ({filteredTikTok.length})</span>
-            <span className="sm:hidden">TikTok</span>
-          </TabsTrigger>
-          <TabsTrigger value="marketing" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-marketing">
-            <Megaphone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Marketing ({filteredMarketing.length})</span>
-            <span className="sm:hidden">Marketing</span>
-          </TabsTrigger>
-          <TabsTrigger value="bias" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-bias">
-            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">BIAS ({filteredBias.length})</span>
-            <span className="sm:hidden">BIAS</span>
-          </TabsTrigger>
-          <TabsTrigger value="stories" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-stories">
-            <Trophy className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('Success', 'Sukses')}</span>
-            <span className="sm:hidden">{t('Sukses', 'Sukses')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="contribute" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-contribute">
-            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('Promote', 'Promosi')}</span>
-            <span className="sm:hidden">+</span>
-          </TabsTrigger>
-          <TabsTrigger value="rules" className="gap-1 text-[10px] sm:text-sm px-1 sm:px-3" data-testid="tab-rules">
-            <Shield className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">{t('Guidelines', 'Panduan')}</span>
-            <span className="sm:hidden">{t('Guidelines', 'Panduan')}</span>
-          </TabsTrigger>
-        </TabsList>
+        {/* Mobile: horizontal scroll, Desktop: grid */}
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0 scrollbar-hide">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-6 gap-1 min-w-max sm:min-w-0">
+            <TabsTrigger value="tiktok" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-tiktok">
+              <SiTiktok className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>TikTok</span>
+            </TabsTrigger>
+            <TabsTrigger value="marketing" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-marketing">
+              <Megaphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>Marketing</span>
+            </TabsTrigger>
+            <TabsTrigger value="bias" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-bias">
+              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>BIAS</span>
+            </TabsTrigger>
+            <TabsTrigger value="stories" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-stories">
+              <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>{t('Sukses', 'Sukses')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="contribute" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-contribute">
+              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>{t('Promosi', 'Promosi')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="rules" className="gap-1.5 text-xs sm:text-sm px-3 sm:px-3 whitespace-nowrap" data-testid="tab-rules">
+              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>{t('Panduan', 'Panduan')}</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="bias" className="space-y-4 mt-6">
           {filteredBias.length === 0 ? (
@@ -1390,6 +1389,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       
       if (res.ok && data.success) {
         setIsAdmin(true);
+        setAdminUnlimited(true); // Developer/Admin gets unlimited analysis
         toast({
           title: t('Admin Access Granted', 'Akses Admin Diberikan'),
           description: t(`Welcome, ${data.username}!`, `Selamat datang, ${data.username}!`),
@@ -1421,6 +1421,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
         credentials: 'include',
       });
       setIsAdmin(false);
+      setAdminUnlimited(false); // Remove unlimited analysis on logout
       toast({
         title: t('Logged Out', 'Keluar'),
         description: t('Successfully logged out', 'Berhasil keluar'),
@@ -1622,7 +1623,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="superadmin"
+                  placeholder="admin"
                   data-testid="input-admin-username"
                   required
                 />
@@ -1650,48 +1651,60 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
   }
 
   return (
-    <div className="container max-w-6xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
             {t('Admin Panel', 'Panel Admin')}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             {t('Manage library and view analytics', 'Kelola perpustakaan dan lihat analitik')}
           </p>
         </div>
-        <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
+        <Button variant="outline" onClick={handleLogout} data-testid="button-logout" className="self-end sm:self-auto">
           {t('Logout', 'Keluar')}
         </Button>
       </div>
 
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="library" className="gap-2">
-            <BookOpen className="w-4 h-4" />
-            {t('Library', 'Perpustakaan')}
-          </TabsTrigger>
-          <TabsTrigger value="stories" className="gap-2">
-            <Trophy className="w-4 h-4" />
-            {t('Stories', 'Cerita')}
-          </TabsTrigger>
-          <TabsTrigger value="brands" className="gap-2">
-            <Palette className="w-4 h-4" />
-            {t('Brands', 'Partner')}
-          </TabsTrigger>
-          <TabsTrigger value="users" className="gap-2">
-            <Users className="w-4 h-4" />
-            {t('Users', 'Pengguna')}
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="gap-2">
-            <Settings className="w-4 h-4" />
-            {t('Settings', 'Pengaturan')}
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="gap-2">
-            <BarChart3 className="w-4 h-4" />
-            {t('Analytics', 'Analitik')}
-          </TabsTrigger>
-        </TabsList>
+        {/* Mobile: horizontal scroll with visible tabs, Desktop: grid */}
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0 scrollbar-hide">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-6 gap-1 min-w-max sm:min-w-0 bg-zinc-900/50 p-1">
+            <TabsTrigger value="library" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Library', 'Perpustakaan')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="stories" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Trophy className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Stories', 'Cerita')}</span>
+            </TabsTrigger>
+            {/* Partner tab hidden for now - enable when ready for white-label */}
+            {/* <TabsTrigger value="brands" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Palette className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Brands', 'Partner')}</span>
+            </TabsTrigger> */}
+            <TabsTrigger value="users" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Users className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Users', 'Pengguna')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai-learning" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Brain className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>AI Legacy</span>
+            </TabsTrigger>
+            <TabsTrigger value="knowledge" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0 relative">
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Knowledge</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <Settings className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Settings', 'Pengaturan')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+              <BarChart3 className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{t('Analytics', 'Analitik')}</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="library" className="space-y-6 mt-6">
           <div className="space-y-4">
@@ -1917,6 +1930,14 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
 
         <TabsContent value="users" className="mt-6">
           <AnalyzedUsersPanel />
+        </TabsContent>
+
+        <TabsContent value="ai-learning" className="mt-6">
+          <LearnedResponsesPanel />
+        </TabsContent>
+
+        <TabsContent value="knowledge" className="mt-6">
+          <KnowledgeBasePanel />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
@@ -2644,6 +2665,123 @@ function BrandManagement() {
   );
 }
 
+interface AILearnedItem {
+  id: string;
+  question: string;
+  keywords: string[];
+  response: string;
+  useCount: number;
+  approvedAt: string;
+}
+
+function AILearnedKnowledgePanel({ search }: { search: string }) {
+  const { t, language } = useLanguage();
+  const [items, setItems] = useState<AILearnedItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAILearned = async () => {
+      try {
+        const res = await fetch('/api/library/ai-learned');
+        if (res.ok) {
+          const data = await res.json();
+          setItems(data);
+        }
+      } catch (error) {
+        console.error('Error fetching AI-learned knowledge:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAILearned();
+  }, []);
+
+  const filteredItems = items.filter(item => {
+    const searchLower = search.toLowerCase();
+    return (
+      item.question.toLowerCase().includes(searchLower) ||
+      item.response.toLowerCase().includes(searchLower) ||
+      item.keywords.some(k => k.toLowerCase().includes(searchLower))
+    );
+  });
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full mx-auto mb-3" />
+          <p className="text-muted-foreground">{t('Loading...', 'Memuat...')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (filteredItems.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <Brain className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+          <p className="text-muted-foreground">
+            {search 
+              ? t('No matching AI-learned knowledge found', 'Tidak ada knowledge AI yang cocok')
+              : t('No approved AI-learned knowledge yet', 'Belum ada knowledge AI yang diapprove')
+            }
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            {t('AI-learned knowledge is curated from chat conversations and approved by admins', 'Knowledge AI dikurasi dari percakapan chat dan diapprove oleh admin')}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-4">
+        <Brain className="w-5 h-5 text-pink-500" />
+        <h3 className="font-semibold">{t('AI-Learned Knowledge', 'Knowledge AI')}</h3>
+        <Badge variant="secondary" className="text-xs">{filteredItems.length} {t('items', 'item')}</Badge>
+      </div>
+      <p className="text-sm text-muted-foreground mb-4">
+        {t('Curated knowledge from AI chat conversations, approved by the BiAS Pro team.', 'Knowledge yang dikurasi dari percakapan AI chat, diapprove oleh tim BiAS Pro.')}
+      </p>
+      
+      <div className="space-y-3">
+        {filteredItems.map((item) => (
+          <Card key={item.id} className="border-l-4 border-l-pink-500/50">
+            <CardHeader className="pb-2">
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{item.question}</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {item.keywords.slice(0, 4).map((kw, idx) => (
+                      <Badge key={idx} variant="outline" className="text-[10px]">
+                        {kw}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.response}</p>
+              <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Check className="w-3 h-3 text-green-500" />
+                  {t('Used', 'Digunakan')}: {item.useCount}x
+                </span>
+                <span>
+                  {t('Approved', 'Diapprove')}: {new Date(item.approvedAt).toLocaleDateString('id-ID')}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PlatformRulesHub({ search }: { search: string }) {
   const { t, language } = useLanguage();
 
@@ -2789,6 +2927,288 @@ interface AppSetting {
   updatedAt: string;
 }
 
+interface LearnedResponse {
+  id: string;
+  question: string;
+  keywords: string[];
+  response: string;
+  useCount: number;
+  quality: number | null;
+  isApproved: boolean;
+  approvedAt: string | null;
+  createdAt: string;
+  lastUsedAt: string;
+}
+
+function LearnedResponsesPanel() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [responses, setResponses] = useState<LearnedResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editData, setEditData] = useState({ question: '', response: '' });
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    loadResponses();
+  }, []);
+
+  const loadResponses = async () => {
+    try {
+      const res = await fetch('/api/learned-responses', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load responses');
+      const data = await res.json();
+      setResponses(data);
+    } catch (error) {
+      console.error('Error loading learned responses:', error);
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to load AI learning data', 'Gagal memuat data AI learning'),
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('Delete this learned response?', 'Hapus respons ini?'))) return;
+    
+    try {
+      const res = await fetch(`/api/learned-responses/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to delete');
+      setResponses(responses.filter(r => r.id !== id));
+      toast({
+        title: t('Success', 'Berhasil'),
+        description: t('Response deleted', 'Respons dihapus'),
+      });
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to delete response', 'Gagal menghapus respons'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleEdit = (response: LearnedResponse) => {
+    setEditingId(response.id);
+    setEditData({ question: response.question, response: response.response });
+  };
+
+  const handleApprove = async (id: string) => {
+    if (!confirm(t('Approve this response to Library?', 'Approve respons ini ke Library?'))) return;
+    
+    try {
+      const res = await fetch(`/api/learned-responses/${id}/approve`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to approve');
+      setResponses(responses.map(r => 
+        r.id === id ? { ...r, isApproved: true, approvedAt: new Date().toISOString() } : r
+      ));
+      toast({
+        title: t('Success', 'Berhasil'),
+        description: t('Response approved to Library!', 'Respons berhasil diapprove ke Library!'),
+      });
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to approve response', 'Gagal approve respons'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId) return;
+    
+    try {
+      const res = await fetch(`/api/learned-responses/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(editData),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      
+      setResponses(responses.map(r => 
+        r.id === editingId 
+          ? { ...r, question: editData.question, response: editData.response }
+          : r
+      ));
+      setEditingId(null);
+      toast({
+        title: t('Success', 'Berhasil'),
+        description: t('Response updated', 'Respons diperbarui'),
+      });
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to update response', 'Gagal memperbarui respons'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const filteredResponses = responses.filter(r => 
+    r.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full mx-auto mb-3" />
+          <p className="text-muted-foreground">{t('Loading...', 'Memuat...')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold">{t('AI Learning Library', 'Perpustakaan AI Learning')}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t('Manage auto-learned responses from chat conversations', 'Kelola respons yang dipelajari otomatis dari percakapan chat')}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs">
+            {responses.length} {t('responses', 'respons')}
+          </Badge>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              window.open('/api/admin/export-learned', '_blank');
+            }}
+            title={t('Export all learned data for backup', 'Export semua data learned untuk backup')}
+          >
+            <Download className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={loadResponses}>
+            <RefreshCcw className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder={t('Search by question or keyword...', 'Cari berdasarkan pertanyaan atau keyword...')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      {filteredResponses.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            <Brain className="w-12 h-12 mx-auto mb-3 opacity-20" />
+            {searchQuery ? (
+              <p>{t('No matching responses found', 'Tidak ada respons yang cocok')}</p>
+            ) : (
+              <p>{t('No learned responses yet. Chat with AI to start learning!', 'Belum ada respons yang dipelajari. Chat dengan AI untuk mulai belajar!')}</p>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {filteredResponses.map((item) => (
+            <Card key={item.id} className="border-2">
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 space-y-1">
+                    {editingId === item.id ? (
+                      <textarea
+                        value={editData.question}
+                        onChange={(e) => setEditData({ ...editData, question: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                        rows={2}
+                      />
+                    ) : (
+                      <p className="font-medium text-sm">{item.question}</p>
+                    )}
+                    <div className="flex flex-wrap gap-1">
+                      {item.isApproved && (
+                        <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">
+                          ✓ {t('In Library', 'Di Library')}
+                        </Badge>
+                      )}
+                      {item.keywords.slice(0, 5).map((kw, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-[10px]">
+                          {kw}
+                        </Badge>
+                      ))}
+                      {item.keywords.length > 5 && (
+                        <Badge variant="outline" className="text-[10px]">
+                          +{item.keywords.length - 5}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {editingId === item.id ? (
+                      <>
+                        <Button size="sm" onClick={handleSaveEdit}>
+                          <Check className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        {!item.isApproved && (
+                          <Button size="sm" variant="outline" className="text-green-500 border-green-500 hover:bg-green-500/10" onClick={() => handleApprove(item.id)}>
+                            <Check className="w-3 h-3" />
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
+                          <Pencil className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}>
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {editingId === item.id ? (
+                  <textarea
+                    value={editData.response}
+                    onChange={(e) => setEditData({ ...editData, response: e.target.value })}
+                    className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                    rows={4}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground line-clamp-3">{item.response}</p>
+                )}
+                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                  <span>{t('Used', 'Digunakan')}: {item.useCount}x</span>
+                  <span>{t('Created', 'Dibuat')}: {new Date(item.createdAt).toLocaleDateString('id-ID')}</span>
+                  <span>{t('Last used', 'Terakhir')}: {new Date(item.lastUsedAt).toLocaleDateString('id-ID')}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface PricingTier {
   id: string;
   name: string;
@@ -2834,10 +3254,56 @@ function PlatformSettingsPanel() {
   const [activeTab, setActiveTab] = useState<'settings' | 'pricing'>('settings');
   const [editingTiers, setEditingTiers] = useState<Record<string, TierEditState>>({});
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [tiktokReminder, setTiktokReminder] = useState<{
+    needsCheck: boolean;
+    daysAgo: number | null;
+    lastCheckDate: string | null;
+    checkUrl: string;
+    newsroomUrl: string;
+  } | null>(null);
+  const [markingChecked, setMarkingChecked] = useState(false);
 
   useEffect(() => {
     fetchData();
+    fetchTiktokReminder();
   }, []);
+
+  const fetchTiktokReminder = async () => {
+    try {
+      const res = await fetch('/api/admin/tiktok-reminder', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setTiktokReminder(data);
+      }
+    } catch (error) {
+      console.error('Error fetching TikTok reminder:', error);
+    }
+  };
+
+  const markTiktokChecked = async () => {
+    setMarkingChecked(true);
+    try {
+      const res = await fetch('/api/admin/tiktok-reminder/mark-checked', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        toast({
+          title: t('Marked as checked', 'Ditandai sudah dicek'),
+          description: t('Next reminder in 30 days', 'Reminder berikutnya 30 hari lagi'),
+        });
+        fetchTiktokReminder();
+      }
+    } catch (error) {
+      toast({
+        title: t('Error', 'Error'),
+        description: t('Failed to save', 'Gagal menyimpan'),
+        variant: 'destructive',
+      });
+    } finally {
+      setMarkingChecked(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -3191,6 +3657,60 @@ function PlatformSettingsPanel() {
           </div>
         </CardContent>
       </Card>
+
+      {tiktokReminder && tiktokReminder.needsCheck && (
+        <Card className="border-yellow-500/50 bg-yellow-500/10 mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h3 className="font-bold text-white flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-500" />
+                  {t('TikTok Guidelines Review', 'Review Panduan TikTok')}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {tiktokReminder.daysAgo === null 
+                    ? t('Never checked. Please verify TikTok guidelines are current.', 'Belum pernah dicek. Silakan verifikasi panduan TikTok masih berlaku.')
+                    : t(`Last checked ${tiktokReminder.daysAgo} days ago. Time for a review!`, `Terakhir dicek ${tiktokReminder.daysAgo} hari lalu. Saatnya review!`)
+                  }
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(tiktokReminder.checkUrl, '_blank')}
+                  className="text-xs"
+                >
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                  {t('View Guidelines', 'Lihat Panduan')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(tiktokReminder.newsroomUrl, '_blank')}
+                  className="text-xs"
+                >
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                  Newsroom
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={markTiktokChecked}
+                  disabled={markingChecked}
+                  className="bg-green-600 hover:bg-green-700 text-xs"
+                >
+                  {markingChecked ? (
+                    <RefreshCcw className="w-3 h-3 mr-1 animate-spin" />
+                  ) : (
+                    <Check className="w-3 h-3 mr-1" />
+                  )}
+                  {t('Mark Checked', 'Tandai Dicek')}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pricing.map((tier) => {

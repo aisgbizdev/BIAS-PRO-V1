@@ -1,8 +1,11 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "../db";
+import { appSettings } from "@shared/schema";
 import multer from "multer";
 import { randomUUID, timingSafeEqual } from "crypto";
+import OpenAI from "openai";
 import { 
   analyzeBehavior, 
   generateChatResponse, 
@@ -296,7 +299,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const scrapedData = await scrapeTikTokProfile(cleanUsername);
       
       // Calculate derived metrics using BigInt-safe methods
-      const engagementRate = calculateEngagementRate(scrapedData.likesCount, scrapedData.followerCount);
+      // Engagement Rate = (Avg likes per video / followers) × 100
+      const engagementRate = calculateEngagementRate(scrapedData.likesCount, scrapedData.followerCount, scrapedData.videoCount);
       const avgViews = calculateAverage(scrapedData.likesCount, scrapedData.videoCount);
       
       // Convert BigInt metrics to MetricValue format (raw string + safe approx)
@@ -305,6 +309,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const likesMetric = toMetricValue(scrapedData.likesCount);
       const videosMetric = toMetricValue(scrapedData.videoCount);
       
+      // Save analyzed account to database for admin tracking
+      try {
+        await storage.createTiktokAccount({
+          sessionId: req.ip || 'anonymous',
+          username: scrapedData.username,
+          displayName: scrapedData.nickname,
+          followers: followersMetric.approx,
+          following: followingMetric.approx,
+          totalLikes: likesMetric.approx,
+          totalVideos: videosMetric.approx,
+          bio: scrapedData.signature,
+          verified: scrapedData.verified,
+          avatarUrl: scrapedData.avatarUrl,
+          engagementRate: parseFloat(engagementRate.toFixed(2)),
+          avgViews: avgViews,
+        });
+        console.log(`[TRACKING] Saved analyzed account @${scrapedData.username} to database`);
+      } catch (saveError) {
+        console.error('[TRACKING] Failed to save account to database:', saveError);
+        // Don't fail the request if tracking fails
+      }
+
       // Return real data with BigInt-safe metrics
       res.json({
         success: true,
@@ -349,8 +375,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analyze Video Content with AI Vision
+  // Analyze Video Content with AI Vision + Whisper Audio Transcription + 8-Layer BIAS
   app.post("/api/analyze-video", upload.single('file'), async (req, res) => {
+    let tempDir: string | null = null;
+    
     try {
       if (!req.file) {
         return res.status(400).json({
@@ -360,114 +388,330 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const description = req.body.description || 'TikTok video content';
+      const description = req.body.description || '';
       const mode = req.body.mode || 'tiktok';
-
-      // Convert file to base64 for OpenAI Vision
-      const base64Image = req.file.buffer.toString('base64');
+      const platform = req.body.platform || 'tiktok';
       const mimeType = req.file.mimetype;
-      
-      // For videos, we analyze the first frame (thumbnail)
-      // For images, we analyze directly
       const isVideo = mimeType.startsWith('video/');
-      
-      const analysisPrompt = mode === 'tiktok' 
-        ? `Analyze this TikTok ${isVideo ? 'video thumbnail' : 'image'} for content performance. Context: ${description}
-        
-Evaluate and score (0-100) these aspects:
-1. Hook Strength: How attention-grabbing is the opening visual?
-2. Visual Quality: Lighting, composition, color grading
-3. Audio Clarity: Based on visual cues (text overlays, mouth movement clarity)
-4. Engagement Potential: Shareability, relatability, emotional appeal
-5. Retention Score: Will viewers watch till the end?
 
-Also provide:
-- 3 key strengths
-- 3 areas for improvement  
-- 3 specific actionable recommendations
-
-Respond in JSON format:
-{
-  "overallScore": number,
-  "hookStrength": number,
-  "visualQuality": number,
-  "audioClarity": number,
-  "engagement": number,
-  "retention": number,
-  "strengths": ["strength1", "strength2", "strength3"],
-  "improvements": ["improvement1", "improvement2", "improvement3"],
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
-}`
-        : `Analyze this marketing/presentation content. Context: ${description}
-        
-Evaluate and score (0-100) these aspects:
-1. Hook Strength: How attention-grabbing is the opening?
-2. Visual Quality: Professional appearance, branding
-3. Audio Clarity: Presentation clarity (based on visual cues)
-4. Engagement Potential: Audience interest, persuasiveness
-5. Retention Score: Will audience stay engaged?
-
-Also provide:
-- 3 key strengths
-- 3 areas for improvement
-- 3 specific actionable recommendations
-
-Respond in JSON format:
-{
-  "overallScore": number,
-  "hookStrength": number,
-  "visualQuality": number,
-  "audioClarity": number,
-  "engagement": number,
-  "retention": number,
-  "strengths": ["strength1", "strength2", "strength3"],
-  "improvements": ["improvement1", "improvement2", "improvement3"],
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
-}`;
-
-      // Use OpenAI Vision API
       const OpenAI = (await import('openai')).default;
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const fs = await import('fs');
+      const { analyzeBehavior } = await import('./bias-engine');
 
-      const visionResponse = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: analysisPrompt },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:${mimeType};base64,${base64Image}`,
-                  detail: 'low',
-                },
-              },
-            ],
-          },
-        ],
-        max_tokens: 1000,
-        response_format: { type: 'json_object' },
+      let transcription = '';
+      let visualDescription = '';
+      let frameBase64List: string[] = [];
+      let videoDuration = 0;
+
+      // Step 1: Extract audio and frames from video
+      if (isVideo) {
+        console.log('Processing video with ffmpeg...');
+        const { processVideo, cleanupTempDir, frameToBase64 } = await import('./video-processor');
+        
+        try {
+          const result = await processVideo(req.file.buffer, req.file.originalname || 'video.mp4');
+          tempDir = result.tempDir;
+          videoDuration = result.duration;
+          
+          // Transcribe audio with Whisper
+          if (result.audioPath) {
+            console.log('Transcribing audio with Whisper...');
+            try {
+              const audioFile = fs.createReadStream(result.audioPath);
+              const whisperResponse = await openai.audio.transcriptions.create({
+                file: audioFile,
+                model: 'whisper-1',
+                language: 'id',
+                response_format: 'text',
+              });
+              transcription = whisperResponse || '';
+              console.log(`Transcription: ${transcription.substring(0, 100)}...`);
+            } catch (whisperError: any) {
+              console.log('Whisper transcription failed:', whisperError.message);
+            }
+          }
+          
+          // Extract frames for visual analysis
+          for (const framePath of result.frames) {
+            frameBase64List.push(frameToBase64(framePath));
+          }
+          console.log(`Extracted ${frameBase64List.length} frames for vision analysis`);
+          
+        } catch (ffmpegError: any) {
+          console.log('FFmpeg processing failed, falling back to direct upload:', ffmpegError.message);
+          frameBase64List = [req.file.buffer.toString('base64')];
+        }
+      } else {
+        // Image file - just use as is
+        frameBase64List = [req.file.buffer.toString('base64')];
+      }
+
+      // Step 2: Get visual description from Vision API
+      if (frameBase64List.length > 0) {
+        console.log('Getting visual description from Vision API...');
+        const imageContent = frameBase64List.slice(0, 3).map(base64 => ({
+          type: 'image_url',
+          image_url: { url: `data:image/jpeg;base64,${base64}`, detail: 'low' },
+        }));
+
+        try {
+          // Use a neutral prompt that focuses on content quality rather than personal analysis
+          // This helps avoid content moderation filters
+          const visionPrompt = `Jelaskan konten visual ini untuk keperluan coaching presentasi dan komunikasi profesional.
+
+Fokus pada aspek TEKNIS yang bisa diperbaiki:
+1. KOMPOSISI FRAME: Bagaimana framing/angle kamera? Ada teks overlay? Background jelas atau berantakan?
+2. PENCAHAYAAN: Apakah wajah terlihat jelas? Ada bayangan mengganggu?
+3. KUALITAS TEKNIS: Resolusi cukup? Ada blur/noise?
+4. ELEMEN VISUAL: Ada grafik/chart? Properti yang digunakan? Warna dominan?
+5. SETUP PROFESIONAL: Apakah terlihat profesional atau casual? Apa yang bisa ditingkatkan?
+
+Berikan observasi FAKTUAL dan TEKNIS saja. Jangan menilai individu, fokus pada aspek produksi konten.
+Response dalam Bahasa Indonesia.`;
+          
+          const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{
+                role: 'user',
+                content: [
+                  { type: 'text', text: visionPrompt },
+                  ...imageContent,
+                ],
+              }],
+              max_tokens: 600,
+            }),
+          });
+
+          if (visionResponse.ok) {
+            const visionData = await visionResponse.json();
+            visualDescription = visionData.choices?.[0]?.message?.content || '';
+            console.log(`Visual description: ${visualDescription.substring(0, 100)}...`);
+          }
+        } catch (visionError: any) {
+          console.log('Vision API failed:', visionError.message);
+        }
+      }
+
+      // Step 3: Combine all context for 8-layer BIAS analysis
+      const hasTranscription = transcription.length > 10;
+      const hasVisual = visualDescription.length > 10;
+      
+      let combinedContent = '';
+      
+      if (hasTranscription && hasVisual) {
+        combinedContent = `[ANALISIS VIDEO KOMPREHENSIF]
+
+TRANSKRIPSI AUDIO (apa yang dikatakan):
+"${transcription}"
+
+DESKRIPSI VISUAL (apa yang terlihat):
+${visualDescription}
+
+${description ? `KONTEKS DARI USER: ${description}` : ''}
+
+Durasi video: ${videoDuration.toFixed(1)} detik
+
+Analisis konten video ini secara menyeluruh dari segi komunikasi behavioral, termasuk cara bicara, ekspresi, dan penyampaian pesan.`;
+      } else if (hasTranscription) {
+        combinedContent = `[ANALISIS AUDIO VIDEO]
+
+TRANSKRIPSI (apa yang dikatakan):
+"${transcription}"
+
+${description ? `KONTEKS: ${description}` : ''}
+
+Durasi: ${videoDuration.toFixed(1)} detik
+
+Analisis cara bicara dan penyampaian pesan dalam rekaman ini.`;
+      } else if (hasVisual) {
+        combinedContent = `[ANALISIS VISUAL VIDEO]
+
+DESKRIPSI VISUAL:
+${visualDescription}
+
+${description ? `KONTEKS: ${description}` : ''}
+
+Analisis elemen visual dan presentasi dalam konten ini.`;
+      } else {
+        combinedContent = description || 'Video content untuk dianalisis';
+      }
+
+      console.log('Running 8-layer BIAS analysis...');
+      
+      // Step 4: Use existing BIAS engine for 8-layer analysis
+      const biasMode = mode === 'marketing' ? 'academic' : 'creator';
+      const biasResult = await analyzeBehavior({
+        mode: biasMode,
+        inputType: 'video',
+        content: combinedContent,
+        platform: platform as any,
       });
 
-      const analysisText = visionResponse.choices[0]?.message?.content || '{}';
-      const analysisResult = JSON.parse(analysisText);
-
-      // Validate required fields
-      if (typeof analysisResult.overallScore !== 'number') {
-        throw new Error('Invalid analysis result');
+      // Cleanup temp files
+      if (tempDir) {
+        const { cleanupTempDir } = await import('./video-processor');
+        cleanupTempDir(tempDir);
       }
+
+      // Add video-specific metadata
+      const enrichedResult = {
+        ...biasResult,
+        hasAudioAnalysis: hasTranscription,
+        hasVisualAnalysis: hasVisual,
+        videoDuration,
+        transcriptionPreview: hasTranscription 
+          ? transcription.substring(0, 200) + (transcription.length > 200 ? '...' : '')
+          : undefined,
+      };
+
+      console.log('8-layer BIAS analysis completed successfully');
 
       res.json({
         success: true,
-        result: analysisResult,
+        analysis: enrichedResult,
       });
     } catch (error: any) {
       console.error('Video analysis error:', error);
+      if (tempDir) {
+        try {
+          const { cleanupTempDir } = await import('./video-processor');
+          cleanupTempDir(tempDir);
+        } catch (cleanupError) {
+          console.log('Cleanup error:', cleanupError);
+        }
+      }
       res.status(500).json({
         error: 'Analysis failed',
         message: 'Gagal menganalisis konten. Silakan coba lagi.',
         messageId: 'Gagal menganalisis konten. Silakan coba lagi.',
+      });
+    }
+  });
+
+  // Compare Videos - Competitive batch comparison
+  app.post("/api/compare-videos", async (req, res) => {
+    try {
+      const schema = z.object({
+        videos: z.array(z.object({
+          name: z.string(),
+          overallScore: z.number(),
+          layers: z.array(z.object({
+            layer: z.string(),
+            score: z.number(),
+            strengths: z.array(z.string()).optional(),
+            weaknesses: z.array(z.string()).optional(),
+            feedback: z.string().optional(),
+          })).optional(),
+          transcriptionPreview: z.string().optional(),
+        })).min(2).max(5),
+        language: z.enum(['en', 'id']).default('id'),
+      });
+
+      const data = schema.parse(req.body);
+      const { videos, language } = data;
+      const isId = language === 'id';
+
+      console.log(`🔄 Comparing ${videos.length} videos competitively...`);
+
+      // Build comparison summary for each video
+      const videoSummaries = videos.map((v, i) => {
+        const layerScores = v.layers?.map(l => `${l.layer.split(' ')[0]}: ${l.score}`).join(', ') || 'N/A';
+        const topStrengths = v.layers?.flatMap(l => l.strengths || []).slice(0, 2).join('; ') || 'N/A';
+        const topWeaknesses = v.layers?.flatMap(l => l.weaknesses || []).slice(0, 2).join('; ') || 'N/A';
+        return `VIDEO ${i + 1} "${v.name}":
+- Overall Score: ${v.overallScore}
+- Layer Scores: ${layerScores}
+- Strengths: ${topStrengths}
+- Weaknesses: ${topWeaknesses}
+- Content Preview: ${v.transcriptionPreview?.substring(0, 150) || 'No transcription'}`;
+      }).join('\n\n');
+
+      const comparisonPrompt = `Kamu expert content analyst. Bandingkan ${videos.length} video TikTok/Marketing ini secara KOMPETITIF.
+
+${videoSummaries}
+
+TUGAS: Buat perbandingan kompetitif yang ACTIONABLE. 
+
+Respond in JSON format:
+{
+  "overallWinner": {
+    "videoName": "nama video pemenang",
+    "reason": "Alasan spesifik kenapa video ini menang (2-3 kalimat dengan reference ke konten)"
+  },
+  "dimensionWinners": [
+    { "dimension": "Hook", "winner": "Video 1", "reason": "Hook 'Halo traders' lebih menarik karena langsung menyapa audiens vs Video 2 yang mulai dengan intro generik" },
+    { "dimension": "Storytelling", "winner": "Video 2", "reason": "Struktur Problem→Solution→CTA lebih jelas" },
+    { "dimension": "Credibility", "winner": "Video 1", "reason": "Menyertakan data dan statistik" },
+    { "dimension": "Engagement", "winner": "Video 3", "reason": "Ada pertanyaan ke audiens di tengah video" },
+    { "dimension": "CTA", "winner": "Video 2", "reason": "CTA lebih jelas dan actionable" }
+  ],
+  "pairwiseComparisons": [
+    { "pair": "Video 1 vs Video 2", "verdict": "Video 1 unggul di hook (+12 poin) tapi kalah di struktur (-8 poin)" },
+    { "pair": "Video 1 vs Video 3", "verdict": "Video 1 lebih kredibel, Video 3 lebih engaging" }
+  ],
+  "sharedWeaknesses": [
+    "Semua video kurang CTA yang jelas di akhir",
+    "Background audio bisa lebih konsisten"
+  ],
+  "winningCombo": {
+    "recommendation": "Gabungan ideal: Ambil hook dari Video 1, storytelling dari Video 2, dan engagement style dari Video 3",
+    "nextAction": "BESOK: Rekam video baru dengan: (1) Hook langsung seperti Video 1, (2) Struktur 3-bagian seperti Video 2, (3) Tambah 1 pertanyaan ke audiens seperti Video 3"
+  }
+}
+
+PENTING:
+- Reference SPESIFIK ke konten video (quote kalau ada transcription)
+- Banding ANGKA (skor) antar video
+- JANGAN generic - harus ada alasan konkret dari analisis
+- ${isId ? 'Respond in Bahasa Indonesia' : 'Respond in English'}`;
+
+      const openai = await import('openai');
+      const client = new openai.default({ apiKey: process.env.OPENAI_API_KEY });
+
+      const completion = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: comparisonPrompt }],
+        max_tokens: 2000,
+        temperature: 0.6,
+        response_format: { type: 'json_object' },
+      });
+
+      const responseContent = completion.choices[0]?.message?.content;
+      if (!responseContent) {
+        console.warn('⚠️ Empty AI response for comparison');
+        return res.json({ success: true, comparison: null });
+      }
+
+      let comparison;
+      try {
+        // Clean potential markdown code fences
+        const cleanedContent = responseContent.replace(/```json\n?|\n?```/g, '').trim();
+        comparison = JSON.parse(cleanedContent);
+      } catch (parseError) {
+        console.warn('⚠️ Failed to parse comparison JSON:', parseError);
+        console.warn('Raw response:', responseContent.substring(0, 500));
+        return res.json({ success: true, comparison: null });
+      }
+
+      console.log(`✅ Competitive comparison completed for ${videos.length} videos`);
+
+      res.json({
+        success: true,
+        comparison,
+      });
+    } catch (error: any) {
+      console.error('Video comparison error:', error);
+      res.status(500).json({
+        error: 'Comparison failed',
+        message: 'Gagal membandingkan video. Pastikan semua video sudah dianalisis.',
+        messageId: 'Gagal membandingkan video. Pastikan semua video sudah dianalisis.',
       });
     }
   });
@@ -509,23 +753,38 @@ Respond in JSON format:
         ? 'Respond in Indonesian (Bahasa Indonesia).'
         : 'Respond in English.';
 
-      const analysisPrompt = `Analyze this ${contextDescription}. ${langInstruction}
+      const analysisPrompt = `Kamu expert TikTok analytics. Analisis screenshot ${contextDescription}. ${langInstruction}
 
-Extract all visible metrics and provide insights. Respond in JSON format:
+PENTING - BACA ANGKA YANG TERLIHAT:
+1. Extract SEMUA metrics yang terlihat (followers, views, likes, engagement rate, dll)
+2. Bandingkan dengan benchmark TikTok industry
+3. Berikan REKOMENDASI SPESIFIK berdasarkan data yang terlihat
+
+CONTOH REKOMENDASI YANG BAGUS:
+❌ GENERIC: "Tingkatkan engagement"
+✅ SPESIFIK: "Engagement rate kamu 2.3% - di bawah rata-rata 4.5%. BESOK: Post jam 19:00-21:00 (peak hour). Week 1: Tambah 3 CTA per video. Target: naik ke 3.5%"
+
+Respond in JSON:
 {
   "metrics": [
-    { "name": "Metric Name", "value": "extracted value", "status": "good|average|needs_work" },
-    ...
+    { "name": "Followers", "value": "12.5K", "status": "good", "insight": "Di atas rata-rata micro-influencer (10K)" },
+    { "name": "Engagement Rate", "value": "2.3%", "status": "needs_work", "insight": "Di bawah benchmark 4.5% untuk niche ini" }
   ],
-  "summary": "Brief overall assessment",
-  "insights": ["insight1", "insight2", "insight3"],
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
+  "summary": "Ringkasan 2-3 kalimat tentang kondisi akun",
+  "insights": [
+    "Insight spesifik berdasarkan angka yang terlihat",
+    "Perbandingan dengan benchmark industry",
+    "Pola atau trend yang terdeteksi"
+  ],
+  "recommendations": [
+    "BESOK: Action konkret pertama. Target: hasil yang diharapkan",
+    "Week 1: Action kedua dengan timeline. Expected: peningkatan X%",
+    "Week 2-4: Action jangka menengah dengan milestone"
+  ],
+  "overallScore": 75
 }
 
-Status meanings:
-- good: Above average performance
-- average: Normal performance  
-- needs_work: Below expectations, needs improvement`;
+Status: good (di atas rata-rata), average (normal), needs_work (perlu perbaikan)`;
 
       // Use OpenAI Vision API
       const OpenAI = (await import('openai')).default;
@@ -1356,6 +1615,238 @@ Status meanings:
     }
   });
 
+  // ========================================
+  // LEARNED RESPONSES (AI Learning) ENDPOINTS
+  // ========================================
+  
+  // Get unapproved learned responses (admin only) - approved ones are in library
+  app.get("/api/learned-responses", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { desc, eq } = await import('drizzle-orm');
+      
+      // Only show unapproved responses - approved ones are already in library
+      const responses = await db.select().from(learnedResponses)
+        .where(eq(learnedResponses.isApproved, false))
+        .orderBy(desc(learnedResponses.createdAt));
+      res.json(responses);
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error fetching learned responses:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Delete learned response (admin only)
+  app.delete("/api/learned-responses/:id", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      await db.delete(learnedResponses).where(eq(learnedResponses.id, req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error deleting learned response:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update learned response (admin only)
+  app.put("/api/learned-responses/:id", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq } = await import('drizzle-orm');
+      const { extractKeywords } = await import('./utils/learning-system');
+      
+      const { question, response } = req.body;
+      
+      if (!question?.trim() || !response?.trim()) {
+        return res.status(400).json({ error: 'Question and response are required' });
+      }
+      
+      const keywords = extractKeywords(question);
+      
+      await db.update(learnedResponses)
+        .set({ 
+          question: question.trim(), 
+          response: response.trim(),
+          keywords,
+        })
+        .where(eq(learnedResponses.id, req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error updating learned response:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Approve learned response to library (admin only)
+  app.post("/api/learned-responses/:id/approve", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      await db.update(learnedResponses)
+        .set({ 
+          isApproved: true,
+          approvedAt: new Date(),
+        })
+        .where(eq(learnedResponses.id, req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[AI-LEARNING] Error approving learned response:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get approved learned responses for library (public)
+  app.get("/api/library/ai-learned", async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses } = await import('@shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      const approved = await db.select()
+        .from(learnedResponses)
+        .where(eq(learnedResponses.isApproved, true))
+        .orderBy(desc(learnedResponses.approvedAt));
+      res.json(approved);
+    } catch (error: any) {
+      console.error('[LIBRARY] Error fetching AI-learned knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Export all learned data for backup (admin only)
+  app.get("/api/admin/export-learned", requireAdmin, async (req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { learnedResponses, libraryContributions } = await import('@shared/schema');
+      const { desc } = await import('drizzle-orm');
+      
+      const learned = await db.select().from(learnedResponses).orderBy(desc(learnedResponses.createdAt));
+      const contributions = await db.select().from(libraryContributions).orderBy(desc(libraryContributions.createdAt));
+      
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        version: '1.0',
+        note: 'Data yang di-generate oleh AI Learning dan User Contributions (bukan data built-in original)',
+        learned_responses: learned,
+        library_contributions: contributions,
+        stats: {
+          total_learned: learned.length,
+          approved_learned: learned.filter(r => r.isApproved).length,
+          pending_learned: learned.filter(r => !r.isApproved).length,
+          total_contributions: contributions.length,
+          approved_contributions: contributions.filter(c => c.status === 'approved').length,
+        }
+      };
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=bias_learned_data_${new Date().toISOString().split('T')[0]}.json`);
+      res.json(exportData);
+    } catch (error: any) {
+      console.error('[EXPORT] Error exporting learned data:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ========================================
+  // KNOWLEDGE BASE (New AI Learning System) ENDPOINTS
+  // ========================================
+  
+  // Get pending knowledge for review (admin only)
+  app.get("/api/knowledge", requireAdmin, async (req, res) => {
+    try {
+      const { getAllKnowledge } = await import('./utils/knowledge-extraction');
+      const status = req.query.status as string | undefined;
+      const knowledge = await getAllKnowledge(status);
+      res.json(knowledge);
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error fetching knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Approve knowledge (admin only)
+  app.post("/api/knowledge/:id/approve", requireAdmin, async (req, res) => {
+    try {
+      const { approveKnowledge } = await import('./utils/knowledge-extraction');
+      const { narrative } = req.body;
+      const success = await approveKnowledge(req.params.id, 'admin', narrative);
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error approving knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Reject knowledge (admin only)
+  app.post("/api/knowledge/:id/reject", requireAdmin, async (req, res) => {
+    try {
+      const { rejectKnowledge } = await import('./utils/knowledge-extraction');
+      const { reason } = req.body;
+      const success = await rejectKnowledge(req.params.id, reason || 'Not relevant');
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error rejecting knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update knowledge (admin only)
+  app.put("/api/knowledge/:id", requireAdmin, async (req, res) => {
+    try {
+      const { updateKnowledge } = await import('./utils/knowledge-extraction');
+      const { topic, narrative, keywords, subcategory } = req.body;
+      const success = await updateKnowledge(req.params.id, { topic, narrative, keywords, subcategory });
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error updating knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Delete knowledge (admin only)
+  app.delete("/api/knowledge/:id", requireAdmin, async (req, res) => {
+    try {
+      const { deleteKnowledge } = await import('./utils/knowledge-extraction');
+      const success = await deleteKnowledge(req.params.id);
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error deleting knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get pending knowledge count for notification badge (admin only)
+  app.get("/api/knowledge/pending-count", requireAdmin, async (req, res) => {
+    try {
+      const { getPendingKnowledge } = await import('./utils/knowledge-extraction');
+      const pending = await getPendingKnowledge();
+      res.json({ count: pending.length });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error getting pending count:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Rate knowledge (user feedback)
+  app.post("/api/knowledge/:id/rate", async (req, res) => {
+    try {
+      const { rateKnowledge } = await import('./utils/knowledge-extraction');
+      const { helpful } = req.body;
+      const success = await rateKnowledge(req.params.id, helpful === true);
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error rating knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Analytics - Track page view
   app.post("/api/analytics/pageview", async (req, res) => {
     try {
@@ -1667,35 +2158,44 @@ Status meanings:
         ? 'Respond in Indonesian (Bahasa Indonesia).'
         : 'Respond in English.';
 
-      const prompt = `You are a TikTok viral content expert. Analyze these hook variations and determine which one has the highest viral potential. ${langInstruction}
+      const prompt = `Kamu TikTok viral expert. Analisis hook variations ini dan tentukan mana yang paling viral. ${langInstruction}
 
 ${hooksText}
 
-For each hook, evaluate:
-1. Attention-grabbing power (curiosity, emotion, relatability)
-2. Clarity and conciseness
-3. Call to action/engagement trigger
-4. Platform fit for TikTok/short-form video
+ANALISIS WAJIB SPESIFIK:
+1. Quote EXACT kata-kata dari hook yang bikin kuat/lemah
+2. Bandingkan dengan hook viral yang sukses di TikTok
+3. Kasih suggestion yang KONKRET (bukan "tambah emosi" tapi "ganti 'cara' jadi 'rahasia'")
 
-Respond in JSON format:
+CONTOH FEEDBACK YANG BAGUS:
+❌ GENERIC: "Kurang engaging"
+✅ SPESIFIK: "Kata 'tips' terlalu umum - ganti jadi 'RAHASIA yang gak banyak orang tau'. Hook A mulai dengan 'Gue' - bagus karena personal, tapi tambah angka: 'Gue nemuin 3 cara...'"
+
+Untuk setiap hook, evaluasi:
+1. Curiosity gap - apakah bikin penasaran?
+2. Emosi trigger - fear, desire, curiosity, shock?
+3. Relatability - apakah target audience connect?
+4. First 2 seconds - apakah stop-scrolling?
+
+Respond in JSON:
 {
   "results": [
     {
       "hookId": "id from input",
       "hookText": "the hook text",
-      "score": number 0-100,
+      "score": 0-100,
       "viralPotential": "high" | "medium" | "low",
-      "strengths": ["strength1", "strength2"],
-      "weaknesses": ["weakness1", "weakness2"],
-      "suggestion": "specific improvement suggestion"
+      "strengths": ["Quote exact: 'kata X' efektif karena...", "Pattern 'Y' proven viral di TikTok"],
+      "weaknesses": ["Kata 'Z' terlalu generic", "Kurang angka spesifik - '3 cara' lebih kuat dari 'beberapa cara'"],
+      "suggestion": "GANTI: '[hook asli]' → '[versi improved]'. Alasan: lebih triggering curiosity"
     }
   ],
-  "winner": "A" or "B" or "C" etc,
-  "winnerScore": number,
-  "comparison": "brief explanation why winner is best"
+  "winner": "A",
+  "winnerScore": 85,
+  "comparison": "Hook A menang karena: 1) Mulai dengan angka '3', 2) Kata 'rahasia' trigger curiosity, 3) Personal 'gue/aku' bikin relatable. Hook B kalah karena opening 'Tips untuk...' terlalu formal."
 }
 
-Be objective and provide actionable feedback.`;
+WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstrak!`;
 
       const OpenAI = (await import('openai')).default;
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -1745,7 +2245,7 @@ Be objective and provide actionable feedback.`;
   
   app.post("/api/chat/hybrid", async (req, res) => {
     try {
-      const { message, sessionId } = req.body;
+      const { message, sessionId, mode, image, images, outputLanguage, previousImageContext, analysisType } = req.body;
       
       if (!message || typeof message !== 'string') {
         return res.status(400).json({ error: 'Message is required' });
@@ -1754,16 +2254,122 @@ Be objective and provide actionable feedback.`;
       const { hybridChat } = await import('./chat/hybrid-chat');
       const result = await hybridChat({ 
         message, 
-        sessionId: sessionId || 'anonymous' 
+        sessionId: sessionId || 'anonymous',
+        mode: mode || 'home',
+        image: image || undefined,
+        images: images || undefined,
+        outputLanguage: outputLanguage || 'id',
+        previousImageContext: previousImageContext || undefined,
+        analysisType: analysisType || 'video',
       });
       
       res.json(result);
     } catch (error: any) {
       console.error('[HYBRID_CHAT] Error:', error);
       res.status(500).json({ 
-        response: 'Maaf bro, ada error. Coba lagi ya!',
+        response: 'Maaf, ada error. Coba lagi ya!',
         source: 'local',
         error: error.message 
+      });
+    }
+  });
+
+  // Multi-image comparison endpoint
+  app.post("/api/compare-images", async (req, res) => {
+    try {
+      const { images, question, mode, sessionId, outputLanguage } = req.body;
+      
+      if (!images || !Array.isArray(images) || images.length < 2) {
+        return res.status(400).json({ error: 'Minimal 2 gambar diperlukan untuk perbandingan' });
+      }
+      
+      if (images.length > 4) {
+        return res.status(400).json({ error: 'Maksimal 4 gambar untuk perbandingan' });
+      }
+      
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      
+      const langInstruction = outputLanguage === 'en' 
+        ? 'RESPOND IN ENGLISH ONLY.' 
+        : 'JAWAB DALAM BAHASA INDONESIA.';
+      
+      const comparePrompt = mode === 'marketing' 
+        ? `🔍 PERBANDINGAN MATERI MARKETING
+
+${langInstruction}
+
+Analisis dan bandingkan ${images.length} gambar marketing berikut secara detail.
+
+📊 FORMAT ANALISIS:
+1. **Ringkasan tiap gambar** - Identifikasi elemen utama
+2. **Tabel perbandingan** - Bandingkan: Headline, CTA, Visual, Trust Signal
+3. **Pemenang & Alasan** - Mana yang paling efektif dan kenapa
+4. **Rekomendasi** - Saran konkret untuk improvement
+
+User's question: ${question || 'Bandingkan semua gambar ini'}`
+        : `🔍 PERBANDINGAN PROFIL/KONTEN TIKTOK
+
+${langInstruction}
+
+Analisis dan bandingkan ${images.length} screenshot TikTok berikut secara detail.
+
+📊 FORMAT ANALISIS:
+
+**1️⃣ EKSTRAKSI DATA TIAP GAMBAR:**
+| Gambar | Username | Followers | Likes | Views | Highlight |
+|--------|----------|-----------|-------|-------|-----------|
+| 1 | ... | ... | ... | ... | ... |
+| 2 | ... | ... | ... | ... | ... |
+
+**2️⃣ PERBANDINGAN METRIK:**
+| Metrik | Gambar 1 | Gambar 2 | Pemenang |
+|--------|----------|----------|----------|
+| Engagement | ... | ... | ... |
+| Thumbnail | ... | ... | ... |
+| Hook | ... | ... | ... |
+
+**3️⃣ PEMENANG & ALASAN:**
+- Siapa yang menang secara keseluruhan?
+- Mengapa mereka lebih baik?
+
+**4️⃣ REKOMENDASI:**
+- Apa yang bisa dipelajari dari pemenang?
+- Saran konkret untuk improvement
+
+User's question: ${question || 'Bandingkan semua profil/konten ini'}`;
+
+      // Build message content with all images
+      const messageContent: any[] = [{ type: 'text', text: comparePrompt }];
+      for (const img of images) {
+        if (img.startsWith('data:image/')) {
+          messageContent.push({
+            type: 'image_url',
+            image_url: { url: img, detail: 'high' }
+          });
+        }
+      }
+      
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'user', content: messageContent }
+        ],
+        temperature: 0.7,
+        max_tokens: 3000,
+      });
+      
+      const response = completion.choices[0]?.message?.content || 'Gagal membandingkan gambar.';
+      
+      res.json({
+        response,
+        source: 'ai',
+        imagesCompared: images.length,
+      });
+    } catch (error: any) {
+      console.error('[COMPARE_IMAGES] Error:', error);
+      res.status(500).json({ 
+        error: 'Comparison failed',
+        message: 'Gagal membandingkan gambar. Coba lagi.',
       });
     }
   });
@@ -2027,6 +2633,15 @@ Be objective and provide actionable feedback.`;
       }
       
       const setting = await storage.updateSetting(key, validatedValue, adminUser);
+      // Keep in-memory AI rate limiter config in sync with DB-backed settings
+      if (setting && (key === 'global_token_per_day' || key === 'global_token_per_request')) {
+        try {
+          const { reloadSettings } = await import('./utils/ai-rate-limiter');
+          await reloadSettings();
+        } catch (e) {
+          console.error('[ADMIN_SETTINGS] Failed to reload AI rate limiter settings:', e);
+        }
+      }
       res.json(setting);
     } catch (error: any) {
       console.error('[ADMIN_SETTINGS] Error updating setting:', error);
@@ -2123,6 +2738,65 @@ Be objective and provide actionable feedback.`;
       });
     } catch (error: any) {
       console.error('[ADMIN_ACCOUNTS] Error getting analyzed accounts:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Get TikTok guidelines reminder status
+  app.get("/api/admin/tiktok-reminder", requireAdmin, async (req, res) => {
+    try {
+      const lastCheck = await storage.getSetting('last_tiktok_guidelines_check');
+      const lastCheckDate = lastCheck?.value ? new Date(lastCheck.value) : null;
+      const now = new Date();
+      
+      let daysAgo: number | null = null;
+      let needsCheck = true; // Default: needs check if never checked
+      
+      if (lastCheckDate) {
+        daysAgo = Math.floor((now.getTime() - lastCheckDate.getTime()) / (1000 * 60 * 60 * 24));
+        needsCheck = daysAgo >= 30; // Only needs check if 30+ days since last check
+      }
+      
+      res.json({
+        lastCheckDate: lastCheckDate?.toISOString() || null,
+        daysAgo,
+        needsCheck,
+        checkUrl: 'https://www.tiktok.com/community-guidelines/en/',
+        newsroomUrl: 'https://newsroom.tiktok.com/',
+      });
+    } catch (error: any) {
+      console.error('[ADMIN_REMINDER] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin: Mark TikTok guidelines as checked
+  app.post("/api/admin/tiktok-reminder/mark-checked", requireAdmin, async (req, res) => {
+    try {
+      const adminUser = (req as any).adminUser;
+      const now = new Date().toISOString();
+      
+      // Create or update the setting
+      const existing = await storage.getSetting('last_tiktok_guidelines_check');
+      if (existing) {
+        await storage.updateSetting('last_tiktok_guidelines_check', now, adminUser);
+      } else {
+        await db.insert(appSettings).values({
+          key: 'last_tiktok_guidelines_check',
+          value: now,
+          valueType: 'string',
+          category: 'admin',
+          labelEn: 'Last TikTok Guidelines Check',
+          labelId: 'Terakhir Cek Panduan TikTok',
+          descriptionEn: 'When admin last verified TikTok guidelines are up to date',
+          descriptionId: 'Kapan terakhir admin verifikasi panduan TikTok masih terbaru',
+          isEditable: true,
+        });
+      }
+      
+      res.json({ success: true, checkedAt: now });
+    } catch (error: any) {
+      console.error('[ADMIN_REMINDER] Error marking checked:', error);
       res.status(500).json({ error: error.message });
     }
   });

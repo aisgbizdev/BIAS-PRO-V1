@@ -7,29 +7,54 @@ import { Sparkles, ArrowRight, Mic, BookOpen, CheckCircle } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 
 const ONBOARDING_KEY = 'bias_onboarding_complete';
+const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.bias23.app';
+const GOOGLE_PLAY_BADGE_SRC =
+  'https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png';
 
 export function OnboardingModal() {
   const { t } = useLanguage();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const onboardingParam = new URLSearchParams(window.location.search).get('onboarding');
+    const shouldForceShow = onboardingParam === '1' || onboardingParam === 'true';
+    if (shouldForceShow) return true;
+
+    try {
+      return sessionStorage.getItem(ONBOARDING_KEY) !== 'true';
+    } catch {
+      return true;
+    }
+  });
   const [step, setStep] = useState(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    const onboardingParam = new URLSearchParams(window.location.search).get('onboarding');
+    const shouldForceShow = onboardingParam === '1' || onboardingParam === 'true';
+    if (shouldForceShow) {
+      setStep(0);
+      const timer = setTimeout(() => setOpen(true), 0);
+      return () => clearTimeout(timer);
+    }
+
     try {
-      const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
+      const hasCompletedOnboarding = sessionStorage.getItem(ONBOARDING_KEY) === 'true';
       if (!hasCompletedOnboarding) {
-        const timer = setTimeout(() => setOpen(true), 500);
+        const timer = setTimeout(() => setOpen(true), 0);
         return () => clearTimeout(timer);
       }
     } catch (e) {
       console.warn('LocalStorage not available:', e);
+      const timer = setTimeout(() => setOpen(true), 0);
+      return () => clearTimeout(timer);
     }
   }, []);
 
   const completeOnboarding = () => {
     try {
       if (typeof window !== 'undefined') {
-        localStorage.setItem(ONBOARDING_KEY, 'true');
+        sessionStorage.setItem(ONBOARDING_KEY, 'true');
       }
     } catch (e) {
       console.warn('LocalStorage not available:', e);
@@ -41,8 +66,8 @@ export function OnboardingModal() {
     {
       title: t('Welcome to BiAS Pro!', 'Selamat Datang di BiAS Pro!'),
       description: t(
-        'Your personal Ai mentor for TikTok creators and marketing professionals.',
-        'Ai mentor pribadimu untuk kreator TikTok dan profesional marketing.'
+        'Your personal AI Coach for TikTok creators and marketing professionals.',
+        'AI Coach pribadimu untuk kreator TikTok dan profesional marketing.'
       ),
       content: (
         <div className="flex flex-col items-center gap-4 py-4">
@@ -64,8 +89,8 @@ export function OnboardingModal() {
     {
       title: t('Choose Your Mode', 'Pilih Mode Kamu'),
       description: t(
-        'BiAS Pro has two specialized Ai mentors for different needs.',
-        'BiAS Pro punya dua Ai mentor khusus untuk kebutuhan berbeda.'
+        'BiAS Pro has two specialized AI Coaches for different needs.',
+        'BiAS Pro punya dua AI Coach khusus untuk kebutuhan berbeda.'
       ),
       content: (
         <div className="grid grid-cols-1 gap-3 py-4">
@@ -117,7 +142,7 @@ export function OnboardingModal() {
               <span className="text-xs text-pink-400 font-bold">1</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-white">{t('Ask your Ai Mentor', 'Tanya Ai Mentormu')}</p>
+              <p className="text-sm font-medium text-white">{t('Ask your AI Coach', 'Tanya AI Coach-mu')}</p>
               <p className="text-xs text-gray-400">{t('Chat about anything - scripts, strategies, analysis', 'Chat tentang apa saja - script, strategi, analisis')}</p>
             </div>
           </div>
@@ -187,6 +212,30 @@ export function OnboardingModal() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center pt-3">
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xs text-gray-400 text-center">
+              {t(
+                'Prefer the app? Download BiAS Pro on the Play Store.',
+                'Mau versi aplikasi? Download BiAS Pro di Play Store.'
+              )}
+            </p>
+            <a
+              href={GOOGLE_PLAY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block hover:opacity-80 transition-opacity"
+              aria-label={t('Download on Google Play', 'Download di Google Play')}
+            >
+              <img
+                src={GOOGLE_PLAY_BADGE_SRC}
+                alt={t('Get it on Google Play', 'Dapatkan di Google Play')}
+                className="h-10"
+              />
+            </a>
           </div>
         </div>
 

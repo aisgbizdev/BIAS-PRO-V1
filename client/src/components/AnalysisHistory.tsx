@@ -8,9 +8,10 @@ import {
   getAnalysisHistory, 
   deleteAnalysisFromHistory, 
   clearAnalysisHistory,
-  type AnalysisHistoryItem 
+  type AnalysisHistoryItem,
+  type AnalysisCategory
 } from '@/lib/analysisHistory';
-import { History, Trash2, Eye, Video, FileText, Link, AlertTriangle, RefreshCw } from 'lucide-react';
+import { History, Trash2, Eye, Video, FileText, Link, AlertTriangle, RefreshCw, User, Camera, BarChart2, Repeat, Users, Image } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -26,11 +27,12 @@ import {
 import type { BiasAnalysisResult } from '@shared/schema';
 
 interface AnalysisHistoryProps {
-  onSelectAnalysis: (result: BiasAnalysisResult) => void;
+  onSelectAnalysis: (result: BiasAnalysisResult, accountData?: any) => void;
   refreshTrigger?: number;
+  filterCategory?: AnalysisCategory;
 }
 
-export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHistoryProps) {
+export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCategory }: AnalysisHistoryProps) {
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const [history, setHistory] = useState<AnalysisHistoryItem[]>([]);
@@ -38,10 +40,10 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
 
   const loadHistory = useCallback(() => {
     setIsLoading(true);
-    const items = getAnalysisHistory();
+    const items = getAnalysisHistory(filterCategory);
     setHistory(items);
     setIsLoading(false);
-  }, []);
+  }, [filterCategory]);
 
   useEffect(() => {
     loadHistory();
@@ -88,7 +90,19 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
     });
   };
 
-  const getInputIcon = (type: string) => {
+  const getInputIcon = (type: string, category?: AnalysisCategory) => {
+    // Use category-specific icons if available
+    if (category) {
+      switch (category) {
+        case 'account': return <User className="w-3.5 h-3.5" />;
+        case 'screenshot': return <Camera className="w-3.5 h-3.5" />;
+        case 'batch': return <BarChart2 className="w-3.5 h-3.5" />;
+        case 'ab': return <Repeat className="w-3.5 h-3.5" />;
+        case 'competitor': return <Users className="w-3.5 h-3.5" />;
+        case 'thumbnail': return <Image className="w-3.5 h-3.5" />;
+      }
+    }
+    // Fall back to input type icons
     switch (type) {
       case 'video': return <Video className="w-3.5 h-3.5" />;
       case 'url': return <Link className="w-3.5 h-3.5" />;
@@ -173,7 +187,8 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
             {history.map((item) => (
               <div
                 key={item.id}
-                className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group"
+                className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group cursor-pointer"
+                onClick={() => onSelectAnalysis(item.result, item.accountData)}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -189,17 +204,17 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
                         {item.mode === 'tiktok' ? 'TikTok Pro' : 'Marketing Pro'}
                       </Badge>
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        {getInputIcon(item.inputType)}
+                        {getInputIcon(item.inputType, item.category)}
                       </span>
                     </div>
                     <p className="text-sm truncate text-gray-300">{item.inputPreview}</p>
                     <div className="flex items-center gap-3 mt-1.5">
                       <span className="text-xs text-muted-foreground">{formatDate(item.timestamp)}</span>
                       <span className={`text-xs font-medium ${
-                        item.result.overallScore >= 7 ? 'text-green-400' : 
-                        item.result.overallScore >= 5 ? 'text-yellow-400' : 'text-red-400'
+                        item.result.overallScore >= 70 ? 'text-green-400' : 
+                        item.result.overallScore >= 50 ? 'text-yellow-400' : 'text-red-400'
                       }`}>
-                        Score: {item.result.overallScore}/10
+                        Score: {item.result.overallScore}
                       </span>
                     </div>
                   </div>
@@ -207,7 +222,7 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onSelectAnalysis(item.result)}
+                      onClick={(e) => { e.stopPropagation(); onSelectAnalysis(item.result, item.accountData); }}
                       className="h-8 px-2"
                     >
                       <Eye className="w-4 h-4" />
@@ -215,7 +230,7 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(item.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
                       className="h-8 px-2 hover:text-destructive"
                     >
                       <Trash2 className="w-4 h-4" />

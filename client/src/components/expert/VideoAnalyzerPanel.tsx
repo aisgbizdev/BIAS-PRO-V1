@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { 
   Upload, 
   Image, 
@@ -26,6 +27,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { canUseVideoAnalysis, incrementVideoUsage, getDailyLimit } from '@/lib/usageLimit';
+import { saveAnalysisToHistory } from '@/lib/analysisHistory';
 
 interface AnalysisResult {
   overallScore: number;
@@ -112,19 +114,63 @@ export function VideoAnalyzerPanel() {
       
       const data = await response.json();
       
-      if (data.result && data.result.overallScore !== undefined) {
-        setAnalysisResult({
-          overallScore: data.result.overallScore,
-          hookStrength: data.result.hookStrength || 0,
-          visualQuality: data.result.visualQuality || 0,
-          audioClarity: data.result.audioClarity || 0,
-          engagement: data.result.engagement || 0,
-          retention: data.result.retention || 0,
-          strengths: data.result.strengths || [],
-          improvements: data.result.improvements || [],
-          recommendations: data.result.recommendations || [],
-        });
+      // Handle both new format (analysis with 8-layer) and legacy format (result)
+      const analysisData = data.analysis || data.result;
+      
+      if (analysisData && analysisData.overallScore !== undefined) {
+        // Extract scores from 8-layer format if available
+        const layers = analysisData.layers || [];
+        const getLayerScore = (keyword: string) => {
+          const layer = layers.find((l: any) => l.layer?.toLowerCase().includes(keyword.toLowerCase()));
+          return layer ? layer.score * 10 : 70; // Convert 1-10 to percentage, default 70
+        };
+        
+        // Safely extract recommendations (can be array or object)
+        let recommendations: string[] = [];
+        if (Array.isArray(analysisData.recommendations)) {
+          recommendations = analysisData.recommendations;
+        } else if (typeof analysisData.recommendations === 'object' && analysisData.recommendations) {
+          // Extract from nested object (e.g., {fyp: [], engagement: []})
+          recommendations = Object.values(analysisData.recommendations).flat().filter((r): r is string => typeof r === 'string').slice(0, 5);
+        }
+        
+        // Extract strengths from layers if not directly available
+        const strengths = analysisData.strengths || layers
+          .filter((l: any) => l.score >= 7)
+          .slice(0, 3)
+          .map((l: any) => l.feedback?.substring(0, 150) || `${l.layer}: Good performance`);
+        
+        // Extract improvements from layers with low scores
+        const improvements = analysisData.improvements || layers
+          .filter((l: any) => l.score < 7)
+          .slice(0, 3)
+          .map((l: any) => l.feedback?.substring(0, 150) || `${l.layer}: Needs improvement`);
+        
+        const resultData = {
+          overallScore: analysisData.overallScore,
+          hookStrength: analysisData.hookStrength || getLayerScore('vbm') || 70,
+          visualQuality: analysisData.visualQuality || getLayerScore('visual') || 70,
+          audioClarity: analysisData.audioClarity || getLayerScore('nlp') || 70,
+          engagement: analysisData.engagement || getLayerScore('soc') || 70,
+          retention: analysisData.retention || getLayerScore('cog') || 70,
+          strengths,
+          improvements,
+          recommendations,
+        };
+        setAnalysisResult(resultData);
         incrementVideoUsage();
+        
+        // Save to history
+        const historyResult = {
+          mode: 'creator' as const,
+          overallScore: resultData.overallScore,
+          layers: [],
+          summary: `Video Analysis - Score: ${resultData.overallScore}`,
+          summaryId: `Analisis Video - Skor: ${resultData.overallScore}`,
+          recommendations: resultData.recommendations,
+          recommendationsId: resultData.recommendations,
+        };
+        saveAnalysisToHistory(historyResult, 'tiktok', 'video', description || uploadedFile?.name || 'TikTok Video');
       } else {
         throw new Error(t('Analysis incomplete - please try again', 'Analisis tidak lengkap - silakan coba lagi'));
       }
@@ -242,6 +288,19 @@ export function VideoAnalyzerPanel() {
               </>
             )}
           </Button>
+
+          <AnalysisProgress 
+            isAnalyzing={isAnalyzing} 
+            duration={10000}
+            steps={[
+              t('Processing video frames...', 'Memproses frame video...'),
+              t('Extracting audio...', 'Mengekstrak audio...'),
+              t('Analyzing visual quality...', 'Menganalisis kualitas visual...'),
+              t('Evaluating hook strength...', 'Mengevaluasi kekuatan hook...'),
+              t('Calculating engagement potential...', 'Menghitung potensi engagement...'),
+              t('Generating recommendations...', 'Membuat rekomendasi...'),
+            ]}
+          />
         </CardContent>
       </Card>
 

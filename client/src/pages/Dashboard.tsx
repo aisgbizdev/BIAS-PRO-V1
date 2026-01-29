@@ -27,11 +27,10 @@ export default function Dashboard() {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
 
   useEffect(() => {
-    fetch('/api/success-stories')
+    fetch('/api/success-stories/featured')
       .then(res => res.json())
       .then(data => {
-        const featured = (data || []).filter((s: SuccessStory) => s.featured).slice(0, 5);
-        setSuccessStories(featured.length > 0 ? featured : (data || []).slice(0, 3));
+        setSuccessStories((data || []).slice(0, 5));
       })
       .catch(() => setSuccessStories([]));
   }, []);
@@ -51,12 +50,12 @@ export default function Dashboard() {
       icon: SiTiktok,
       title: t('TikTok Pro', 'TikTok Pro'),
       description: t(
-        'Master TikTok with Ai mentor! FYP secrets, viral hooks, live streaming tips & account analytics all in one place.',
-        'Kuasai TikTok dengan Ai mentor! Rahasia FYP, hook viral, tips live streaming & analitik akun dalam satu tempat.'
+        'Master TikTok with AI Coach! FYP secrets, viral hooks, live streaming tips & account analytics all in one place.',
+        'Kuasai TikTok dengan AI Coach! Rahasia FYP, hook viral, tips live streaming & analitik akun dalam satu tempat.'
       ),
       color: 'from-pink-500 to-cyan-500',
       features: [
-        { en: 'Ai TikTok Mentor (ask anything!)', id: 'Ai Mentor TikTok (tanya apa aja!)' },
+        { en: 'AI TikTok Coach (ask anything!)', id: 'AI Coach TikTok (tanya apa aja!)' },
         { en: 'FYP algorithm & viral secrets', id: 'Algoritma FYP & rahasia viral' },
         { en: 'Live & script generator', id: 'Generator live & script' },
       ],
@@ -88,15 +87,45 @@ export default function Dashboard() {
       {/* Combined Hero + Section Header */}
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-4 flex-1">
         <div className="text-center mb-6">
-          <p className="text-xs text-pink-400 mb-1">
-            {t('Behavioral Intelligence Audit System', 'Behavioral Intelligence Audit System')}
+          <p className="text-base md:text-lg font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent mb-2">
+            BiAS²³ Pro
           </p>
           <h1 className="text-lg sm:text-xl font-medium text-white mb-1">
-            {getTagline()}
+            Behavioral Intelligence Audit System
           </h1>
-          <p className="text-gray-500 text-xs">
-            {t('Select mode below', 'Pilih mode di bawah')}
+          <p className="text-gray-500 text-xs mb-3">
+            Untuk kreator TikTok & profesional marketing. Audit perilaku, tingkatkan skill komunikasi dengan Ai coaching.
           </p>
+          <a 
+            href="https://play.google.com/store/apps/details?id=com.bias23.app" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" 
+              alt="Get it on Google Play" 
+              className="h-12"
+            />
+          </a>
+        </div>
+
+        <div className="bg-[#141414] border border-gray-800 rounded-lg p-4 mb-6">
+          <h2 className="text-sm font-medium text-white mb-3">Start Here</h2>
+          <div className="space-y-2 text-xs text-gray-400">
+            <div className="flex items-start gap-2">
+              <span className="bg-pink-500/20 text-pink-400 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-[10px] font-medium">1</span>
+              <span>Jalankan audit akun atau video terlebih dahulu</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="bg-pink-500/20 text-pink-400 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-[10px] font-medium">2</span>
+              <span>Pelajari insight & risiko yang terdeteksi</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="bg-pink-500/20 text-pink-400 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-[10px] font-medium">3</span>
+              <span>Gunakan AI Coach untuk menyusun perbaikan strategi</span>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -252,7 +281,7 @@ export default function Dashboard() {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">2</p>
-                <p className="text-[10px] text-gray-500">{t('Ai Mentors', 'Ai Mentor')}</p>
+                <p className="text-[10px] text-gray-500">{t('AI Coaches', 'AI Coach')}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-500 bg-clip-text text-transparent">∞</p>

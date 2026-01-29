@@ -76,13 +76,26 @@ export function safeDivideBigInt(numerator: bigint, denominator: bigint): number
 
 /**
  * Calculate engagement rate from BigInt metrics
+ * Formula: (Average likes per video / followers) * 100
+ * 
+ * Note: This is the standard TikTok engagement rate formula
+ * Normal range: 1-10%, top performers: 10-15%
  */
-export function calculateEngagementRate(likes: bigint, followers: bigint): number {
+export function calculateEngagementRate(likes: bigint, followers: bigint, videoCount?: bigint): number {
   if (followers === BigInt(0)) {
     return 0;
   }
   
-  return safeDivideBigInt(likes * BigInt(100), followers);
+  // If videoCount provided, calculate proper engagement rate
+  if (videoCount && videoCount > BigInt(0)) {
+    const avgLikesPerVideo = safeDivideBigInt(likes, videoCount);
+    const engagementRate = (avgLikesPerVideo / Number(followers)) * 100;
+    return Math.round(engagementRate * 100) / 100; // Round to 2 decimals
+  }
+  
+  // Fallback: estimate based on total likes / followers
+  // This gives "lifetime engagement" not per-video rate
+  return Math.round(safeDivideBigInt(likes * BigInt(100), followers) * 100) / 100;
 }
 
 /**

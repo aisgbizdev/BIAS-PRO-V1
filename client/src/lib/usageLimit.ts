@@ -1,7 +1,8 @@
-const DEFAULT_DAILY_VIDEO_LIMIT = 5;
+const DEFAULT_DAILY_VIDEO_LIMIT = 10; // Match database Starter tier default
 const STORAGE_KEY = 'bias_video_usage';
 const SETTINGS_CACHE_KEY = 'bias_settings_cache';
-const SETTINGS_CACHE_TTL = 5 * 60 * 1000;
+const SETTINGS_CACHE_TTL = 30 * 60 * 1000; // 30 minutes cache to reduce API calls
+const ADMIN_UNLIMITED_KEY = 'bias_admin_unlimited';
 
 interface UsageData {
   date: string;
@@ -75,11 +76,33 @@ export function getVideoUsageToday(): number {
 }
 
 export function getRemainingVideoAnalysis(serverLimit?: number): number {
+  if (isAdminUnlimited()) return 999; // Show unlimited for admin
   const limit = serverLimit ?? getCachedLimit();
   return Math.max(0, limit - getUsageData().count);
 }
 
+export function isAdminUnlimited(): boolean {
+  try {
+    return localStorage.getItem(ADMIN_UNLIMITED_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setAdminUnlimited(unlimited: boolean): void {
+  try {
+    if (unlimited) {
+      localStorage.setItem(ADMIN_UNLIMITED_KEY, 'true');
+    } else {
+      localStorage.removeItem(ADMIN_UNLIMITED_KEY);
+    }
+  } catch (e) {
+    console.error('Error setting admin unlimited:', e);
+  }
+}
+
 export function canUseVideoAnalysis(serverLimit?: number): boolean {
+  if (isAdminUnlimited()) return true;
   const limit = serverLimit ?? getCachedLimit();
   return getUsageData().count < limit;
 }
@@ -88,6 +111,11 @@ export function incrementVideoUsage(): void {
   const data = getUsageData();
   data.count += 1;
   setUsageData(data);
+  
+  // Dispatch custom event so header can update in real-time
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('bias-usage-updated'));
+  }
 }
 
 export function getDailyLimit(serverLimit?: number): number {

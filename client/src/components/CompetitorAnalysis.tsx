@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
+import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
+import { incrementVideoUsage, canUseVideoAnalysis } from '@/lib/usageLimit';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Plus, X, Users, TrendingUp, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles, Brain, CheckCircle, Lightbulb } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { trackFeatureUsage } from '@/lib/analytics';
+import { 
+  saveComparisonToHistory, 
+  getComparisonHistory, 
+  deleteComparisonFromHistory,
+  type ComparisonHistoryItem,
+  type ComparisonResult 
+} from '@/lib/comparisonHistory';
+
+// Helper to safely extract numeric value from MetricValue objects or primitives
+function getMetricValue(metric: any): number {
+  if (metric === null || metric === undefined) return 0;
+  if (typeof metric === 'number') return metric;
+  if (typeof metric === 'object' && 'approx' in metric) {
+    return typeof metric.approx === 'number' ? metric.approx : 0;
+  }
+  return 0;
+}
+
+// Format large numbers (e.g., 1.5M, 2.3K)
+function formatNumber(num: number): string {
+  if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1)}B`;
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
+  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
+  return num.toString();
+}
 
 interface AccountData {
   username: string;
@@ -24,11 +52,6 @@ interface AccountData {
   verified?: boolean;
 }
 
-interface ComparisonResult {
-  accounts: AccountData[];
-  winner: string;
-  insights: string[];
-}
 
 export function CompetitorAnalysis() {
   const { t, language } = useLanguage();
@@ -36,6 +59,24 @@ export function CompetitorAnalysis() {
   const [usernames, setUsernames] = useState<string[]>(['', '']);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<ComparisonResult | null>(null);
+  const [history, setHistory] = useState<ComparisonHistoryItem[]>([]);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+  const [showDiscussion, setShowDiscussion] = useState(false);
+  const [discussionMessages, setDiscussionMessages] = useState<{id: string, type: 'user' | 'assistant', content: string}[]>([]);
+  const [discussionInput, setDiscussionInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  const loadHistory = useCallback(() => {
+    const items = getComparisonHistory();
+    setHistory(items);
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+    const handleUpdate = () => loadHistory();
+    window.addEventListener('bias-comparison-updated', handleUpdate);
+    return () => window.removeEventListener('bias-comparison-updated', handleUpdate);
+  }, [loadHistory]);
 
   const addUsername = () => {
     if (usernames.length < 5) {
@@ -67,6 +108,15 @@ export function CompetitorAnalysis() {
       return;
     }
 
+    if (!canUseVideoAnalysis()) {
+      toast({
+        title: t('Daily Limit Reached', 'Batas Harian Tercapai'),
+        description: t('Upgrade to Pro for unlimited analysis', 'Upgrade ke Pro untuk analisis unlimited'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     setResults(null);
 
@@ -83,18 +133,26 @@ export function CompetitorAnalysis() {
 
           if (response.ok) {
             const data = await response.json();
-            if (data.stats?.followers > 0) {
+            // Handle both old (stats) and new (metrics with MetricValue objects) API response formats
+            const followers = getMetricValue(data.metrics?.followers) || getMetricValue(data.stats?.followers);
+            const following = getMetricValue(data.metrics?.following) || getMetricValue(data.stats?.following);
+            const likes = getMetricValue(data.metrics?.likes) || getMetricValue(data.stats?.likes);
+            const videos = getMetricValue(data.metrics?.videos) || getMetricValue(data.stats?.videos);
+            const engagementRate = getMetricValue(data.metrics?.engagementRate) || getMetricValue(data.stats?.engagementRate);
+            const avgViews = getMetricValue(data.metrics?.avgViews) || getMetricValue(data.stats?.avgViews);
+            
+            if (followers > 0) {
               accountsData.push({
-                username: username.trim(),
-                followers: data.stats?.followers || 0,
-                following: data.stats?.following || 0,
-                likes: data.stats?.likes || 0,
-                videos: data.stats?.videos || 0,
-                engagementRate: data.stats?.engagementRate || 0,
-                avgViews: data.stats?.avgViews || 0,
-                nickname: data.accountInfo?.nickname,
-                photoUrl: data.accountInfo?.photoUrl,
-                verified: data.accountInfo?.verified,
+                username: data.username || username.trim(),
+                followers,
+                following,
+                likes,
+                videos,
+                engagementRate,
+                avgViews,
+                nickname: data.displayName || data.accountInfo?.nickname,
+                photoUrl: data.profilePhotoUrl || data.accountInfo?.photoUrl,
+                verified: data.verified || data.accountInfo?.verified,
               });
             } else {
               toast({
@@ -134,11 +192,18 @@ export function CompetitorAnalysis() {
 
       const insights = generateInsights(accountsData, language);
 
-      setResults({
+      const comparisonResult: ComparisonResult = {
         accounts: accountsData,
         winner: winner.username,
         insights,
-      });
+      };
+
+      setResults(comparisonResult);
+      setShowDiscussion(true);
+      setDiscussionMessages([]);
+
+      saveComparisonToHistory(comparisonResult, validUsernames);
+      incrementVideoUsage();
 
       trackFeatureUsage('comparison', 'tiktok', { count: accountsData.length });
 
@@ -162,42 +227,105 @@ export function CompetitorAnalysis() {
     const insights: string[] = [];
     const isId = lang === 'id';
     
-    const sorted = [...accounts].sort((a, b) => b.followers - a.followers);
-    const top = sorted[0];
-    const bottom = sorted[sorted.length - 1];
+    // Generate mutual learning insights instead of winner/loser comparisons
+    if (accounts.length >= 2) {
+      // Find who has best engagement
+      const bestEngagement = accounts.reduce((prev, curr) => 
+        curr.engagementRate > prev.engagementRate ? curr : prev
+      );
+      const othersForEngagement = accounts.filter(a => a.username !== bestEngagement.username);
+      
+      insights.push(
+        isId
+          ? `💡 @${bestEngagement.username} punya engagement ${bestEngagement.engagementRate.toFixed(1)}% - ${othersForEngagement.map(a => `@${a.username}`).join(', ')} bisa pelajari strategi kontennya`
+          : `💡 @${bestEngagement.username} has ${bestEngagement.engagementRate.toFixed(1)}% engagement - ${othersForEngagement.map(a => `@${a.username}`).join(', ')} can learn from their content strategy`
+      );
 
-    insights.push(
-      isId 
-        ? `@${top.username} punya followers terbanyak (${formatNumber(top.followers)}) - ${Math.round((top.followers / bottom.followers) * 100 - 100)}% lebih banyak dari @${bottom.username}`
-        : `@${top.username} has the most followers (${formatNumber(top.followers)}) - ${Math.round((top.followers / bottom.followers) * 100 - 100)}% more than @${bottom.username}`
-    );
+      // Find who has most videos (consistency)
+      const mostActive = accounts.reduce((prev, curr) => 
+        curr.videos > prev.videos ? curr : prev
+      );
+      const othersForActive = accounts.filter(a => a.username !== mostActive.username);
+      
+      insights.push(
+        isId
+          ? `📹 @${mostActive.username} paling konsisten (${mostActive.videos} video) - ${othersForActive.map(a => `@${a.username}`).join(', ')} perlu tingkatkan frekuensi posting`
+          : `📹 @${mostActive.username} is most consistent (${mostActive.videos} videos) - ${othersForActive.map(a => `@${a.username}`).join(', ')} should increase posting frequency`
+      );
 
-    const bestEngagement = accounts.reduce((prev, curr) => 
-      curr.engagementRate > prev.engagementRate ? curr : prev
-    );
-    insights.push(
-      isId
-        ? `@${bestEngagement.username} punya engagement rate terbaik (${bestEngagement.engagementRate.toFixed(1)}%)`
-        : `@${bestEngagement.username} has the best engagement rate (${bestEngagement.engagementRate.toFixed(1)}%)`
-    );
+      // Find who has most followers (reach)
+      const mostFollowers = accounts.reduce((prev, curr) => 
+        curr.followers > prev.followers ? curr : prev
+      );
+      const othersForFollowers = accounts.filter(a => a.username !== mostFollowers.username);
+      
+      insights.push(
+        isId
+          ? `👥 @${mostFollowers.username} punya jangkauan luas (${formatNumber(mostFollowers.followers)}) - pelajari hook dan branding-nya`
+          : `👥 @${mostFollowers.username} has wide reach (${formatNumber(mostFollowers.followers)}) - study their hooks and branding`
+      );
 
-    const mostActive = accounts.reduce((prev, curr) => 
-      curr.videos > prev.videos ? curr : prev
-    );
-    insights.push(
-      isId
-        ? `@${mostActive.username} paling aktif dengan ${mostActive.videos} video`
-        : `@${mostActive.username} is the most active with ${mostActive.videos} videos`
-    );
-
-    const avgFollowers = accounts.reduce((sum, a) => sum + a.followers, 0) / accounts.length;
-    insights.push(
-      isId
-        ? `Rata-rata followers: ${formatNumber(avgFollowers)}`
-        : `Average followers: ${formatNumber(avgFollowers)}`
-    );
+      // Mutual learning suggestion
+      insights.push(
+        isId
+          ? `🤝 Setiap akun punya kelebihan masing-masing - gabungkan yang terbaik untuk hasil maksimal!`
+          : `🤝 Each account has unique strengths - combine the best elements for maximum results!`
+      );
+    }
 
     return insights;
+  };
+  
+  // Generate what each account can learn from others
+  const generateLearningPoints = (accounts: AccountData[], targetAccount: AccountData, lang: string) => {
+    const isId = lang === 'id';
+    const others = accounts.filter(a => a.username !== targetAccount.username);
+    const learnings: string[] = [];
+    const strengths: string[] = [];
+    
+    // Find what target account is good at
+    const hasHighestEngagement = accounts.every(a => a.username === targetAccount.username || a.engagementRate <= targetAccount.engagementRate);
+    const hasMostVideos = accounts.every(a => a.username === targetAccount.username || a.videos <= targetAccount.videos);
+    const hasMostFollowers = accounts.every(a => a.username === targetAccount.username || a.followers <= targetAccount.followers);
+    
+    if (hasHighestEngagement) {
+      strengths.push(isId ? 'Engagement rate tertinggi - konten sangat relevan dengan audiens' : 'Highest engagement - content resonates with audience');
+    }
+    if (hasMostVideos) {
+      strengths.push(isId ? 'Paling konsisten posting - algoritma menyukai kreator aktif' : 'Most consistent posting - algorithm favors active creators');
+    }
+    if (hasMostFollowers) {
+      strengths.push(isId ? 'Jangkauan audiens terluas - branding kuat' : 'Widest audience reach - strong branding');
+    }
+    
+    // Find what target account can learn from others
+    for (const other of others) {
+      if (other.engagementRate > targetAccount.engagementRate) {
+        learnings.push(isId 
+          ? `Pelajari gaya konten @${other.username} (engagement ${other.engagementRate.toFixed(1)}% vs kamu ${targetAccount.engagementRate.toFixed(1)}%)`
+          : `Study @${other.username}'s content style (${other.engagementRate.toFixed(1)}% vs your ${targetAccount.engagementRate.toFixed(1)}%)`);
+      }
+      if (other.videos > targetAccount.videos * 1.2) {
+        learnings.push(isId
+          ? `Tingkatkan konsistensi seperti @${other.username} (${other.videos} video vs kamu ${targetAccount.videos})`
+          : `Increase consistency like @${other.username} (${other.videos} videos vs your ${targetAccount.videos})`);
+      }
+      if (other.followers > targetAccount.followers * 1.5) {
+        learnings.push(isId
+          ? `Analisis hook & branding @${other.username} untuk tingkatkan reach`
+          : `Analyze @${other.username}'s hooks & branding to increase reach`);
+      }
+    }
+    
+    // Add default if no learnings found
+    if (learnings.length === 0) {
+      learnings.push(isId ? 'Pertahankan strategi saat ini - sudah sangat baik!' : 'Maintain current strategy - doing great!');
+    }
+    if (strengths.length === 0) {
+      strengths.push(isId ? 'Terus tingkatkan semua aspek secara bertahap' : 'Keep improving all aspects gradually');
+    }
+    
+    return { strengths, learnings };
   };
 
   const formatNumber = (num: number): string => {
@@ -211,6 +339,94 @@ export function CompetitorAnalysis() {
     if (value === min) return <ArrowDown className="w-3 h-3 text-red-400" />;
     return <Minus className="w-3 h-3 text-gray-400" />;
   };
+
+  const handleDeleteHistory = (id: string) => {
+    const success = deleteComparisonFromHistory(id);
+    if (success) {
+      toast({
+        title: t('Deleted', 'Terhapus'),
+        description: t('Comparison removed from history', 'Perbandingan dihapus dari riwayat'),
+      });
+    }
+  };
+
+  const handleViewHistoryItem = (item: ComparisonHistoryItem) => {
+    setResults(item.result);
+    setExpandedHistoryId(null);
+    setShowDiscussion(true);
+    setDiscussionMessages([]);
+    document.getElementById('comparison-results')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleDiscussionSend = async () => {
+    if (!discussionInput.trim() || !results) return;
+    
+    const userMessage = { id: Date.now().toString(), type: 'user' as const, content: discussionInput };
+    setDiscussionMessages(prev => [...prev, userMessage]);
+    const userInput = discussionInput;
+    setDiscussionInput('');
+    setIsTyping(true);
+
+    try {
+      // Build context for first message only
+      const isFirstMessage = discussionMessages.length === 0;
+      const context = isFirstMessage ? `
+Hasil Perbandingan Akun TikTok (Saling Belajar):
+- Engagement Tertinggi: @${results.winner}
+- Akun: ${results.accounts.map(a => `@${a.username} (${formatNumber(a.followers)} followers, ${a.engagementRate.toFixed(1)}% engagement)`).join(', ')}
+- Pembelajaran: ${results.insights.join('; ')}
+      ` : '';
+
+      // Build conversation history for context continuity
+      const conversationHistory = discussionMessages.map(msg => ({
+        role: msg.type as 'user' | 'assistant',
+        content: msg.content
+      }));
+
+      const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
+      const response = await fetch('/api/chat/hybrid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: isFirstMessage ? `${userInput}\n\n[CONTEXT: Competitor Analysis]\n${context}` : userInput,
+          sessionId,
+          mode: 'expert',
+          conversationHistory, // Send full conversation history for context
+        })
+      });
+
+      const data = await response.json();
+      let finalResponse = data.response || t('Sorry, could not get a response.', 'Maaf, tidak bisa mendapatkan respon.');
+      
+      // Add source indicator
+      if (data.source === 'ai') {
+        finalResponse += '\n\n---\n*✨ Fresh from BIAS Brain*';
+      } else if (data.source === 'local' && !finalResponse.includes('⚠️')) {
+        finalResponse += '\n\n---\n*📚 Dari Learning Library*';
+      }
+      
+      const assistantMessage = { 
+        id: (Date.now() + 1).toString(), 
+        type: 'assistant' as const, 
+        content: finalResponse
+      };
+      setDiscussionMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      setDiscussionMessages(prev => [...prev, { 
+        id: (Date.now() + 1).toString(), 
+        type: 'assistant' as const, 
+        content: t('Network error. Please try again.', 'Error jaringan. Silakan coba lagi.')
+      }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const quickSuggestions = [
+    { text: t('What can I learn from each account?', 'Apa yang bisa dipelajari dari setiap akun?'), icon: '📚' },
+    { text: t('How to combine their strengths?', 'Gimana gabungin kelebihan mereka?'), icon: '✨' },
+    { text: t('What makes their engagement high?', 'Apa yang bikin engagement mereka tinggi?'), icon: '📈' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -291,23 +507,37 @@ export function CompetitorAnalysis() {
               </>
             )}
           </Button>
+
+          <AnalysisProgress 
+            isAnalyzing={isAnalyzing} 
+            duration={10000}
+            steps={[
+              t('Fetching account data...', 'Mengambil data akun...'),
+              t('Analyzing followers...', 'Menganalisis followers...'),
+              t('Comparing engagement...', 'Membandingkan engagement...'),
+              t('Calculating rankings...', 'Menghitung peringkat...'),
+              t('Generating insights...', 'Membuat insights...'),
+              t('Finalizing comparison...', 'Finalisasi perbandingan...'),
+            ]}
+          />
         </CardContent>
       </Card>
 
       {results && (
-        <Card className="border-cyan-500/20">
+        <Card id="comparison-results" className="border-cyan-500/20">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-yellow-500" />
+                <Users className="w-5 h-5 text-cyan-400" />
                 {t('Comparison Results', 'Hasil Perbandingan')}
               </CardTitle>
-              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500">
-                {t('Winner:', 'Pemenang:')} @{results.winner}
+              <Badge className="bg-gradient-to-r from-cyan-500 to-purple-500">
+                {t('Mutual Learning', 'Saling Belajar')}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Data Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -320,33 +550,37 @@ export function CompetitorAnalysis() {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.accounts.map((account, idx) => {
+                  {results.accounts.map((account) => {
                     const maxFollowers = Math.max(...results.accounts.map(a => a.followers));
                     const minFollowers = Math.min(...results.accounts.map(a => a.followers));
-                    const isWinner = account.username === results.winner;
+                    const maxEngagement = Math.max(...results.accounts.map(a => a.engagementRate));
+                    const maxVideos = Math.max(...results.accounts.map(a => a.videos));
                     
                     return (
                       <tr 
                         key={account.username} 
-                        className={`border-b border-gray-800/50 ${isWinner ? 'bg-yellow-500/5' : ''}`}
+                        className="border-b border-gray-800/50 hover:bg-gray-800/30"
                       >
                         <td className="py-3 px-3">
-                          <div className="flex items-center gap-2">
-                            {isWinner && <Trophy className="w-4 h-4 text-yellow-500" />}
-                            <span className="font-medium">@{account.username}</span>
-                          </div>
+                          <span className="font-medium">@{account.username}</span>
                         </td>
                         <td className="text-right py-3 px-3">
                           <div className="flex items-center justify-end gap-1">
                             {formatNumber(account.followers)}
-                            {getComparisonIcon(account.followers, maxFollowers, minFollowers)}
+                            {account.followers === maxFollowers && <span className="text-green-400 text-xs">★</span>}
                           </div>
                         </td>
                         <td className="text-right py-3 px-3">{formatNumber(account.likes)}</td>
-                        <td className="text-right py-3 px-3">{account.videos}</td>
                         <td className="text-right py-3 px-3">
-                          <Badge variant={account.engagementRate > 2 ? 'default' : 'secondary'}>
+                          <div className="flex items-center justify-end gap-1">
+                            {account.videos}
+                            {account.videos === maxVideos && <span className="text-blue-400 text-xs">★</span>}
+                          </div>
+                        </td>
+                        <td className="text-right py-3 px-3">
+                          <Badge variant={account.engagementRate === maxEngagement ? 'default' : 'secondary'}>
                             {account.engagementRate.toFixed(1)}%
+                            {account.engagementRate === maxEngagement && ' ★'}
                           </Badge>
                         </td>
                       </tr>
@@ -356,20 +590,247 @@ export function CompetitorAnalysis() {
               </table>
             </div>
 
+            {/* Learning Insights */}
             <div className="space-y-2">
               <h4 className="font-medium text-sm flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-cyan-400" />
-                {t('Key Insights', 'Insight Utama')}
+                {t('Learning Insights', 'Insight Pembelajaran')}
               </h4>
               <ul className="space-y-2">
                 {results.insights.map((insight, idx) => (
                   <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
-                    <span className="text-pink-400 mt-1">•</span>
                     {insight}
                   </li>
                 ))}
               </ul>
             </div>
+
+            {/* Mutual Learning Section - What each account can learn */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                <Brain className="w-4 h-4 text-purple-400" />
+                {t('What Each Account Can Learn', 'Yang Bisa Dipelajari Setiap Akun')}
+              </h4>
+              <div className="grid gap-4 md:grid-cols-2">
+                {results.accounts.map((account) => {
+                  const { strengths, learnings } = generateLearningPoints(results.accounts, account, language);
+                  return (
+                    <div key={account.username} className="bg-gray-800/30 rounded-lg p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-white">@{account.username}</span>
+                      </div>
+                      
+                      {/* Strengths */}
+                      <div>
+                        <p className="text-xs text-green-400 mb-1 flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          {t('Strengths to Keep', 'Kekuatan yang Dipertahankan')}
+                        </p>
+                        <ul className="space-y-1">
+                          {strengths.map((s, i) => (
+                            <li key={i} className="text-xs text-gray-300">• {s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      {/* What to Learn */}
+                      <div>
+                        <p className="text-xs text-cyan-400 mb-1 flex items-center gap-1">
+                          <Lightbulb className="w-3 h-3" />
+                          {t('Can Learn From Others', 'Bisa Dipelajari dari Lainnya')}
+                        </p>
+                        <ul className="space-y-1">
+                          {learnings.map((l, i) => (
+                            <li key={i} className="text-xs text-gray-300">• {l}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Discussion Section - After Results */}
+      {results && showDiscussion && (
+        <Card className="border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-500/20">
+                  <MessageCircle className="w-5 h-5 text-purple-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {t('Discuss Your Results', 'Diskusikan Hasilmu')}
+                    <Badge variant="secondary" className="text-[10px] bg-purple-500/20 text-purple-300">AI Chat</Badge>
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {t('Ask BiAS AI about the comparison — get tips to improve!', 'Tanya BIAS Ai tentang perbandingan — dapatkan tips untuk improve!')}
+                  </CardDescription>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setShowDiscussion(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Messages */}
+            <div className="min-h-[120px] max-h-[300px] overflow-y-auto space-y-3 p-3 rounded-lg bg-gray-900/50">
+              {discussionMessages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <Bot className="w-8 h-8 text-purple-400 mb-2" />
+                  <p className="text-sm text-gray-400">
+                    {t('Have questions about the results? Ask me!', 'Punya pertanyaan tentang hasil? Tanya aku!')}
+                  </p>
+                </div>
+              ) : (
+                discussionMessages.map(msg => (
+                  <div key={msg.id} className={`flex gap-2 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {msg.type === 'assistant' && <Bot className="w-5 h-5 text-purple-400 mt-1 shrink-0" />}
+                    <div className={`max-w-[85%] rounded-lg px-3 py-2 ${
+                      msg.type === 'user' 
+                        ? 'bg-pink-500/20 text-white text-sm' 
+                        : 'bg-gray-800 text-gray-200'
+                    }`}>
+                      {msg.type === 'assistant' 
+                        ? <FormattedChatMessage content={msg.content} mode="tiktok" />
+                        : msg.content
+                      }
+                    </div>
+                  </div>
+                ))
+              )}
+              {isTyping && (
+                <div className="flex gap-2 items-center">
+                  <Bot className="w-5 h-5 text-purple-400" />
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" />
+                    <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                    <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Suggestions */}
+            <div className="flex flex-wrap gap-2">
+              {quickSuggestions.map((suggestion, idx) => (
+                <Button
+                  key={idx}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs bg-gray-900/50 border-gray-700 hover:bg-purple-500/10 hover:border-purple-500/50"
+                  onClick={() => setDiscussionInput(suggestion.text)}
+                >
+                  <span className="mr-1">{suggestion.icon}</span>
+                  {suggestion.text}
+                </Button>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className="flex gap-2">
+              <Input
+                value={discussionInput}
+                onChange={(e) => setDiscussionInput(e.target.value)}
+                placeholder={t('Ask about the comparison...', 'Tanya tentang perbandingan...')}
+                className="flex-1 bg-gray-900/50"
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleDiscussionSend()}
+              />
+              <Button 
+                onClick={handleDiscussionSend} 
+                disabled={!discussionInput.trim() || isTyping}
+                className="bg-purple-500 hover:bg-purple-600"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* History Section */}
+      {history.length > 0 && (
+        <Card className="border-gray-700/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <History className="w-5 h-5 text-gray-400" />
+              <div>
+                <CardTitle className="text-base">
+                  {t('Comparison History', 'Riwayat Perbandingan')}
+                  <Badge variant="secondary" className="ml-2 text-[10px]">{history.length}</Badge>
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {t('Click to view full results (max 3 saved)', 'Klik untuk lihat hasil lengkap (max 3 tersimpan)')}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {history.map((item) => (
+              <div key={item.id} className="border border-gray-800 rounded-lg overflow-hidden">
+                <div 
+                  className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-800/50 transition-colors"
+                  onClick={() => setExpandedHistoryId(expandedHistoryId === item.id ? null : item.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <SiTiktok className="w-4 h-4 text-pink-500" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        {item.usernames.map(u => `@${u}`).join(' vs ')}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {item.timestamp.toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        <span className="ml-2 text-cyan-400">★ @{item.result.winner}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleViewHistoryItem(item); }}>
+                      <Eye className="w-4 h-4 text-cyan-400" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleDeleteHistory(item.id); }}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </Button>
+                    {expandedHistoryId === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </div>
+
+                {/* Expanded View */}
+                {expandedHistoryId === item.id && (
+                  <div className="border-t border-gray-800 p-3 bg-gray-900/30 space-y-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                      {item.result.accounts.map((acc) => (
+                        <div key={acc.username} className={`p-2 rounded-lg ${acc.username === item.result.winner ? 'bg-cyan-500/10 border border-cyan-500/30' : 'bg-gray-800/50'}`}>
+                          <p className="font-medium flex items-center gap-1">
+                            {acc.username === item.result.winner && <span className="text-cyan-400 text-xs">★</span>}
+                            @{acc.username}
+                          </p>
+                          <p className="text-gray-400">{formatNumber(acc.followers)} followers</p>
+                          <p className="text-gray-400">{acc.engagementRate.toFixed(1)}% eng</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-cyan-400">{t('Insights:', 'Insight:')}</p>
+                      <ul className="text-xs text-gray-400 space-y-1">
+                        {item.result.insights.slice(0, 2).map((insight, idx) => (
+                          <li key={idx} className="flex items-start gap-1">
+                            <span className="text-pink-400">•</span>
+                            {insight}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
