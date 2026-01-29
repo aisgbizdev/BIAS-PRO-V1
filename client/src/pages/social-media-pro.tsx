@@ -604,10 +604,68 @@ export default function SocialMediaPro() {
               <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl">
                 <p className="text-yellow-200 font-semibold mb-2">💡 {t('Actionable Recommendations:', 'Rekomendasi Actionable:')}</p>
                 <ul className="text-yellow-100 text-sm space-y-1.5 list-disc list-inside" data-testid="list-engagement-recommendations">
-                  <li>{t('Post during peak hours (6-9 PM) when your audience is most active', 'Posting saat jam sibuk (18:00-21:00) ketika audiens paling aktif')}</li>
-                  <li>{t('Use trending sounds and hashtags to increase discoverability', 'Gunakan sound dan hashtag trending untuk meningkatkan discoverability')}</li>
-                  <li>{t('Create more interactive content: polls, questions, challenges', 'Buat konten lebih interaktif: polling, pertanyaan, challenge')}</li>
-                  <li>{t('Respond to comments within first 60 minutes to boost algorithm', 'Balas komentar dalam 60 menit pertama untuk boost algoritma')}</li>
+                  {/* Dynamic recommendations based on actual metrics */}
+                  {engagementRateNum < 2 && (
+                    <>
+                      <li>{t(
+                        `With ${engagementRate}% engagement, focus on stronger hooks in first 3 seconds to stop the scroll`,
+                        `Dengan engagement ${engagementRate}%, fokus pada hook kuat di 3 detik pertama untuk menghentikan scroll`
+                      )}</li>
+                      <li>{t(
+                        `Your ${likesPerVideo.toLocaleString()} likes/video average needs boosting - add clear CTAs like "Double tap if you agree"`,
+                        `Rata-rata ${likesPerVideo.toLocaleString()} likes/video perlu ditingkatkan - tambahkan CTA jelas seperti "Double tap kalau setuju"`
+                      )}</li>
+                    </>
+                  )}
+                  {engagementRateNum >= 2 && engagementRateNum < 4 && (
+                    <>
+                      <li>{t(
+                        `Your ${engagementRate}% is close to average - increase posting frequency to 2-3x daily for more visibility`,
+                        `Engagement ${engagementRate}% mendekati rata-rata - tingkatkan frekuensi posting 2-3x sehari untuk lebih banyak visibility`
+                      )}</li>
+                      <li>{t(
+                        `With ${followersDisplay} followers, experiment with duets and stitches to tap into larger audiences`,
+                        `Dengan ${followersDisplay} followers, coba duet dan stitch untuk menjangkau audiens lebih besar`
+                      )}</li>
+                    </>
+                  )}
+                  {engagementRateNum >= 4 && engagementRateNum < 8 && (
+                    <>
+                      <li>{t(
+                        `Great ${engagementRate}% engagement! Leverage your ${followersDisplay} followers with more collab content`,
+                        `Bagus! Engagement ${engagementRate}%! Manfaatkan ${followersDisplay} followers dengan lebih banyak konten kolaborasi`
+                      )}</li>
+                      <li>{t(
+                        `Your ${likesPerVideo.toLocaleString()} likes/video is strong - consider going live to monetize this engaged audience`,
+                        `Rata-rata ${likesPerVideo.toLocaleString()} likes/video kuat - pertimbangkan live untuk monetisasi audiens engaged ini`
+                      )}</li>
+                    </>
+                  )}
+                  {engagementRateNum >= 8 && (
+                    <>
+                      <li>{t(
+                        `Excellent ${engagementRate}%! Your ${followersDisplay} followers are highly engaged - explore brand partnerships`,
+                        `Luar biasa ${engagementRate}%! ${followersDisplay} followers Anda sangat engaged - jajaki kerjasama brand`
+                      )}</li>
+                      <li>{t(
+                        `With ${likesPerVideo.toLocaleString()} likes/video, you're ready for TikTok Creator Fund or affiliate marketing`,
+                        `Dengan ${likesPerVideo.toLocaleString()} likes/video, Anda siap untuk TikTok Creator Fund atau affiliate marketing`
+                      )}</li>
+                    </>
+                  )}
+                  {/* Always show these contextual tips */}
+                  <li>{t(
+                    `Based on ${videosDisplay} videos, ${videos < 50 ? 'increase content volume' : videos < 200 ? 'maintain consistency' : 'focus on quality over quantity'}`,
+                    `Berdasarkan ${videosDisplay} video, ${videos < 50 ? 'tingkatkan volume konten' : videos < 200 ? 'pertahankan konsistensi' : 'fokus kualitas daripada kuantitas'}`
+                  )}</li>
+                  <li>{t(
+                    followers < 10000 ? 'Reply to every comment to build community loyalty' : 
+                    followers < 100000 ? 'Pin top comments and create response videos' : 
+                    'Delegate engagement or use scheduled responses',
+                    followers < 10000 ? 'Balas setiap komentar untuk membangun loyalitas komunitas' : 
+                    followers < 100000 ? 'Pin komentar terbaik dan buat video respons' : 
+                    'Delegasikan engagement atau gunakan respons terjadwal'
+                  )}</li>
                 </ul>
               </div>
             </CardContent>
