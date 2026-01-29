@@ -1669,7 +1669,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       <Tabs defaultValue="library" className="w-full">
         {/* Mobile: horizontal scroll with visible tabs, Desktop: grid */}
         <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 sm:pb-0 scrollbar-hide">
-          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 gap-1 min-w-max sm:min-w-0 bg-zinc-900/50 p-1">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-6 gap-1 min-w-max sm:min-w-0 bg-zinc-900/50 p-1">
             <TabsTrigger value="library" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
               <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{t('Library', 'Perpustakaan')}</span>
