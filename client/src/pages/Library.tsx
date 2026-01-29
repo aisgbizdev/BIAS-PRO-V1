@@ -15,6 +15,7 @@ import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, 
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
+import { KnowledgeBasePanel } from '@/components/admin/KnowledgeBasePanel';
 
 interface GlossaryTerm {
   term: string;
@@ -1687,7 +1688,11 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
             </TabsTrigger>
             <TabsTrigger value="ai-learning" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
               <Brain className="w-3.5 h-3.5 flex-shrink-0" />
-              <span>AI</span>
+              <span>AI Legacy</span>
+            </TabsTrigger>
+            <TabsTrigger value="knowledge" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0 relative">
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Knowledge</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
               <Settings className="w-3.5 h-3.5 flex-shrink-0" />
@@ -1928,6 +1933,10 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
 
         <TabsContent value="ai-learning" className="mt-6">
           <LearnedResponsesPanel />
+        </TabsContent>
+
+        <TabsContent value="knowledge" className="mt-6">
+          <KnowledgeBasePanel />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">

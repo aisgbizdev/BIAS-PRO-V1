@@ -1,8 +1,9 @@
-// Hybrid Chat System - Local first, then Learning Library, then OpenAI API
+// Hybrid Chat System - Local first, then Knowledge Base, then OpenAI API
 import OpenAI from 'openai';
 import { checkRateLimit, recordUsage } from '../utils/ai-rate-limiter';
 import { findSimilarResponse, saveLearnedResponse } from '../utils/learning-system';
 import { getRelevantKnowledge } from './knowledge-loader';
+import { processConversationForKnowledge, findMatchingKnowledge } from '../utils/knowledge-extraction';
 
 interface ConversationMessage {
   role: 'user' | 'assistant';
@@ -393,8 +394,28 @@ Jawab dengan DEPTH, AUTHORITY, dan WARMTH. Bikin user merasa dapat insight berha
 
 export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
   const sessionId = request.sessionId || 'anonymous';
+  const mode = request.mode === 'marketing' ? 'marketing' : 'tiktok';
   
-  // STEP 1: Check learning library first (FREE, no API call)
+  // STEP 1: Check Knowledge Base first (curated, approved knowledge - FREE)
+  try {
+    const knowledgeMatch = await findMatchingKnowledge(request.message, mode);
+    if (knowledgeMatch.found && knowledgeMatch.knowledge) {
+      console.log(`🧠 Found in Knowledge Base: "${knowledgeMatch.knowledge.topic}"`);
+      
+      // Format the response from knowledge narrative
+      const knowledgeResponse = `💡 **${knowledgeMatch.knowledge.topic}**\n\n${knowledgeMatch.knowledge.narrative}\n\n---\n*Dari Knowledge Base BiAS Pro*`;
+      
+      return {
+        response: knowledgeResponse,
+        source: 'local',
+        rateLimitInfo: checkRateLimit(sessionId),
+      };
+    }
+  } catch (error) {
+    console.log('⚠️ Knowledge Base check failed, continuing...');
+  }
+  
+  // STEP 2: Check legacy learning library (FREE, no API call)
   try {
     const learned = await findSimilarResponse(request.message);
     if (learned.found && learned.response) {
@@ -409,7 +430,7 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
     console.log('⚠️ Learning library check failed, continuing to Ai');
   }
 
-  // STEP 2: Check rate limit before calling Ai
+  // STEP 3: Check rate limit before calling Ai
   const rateLimitCheck = checkRateLimit(sessionId);
   if (!rateLimitCheck.allowed) {
     return {
@@ -428,7 +449,7 @@ Sementara itu, kamu masih bisa:
     };
   }
 
-  // STEP 3: Check if OpenAI is configured
+  // STEP 4: Check if OpenAI is configured
   if (!process.env.OPENAI_API_KEY) {
     return {
       response: `🔧 **OpenAI belum dikonfigurasi**
@@ -443,7 +464,7 @@ Sementara itu, kamu bisa pakai:
     };
   }
 
-  // STEP 3.5: Cross-tab topic detection - redirect users to correct tab
+  // STEP 4.5: Cross-tab topic detection - redirect users to correct tab
   const analysisType = request.analysisType || 'video';
   const msgLower = request.message.toLowerCase();
   
@@ -491,7 +512,7 @@ Di tab ini (Account) kita fokus bahas strategi pertumbuhan akun ya!`,
     };
   }
 
-  // STEP 4: Call OpenAI API
+  // STEP 5: Call OpenAI API
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     
@@ -525,7 +546,7 @@ User ini baru mulai. Penyesuaian:
 - Tetap pakai format section bernomor, tapi lebih singkat`;
     }
     
-    // Add tab-specific focus context (analysisType already defined in STEP 3.5)
+    // Add tab-specific focus context (analysisType already defined in STEP 4.5)
     let tabFocusContext = '';
     
     const tabTopics: Record<string, { topic: string; redirect: string }> = {
@@ -587,7 +608,7 @@ Selalu hubungkan jawaban dengan hasil analisis sebelumnya yang ada di konteks. J
     const startTime = Date.now();
     let completion;
 
-    // STEP 4A: If image is present, use Vision API
+    // STEP 5A: If image is present, use Vision API
     if (request.image) {
       // Validate image is a data URL and not too large (max ~4MB base64)
       if (!request.image.startsWith('data:image/')) {
@@ -784,7 +805,7 @@ User's question: ${request.message}`;
         };
       }
     } else {
-      // STEP 4B: Text-only chat with conversation history
+      // STEP 5B: Text-only chat with conversation history
       console.log(`🤖 Calling OpenAI for chat (${mode}): "${request.message.slice(0, 50)}..."`);
       
       // Build conversation history for context continuity
@@ -851,9 +872,25 @@ Contoh yang SALAH:
 
     const response = completion.choices[0]?.message?.content || 'Maaf, ada error. Coba lagi ya!';
 
-    // STEP 5: Save to learning library with mode and sessionId (async, don't wait)
-    // Determine mode for saving
+    // STEP 6: Extract knowledge from conversation (async, don't wait)
+    // Uses AI to extract essence and save as pending knowledge for admin review
     const saveMode = mode === 'marketing' ? 'marketing' : 'tiktok';
+    processConversationForKnowledge({
+      question: request.message,
+      response,
+      mode: saveMode as 'tiktok' | 'marketing',
+      sessionId,
+    }).then(result => {
+      if (result.saved) {
+        console.log('🧠 Knowledge extracted and saved for review');
+      } else {
+        console.log(`📝 Knowledge not extracted: ${result.reason}`);
+      }
+    }).catch(err => {
+      console.error('Failed to extract knowledge:', err);
+    });
+    
+    // Also save to legacy learning library for backward compatibility
     saveLearnedResponse(request.message, response, saveMode, sessionId).catch(err => {
       console.error('Failed to save to learning library:', err);
     });

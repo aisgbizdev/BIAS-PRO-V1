@@ -1754,6 +1754,99 @@ Status: good (di atas rata-rata), average (normal), needs_work (perlu perbaikan)
     }
   });
 
+  // ========================================
+  // KNOWLEDGE BASE (New AI Learning System) ENDPOINTS
+  // ========================================
+  
+  // Get pending knowledge for review (admin only)
+  app.get("/api/knowledge", requireAdmin, async (req, res) => {
+    try {
+      const { getAllKnowledge } = await import('./utils/knowledge-extraction');
+      const status = req.query.status as string | undefined;
+      const knowledge = await getAllKnowledge(status);
+      res.json(knowledge);
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error fetching knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Approve knowledge (admin only)
+  app.post("/api/knowledge/:id/approve", requireAdmin, async (req, res) => {
+    try {
+      const { approveKnowledge } = await import('./utils/knowledge-extraction');
+      const { narrative } = req.body;
+      const success = await approveKnowledge(req.params.id, 'admin', narrative);
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error approving knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Reject knowledge (admin only)
+  app.post("/api/knowledge/:id/reject", requireAdmin, async (req, res) => {
+    try {
+      const { rejectKnowledge } = await import('./utils/knowledge-extraction');
+      const { reason } = req.body;
+      const success = await rejectKnowledge(req.params.id, reason || 'Not relevant');
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error rejecting knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update knowledge (admin only)
+  app.put("/api/knowledge/:id", requireAdmin, async (req, res) => {
+    try {
+      const { updateKnowledge } = await import('./utils/knowledge-extraction');
+      const { topic, narrative, keywords, subcategory } = req.body;
+      const success = await updateKnowledge(req.params.id, { topic, narrative, keywords, subcategory });
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error updating knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Delete knowledge (admin only)
+  app.delete("/api/knowledge/:id", requireAdmin, async (req, res) => {
+    try {
+      const { deleteKnowledge } = await import('./utils/knowledge-extraction');
+      const success = await deleteKnowledge(req.params.id);
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error deleting knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get pending knowledge count for notification badge (admin only)
+  app.get("/api/knowledge/pending-count", requireAdmin, async (req, res) => {
+    try {
+      const { getPendingKnowledge } = await import('./utils/knowledge-extraction');
+      const pending = await getPendingKnowledge();
+      res.json({ count: pending.length });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error getting pending count:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Rate knowledge (user feedback)
+  app.post("/api/knowledge/:id/rate", async (req, res) => {
+    try {
+      const { rateKnowledge } = await import('./utils/knowledge-extraction');
+      const { helpful } = req.body;
+      const success = await rateKnowledge(req.params.id, helpful === true);
+      res.json({ success });
+    } catch (error: any) {
+      console.error('[KNOWLEDGE] Error rating knowledge:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Analytics - Track page view
   app.post("/api/analytics/pageview", async (req, res) => {
     try {
