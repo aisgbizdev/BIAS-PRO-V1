@@ -253,6 +253,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
             outputLanguage: language === 'en' ? 'en' : 'id', // Bilingual toggle
             previousImageContext: lastImageContext || undefined, // Follow-up context
             conversationHistory, // Send full conversation history
+            analysisType: mode === 'marketing' ? 'coach' : 'video', // Tab-specific focus
           }),
         });
         
@@ -308,6 +309,7 @@ export function InteractiveCreatorHub({ mode = 'tiktok' }: InteractiveCreatorHub
             sessionId, 
             mode: mode === 'marketing' ? 'marketing' : 'expert',
             conversationHistory, // Send full conversation history for context
+            analysisType: mode === 'marketing' ? 'coach' : 'video', // Tab-specific focus
           }),
         });
         

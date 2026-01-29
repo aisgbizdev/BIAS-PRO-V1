@@ -243,6 +243,7 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
           outputLanguage: language === 'en' ? 'en' : 'id', // Bilingual toggle based on current language
           previousImageContext: lastImageContext || undefined, // Pass previous image context for follow-up
           conversationHistory, // Send full conversation history for context
+          analysisType: analysisType, // Pass tab type for focused discussion
         }),
       });
       

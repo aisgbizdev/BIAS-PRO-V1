@@ -2138,7 +2138,7 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
   
   app.post("/api/chat/hybrid", async (req, res) => {
     try {
-      const { message, sessionId, mode, image, images, outputLanguage, previousImageContext } = req.body;
+      const { message, sessionId, mode, image, images, outputLanguage, previousImageContext, analysisType } = req.body;
       
       if (!message || typeof message !== 'string') {
         return res.status(400).json({ error: 'Message is required' });
@@ -2153,6 +2153,7 @@ WAJIB: suggestion harus berisi VERSI IMPROVED dari hook, bukan cuma saran abstra
         images: images || undefined,
         outputLanguage: outputLanguage || 'id',
         previousImageContext: previousImageContext || undefined,
+        analysisType: analysisType || 'video',
       });
       
       res.json(result);

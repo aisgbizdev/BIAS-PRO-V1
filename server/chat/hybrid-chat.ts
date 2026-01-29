@@ -18,6 +18,7 @@ interface ChatRequest {
   outputLanguage?: 'id' | 'en'; // Preferred output language
   previousImageContext?: string; // Context from previous image analysis
   conversationHistory?: ConversationMessage[]; // Full conversation history for context
+  analysisType?: 'video' | 'text' | 'account' | 'comparison' | 'batch' | 'hook' | 'screenshot' | 'script' | 'coach'; // Tab-specific context
 }
 
 interface ChatResponse {
@@ -476,7 +477,61 @@ User ini baru mulai. Penyesuaian:
 - Tetap pakai format section bernomor, tapi lebih singkat`;
     }
     
-    const fullPrompt = basePrompt + modeContext;
+    // Add tab-specific focus context
+    let tabFocusContext = '';
+    const analysisType = request.analysisType || 'video';
+    
+    const tabTopics: Record<string, { topic: string; redirect: string }> = {
+      'account': {
+        topic: 'analisis akun TikTok, strategi pertumbuhan followers, optimasi profil, engagement rate, posting schedule, dan branding akun',
+        redirect: 'Untuk analisis konten video, silakan gunakan tab Video. Untuk perbandingan dengan kompetitor, gunakan tab Compare.'
+      },
+      'video': {
+        topic: 'analisis konten video TikTok, hook, storytelling, editing, sound selection, caption, hashtag, dan optimasi FYP',
+        redirect: 'Untuk strategi pertumbuhan akun, silakan gunakan tab Account. Untuk A/B testing hook, gunakan tab A/B Hooks.'
+      },
+      'screenshot': {
+        topic: 'analisis screenshot TikTok, metrik performa, insights dari gambar, dan interpretasi data visual',
+        redirect: 'Untuk analisis video langsung, gunakan tab Video. Untuk analisis akun lengkap, gunakan tab Account.'
+      },
+      'comparison': {
+        topic: 'perbandingan akun TikTok, analisis kompetitor, benchmarking, dan strategi untuk mengalahkan pesaing',
+        redirect: 'Untuk fokus analisis akun sendiri, gunakan tab Account. Untuk analisis batch video, gunakan tab Batch.'
+      },
+      'batch': {
+        topic: 'analisis batch multiple video, perbandingan performa video, identifikasi video terbaik/terburuk, dan pattern recognition',
+        redirect: 'Untuk analisis 1 video detail, gunakan tab Video. Untuk A/B testing hook, gunakan tab A/B Hooks.'
+      },
+      'hook': {
+        topic: 'A/B testing hook video, perbandingan opening, strategi hook yang viral, dan optimasi 3 detik pertama',
+        redirect: 'Untuk analisis konten video lengkap, gunakan tab Video. Untuk batch analysis, gunakan tab Batch.'
+      },
+      'script': {
+        topic: 'penulisan script sales, pitch deck, cold call script, follow-up message, dan teknik copywriting persuasif',
+        redirect: 'Untuk analisis video presentasi, gunakan tab Video. Untuk coaching interaktif, gunakan tab Coach.'
+      },
+      'coach': {
+        topic: 'coaching bisnis, sales strategy, leadership, public speaking, negotiation, dan pengembangan profesional',
+        redirect: 'Untuk analisis script langsung, gunakan tab Script Review. Untuk video analysis, gunakan tab Video.'
+      },
+      'text': {
+        topic: 'analisis teks marketing, evaluasi pitch, review presentasi, dan feedback komunikasi profesional',
+        redirect: 'Untuk analisis video, gunakan tab Video. Untuk template script, gunakan tab Script Generator.'
+      }
+    };
+    
+    const currentTab = tabTopics[analysisType] || tabTopics['video'];
+    tabFocusContext = `
+
+🎯 TAB FOCUS: ${analysisType.toUpperCase()}
+PENTING - Fokus diskusi HANYA pada: ${currentTab.topic}
+
+Jika user bertanya di luar topik ini, respond dengan sopan:
+"Pertanyaan bagus! Tapi topik ini lebih cocok dibahas di tab lain. ${currentTab.redirect}"
+
+Selalu hubungkan jawaban dengan hasil analisis sebelumnya yang ada di konteks. Jika tidak ada konteks analisis, minta user melakukan analisis dulu.`;
+
+    const fullPrompt = basePrompt + modeContext + tabFocusContext;
     
     // Load relevant knowledge based on user's question
     const relevantKnowledge = getRelevantKnowledge(request.message);
