@@ -5,7 +5,7 @@ import { useLanguage } from '@/lib/languageContext';
 import { useBrand } from '@/lib/brandContext';
 import { useSettings } from '@/lib/settingsContext';
 import { getActiveBrandLogo } from '@/config/brands';
-import { getVideoUsageToday, getRemainingVideoAnalysis, getDailyLimit } from '@/lib/usageLimit';
+import { getVideoUsageToday, getRemainingVideoAnalysis, getDailyLimit, isAdminUnlimited } from '@/lib/usageLimit';
 import { Globe, BookOpen, Home, Mic, ExternalLink, Menu, HelpCircle, Zap, Info, Settings, ArrowLeft } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiTiktok } from 'react-icons/si';
@@ -201,19 +201,21 @@ export function BiasHeader() {
               <TooltipTrigger asChild>
                 <Link href="/premium">
                   <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer transition-all ${
-                    remaining <= 0 
-                      ? 'bg-orange-500/20 border border-orange-500/50 hover:bg-orange-500/30' 
-                      : remaining <= 2 
-                        ? 'bg-red-500/20 border border-red-500/50 hover:bg-red-500/30' 
-                        : 'bg-pink-500/20 border border-pink-500/50 hover:bg-pink-500/30'
+                    isAdminUnlimited()
+                      ? 'bg-green-500/20 border border-green-500/50 hover:bg-green-500/30'
+                      : remaining <= 0 
+                        ? 'bg-orange-500/20 border border-orange-500/50 hover:bg-orange-500/30' 
+                        : remaining <= 2 
+                          ? 'bg-red-500/20 border border-red-500/50 hover:bg-red-500/30' 
+                          : 'bg-pink-500/20 border border-pink-500/50 hover:bg-pink-500/30'
                   }`}>
                     <Zap className={`w-4 h-4 ${
-                      remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
+                      isAdminUnlimited() ? 'text-green-400' : remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
                     }`} />
                     <span className={`text-sm font-bold ${
-                      remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
+                      isAdminUnlimited() ? 'text-green-400' : remaining <= 0 ? 'text-orange-400' : remaining <= 2 ? 'text-red-400' : 'text-pink-400'
                     }`}>
-                      {remaining}/{dailyLimit}
+                      {isAdminUnlimited() ? '∞' : `${remaining}/${dailyLimit}`}
                     </span>
                     <Info className="w-3 h-3 text-muted-foreground" />
                   </div>
@@ -222,21 +224,23 @@ export function BiasHeader() {
               <TooltipContent side="bottom" className="max-w-[280px] p-3">
                 <div className="space-y-2">
                   <p className="font-semibold text-sm">
-                    {t('Ai Token Limit', 'Limit Token Ai')}
+                    {isAdminUnlimited() ? t('Developer Mode', 'Mode Developer') : t('Ai Token Limit', 'Limit Token Ai')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {remaining > 0 
-                      ? t(
-                          `You have ${remaining} Ai-powered analyses remaining today.`,
-                          `Kamu punya ${remaining} analisa Ai tersisa hari ini.`
-                        )
-                      : t(
-                          'Ai token limit reached! Analysis still works using local knowledge base (without Ai enhancement).',
-                          'Limit token Ai habis! Analisa tetap jalan pakai knowledge base lokal (tanpa Ai enhancement).'
-                        )
+                    {isAdminUnlimited()
+                      ? t('Unlimited analysis access (Developer/Admin)', 'Akses analisa unlimited (Developer/Admin)')
+                      : remaining > 0 
+                        ? t(
+                            `You have ${remaining} Ai-powered analyses remaining today.`,
+                            `Kamu punya ${remaining} analisa Ai tersisa hari ini.`
+                          )
+                        : t(
+                            'Ai token limit reached! Analysis still works using local knowledge base (without Ai enhancement).',
+                            'Limit token Ai habis! Analisa tetap jalan pakai knowledge base lokal (tanpa Ai enhancement).'
+                          )
                     }
                   </p>
-                  {remaining <= 0 && (
+                  {!isAdminUnlimited() && remaining <= 0 && (
                     <p className="text-xs text-orange-400 font-medium">
                       {t('Upgrade for more Ai analyses →', 'Upgrade untuk lebih banyak analisa Ai →')}
                     </p>

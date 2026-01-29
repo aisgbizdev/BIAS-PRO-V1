@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/languageContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { setAdminUnlimited } from '@/lib/usageLimit';
 import { Search, BookOpen, TrendingUp, Shield, AlertCircle, CheckCircle, Heart, ShoppingCart, X, Check, Ban, BarChart3, Palette, Plus, Pencil, Trash2, ExternalLink, Eye, EyeOff, Megaphone, Sparkles, Settings, Zap, Star, Trophy, Users, MessageSquare, Send, RefreshCcw, ChevronLeft, ChevronRight, Brain, Download } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { TIKTOK_RULES, type PlatformRule } from '@/data/platformRules';
@@ -1387,6 +1388,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
       
       if (res.ok && data.success) {
         setIsAdmin(true);
+        setAdminUnlimited(true); // Developer/Admin gets unlimited analysis
         toast({
           title: t('Admin Access Granted', 'Akses Admin Diberikan'),
           description: t(`Welcome, ${data.username}!`, `Selamat datang, ${data.username}!`),
@@ -1418,6 +1420,7 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
         credentials: 'include',
       });
       setIsAdmin(false);
+      setAdminUnlimited(false); // Remove unlimited analysis on logout
       toast({
         title: t('Logged Out', 'Keluar'),
         description: t('Successfully logged out', 'Berhasil keluar'),

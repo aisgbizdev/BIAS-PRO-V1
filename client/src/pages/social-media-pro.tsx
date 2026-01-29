@@ -338,6 +338,11 @@ export default function SocialMediaPro() {
                     placeholder="@username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && username.trim() && !isAnalyzing) {
+                        handleAnalyzeAccount();
+                      }
+                    }}
                     className="pl-12 bg-[#1E1E1E] border-gray-700 focus:border-pink-500 text-white"
                     data-testid="input-username"
                   />
