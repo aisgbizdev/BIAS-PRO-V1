@@ -8,9 +8,10 @@ import {
   getAnalysisHistory, 
   deleteAnalysisFromHistory, 
   clearAnalysisHistory,
-  type AnalysisHistoryItem 
+  type AnalysisHistoryItem,
+  type AnalysisCategory
 } from '@/lib/analysisHistory';
-import { History, Trash2, Eye, Video, FileText, Link, AlertTriangle, RefreshCw } from 'lucide-react';
+import { History, Trash2, Eye, Video, FileText, Link, AlertTriangle, RefreshCw, User, Camera, BarChart2, Repeat, Users, Image } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -28,9 +29,10 @@ import type { BiasAnalysisResult } from '@shared/schema';
 interface AnalysisHistoryProps {
   onSelectAnalysis: (result: BiasAnalysisResult) => void;
   refreshTrigger?: number;
+  filterCategory?: AnalysisCategory;
 }
 
-export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHistoryProps) {
+export function AnalysisHistory({ onSelectAnalysis, refreshTrigger, filterCategory }: AnalysisHistoryProps) {
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const [history, setHistory] = useState<AnalysisHistoryItem[]>([]);
@@ -38,10 +40,10 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
 
   const loadHistory = useCallback(() => {
     setIsLoading(true);
-    const items = getAnalysisHistory();
+    const items = getAnalysisHistory(filterCategory);
     setHistory(items);
     setIsLoading(false);
-  }, []);
+  }, [filterCategory]);
 
   useEffect(() => {
     loadHistory();
@@ -88,7 +90,19 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
     });
   };
 
-  const getInputIcon = (type: string) => {
+  const getInputIcon = (type: string, category?: AnalysisCategory) => {
+    // Use category-specific icons if available
+    if (category) {
+      switch (category) {
+        case 'account': return <User className="w-3.5 h-3.5" />;
+        case 'screenshot': return <Camera className="w-3.5 h-3.5" />;
+        case 'batch': return <BarChart2 className="w-3.5 h-3.5" />;
+        case 'ab': return <Repeat className="w-3.5 h-3.5" />;
+        case 'competitor': return <Users className="w-3.5 h-3.5" />;
+        case 'thumbnail': return <Image className="w-3.5 h-3.5" />;
+      }
+    }
+    // Fall back to input type icons
     switch (type) {
       case 'video': return <Video className="w-3.5 h-3.5" />;
       case 'url': return <Link className="w-3.5 h-3.5" />;
@@ -189,7 +203,7 @@ export function AnalysisHistory({ onSelectAnalysis, refreshTrigger }: AnalysisHi
                         {item.mode === 'tiktok' ? 'TikTok Pro' : 'Marketing Pro'}
                       </Badge>
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        {getInputIcon(item.inputType)}
+                        {getInputIcon(item.inputType, item.category)}
                       </span>
                     </div>
                     <p className="text-sm truncate text-gray-300">{item.inputPreview}</p>

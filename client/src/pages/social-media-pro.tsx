@@ -124,6 +124,23 @@ export default function SocialMediaPro() {
       setAccountData(data);
       setPhotoLoadError(false); // Reset photo error state on new analysis
       
+      // Save to history with 'account' category
+      const engagementScore = data.metrics?.engagementRate >= 8 ? 9 : data.metrics?.engagementRate >= 4 ? 7 : data.metrics?.engagementRate >= 2 ? 5 : 3;
+      const accountResult = {
+        overallScore: engagementScore,
+        summary: `@${username}: ${formatMetric(data.metrics?.followers || 0)} followers, ${formatMetric(data.metrics?.videos || 0)} videos, ${data.metrics?.engagementRate?.toFixed(1) || '0'}% engagement`,
+        summaryId: `account_${username}_${Date.now()}`,
+        mode: 'creator' as const,
+        layers: [],
+        biasBreakdown: [],
+        strengths: [`${formatMetric(data.metrics?.followers || 0)} followers`, `${formatMetric(data.metrics?.videos || 0)} videos`],
+        improvements: [],
+        recommendations: [],
+        recommendationsId: [],
+        actionPlan: [],
+      };
+      saveAnalysisToHistory(accountResult, 'tiktok', 'url', `@${username} - ${formatMetric(data.metrics?.followers || 0)} followers`, 'account');
+      
       // Track usage and analytics
       incrementVideoUsage();
       trackFeatureUsage('analysis', platform, { type: 'account', username });
@@ -1136,9 +1153,12 @@ export default function SocialMediaPro() {
           );
         })()}
         
-        {/* Analysis History - Always at Bottom */}
-        {(analyticsTab === 'video' || analyticsTab === 'account') && (
-          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
+        {/* Analysis History - Filtered by current tab */}
+        {analyticsTab === 'video' && (
+          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} filterCategory="video" />
+        )}
+        {analyticsTab === 'account' && (
+          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} filterCategory="account" />
         )}
         </div>
       )}

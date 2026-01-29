@@ -3,6 +3,8 @@ import type { BiasAnalysisResult } from '@shared/schema';
 const HISTORY_STORAGE_KEY = 'bias_analysis_history';
 const MAX_HISTORY_ITEMS = 20;
 
+export type AnalysisCategory = 'video' | 'account' | 'screenshot' | 'batch' | 'ab' | 'competitor' | 'thumbnail';
+
 export interface AnalysisHistoryItem {
   id: string;
   result: BiasAnalysisResult;
@@ -10,6 +12,7 @@ export interface AnalysisHistoryItem {
   inputType: 'text' | 'video' | 'url';
   inputPreview: string;
   timestamp: Date;
+  category?: AnalysisCategory;
 }
 
 export interface StoredHistoryItem {
@@ -19,13 +22,15 @@ export interface StoredHistoryItem {
   inputType: 'text' | 'video' | 'url';
   inputPreview: string;
   timestamp: string;
+  category?: AnalysisCategory;
 }
 
 export function saveAnalysisToHistory(
   result: BiasAnalysisResult,
   mode: 'tiktok' | 'marketing',
   inputType: 'text' | 'video' | 'url',
-  inputPreview: string
+  inputPreview: string,
+  category: AnalysisCategory = 'video'
 ): AnalysisHistoryItem {
   const newItem: StoredHistoryItem = {
     id: `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -34,6 +39,7 @@ export function saveAnalysisToHistory(
     inputType,
     inputPreview: inputPreview.substring(0, 100) + (inputPreview.length > 100 ? '...' : ''),
     timestamp: new Date().toISOString(),
+    category,
   };
 
   const history = getStoredHistory();
@@ -65,12 +71,17 @@ function getStoredHistory(): StoredHistoryItem[] {
   }
 }
 
-export function getAnalysisHistory(): AnalysisHistoryItem[] {
+export function getAnalysisHistory(filterCategory?: AnalysisCategory): AnalysisHistoryItem[] {
   const stored = getStoredHistory();
-  return stored.map(item => ({
+  const items = stored.map(item => ({
     ...item,
     timestamp: new Date(item.timestamp),
   }));
+  
+  if (filterCategory) {
+    return items.filter(item => item.category === filterCategory || (!item.category && filterCategory === 'video'));
+  }
+  return items;
 }
 
 export function getAnalysisById(id: string): AnalysisHistoryItem | null {
