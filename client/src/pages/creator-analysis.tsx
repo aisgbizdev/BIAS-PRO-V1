@@ -65,10 +65,10 @@ export default function CreatorAnalysis() {
           setInputMode(newMode);
           trackTabSelection('marketing-pro', newMode);
         }}>
-        <TabsList className="flex w-full gap-1 overflow-x-auto bg-[#141414] border border-gray-800 p-1 rounded-xl">
+        <TabsList className="flex w-full gap-1 overflow-x-auto sm:overflow-visible sm:gap-2 sm:justify-between bg-[#141414] border border-gray-800 p-1 rounded-xl [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <TabsTrigger 
               value="upload"
-              className="data-[state=active]:bg-gray-700/80 data-[state=active]:text-white text-gray-300 text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 shrink-0"
+              className="data-[state=active]:bg-gray-700/80 data-[state=active]:text-white text-gray-300 text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 shrink-0 sm:shrink sm:flex-1"
               data-testid="tab-input-upload"
             >
               <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -76,7 +76,7 @@ export default function CreatorAnalysis() {
             </TabsTrigger>
             <TabsTrigger 
               value="coach"
-              className="data-[state=active]:bg-gray-700/80 data-[state=active]:text-white text-gray-300 text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 shrink-0"
+              className="data-[state=active]:bg-gray-700/80 data-[state=active]:text-white text-gray-300 text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 shrink-0 sm:shrink sm:flex-1"
               data-testid="tab-input-coach"
             >
               <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -88,7 +88,7 @@ export default function CreatorAnalysis() {
                 trackButtonClick('Ai ChatGPTs', 'marketing-pro');
                 window.open(CHATGPTS_URL, '_blank', 'noopener,noreferrer');
               }}
-              className="text-gray-300 hover:text-white text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 hover:bg-gray-700/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-600/60 shrink-0"
+              className="text-gray-300 hover:text-white text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 hover:bg-gray-700/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-600/60 shrink-0 sm:shrink sm:flex-1"
               aria-label={t('Ai ChatGPTs', 'Ai ChatGPTs')}
             >
               <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -96,7 +96,7 @@ export default function CreatorAnalysis() {
             </button>
             <TabsTrigger 
               value="form"
-              className="data-[state=active]:bg-gray-700/80 data-[state=active]:text-white text-gray-300 text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 shrink-0"
+              className="data-[state=active]:bg-gray-700/80 data-[state=active]:text-white text-gray-300 text-[11px] sm:text-xs md:text-sm px-2 py-2 rounded-lg flex items-center justify-center gap-1 min-h-9 sm:min-h-10 shrink-0 sm:shrink sm:flex-1"
               data-testid="tab-input-form"
             >
               <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
