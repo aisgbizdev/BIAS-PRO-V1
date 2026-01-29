@@ -505,11 +505,12 @@ export default function SocialMediaPro() {
           const engagementRateNum = parseFloat(engagementRate);
           
           // Dynamic status based on TikTok benchmarks (avg 4-8%, top 10%+)
+          // Note: MetricCard only supports colors: pink, cyan, purple, yellow
           const getEngagementStatus = (rate: number) => {
-            if (rate >= 8) return { label: t('Excellent', 'Sangat Baik'), color: 'green', badgeClass: 'border-green-500/50 text-green-400' };
+            if (rate >= 8) return { label: t('Excellent', 'Sangat Baik'), color: 'cyan', badgeClass: 'border-green-500/50 text-green-400' };
             if (rate >= 4) return { label: t('Above Average', 'Di Atas Rata-Rata'), color: 'cyan', badgeClass: 'border-cyan-500/50 text-cyan-400' };
             if (rate >= 2) return { label: t('Average', 'Rata-Rata'), color: 'yellow', badgeClass: 'border-yellow-500/50 text-yellow-400' };
-            return { label: t('Below Average', 'Di Bawah Rata-Rata'), color: 'red', badgeClass: 'border-red-500/50 text-red-400' };
+            return { label: t('Below Average', 'Di Bawah Rata-Rata'), color: 'pink', badgeClass: 'border-red-500/50 text-red-400' };
           };
           const engagementStatus = getEngagementStatus(engagementRateNum);
           
