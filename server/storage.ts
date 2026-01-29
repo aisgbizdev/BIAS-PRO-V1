@@ -870,7 +870,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTiktokAccount(account: InsertTiktokAccount): Promise<TiktokAccount> {
+    // Check if username already exists - update instead of creating duplicate
+    const existing = await this.getTiktokAccountByUsername(account.username);
+    if (existing) {
+      // Update existing record with latest data
+      const [updated] = await db.update(tiktokAccounts)
+        .set({
+          displayName: account.displayName ?? existing.displayName,
+          followers: account.followers ?? existing.followers,
+          totalLikes: account.totalLikes ?? existing.totalLikes,
+          totalVideos: account.totalVideos ?? existing.totalVideos,
+          verified: account.verified ?? existing.verified,
+          avatarUrl: account.avatarUrl ?? existing.avatarUrl,
+          engagementRate: account.engagementRate ?? existing.engagementRate,
+          avgViews: account.avgViews ?? existing.avgViews,
+          postingFrequency: account.postingFrequency ?? existing.postingFrequency,
+          analysisResult: account.analysisResult ?? existing.analysisResult,
+          updatedAt: new Date(),
+        })
+        .where(eq(tiktokAccounts.id, existing.id))
+        .returning();
+      console.log(`📊 Updated existing TikTok account: @${account.username}`);
+      return updated;
+    }
+    
+    // Insert new account
     const [inserted] = await db.insert(tiktokAccounts).values(account).returning();
+    console.log(`📊 New TikTok account tracked: @${account.username}`);
     return inserted;
   }
 
