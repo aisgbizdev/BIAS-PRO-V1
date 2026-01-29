@@ -18,6 +18,7 @@ import {
   Lightbulb,
   Loader2,
   Copy,
+  Sparkles,
   Check,
   MessageSquare
 } from 'lucide-react';
@@ -190,12 +191,12 @@ export function ABHookTester() {
           </h2>
         </div>
         <p className="text-gray-400 text-sm">
-          {t('Compare hook variations - Ai picks the winner', 'Bandingkan variasi hook - Ai pilih yang terbaik')}
+          {t('Compare hook variations - Learn what works best', 'Bandingkan variasi hook - Pelajari mana yang efektif')}
         </p>
         <p className="text-gray-500 text-xs mt-1">
           {t(
-            'Know which hook will grab attention before you publish. Stop guessing, start winning.',
-            'Tau hook mana yang akan menarik perhatian sebelum publish. Berhenti nebak, mulai menang.'
+            'Understand what makes each hook effective before you publish. Learn and improve.',
+            'Pahami apa yang membuat setiap hook efektif sebelum publish. Belajar dan tingkatkan.'
           )}
         </p>
       </div>
@@ -271,7 +272,7 @@ export function ABHookTester() {
               t('Evaluating hook structures...', 'Mengevaluasi struktur hook...'),
               t('Analyzing viral potential...', 'Menganalisis potensi viral...'),
               t('Comparing effectiveness...', 'Membandingkan efektivitas...'),
-              t('Determining winner...', 'Menentukan pemenang...'),
+              t('Finding key learnings...', 'Mencari pembelajaran kunci...'),
               t('Generating suggestions...', 'Membuat saran...'),
             ]}
           />
@@ -281,19 +282,19 @@ export function ABHookTester() {
       {/* Results */}
       {result && (
         <div className="space-y-4">
-          {/* Winner Banner */}
-          <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/30">
+          {/* Learning Summary */}
+          <Card className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border-purple-500/30">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                  <Trophy className="w-8 h-8 text-yellow-400" />
+                <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-purple-400" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-yellow-400 font-medium mb-1">
-                    {t('Winner: Hook', 'Pemenang: Hook')} {result.winner}
+                  <p className="text-sm text-purple-400 font-medium mb-1">
+                    {t('Most Effective: Hook', 'Paling Efektif: Hook')} {result.winner}
                   </p>
                   <p className="text-white text-lg font-semibold">
-                    {t('Score', 'Skor')}: <span className="text-yellow-400">{result.winnerScore}/100</span>
+                    {t('Score', 'Skor')}: <span className="text-cyan-400">{result.winnerScore}/100</span>
                   </p>
                   <p className="text-gray-400 text-sm mt-1">{result.comparison}</p>
                 </div>
@@ -301,25 +302,25 @@ export function ABHookTester() {
             </CardContent>
           </Card>
 
-          {/* Individual Results */}
+          {/* Learn from Each Hook */}
           <div className="grid gap-4">
             {result.results.map((hookResult, index) => {
-              const isWinner = hookResult.hookId === result.results.sort((a, b) => b.score - a.score)[0].hookId;
+              const isBest = hookResult.hookId === result.results.sort((a, b) => b.score - a.score)[0].hookId;
               
               return (
                 <Card
                   key={hookResult.hookId}
                   className={`bg-gray-900/50 ${
-                    isWinner ? 'border-yellow-500/30' : 'border-gray-800'
+                    isBest ? 'border-cyan-500/30' : 'border-gray-800'
                   }`}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <Badge className={isWinner ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-700 text-gray-400'}>
+                        <Badge className={isBest ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-700 text-gray-400'}>
                           {t('Hook', 'Hook')} {String.fromCharCode(65 + index)}
                         </Badge>
-                        {isWinner && <Trophy className="w-4 h-4 text-yellow-400" />}
+                        {isBest && <span className="text-cyan-400 text-xs">★ {t('Most Effective', 'Paling Efektif')}</span>}
                         <Badge className={getViralColor(hookResult.viralPotential)}>
                           {getViralLabel(hookResult.viralPotential)}
                         </Badge>
