@@ -299,7 +299,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const scrapedData = await scrapeTikTokProfile(cleanUsername);
       
       // Calculate derived metrics using BigInt-safe methods
-      const engagementRate = calculateEngagementRate(scrapedData.likesCount, scrapedData.followerCount);
+      // Engagement Rate = (Avg likes per video / followers) × 100
+      const engagementRate = calculateEngagementRate(scrapedData.likesCount, scrapedData.followerCount, scrapedData.videoCount);
       const avgViews = calculateAverage(scrapedData.likesCount, scrapedData.videoCount);
       
       // Convert BigInt metrics to MetricValue format (raw string + safe approx)

@@ -498,8 +498,23 @@ export default function SocialMediaPro() {
           const likes = getMetricValue(accountData.metrics?.likes);
           const videos = getMetricValue(accountData.metrics?.videos);
           
-          // Calculate engagement rate: (likes / followers) * 100
-          const engagementRate = followers > 0 ? ((likes / followers) * 100).toFixed(1) : '0.0';
+          // Use engagement rate from backend (correctly calculated as avg likes per video / followers * 100)
+          // Backend formula: (totalLikes / videoCount / followers) * 100
+          const engagementRate = accountData.metrics?.engagementRate?.toFixed(1) || 
+            (followers > 0 && videos > 0 ? ((likes / videos / followers) * 100).toFixed(1) : '0.0');
+          const engagementRateNum = parseFloat(engagementRate);
+          
+          // Dynamic status based on TikTok benchmarks (avg 4-8%, top 10%+)
+          const getEngagementStatus = (rate: number) => {
+            if (rate >= 8) return { label: t('Excellent', 'Sangat Baik'), color: 'green', badgeClass: 'border-green-500/50 text-green-400' };
+            if (rate >= 4) return { label: t('Above Average', 'Di Atas Rata-Rata'), color: 'cyan', badgeClass: 'border-cyan-500/50 text-cyan-400' };
+            if (rate >= 2) return { label: t('Average', 'Rata-Rata'), color: 'yellow', badgeClass: 'border-yellow-500/50 text-yellow-400' };
+            return { label: t('Below Average', 'Di Bawah Rata-Rata'), color: 'red', badgeClass: 'border-red-500/50 text-red-400' };
+          };
+          const engagementStatus = getEngagementStatus(engagementRateNum);
+          
+          // Calculate engagement progress (0-100 scale, where 10% engagement = 100)
+          const engagementProgress = Math.min(100, Math.round(engagementRateNum * 10));
           
           // Calculate likes per video
           const likesPerVideo = videos > 0 ? Math.round(likes / videos) : 0;
@@ -543,12 +558,10 @@ export default function SocialMediaPro() {
             <MetricCard
               title={t('Engagement Rate', 'Engagement Rate')}
               value={`${engagementRate}%`}
-              subtitle={t('Room for improvement', 'Bisa ditingkatkan')}
+              subtitle={engagementStatus.label}
               illustrationUrl={illustrationGrowth}
-              progress={40}
-              change={-2.1}
-              trend="down"
-              color="yellow"
+              progress={engagementProgress}
+              color={engagementStatus.color as 'pink' | 'cyan' | 'purple' | 'yellow'}
             />
           </div>
 
@@ -565,17 +578,26 @@ export default function SocialMediaPro() {
                 <img src={illustrationEngagement} alt="Engagement" className="w-12 h-12 rounded-xl object-cover" />
               </CardTitle>
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-3xl font-bold text-yellow-400" data-testid="text-engagement-rate">{engagementRate}%</span>
-                <Badge variant="outline" className="border-red-500/50 text-red-400" data-testid="badge-engagement-status">
-                  {t('Below Average', 'Di Bawah Rata-Rata')}
+                <span className={`text-3xl font-bold ${engagementRateNum >= 4 ? 'text-green-400' : engagementRateNum >= 2 ? 'text-yellow-400' : 'text-red-400'}`} data-testid="text-engagement-rate">{engagementRate}%</span>
+                <Badge variant="outline" className={engagementStatus.badgeClass} data-testid="badge-engagement-status">
+                  {engagementStatus.label}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-300 leading-relaxed" data-testid="text-engagement-narrative">
-                {t(
-                  `Your engagement rate of ${engagementRate}% is ${parseFloat(engagementRate) < 4 ? 'significantly below' : 'below'} the TikTok average of 4-8%. This indicates that while your follower count is growing (${followersDisplay}), your audience is not actively interacting with your content through likes, comments, and shares. The ratio of ${likesDisplay} total likes to ${followersDisplay} followers suggests strong historical engagement, but recent content may not be resonating as well.`,
-                  `Engagement rate Anda sebesar ${engagementRate}% berada ${parseFloat(engagementRate) < 4 ? 'jauh di bawah' : 'di bawah'} rata-rata TikTok yaitu 4-8%. Ini menunjukkan bahwa meskipun jumlah follower bertumbuh (${followersDisplay}), audiens Anda tidak aktif berinteraksi dengan konten melalui like, comment, dan share. Rasio ${likesDisplay} total likes terhadap ${followersDisplay} followers menunjukkan engagement historis yang kuat, namun konten terbaru mungkin kurang resonan.`
+                {engagementRateNum >= 8 ? t(
+                  `Excellent! Your engagement rate of ${engagementRate}% is significantly above the TikTok average of 4-8%. Your ${followersDisplay} followers are highly engaged with your content. With ${videosDisplay} videos generating ${likesDisplay} total likes (${likesPerVideo.toLocaleString()} likes/video average), your audience strongly resonates with your content. Keep up the great work!`,
+                  `Luar biasa! Engagement rate Anda ${engagementRate}% jauh di atas rata-rata TikTok 4-8%. ${followersDisplay} follower Anda sangat engaged dengan konten Anda. Dengan ${videosDisplay} video menghasilkan ${likesDisplay} total likes (rata-rata ${likesPerVideo.toLocaleString()} likes/video), audiens Anda sangat resonan dengan konten Anda. Pertahankan!`
+                ) : engagementRateNum >= 4 ? t(
+                  `Good job! Your engagement rate of ${engagementRate}% is above the TikTok average of 4-8%. Your ${followersDisplay} followers are interacting well with your content. With ${videosDisplay} videos and ${likesDisplay} total likes (${likesPerVideo.toLocaleString()} likes/video average), you're building a solid engaged community.`,
+                  `Bagus! Engagement rate Anda ${engagementRate}% di atas rata-rata TikTok 4-8%. ${followersDisplay} follower Anda berinteraksi dengan baik dengan konten Anda. Dengan ${videosDisplay} video dan ${likesDisplay} total likes (rata-rata ${likesPerVideo.toLocaleString()} likes/video), Anda sedang membangun komunitas yang solid.`
+                ) : engagementRateNum >= 2 ? t(
+                  `Your engagement rate of ${engagementRate}% is around average for TikTok (4-8% is typical). With ${followersDisplay} followers and ${videosDisplay} videos generating ${likesDisplay} total likes (${likesPerVideo.toLocaleString()} likes/video average), there's room to boost interaction through better hooks and timing.`,
+                  `Engagement rate Anda ${engagementRate}% sekitar rata-rata TikTok (4-8% adalah tipikal). Dengan ${followersDisplay} follower dan ${videosDisplay} video menghasilkan ${likesDisplay} total likes (rata-rata ${likesPerVideo.toLocaleString()} likes/video), masih ada ruang untuk meningkatkan interaksi melalui hook dan timing yang lebih baik.`
+                ) : t(
+                  `Your engagement rate of ${engagementRate}% is below the TikTok average of 4-8%. With ${followersDisplay} followers, ${videosDisplay} videos, and ${likesDisplay} total likes (${likesPerVideo.toLocaleString()} likes/video average), your audience may need more compelling hooks and calls-to-action to boost interaction.`,
+                  `Engagement rate Anda ${engagementRate}% di bawah rata-rata TikTok 4-8%. Dengan ${followersDisplay} follower, ${videosDisplay} video, dan ${likesDisplay} total likes (rata-rata ${likesPerVideo.toLocaleString()} likes/video), audiens Anda mungkin membutuhkan hook dan call-to-action yang lebih menarik untuk meningkatkan interaksi.`
                 )}
               </p>
               <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl">
