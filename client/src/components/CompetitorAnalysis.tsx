@@ -10,7 +10,7 @@ import { AnalysisProgress } from '@/components/AnalysisProgress';
 import { FormattedChatMessage } from '@/components/ui/FormattedChatMessage';
 import { incrementVideoUsage, canUseVideoAnalysis } from '@/lib/usageLimit';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles } from 'lucide-react';
+import { Plus, X, Users, TrendingUp, Trophy, Loader2, ArrowUp, ArrowDown, Minus, History, Eye, Trash2, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Sparkles, Brain, CheckCircle, Lightbulb } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
 import { trackFeatureUsage } from '@/lib/analytics';
 import { 
@@ -227,42 +227,105 @@ export function CompetitorAnalysis() {
     const insights: string[] = [];
     const isId = lang === 'id';
     
-    const sorted = [...accounts].sort((a, b) => b.followers - a.followers);
-    const top = sorted[0];
-    const bottom = sorted[sorted.length - 1];
+    // Generate mutual learning insights instead of winner/loser comparisons
+    if (accounts.length >= 2) {
+      // Find who has best engagement
+      const bestEngagement = accounts.reduce((prev, curr) => 
+        curr.engagementRate > prev.engagementRate ? curr : prev
+      );
+      const othersForEngagement = accounts.filter(a => a.username !== bestEngagement.username);
+      
+      insights.push(
+        isId
+          ? `💡 @${bestEngagement.username} punya engagement ${bestEngagement.engagementRate.toFixed(1)}% - ${othersForEngagement.map(a => `@${a.username}`).join(', ')} bisa pelajari strategi kontennya`
+          : `💡 @${bestEngagement.username} has ${bestEngagement.engagementRate.toFixed(1)}% engagement - ${othersForEngagement.map(a => `@${a.username}`).join(', ')} can learn from their content strategy`
+      );
 
-    insights.push(
-      isId 
-        ? `@${top.username} punya followers terbanyak (${formatNumber(top.followers)}) - ${Math.round((top.followers / bottom.followers) * 100 - 100)}% lebih banyak dari @${bottom.username}`
-        : `@${top.username} has the most followers (${formatNumber(top.followers)}) - ${Math.round((top.followers / bottom.followers) * 100 - 100)}% more than @${bottom.username}`
-    );
+      // Find who has most videos (consistency)
+      const mostActive = accounts.reduce((prev, curr) => 
+        curr.videos > prev.videos ? curr : prev
+      );
+      const othersForActive = accounts.filter(a => a.username !== mostActive.username);
+      
+      insights.push(
+        isId
+          ? `📹 @${mostActive.username} paling konsisten (${mostActive.videos} video) - ${othersForActive.map(a => `@${a.username}`).join(', ')} perlu tingkatkan frekuensi posting`
+          : `📹 @${mostActive.username} is most consistent (${mostActive.videos} videos) - ${othersForActive.map(a => `@${a.username}`).join(', ')} should increase posting frequency`
+      );
 
-    const bestEngagement = accounts.reduce((prev, curr) => 
-      curr.engagementRate > prev.engagementRate ? curr : prev
-    );
-    insights.push(
-      isId
-        ? `@${bestEngagement.username} punya engagement rate terbaik (${bestEngagement.engagementRate.toFixed(1)}%)`
-        : `@${bestEngagement.username} has the best engagement rate (${bestEngagement.engagementRate.toFixed(1)}%)`
-    );
+      // Find who has most followers (reach)
+      const mostFollowers = accounts.reduce((prev, curr) => 
+        curr.followers > prev.followers ? curr : prev
+      );
+      const othersForFollowers = accounts.filter(a => a.username !== mostFollowers.username);
+      
+      insights.push(
+        isId
+          ? `👥 @${mostFollowers.username} punya jangkauan luas (${formatNumber(mostFollowers.followers)}) - pelajari hook dan branding-nya`
+          : `👥 @${mostFollowers.username} has wide reach (${formatNumber(mostFollowers.followers)}) - study their hooks and branding`
+      );
 
-    const mostActive = accounts.reduce((prev, curr) => 
-      curr.videos > prev.videos ? curr : prev
-    );
-    insights.push(
-      isId
-        ? `@${mostActive.username} paling aktif dengan ${mostActive.videos} video`
-        : `@${mostActive.username} is the most active with ${mostActive.videos} videos`
-    );
-
-    const avgFollowers = accounts.reduce((sum, a) => sum + a.followers, 0) / accounts.length;
-    insights.push(
-      isId
-        ? `Rata-rata followers: ${formatNumber(avgFollowers)}`
-        : `Average followers: ${formatNumber(avgFollowers)}`
-    );
+      // Mutual learning suggestion
+      insights.push(
+        isId
+          ? `🤝 Setiap akun punya kelebihan masing-masing - gabungkan yang terbaik untuk hasil maksimal!`
+          : `🤝 Each account has unique strengths - combine the best elements for maximum results!`
+      );
+    }
 
     return insights;
+  };
+  
+  // Generate what each account can learn from others
+  const generateLearningPoints = (accounts: AccountData[], targetAccount: AccountData, lang: string) => {
+    const isId = lang === 'id';
+    const others = accounts.filter(a => a.username !== targetAccount.username);
+    const learnings: string[] = [];
+    const strengths: string[] = [];
+    
+    // Find what target account is good at
+    const hasHighestEngagement = accounts.every(a => a.username === targetAccount.username || a.engagementRate <= targetAccount.engagementRate);
+    const hasMostVideos = accounts.every(a => a.username === targetAccount.username || a.videos <= targetAccount.videos);
+    const hasMostFollowers = accounts.every(a => a.username === targetAccount.username || a.followers <= targetAccount.followers);
+    
+    if (hasHighestEngagement) {
+      strengths.push(isId ? 'Engagement rate tertinggi - konten sangat relevan dengan audiens' : 'Highest engagement - content resonates with audience');
+    }
+    if (hasMostVideos) {
+      strengths.push(isId ? 'Paling konsisten posting - algoritma menyukai kreator aktif' : 'Most consistent posting - algorithm favors active creators');
+    }
+    if (hasMostFollowers) {
+      strengths.push(isId ? 'Jangkauan audiens terluas - branding kuat' : 'Widest audience reach - strong branding');
+    }
+    
+    // Find what target account can learn from others
+    for (const other of others) {
+      if (other.engagementRate > targetAccount.engagementRate) {
+        learnings.push(isId 
+          ? `Pelajari gaya konten @${other.username} (engagement ${other.engagementRate.toFixed(1)}% vs kamu ${targetAccount.engagementRate.toFixed(1)}%)`
+          : `Study @${other.username}'s content style (${other.engagementRate.toFixed(1)}% vs your ${targetAccount.engagementRate.toFixed(1)}%)`);
+      }
+      if (other.videos > targetAccount.videos * 1.2) {
+        learnings.push(isId
+          ? `Tingkatkan konsistensi seperti @${other.username} (${other.videos} video vs kamu ${targetAccount.videos})`
+          : `Increase consistency like @${other.username} (${other.videos} videos vs your ${targetAccount.videos})`);
+      }
+      if (other.followers > targetAccount.followers * 1.5) {
+        learnings.push(isId
+          ? `Analisis hook & branding @${other.username} untuk tingkatkan reach`
+          : `Analyze @${other.username}'s hooks & branding to increase reach`);
+      }
+    }
+    
+    // Add default if no learnings found
+    if (learnings.length === 0) {
+      learnings.push(isId ? 'Pertahankan strategi saat ini - sudah sangat baik!' : 'Maintain current strategy - doing great!');
+    }
+    if (strengths.length === 0) {
+      strengths.push(isId ? 'Terus tingkatkan semua aspek secara bertahap' : 'Keep improving all aspects gradually');
+    }
+    
+    return { strengths, learnings };
   };
 
   const formatNumber = (num: number): string => {
@@ -465,15 +528,16 @@ Hasil Perbandingan Akun TikTok:
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-yellow-500" />
+                <Users className="w-5 h-5 text-cyan-400" />
                 {t('Comparison Results', 'Hasil Perbandingan')}
               </CardTitle>
-              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500">
-                {t('Winner:', 'Pemenang:')} @{results.winner}
+              <Badge className="bg-gradient-to-r from-cyan-500 to-purple-500">
+                {t('Mutual Learning', 'Saling Belajar')}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Data Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -486,33 +550,37 @@ Hasil Perbandingan Akun TikTok:
                   </tr>
                 </thead>
                 <tbody>
-                  {results.accounts.map((account, idx) => {
+                  {results.accounts.map((account) => {
                     const maxFollowers = Math.max(...results.accounts.map(a => a.followers));
                     const minFollowers = Math.min(...results.accounts.map(a => a.followers));
-                    const isWinner = account.username === results.winner;
+                    const maxEngagement = Math.max(...results.accounts.map(a => a.engagementRate));
+                    const maxVideos = Math.max(...results.accounts.map(a => a.videos));
                     
                     return (
                       <tr 
                         key={account.username} 
-                        className={`border-b border-gray-800/50 ${isWinner ? 'bg-yellow-500/5' : ''}`}
+                        className="border-b border-gray-800/50 hover:bg-gray-800/30"
                       >
                         <td className="py-3 px-3">
-                          <div className="flex items-center gap-2">
-                            {isWinner && <Trophy className="w-4 h-4 text-yellow-500" />}
-                            <span className="font-medium">@{account.username}</span>
-                          </div>
+                          <span className="font-medium">@{account.username}</span>
                         </td>
                         <td className="text-right py-3 px-3">
                           <div className="flex items-center justify-end gap-1">
                             {formatNumber(account.followers)}
-                            {getComparisonIcon(account.followers, maxFollowers, minFollowers)}
+                            {account.followers === maxFollowers && <span className="text-green-400 text-xs">★</span>}
                           </div>
                         </td>
                         <td className="text-right py-3 px-3">{formatNumber(account.likes)}</td>
-                        <td className="text-right py-3 px-3">{account.videos}</td>
                         <td className="text-right py-3 px-3">
-                          <Badge variant={account.engagementRate > 2 ? 'default' : 'secondary'}>
+                          <div className="flex items-center justify-end gap-1">
+                            {account.videos}
+                            {account.videos === maxVideos && <span className="text-blue-400 text-xs">★</span>}
+                          </div>
+                        </td>
+                        <td className="text-right py-3 px-3">
+                          <Badge variant={account.engagementRate === maxEngagement ? 'default' : 'secondary'}>
                             {account.engagementRate.toFixed(1)}%
+                            {account.engagementRate === maxEngagement && ' ★'}
                           </Badge>
                         </td>
                       </tr>
@@ -522,19 +590,65 @@ Hasil Perbandingan Akun TikTok:
               </table>
             </div>
 
+            {/* Learning Insights */}
             <div className="space-y-2">
               <h4 className="font-medium text-sm flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-cyan-400" />
-                {t('Key Insights', 'Insight Utama')}
+                {t('Learning Insights', 'Insight Pembelajaran')}
               </h4>
               <ul className="space-y-2">
                 {results.insights.map((insight, idx) => (
                   <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
-                    <span className="text-pink-400 mt-1">•</span>
                     {insight}
                   </li>
                 ))}
               </ul>
+            </div>
+
+            {/* Mutual Learning Section - What each account can learn */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                <Brain className="w-4 h-4 text-purple-400" />
+                {t('What Each Account Can Learn', 'Yang Bisa Dipelajari Setiap Akun')}
+              </h4>
+              <div className="grid gap-4 md:grid-cols-2">
+                {results.accounts.map((account) => {
+                  const { strengths, learnings } = generateLearningPoints(results.accounts, account, language);
+                  return (
+                    <div key={account.username} className="bg-gray-800/30 rounded-lg p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-white">@{account.username}</span>
+                      </div>
+                      
+                      {/* Strengths */}
+                      <div>
+                        <p className="text-xs text-green-400 mb-1 flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          {t('Strengths to Keep', 'Kekuatan yang Dipertahankan')}
+                        </p>
+                        <ul className="space-y-1">
+                          {strengths.map((s, i) => (
+                            <li key={i} className="text-xs text-gray-300">• {s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      {/* What to Learn */}
+                      <div>
+                        <p className="text-xs text-cyan-400 mb-1 flex items-center gap-1">
+                          <Lightbulb className="w-3 h-3" />
+                          {t('Can Learn From Others', 'Bisa Dipelajari dari Lainnya')}
+                        </p>
+                        <ul className="space-y-1">
+                          {learnings.map((l, i) => (
+                            <li key={i} className="text-xs text-gray-300">• {l}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>
