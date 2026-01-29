@@ -81,6 +81,7 @@ The application supports dynamic white-label branding for partners via a path-ba
 - **Enhanced AI Learning Filters (Dec 2024)**: Comprehensive filtering for learned_responses to improve quality: blocks spam/gibberish, personal data (phone/email), analysis requests (@username), duplicates (80%+ similarity), rate limiting (5/session), max 500 entries. Mode-aware context (tiktok/marketing) for accurate matching.
 - **Gender-Neutral Language**: Removed all gendered greetings (bro, kak, mas, mbak) from AI prompts. Using neutral greetings: Halo, Hai, Baik throughout all AI responses.
 - **Admin TikTok Guidelines Reminder**: 30-day reminder system for admin to verify TikTok community guidelines are still current. Notification appears in Settings tab with links to official guidelines and TikTok newsroom. Stores last check date in app_settings.
+- **Knowledge Base System (Jan 2026)**: Replaced raw Q&A auto-learning with intelligent knowledge extraction. AI extracts ESSENCE (topic, narrative summary, keywords) from conversations instead of saving verbatim text. Flow: AI responds → Extract knowledge → Save as pending → Admin reviews/approves → Live in KB. Lookup priority: Knowledge Base → Legacy Library → OpenAI API. Features: Min 15-char question/100-char response filters, 0.5 confidence threshold, 10 extractions/hour rate limit, 500 max entries, helpful/not_helpful feedback ratings.
 
 ## External Dependencies
 
