@@ -72,7 +72,7 @@ export default function CreatorAnalysis() {
               data-testid="tab-input-upload"
             >
               <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Analyze', 'Analisis')}</span>
+              <span className="ml-1 whitespace-nowrap">{t('Analyze', 'Analisis')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="coach"
@@ -80,7 +80,7 @@ export default function CreatorAnalysis() {
               data-testid="tab-input-coach"
             >
               <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai Coach', 'Ai Coach')}</span>
+              <span className="ml-1 whitespace-nowrap">{t('Ai Coach', 'Ai Coach')}</span>
             </TabsTrigger>
             <button
               type="button"
@@ -92,7 +92,7 @@ export default function CreatorAnalysis() {
               aria-label={t('Ai ChatGPTs', 'Ai ChatGPTs')}
             >
               <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Ai ChatGPTs', 'Ai ChatGPTs')}</span>
+              <span className="ml-1 whitespace-nowrap">{t('Ai ChatGPTs', 'Ai ChatGPTs')}</span>
             </button>
             <TabsTrigger 
               value="form"
@@ -100,7 +100,7 @@ export default function CreatorAnalysis() {
               data-testid="tab-input-form"
             >
               <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('Review', 'Review')}</span>
+              <span className="ml-1 whitespace-nowrap">{t('Review', 'Review')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
