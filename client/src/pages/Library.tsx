@@ -1678,10 +1678,11 @@ function AdminPanel({ isAdmin, setIsAdmin }: { isAdmin: boolean; setIsAdmin: (v:
               <Trophy className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{t('Stories', 'Cerita')}</span>
             </TabsTrigger>
-            <TabsTrigger value="brands" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
+            {/* Partner tab hidden for now - enable when ready for white-label */}
+            {/* <TabsTrigger value="brands" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
               <Palette className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{t('Brands', 'Partner')}</span>
-            </TabsTrigger>
+            </TabsTrigger> */}
             <TabsTrigger value="users" className="gap-1.5 text-xs px-3 py-2 whitespace-nowrap flex-shrink-0">
               <Users className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{t('Users', 'Pengguna')}</span>
