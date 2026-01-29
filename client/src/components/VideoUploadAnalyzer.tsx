@@ -313,7 +313,7 @@ export function VideoUploadAnalyzer({ onAnalysisComplete, mode = 'creator' }: Vi
               />
               <label htmlFor="video-upload" className="cursor-pointer">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="p-4 rounded-full bg-gradient-to-br from-pink-500/20 to-cyan-400/20">
+                  <div className="p-4 rounded-full bg-gradient-to-br from-pink-500/20 to-cyan-400/20 cursor-pointer hover:from-pink-500/40 hover:to-cyan-400/40 hover:scale-110 transition-all duration-200">
                     <Upload className="w-8 h-8 text-pink-500" />
                   </div>
                   <div>
