@@ -10,12 +10,14 @@ import { FileText, Zap, Briefcase, MessageCircle, MessageSquare } from 'lucide-r
 import type { BiasAnalysisResult } from '@shared/schema';
 import { trackTabSelection, trackButtonClick } from '@/lib/analytics';
 import { saveAnalysisToHistory } from '@/lib/analysisHistory';
+import { useToast } from '@/hooks/use-toast';
 
 const CHATGPTS_URL =
   'https://chatgpt.com/g/g-68f512b32ef88191985d7e15f828ae7d-adaptive-behavioral-ai-for-creators-marketers';
 
 export default function CreatorAnalysis() {
   const { language, t } = useLanguage();
+  const { toast } = useToast();
   const [inputMode, setInputMode] = useState<'upload' | 'form' | 'coach'>('upload');
   const [currentAnalysis, setCurrentAnalysis] = useState<BiasAnalysisResult | null>(null);
 
@@ -23,6 +25,18 @@ export default function CreatorAnalysis() {
     setCurrentAnalysis(result);
     saveAnalysisToHistory(result, 'marketing', inputType, preview || 'Marketing Pro Analysis');
   }, []);
+
+  const handleSelectHistory = useCallback((result: BiasAnalysisResult) => {
+    setCurrentAnalysis(result);
+    toast({
+      title: t('History Loaded', 'Riwayat Dimuat'),
+      description: t('Showing previous analysis', 'Menampilkan analisis sebelumnya'),
+    });
+    // Scroll to results
+    setTimeout(() => {
+      document.querySelector('[data-results-container]')?.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+  }, [toast, t]);
 
   return (
     <div className="flex-1 bg-[#0A0A0A] text-white">
@@ -118,7 +132,7 @@ export default function CreatorAnalysis() {
 
         {/* Analysis History */}
         {(inputMode === 'form' || inputMode === 'upload') && (
-          <AnalysisHistory onSelectAnalysis={setCurrentAnalysis} />
+          <AnalysisHistory onSelectAnalysis={handleSelectHistory} />
         )}
       </div>
     </div>
