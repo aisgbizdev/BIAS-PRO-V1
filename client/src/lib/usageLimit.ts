@@ -1,7 +1,7 @@
-const DEFAULT_DAILY_VIDEO_LIMIT = 5;
+const DEFAULT_DAILY_VIDEO_LIMIT = 10; // Match database Starter tier default
 const STORAGE_KEY = 'bias_video_usage';
 const SETTINGS_CACHE_KEY = 'bias_settings_cache';
-const SETTINGS_CACHE_TTL = 5 * 60 * 1000;
+const SETTINGS_CACHE_TTL = 30 * 60 * 1000; // 30 minutes cache to reduce API calls
 
 interface UsageData {
   date: string;
