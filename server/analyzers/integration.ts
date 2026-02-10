@@ -5,6 +5,7 @@ import { VideoAnalyzer } from './video-analyzer';
 import { TextAnalyzer } from './text-analyzer';
 import { deepAnalyzeWithAI } from './deep-video-analyzer';
 import { ultraConciseFeedback, simplifyDiagnosis } from './text-formatter';
+import OpenAI from 'openai';
 import type { 
   BiasAnalysisResult, 
   TikTokAccountAnalysisResult, 
@@ -27,6 +28,100 @@ function convertToLegacyFormat(insights: EducationalInsight[]): BiasLayerResult[
       feedbackId: fullDiagnosis,
     };
   });
+}
+
+async function enhanceAccountWithAI(input: {
+  username: string;
+  bio?: string;
+  platform: string;
+  followers: number;
+  following: number;
+  totalLikes: number;
+  videoCount: number;
+  engagementRate?: number;
+}, ruleBasedResult: AnalysisResult): Promise<{
+  summary: string;
+  layerNarratives: Record<string, string>;
+  strengths: string[];
+  weaknesses: string[];
+  personalizedTips: string[];
+} | null> {
+  if (!process.env.OPENAI_API_KEY) return null;
+  
+  try {
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
+    const scoresSummary = ruleBasedResult.insights.map(i => 
+      `${i.term}: ${i.score}/100 (${i.category})`
+    ).join('\n');
+    
+    const prompt = `Kamu adalah BIAS Pro Behavioral Intelligence Analyst. Buat analisis UNIK dan PERSONAL untuk akun TikTok ini.
+
+DATA AKUN:
+- Username: @${input.username}
+- Bio: "${input.bio || 'tidak ada bio'}"
+- Followers: ${input.followers.toLocaleString()}
+- Following: ${input.following.toLocaleString()}
+- Total Likes: ${input.totalLikes.toLocaleString()}
+- Total Videos: ${input.videoCount}
+- Engagement Rate: ${(input.engagementRate || 0).toFixed(2)}%
+- Follower:Like Ratio: 1:${input.totalLikes > 0 && input.followers > 0 ? (input.totalLikes / input.followers).toFixed(1) : '0'}
+- Following:Follower Ratio: ${input.followers > 0 ? (input.following / input.followers).toFixed(2) : 'N/A'}
+
+SKOR ANALISIS:
+${scoresSummary}
+
+Overall Score: ${ruleBasedResult.overallScore}/100
+
+INSTRUKSI:
+Berikan analisis yang SPESIFIK untuk @${input.username}. JANGAN generik. Sebutkan username, angka real, dan observasi berdasarkan bio/niche mereka.
+
+Format JSON (WAJIB valid JSON):
+{
+  "summary": "2-3 paragraf narrative diagnosis UNIK untuk @${input.username}. Sebutkan data spesifik mereka. Bahas strength & weakness. Kasih motivasi personal.",
+  "layerNarratives": {
+    "Engagement Rate (ER)": "1 paragraf analisis ER spesifik untuk akun ini",
+    "Follower Quality Score": "1 paragraf tentang kualitas follower akun ini",
+    "Content Consistency Score (Frekuensi Upload)": "1 paragraf tentang konsistensi posting",
+    "Viral Content Ratio (Follower:Like)": "1 paragraf tentang viral potential",
+    "Posting Frequency Optimization": "1 paragraf tentang frekuensi posting"
+  },
+  "strengths": ["3 kekuatan SPESIFIK akun ini (sebut angka)"],
+  "weaknesses": ["2-3 area improvement SPESIFIK (sebut angka)"],
+  "personalizedTips": ["3-4 tips ACTIONABLE yang relevan dengan niche/bio @${input.username}"]
+}
+
+PENTING: Gunakan bahasa Indonesia casual tapi profesional. Sebut @${input.username} langsung. Response HARUS valid JSON.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.8,
+      max_tokens: 1500,
+      response_format: { type: 'json_object' },
+    });
+
+    const content = completion.choices[0]?.message?.content;
+    if (!content) return null;
+
+    const parsed = JSON.parse(content);
+    
+    const validated = {
+      summary: typeof parsed.summary === 'string' ? parsed.summary : null,
+      layerNarratives: typeof parsed.layerNarratives === 'object' && parsed.layerNarratives ? parsed.layerNarratives : {},
+      strengths: Array.isArray(parsed.strengths) ? parsed.strengths.filter((s: any) => typeof s === 'string') : [],
+      weaknesses: Array.isArray(parsed.weaknesses) ? parsed.weaknesses.filter((s: any) => typeof s === 'string') : [],
+      personalizedTips: Array.isArray(parsed.personalizedTips) ? parsed.personalizedTips.filter((s: any) => typeof s === 'string') : [],
+    };
+    
+    if (!validated.summary) return null;
+    
+    console.log(`🤖 AI enhanced account analysis for @${input.username} (${completion.usage?.total_tokens || 0} tokens)`);
+    return validated;
+  } catch (error: any) {
+    console.error(`⚠️ AI account enhancement failed: ${error.message}`);
+    return null;
+  }
 }
 
 // Analyze account (TikTok, Instagram, YouTube)
@@ -64,8 +159,31 @@ export async function analyzeAccount(input: {
 
   const result = analyzer.analyze();
 
-  // Convert to legacy format
-  const layers = convertToLegacyFormat(result.insights);
+  // Try AI enhancement for personalized insights (non-blocking)
+  const aiEnhancement = await enhanceAccountWithAI({
+    username: input.username,
+    bio: input.bio,
+    platform: input.platform,
+    followers: input.followers,
+    following: input.following,
+    totalLikes: input.totalLikes,
+    videoCount: input.videoCount,
+    engagementRate: input.engagementRate,
+  }, result);
+
+  // Convert to legacy format - enhance layer feedback with AI narratives
+  const layers = result.insights.map(insight => {
+    const score = Math.round(insight.score / 10);
+    const aiNarrative = aiEnhancement?.layerNarratives?.[insight.term];
+    const diagnosis = aiNarrative || insight.diagnosis;
+    
+    return {
+      layer: insight.term,
+      score,
+      feedback: diagnosis,
+      feedbackId: diagnosis,
+    };
+  });
 
   // Extract recommendations by priority
   const urgentRecs = result.priorities.urgent.flatMap(i => 
@@ -78,20 +196,26 @@ export async function analyzeAccount(input: {
     i.recommendations.map(r => r.title)
   );
 
-  // Extract strengths (high scores) and weaknesses (low scores)
-  const strengths = result.insights
+  // Use AI-enhanced strengths/weaknesses if available, fallback to rule-based
+  const strengths = aiEnhancement?.strengths || result.insights
     .filter(i => i.score >= 70)
     .map(i => simplifyDiagnosis(`${i.term}: ${i.benchmark.explanation}`));
   
-  const weaknesses = result.insights
+  const weaknesses = aiEnhancement?.weaknesses || result.insights
     .filter(i => i.score < 60)
     .map(i => simplifyDiagnosis(`${i.term}: ${i.diagnosis}`));
+
+  // Use AI summary if available
+  const summary = aiEnhancement?.summary || result.summary;
+
+  // Merge personalized tips into recommendations
+  const personalizedTips = aiEnhancement?.personalizedTips || [];
 
   return {
     overallScore: result.overallScore,
     layers,
-    summary: result.summary,
-    summaryId: result.summary,
+    summary,
+    summaryId: summary,
     strengths,
     strengthsId: strengths,
     weaknesses,
@@ -101,8 +225,8 @@ export async function analyzeAccount(input: {
       fypId: urgentRecs.slice(0, 3).map(r => simplifyDiagnosis(r)),
       followerGrowth: importantRecs.slice(0, 3).map(r => simplifyDiagnosis(r)),
       followerGrowthId: importantRecs.slice(0, 3).map(r => simplifyDiagnosis(r)),
-      engagement: opportunityRecs.slice(0, 3).map(r => simplifyDiagnosis(r)),
-      engagementId: opportunityRecs.slice(0, 3).map(r => simplifyDiagnosis(r)),
+      engagement: personalizedTips.length > 0 ? personalizedTips : opportunityRecs.slice(0, 3).map(r => simplifyDiagnosis(r)),
+      engagementId: personalizedTips.length > 0 ? personalizedTips : opportunityRecs.slice(0, 3).map(r => simplifyDiagnosis(r)),
       contentStrategy: result.nextSteps.map(s => simplifyDiagnosis(s)),
       contentStrategyId: result.nextSteps.map(s => simplifyDiagnosis(s)),
     },
