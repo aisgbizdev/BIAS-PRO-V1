@@ -79,6 +79,65 @@ async function tryBiasAnalyzerApi(username: string, retryCount = 0): Promise<Tik
 }
 
 /**
+ * TikWM API - Free and reliable third-party API
+ */
+async function tryTikWmApi(username: string): Promise<TikTokScrapedProfile | null> {
+  try {
+    const cleanUsername = username.replace('@', '');
+    const apiUrl = `https://www.tikwm.com/api/user/info?unique_id=${cleanUsername}`;
+    
+    console.log(`[TikTok Scraper] Trying TikWM API for @${cleanUsername}...`);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    
+    const response = await fetch(apiUrl, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      const result = await response.json();
+      
+      if (result.code === 0 && result.data) {
+        const data = result.data;
+        console.log(`[TikTok Scraper] TikWM API success! Got data for @${data.unique_id || cleanUsername}`);
+        
+        return {
+          username: data.unique_id || cleanUsername,
+          nickname: data.nickname || cleanUsername,
+          signature: data.signature || '',
+          avatarUrl: data.avatar || '',
+          verified: data.verified || false,
+          followerCount: parseMetricBigInt(data.follower_count || 0),
+          followingCount: parseMetricBigInt(data.following_count || 0),
+          videoCount: parseMetricBigInt(data.video_count || 0),
+          likesCount: parseMetricBigInt(data.total_favorited || data.heart_count || 0),
+        };
+      } else {
+        console.log(`[TikTok Scraper] TikWM API returned error code: ${result.code}, msg: ${result.msg}`);
+      }
+    } else {
+      console.log(`[TikTok Scraper] TikWM API response not ok: ${response.status}`);
+    }
+    
+    return null;
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.log('[TikTok Scraper] TikWM API timeout');
+    } else {
+      console.log('[TikTok Scraper] TikWM API failed:', error.message);
+    }
+    return null;
+  }
+}
+
+/**
  * Try TikTok oEmbed API - official but limited data (fallback)
  */
 async function tryOembedApi(username: string): Promise<TikTokScrapedProfile | null> {
@@ -134,7 +193,17 @@ export async function scrapeTikTokProfile(username: string): Promise<TikTokScrap
     console.log(`[TikTok Scraper] BIAS API failed, trying fallback...`);
   }
   
-  // Method 2: Try TikTok's internal API (often blocked)
+  // Method 2: Try TikWM API (free and reliable third-party API)
+  try {
+    const tikwmResult = await tryTikWmApi(username);
+    if (tikwmResult) {
+      return tikwmResult;
+    }
+  } catch (e) {
+    console.log(`[TikTok Scraper] TikWM API failed, trying TikTok API...`);
+  }
+  
+  // Method 3: Try TikTok's internal API (often blocked)
   try {
     console.log(`[TikTok Scraper] Trying TikTok API for @${username}...`);
     const oembedResult = await tryOembedApi(username);
@@ -145,7 +214,7 @@ export async function scrapeTikTokProfile(username: string): Promise<TikTokScrap
     console.log(`[TikTok Scraper] TikTok API failed, trying HTML scrape...`);
   }
   
-  // Method 3: Direct HTML scraping (fallback, may be blocked by TikTok)
+  // Method 4: Direct HTML scraping (fallback, may be blocked by TikTok)
   try {
     const profileUrl = `https://www.tiktok.com/@${username}`;
     console.log(`[TikTok Scraper] Fetching profile: ${profileUrl}`);
