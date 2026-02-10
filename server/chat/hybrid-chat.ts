@@ -396,38 +396,59 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
   const sessionId = request.sessionId || 'anonymous';
   const mode = request.mode === 'marketing' ? 'marketing' : 'tiktok';
   
-  // STEP 1: Check Knowledge Base first (curated, approved knowledge - FREE)
-  try {
-    const knowledgeMatch = await findMatchingKnowledge(request.message, mode);
-    if (knowledgeMatch.found && knowledgeMatch.knowledge) {
-      console.log(`🧠 Found in Knowledge Base: "${knowledgeMatch.knowledge.topic}"`);
-      
-      // Format the response from knowledge narrative
-      const knowledgeResponse = `💡 **${knowledgeMatch.knowledge.topic}**\n\n${knowledgeMatch.knowledge.narrative}\n\n---\n*Dari Knowledge Base BiAS Pro*`;
-      
-      return {
-        response: knowledgeResponse,
-        source: 'local',
-        rateLimitInfo: checkRateLimit(sessionId),
-      };
-    }
-  } catch (error) {
-    console.log('⚠️ Knowledge Base check failed, continuing...');
-  }
+  // Check if this message contains analysis context (user is discussing their results)
+  // Also check conversation history - if previous messages had analysis context, this is a follow-up discussion
+  const messageHasContext = request.message.includes('[CONTEXT: User is asking about their analysis result]') ||
+    request.message.includes('KONTEKS ANALISIS SEBELUMNYA:');
+  const historyHasContext = request.conversationHistory?.some(msg => 
+    msg.content.includes('[CONTEXT: User is asking about their analysis result]') ||
+    msg.content.includes('KONTEKS ANALISIS SEBELUMNYA:') ||
+    msg.content.includes('Overall Score:') ||
+    msg.content.includes('Layer Scores:')
+  ) || false;
+  const hasAnalysisContext = messageHasContext || historyHasContext;
   
-  // STEP 2: Check legacy learning library (FREE, no API call)
-  try {
-    const learned = await findSimilarResponse(request.message);
-    if (learned.found && learned.response) {
-      console.log(`📚 Found in learning library! Similarity: ${((learned.similarity || 0) * 100).toFixed(0)}%`);
-      return {
-        response: learned.response,
-        source: 'local', // Counts as local since it's from our library
-        rateLimitInfo: checkRateLimit(sessionId),
-      };
+  // Strip the raw user question (without context) for KB/library matching
+  const rawUserMessage = messageHasContext 
+    ? request.message.split('\n\n[CONTEXT:')[0].split('\n\nKONTEKS ANALISIS')[0].trim()
+    : request.message;
+  
+  // STEP 1: Check Knowledge Base first (curated, approved knowledge - FREE)
+  // SKIP if user has analysis context - they want to discuss THEIR results, not generic KB answers
+  if (!hasAnalysisContext) {
+    try {
+      const knowledgeMatch = await findMatchingKnowledge(rawUserMessage, mode);
+      if (knowledgeMatch.found && knowledgeMatch.knowledge) {
+        console.log(`🧠 Found in Knowledge Base: "${knowledgeMatch.knowledge.topic}"`);
+        
+        const knowledgeResponse = `💡 **${knowledgeMatch.knowledge.topic}**\n\n${knowledgeMatch.knowledge.narrative}\n\n---\n*Dari Knowledge Base BiAS Pro*`;
+        
+        return {
+          response: knowledgeResponse,
+          source: 'local',
+          rateLimitInfo: checkRateLimit(sessionId),
+        };
+      }
+    } catch (error) {
+      console.log('⚠️ Knowledge Base check failed, continuing...');
     }
-  } catch (error) {
-    console.log('⚠️ Learning library check failed, continuing to Ai');
+    
+    // STEP 2: Check legacy learning library (FREE, no API call)
+    try {
+      const learned = await findSimilarResponse(rawUserMessage);
+      if (learned.found && learned.response) {
+        console.log(`📚 Found in learning library! Similarity: ${((learned.similarity || 0) * 100).toFixed(0)}%`);
+        return {
+          response: learned.response,
+          source: 'local',
+          rateLimitInfo: checkRateLimit(sessionId),
+        };
+      }
+    } catch (error) {
+      console.log('⚠️ Learning library check failed, continuing to Ai');
+    }
+  } else {
+    console.log(`🎯 Analysis context detected - skipping KB/Library, going straight to AI for contextual discussion`);
   }
 
   // STEP 3: Check rate limit before calling Ai
@@ -465,18 +486,20 @@ Sementara itu, kamu bisa pakai:
   }
 
   // STEP 4.5: Cross-tab topic detection - redirect users to correct tab
+  // SKIP if user has analysis context - they're discussing their current results
   const analysisType = request.analysisType || 'video';
-  const msgLower = request.message.toLowerCase();
-  
-  // Detect account-related questions in non-account tabs
-  const accountKeywords = ['akun', 'akunku', 'account', 'profil', 'profile', 'followers', 'following', 'bio'];
-  const isAccountQuestion = accountKeywords.some(kw => msgLower.includes(kw)) && 
-    (msgLower.includes('bagus') || msgLower.includes('gimana') || msgLower.includes('analisis') || 
-     msgLower.includes('cek') || msgLower.includes('review') || msgLower.includes('audit'));
-  
-  if (isAccountQuestion && analysisType !== 'account' && analysisType !== 'coach') {
-    return {
-      response: `🎯 **Pertanyaan bagus!**
+  if (!hasAnalysisContext) {
+    const msgLower = rawUserMessage.toLowerCase();
+    
+    // Detect account-related questions in non-account tabs
+    const accountKeywords = ['akun', 'akunku', 'account', 'profil', 'profile', 'followers', 'following', 'bio'];
+    const isAccountQuestion = accountKeywords.some(kw => msgLower.includes(kw)) && 
+      (msgLower.includes('bagus') || msgLower.includes('gimana') || msgLower.includes('analisis') || 
+       msgLower.includes('cek') || msgLower.includes('review') || msgLower.includes('audit'));
+    
+    if (isAccountQuestion && analysisType !== 'account' && analysisType !== 'coach') {
+      return {
+        response: `🎯 **Pertanyaan bagus!**
 
 Untuk menganalisis akun TikTok, silakan:
 1. Buka tab **Account** di bagian atas
@@ -486,19 +509,19 @@ Untuk menganalisis akun TikTok, silakan:
 📊 Tab Account khusus untuk: audit akun, strategi followers, optimasi bio, dan pertumbuhan akun.
 
 Di tab ini (${analysisType === 'video' ? 'Video' : analysisType}) kita fokus bahas konten video ya!`,
-      source: 'local',
-    };
-  }
-  
-  // Detect video analysis questions in non-video tabs (except coach which can discuss both)
-  const videoKeywords = ['video', 'konten', 'hook', 'opening', 'thumbnail', 'edit'];
-  const isVideoQuestion = videoKeywords.some(kw => msgLower.includes(kw)) && 
-    (msgLower.includes('bagus') || msgLower.includes('gimana') || msgLower.includes('analisis') || 
-     msgLower.includes('cek') || msgLower.includes('review') || msgLower.includes('upload'));
-  
-  if (isVideoQuestion && analysisType === 'account') {
-    return {
-      response: `🎯 **Pertanyaan bagus!**
+        source: 'local',
+      };
+    }
+    
+    // Detect video analysis questions in non-video tabs (except coach which can discuss both)
+    const videoKeywords = ['video', 'konten', 'hook', 'opening', 'thumbnail', 'edit'];
+    const isVideoQuestion = videoKeywords.some(kw => msgLower.includes(kw)) && 
+      (msgLower.includes('bagus') || msgLower.includes('gimana') || msgLower.includes('analisis') || 
+       msgLower.includes('cek') || msgLower.includes('review') || msgLower.includes('upload'));
+    
+    if (isVideoQuestion && analysisType === 'account') {
+      return {
+        response: `🎯 **Pertanyaan bagus!**
 
 Untuk menganalisis video TikTok, silakan:
 1. Buka tab **Video** di bagian atas
@@ -508,8 +531,9 @@ Untuk menganalisis video TikTok, silakan:
 🎬 Tab Video khusus untuk: analisis konten, hook, delivery, dan kualitas video.
 
 Di tab ini (Account) kita fokus bahas strategi pertumbuhan akun ya!`,
-      source: 'local',
-    };
+        source: 'local',
+      };
+    }
   }
 
   // STEP 5: Call OpenAI API
