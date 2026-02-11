@@ -413,9 +413,25 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
     ? request.message.split('\n\n[CONTEXT:')[0].split('\n\nKONTEKS ANALISIS')[0].trim()
     : request.message;
   
+  // Detect personal/specific questions that need AI, not generic KB answers
+  // These are questions with personal details (times, numbers, schedules, "saya/aku/gue")
+  const msgLowerForPersonal = rawUserMessage.toLowerCase();
+  const hasPersonalContext = /\b(saya|aku|gue|gw|ku|my|i\s)\b/.test(msgLowerForPersonal);
+  const hasSpecificDetails = /\b(\d{1,2}[:.]\d{2}|\d+x\s|jam\s\d|pukul\s|sehari|seminggu|per\shari|setiap\s(hari|minggu)|sudah\s\d|already\s\d|\d+\shari|\d+\skali)\b/.test(msgLowerForPersonal);
+  const isPersonalQuestion = hasPersonalContext && hasSpecificDetails;
+  
+  // Also skip KB if user shares specific data/situation and asks for advice
+  const isSpecificSituation = hasSpecificDetails && /\b(gimana|bagaimana|how|tips|saran|advice|strategi|strategy|terbaik|best|optimal|kapan|when|should)\b/.test(msgLowerForPersonal);
+  
+  const shouldSkipKB = hasAnalysisContext || isPersonalQuestion || isSpecificSituation;
+  
+  if (shouldSkipKB && (isPersonalQuestion || isSpecificSituation)) {
+    console.log(`🎯 Personal/specific question detected - skipping KB/Library for personalized AI response`);
+  }
+  
   // STEP 1: Check Knowledge Base first (curated, approved knowledge - FREE)
-  // SKIP if user has analysis context - they want to discuss THEIR results, not generic KB answers
-  if (!hasAnalysisContext) {
+  // SKIP if user has analysis context OR personal/specific questions
+  if (!shouldSkipKB) {
     try {
       const knowledgeMatch = await findMatchingKnowledge(rawUserMessage, mode);
       if (knowledgeMatch.found && knowledgeMatch.knowledge) {
@@ -448,7 +464,9 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
       console.log('⚠️ Learning library check failed, continuing to Ai');
     }
   } else {
-    console.log(`🎯 Analysis context detected - skipping KB/Library, going straight to AI for contextual discussion`);
+    if (hasAnalysisContext) {
+      console.log(`🎯 Analysis context detected - skipping KB/Library, going straight to AI for contextual discussion`);
+    }
   }
 
   // STEP 3: Check rate limit before calling Ai
@@ -486,9 +504,9 @@ Sementara itu, kamu bisa pakai:
   }
 
   // STEP 4.5: Cross-tab topic detection - redirect users to correct tab
-  // SKIP if user has analysis context - they're discussing their current results
+  // SKIP if user has analysis context or personal questions - they're discussing their current results
   const analysisType = request.analysisType || 'video';
-  if (!hasAnalysisContext) {
+  if (!shouldSkipKB) {
     const msgLower = rawUserMessage.toLowerCase();
     
     // Detect account-related questions in non-account tabs

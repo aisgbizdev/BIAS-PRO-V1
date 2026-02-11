@@ -220,9 +220,8 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
       const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
       const analysisContextStr = getAnalysisContext();
       
-      // Include analysis context in the first message only, or when messages are empty
-      const isFirstMessage = messages.length === 0;
-      const messageWithContext = isFirstMessage && analysisContextStr 
+      // Always include analysis context so AI can give relevant, specific answers
+      const messageWithContext = analysisContextStr 
         ? `${userInput}\n\n[CONTEXT: User is asking about their analysis result]\n${analysisContextStr}`
         : userInput || t('Please analyze this image', 'Tolong analisis gambar ini');
 

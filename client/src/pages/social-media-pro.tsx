@@ -209,14 +209,14 @@ export default function SocialMediaPro() {
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
         <IntegrityNotice />
         
-	        {/* Main Mode Selector - Minimal */}
-	        <div className="flex justify-center">
-	          <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-md">
-	            <Button
-	              variant="ghost"
-	              onClick={() => {
-	                setMainMode('analytics');
-	                trackTabSelection('tiktok-pro', 'analytics');
+                {/* Main Mode Selector - Minimal */}
+                <div className="flex justify-center">
+                  <div className="inline-flex bg-[#141414] rounded-lg p-0.5 border border-gray-800 w-full max-w-md">
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setMainMode('analytics');
+                        trackTabSelection('tiktok-pro', 'analytics');
               }}
               className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'analytics' ? 'bg-pink-500 text-white' : 'text-gray-400 hover:text-white'}`}
             >
@@ -231,22 +231,22 @@ export default function SocialMediaPro() {
               }}
               className={`flex-1 px-4 py-2 text-sm rounded-md transition-colors ${mainMode === 'mentor' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
             >
-	              <Bot className="w-4 h-4 mr-1.5" />
-	              {t('Ai Coach', 'Ai Coach')}
-	            </Button>
-	            <Button
-	              variant="ghost"
-	              onClick={() => {
-	                trackButtonClick('Ai ChatGPTs', 'tiktok-pro');
-	                window.open(CHATGPTS_URL, '_blank', 'noopener,noreferrer');
-	              }}
-	              className="flex-1 px-4 py-2 text-sm rounded-md transition-colors text-gray-400 hover:text-white"
-	            >
-	              <MessageSquare className="w-4 h-4 mr-1.5" />
-	              {t('Ai ChatGPTs', 'Ai ChatGPTs')}
-	            </Button>
-	          </div>
-	        </div>
+                      <Bot className="w-4 h-4 mr-1.5" />
+                      {t('Ai Coach', 'Ai Coach')}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        trackButtonClick('Ai ChatGPTs', 'tiktok-pro');
+                        window.open(CHATGPTS_URL, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="flex-1 px-4 py-2 text-sm rounded-md transition-colors text-gray-400 hover:text-white"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-1.5" />
+                      {t('Ai ChatGPTs', 'Ai ChatGPTs')}
+                    </Button>
+                  </div>
+                </div>
 
         {/* MENTOR HUB - Ai Chat */}
         {mainMode === 'mentor' && (
@@ -428,6 +428,40 @@ export default function SocialMediaPro() {
         )}
 
         {/* Account Profile Card - Show after analysis */}
+        {analyticsTab === 'account' && accountData && getMetricValue(accountData.metrics?.followers) === 0 && getMetricValue(accountData.metrics?.videos) === 0 && getMetricValue(accountData.metrics?.likes) === 0 && (
+          <Card className="bg-[#141414] border-red-500/50" id="account-data-warning">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-2xl bg-red-500/20 border border-red-500/30">
+                  <AlertCircle className="w-6 h-6 text-red-400" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <h3 className="text-lg font-semibold text-red-400">
+                    {t('Data Could Not Be Retrieved', 'Data Tidak Berhasil Diambil')}
+                  </h3>
+                  <p className="text-gray-300 leading-relaxed">
+                    {t(
+                      `We couldn't retrieve data for @${accountData.username}. This may happen because: (1) The account is private, (2) The account doesn't exist, (3) TikTok is temporarily blocking data access, or (4) The account is brand new with no activity yet.`,
+                      `Data untuk @${accountData.username} tidak berhasil diambil. Ini bisa terjadi karena: (1) Akun di-private, (2) Akun tidak ditemukan, (3) TikTok sedang memblokir akses data sementara, atau (4) Akun masih baru dan belum ada aktivitas.`
+                    )}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                      {t('Try again later', 'Coba lagi nanti')}
+                    </Badge>
+                    <Badge className="bg-cyan-400/20 text-cyan-400 border-cyan-400/30">
+                      {t('Check username spelling', 'Cek ejaan username')}
+                    </Badge>
+                    <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/30">
+                      {t('Must be public account', 'Harus akun publik')}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {analyticsTab === 'account' && accountData && (
           <Card className="bg-[#141414] border-gray-800" id="account-profile">
             <CardContent className="p-6">
@@ -497,15 +531,31 @@ export default function SocialMediaPro() {
                   )}
 
                   <div className="flex flex-wrap gap-2">
-                    <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/30">
-                      {t('Active Creator', 'Kreator Aktif')}
-                    </Badge>
-                    <Badge className="bg-cyan-400/20 text-cyan-400 border-cyan-400/30">
-                      {t('Verified', 'Terverifikasi')}
-                    </Badge>
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                      {t('Sponsor Ready', 'Siap Sponsor')}
-                    </Badge>
+                    {(() => {
+                      const f = getMetricValue(accountData.metrics?.followers);
+                      const v = getMetricValue(accountData.metrics?.videos);
+                      const l = getMetricValue(accountData.metrics?.likes);
+                      if (f === 0 && v === 0 && l === 0) return null;
+                      return (
+                        <>
+                          {v >= 10 && (
+                            <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/30">
+                              {t('Active Creator', 'Kreator Aktif')}
+                            </Badge>
+                          )}
+                          {accountData.verified && (
+                            <Badge className="bg-cyan-400/20 text-cyan-400 border-cyan-400/30">
+                              {t('Verified', 'Terverifikasi')}
+                            </Badge>
+                          )}
+                          {f >= 10000 && (
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                              {t('Sponsor Ready', 'Siap Sponsor')}
+                            </Badge>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
