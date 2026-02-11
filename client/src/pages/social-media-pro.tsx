@@ -428,7 +428,7 @@ export default function SocialMediaPro() {
         )}
 
         {/* Account Profile Card - Show after analysis */}
-        {analyticsTab === 'account' && accountData && getMetricValue(accountData.metrics?.followers) === 0 && getMetricValue(accountData.metrics?.videos) === 0 && getMetricValue(accountData.metrics?.likes) === 0 && (
+        {analyticsTab === 'account' && accountData && (accountData.dataUnavailable || (getMetricValue(accountData.metrics?.followers) === 0 && getMetricValue(accountData.metrics?.videos) === 0 && getMetricValue(accountData.metrics?.likes) === 0)) && (
           <Card className="bg-[#141414] border-red-500/50" id="account-data-warning">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -597,35 +597,56 @@ export default function SocialMediaPro() {
           const likesDisplay = formatMetric(likes);
           const videosDisplay = videos.toString();
           
+          const followerProgress = followers >= 1000000 ? 100 : followers >= 100000 ? 85 : followers >= 10000 ? 65 : followers >= 1000 ? 40 : followers >= 100 ? 20 : followers > 0 ? 10 : 0;
+          const likesProgress = likes >= 10000000 ? 100 : likes >= 1000000 ? 80 : likes >= 100000 ? 60 : likes >= 10000 ? 40 : likes > 0 ? 15 : 0;
+          const videoProgress = videos >= 500 ? 100 : videos >= 200 ? 80 : videos >= 100 ? 65 : videos >= 50 ? 50 : videos >= 20 ? 35 : videos > 0 ? 15 : 0;
+
+          const getFollowerSubtitle = () => {
+            if (followers >= 100000) return t('Influencer level', 'Level influencer');
+            if (followers >= 10000) return t('Growing fast', 'Bertumbuh pesat');
+            if (followers >= 1000) return t('Building audience', 'Membangun audiens');
+            if (followers > 0) return t('Getting started', 'Baru mulai');
+            return t('No data', 'Tidak ada data');
+          };
+          const getLikesSubtitle = () => {
+            if (engagementRateNum >= 8) return t('Excellent engagement', 'Engagement luar biasa');
+            if (engagementRateNum >= 4) return t('Good engagement', 'Engagement bagus');
+            if (engagementRateNum >= 2) return t('Average engagement', 'Engagement rata-rata');
+            if (likes > 0) return t('Needs improvement', 'Perlu ditingkatkan');
+            return t('No data', 'Tidak ada data');
+          };
+          const getVideoSubtitle = () => {
+            if (videos >= 200) return t('Consistent creator', 'Kreator konsisten');
+            if (videos >= 50) return t('Active creator', 'Kreator aktif');
+            if (videos > 0) return t('Building library', 'Membangun konten');
+            return t('No data', 'Tidak ada data');
+          };
+
           return (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
               title={t('Total Followers', 'Total Followers')}
               value={followersDisplay}
-              subtitle={t('Growing audience', 'Audiens bertumbuh')}
+              subtitle={getFollowerSubtitle()}
               illustrationUrl={illustrationAudience}
-              progress={75}
-              change={12.5}
-              trend="up"
+              progress={followerProgress}
               color="pink"
             />
             <MetricCard
               title={t('Total Likes', 'Total Likes')}
               value={likesDisplay}
-              subtitle={t('High engagement', 'Engagement tinggi')}
+              subtitle={getLikesSubtitle()}
               illustrationUrl={illustrationEngagement}
-              progress={82}
-              change={8.3}
-              trend="up"
+              progress={likesProgress}
               color="cyan"
             />
             <MetricCard
               title={t('Total Videos', 'Total Video')}
               value={videosDisplay}
-              subtitle={t('Active creator', 'Kreator aktif')}
+              subtitle={getVideoSubtitle()}
               illustrationUrl={illustrationContent}
-              progress={60}
+              progress={videoProgress}
               color="purple"
             />
             <MetricCard

@@ -331,6 +331,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Don't fail the request if tracking fails
       }
 
+      const allMetricsZero = followersMetric.approx === 0 && likesMetric.approx === 0 && videosMetric.approx === 0;
+      
       // Return real data with BigInt-safe metrics
       res.json({
         success: true,
@@ -342,6 +344,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         verified: scrapedData.verified,
         isPrivate: false,
         dataSource: 'web-scraper',
+        dataUnavailable: allMetricsZero,
         metrics: {
           followers: followersMetric,
           following: followingMetric,
@@ -349,8 +352,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           videos: videosMetric,
           engagementRate: parseFloat(engagementRate.toFixed(1)),
           avgViews: avgViews,
-          followerGrowth: 0, // TODO: Implement growth tracking
-          likeGrowth: 0, // TODO: Implement growth tracking
+          followerGrowth: 0,
+          likeGrowth: 0,
         },
         insights: {
           engagementAnalysis: 'detailed-analysis',

@@ -220,12 +220,13 @@ Recommendations: ${analysisResult.recommendations?.join(', ') || ''}
       const sessionId = localStorage.getItem('biasSessionId') || 'anonymous';
       const analysisContextStr = getAnalysisContext();
       
-      // Always include analysis context so AI can give relevant, specific answers
-      const messageWithContext = analysisContextStr 
+      // Send full analysis context only on first message; follow-up messages rely on conversation history
+      const isFirstMessage = messages.length === 0;
+      const messageWithContext = isFirstMessage && analysisContextStr 
         ? `${userInput}\n\n[CONTEXT: User is asking about their analysis result]\n${analysisContextStr}`
         : userInput || t('Please analyze this image', 'Tolong analisis gambar ini');
 
-      // Build conversation history from existing messages (for context continuity)
+      // Build conversation history from existing messages (carries context forward without re-sending full analysis data)
       const conversationHistory = messages.map(msg => ({
         role: msg.type as 'user' | 'assistant',
         content: msg.content
