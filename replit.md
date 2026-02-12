@@ -38,6 +38,7 @@ The application supports dynamic white-label branding through a path-based routi
 - **AI-Personalized Account Analysis**: Generates unique, personalized narratives for account analysis via GPT-4o-mini.
 - **Contextual Chat Discussion**: Chat detects personal questions and routes them to AI, prioritizing conversation history for efficiency.
 - **Knowledge Base System**: Extracts and saves knowledge (topic, narrative summary, keywords) from conversations, which then becomes available for future queries.
+- **Topic Boundary System**: Auto-detects out-of-scope questions (trading/finance → nm23ai.replit.app, news → newsmaker.id, graphic design → Canva, data search → Google) with communication-intent exemptions so finance-related communication coaching is still answered. Located in `server/chat/hybrid-chat.ts` `detectOutOfScopeTopic()` function.
 
 ## External Dependencies
 

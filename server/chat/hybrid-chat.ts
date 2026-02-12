@@ -177,6 +177,24 @@ Gunakan reflective tone untuk konteks emosional.
 
 ---
 
+🚧 BATASAN SCOPE BIAS PRO
+
+BIAS Pro HANYA membahas: komunikasi, perilaku, persuasi, storytelling, public speaking, dan analisis konten.
+
+Jika user bertanya topik di LUAR scope, WAJIB redirect dengan sopan:
+| Topik | Redirect |
+|-------|----------|
+| Trading, forex, saham, crypto, margin call, pialang, investasi keuangan | 👉 nm23ai.replit.app (NM23 AI) |
+| Berita, update terkini, headline, peristiwa | 👉 newsmaker.id |
+| Desain grafis (flyer, poster, banner, logo) | Sarankan Canva atau Adobe Express |
+| Cari data/riset/googling | Bukan search engine — sarankan Google/Google Scholar |
+
+PENTING: Jika user nanya soal trading/keuangan tapi dari SISI KOMUNIKASI (misal: "cara presentasi ke calon nasabah", "teknik pitching produk keuangan"), itu BOLEH dijawab karena fokusnya di komunikasi.
+
+Untuk pertanyaan soal cara balas chat, cara nyambungin obrolan, dll: BOLEH dijawab sebagai SARAN KOMUNIKASI (bukan analisis chat). Posisikan diri sebagai coach komunikasi.
+
+---
+
 🌈 ETHICS & FOOTER
 
 Selalu jaga integritas & privasi user.
@@ -376,6 +394,24 @@ Ringkasan dalam 1-2 kalimat powerful.
 
 ---
 
+🚧 BATASAN SCOPE BIAS PRO
+
+BIAS Pro HANYA membahas: komunikasi, perilaku, persuasi, storytelling, public speaking, leadership, negotiation, dan presentasi profesional.
+
+Jika user bertanya topik di LUAR scope, WAJIB redirect dengan sopan:
+| Topik | Redirect |
+|-------|----------|
+| Trading, forex, saham, crypto, margin call, pialang, investasi keuangan (aspek TEKNIS keuangan) | 👉 nm23ai.replit.app (NM23 AI) |
+| Berita, update terkini, headline, peristiwa | 👉 newsmaker.id |
+| Desain grafis (flyer, poster, banner, logo) | Sarankan Canva atau Adobe Express |
+| Cari data/riset/googling | Bukan search engine — sarankan Google/Google Scholar |
+
+PENTING: Jika user nanya soal trading/keuangan tapi dari SISI KOMUNIKASI & SALES (misal: "cara presentasi ke calon nasabah", "teknik pitching produk", "cara follow-up klien", "cara closing deal"), itu BOLEH dijawab karena fokusnya di komunikasi profesional.
+
+Untuk pertanyaan soal cara balas chat, cara nyambungin obrolan, dll: BOLEH dijawab sebagai SARAN KOMUNIKASI & PERSUASI (bukan analisis chat pribadi). Posisikan diri sebagai coach komunikasi profesional.
+
+---
+
 🌈 ETHICS & FOOTER
 
 Selalu jaga integritas & komunikasi yang etis.
@@ -391,6 +427,132 @@ Persuasi BUKAN manipulasi — bangun trust, bukan exploit.
 
 Kamu adalah BIAS Pro — expert behavioral intelligence untuk komunikasi profesional.
 Jawab dengan DEPTH, AUTHORITY, dan WARMTH. Bikin user merasa dapat insight berharga dari mentor bisnis terpercaya! 🔥`;
+
+function detectOutOfScopeTopic(message: string): string | null {
+  const msgLower = message.toLowerCase();
+
+  const tradingKeywords = [
+    'trading', 'trader', 'forex', 'saham', 'crypto', 'cryptocurrency', 'bitcoin',
+    'margin call', 'lot', 'leverage', 'candlestick', 'chart pattern',
+    'pialang', 'broker', 'sekuritas', 'investasi saham', 'reksadana',
+    'obligasi', 'dividen', 'bursa efek', 'ihsg', 'idx',
+    'gold trading', 'oil trading', 'commodity', 'komoditas',
+    'buy sell signal', 'take profit', 'stop loss', 'cut loss',
+    'bullish', 'bearish', 'support resistance', 'moving average',
+    'indikator trading', 'analisa teknikal', 'analisis teknikal',
+    'metatrader', 'mt4', 'mt5', 'spread', 'pip', 'swap',
+    'deposit trading', 'withdraw trading', 'akun trading',
+    'signal trading', 'robot trading', 'expert advisor',
+    'futures', 'berjangka', 'equityworld', 'rifan financindo',
+    'monex', 'valbury', 'best profit', 'topgrowth',
+  ];
+
+  const newsKeywords = [
+    'berita terbaru', 'berita hari ini', 'kabar terbaru', 'info terkini',
+    'update berita', 'breaking news', 'headline', 'berita terkini',
+    'apa yang terjadi', 'peristiwa hari ini', 'berita politik',
+    'berita ekonomi', 'berita olahraga', 'berita dunia',
+  ];
+
+  const designKeywords = [
+    'buatkan flyer', 'buat flyer', 'bikin flyer', 'desain flyer',
+    'buatkan poster', 'buat poster', 'bikin poster', 'desain poster',
+    'buatkan banner', 'buat banner', 'bikin banner', 'desain banner',
+    'buatkan logo', 'buat logo', 'bikin logo', 'desain logo',
+    'buatkan brosur', 'buat brosur', 'bikin brosur', 'desain brosur',
+    'design grafis', 'desain grafis',
+  ];
+
+  const dataSearchKeywords = [
+    'carikan data', 'cari data', 'tolong cari', 'cari kan',
+    'cari informasi tentang', 'cari artikel', 'googling',
+    'search data', 'find data', 'cari statistik',
+  ];
+
+  const communicationIntentKeywords = [
+    'presentasi', 'pitch', 'pitching', 'cara menjelaskan', 'cara menyampaikan',
+    'komunikasi', 'closing', 'sales', 'jualan', 'prospek', 'follow up', 'follow-up',
+    'cara bicara', 'cara ngomong', 'cara bilang', 'cara meyakinkan',
+    'cara mengajak', 'cara mengundang', 'skrip', 'script', 'naskah',
+    'cara balas', 'cara jawab', 'cara chat', 'cara dm', 'cara hubungi',
+    'teknik persuasi', 'cara nego', 'negosiasi', 'objection handling',
+    'public speaking', 'pidato', 'storytelling', 'cara cerita',
+    'cara menulis', 'copywriting', 'redaksi', 'kalimat',
+    'hook', 'opening', 'cara buka', 'ice breaking',
+    'cara minta', 'cara ajak', 'cara undang', 'cara sapaan',
+  ];
+  const hasCommunicationIntent = communicationIntentKeywords.some(kw => msgLower.includes(kw));
+
+  const isTradingTopic = tradingKeywords.some(kw => msgLower.includes(kw));
+  const isNewsTopic = newsKeywords.some(kw => msgLower.includes(kw));
+  const isDesignRequest = designKeywords.some(kw => msgLower.includes(kw));
+  const isDataSearch = dataSearchKeywords.some(kw => msgLower.includes(kw));
+
+  if (isTradingTopic && !hasCommunicationIntent) {
+    return `🎯 **Pertanyaan bagus!**
+
+Topik tentang trading, investasi, dan keuangan ini di luar bidang keahlian BIAS Pro. BIAS Pro fokus pada **analisis komunikasi dan perilaku**.
+
+Tapi tenang, kamu bisa mendapatkan jawaban lengkap di sini:
+👉 **[NM23 AI](https://nm23ai.replit.app)** — AI assistant yang memahami dunia trading & keuangan.
+
+Kalau pertanyaannya tentang **cara mempresentasikan atau mengkomunikasikan** topik trading (misalnya: cara pitch ke calon nasabah, cara presentasi yang meyakinkan, teknik persuasi dalam sales), itu bisa saya bantu! Silakan tanya ulang dengan fokus pada sisi komunikasinya. 😊
+
+---
+**Powered by BIAS™ – Behavioral Intelligence**
+*Designed by NM23 Ai | Supported by Newsmaker.id Labs*`;
+  }
+
+  if (isNewsTopic && !hasCommunicationIntent) {
+    return `📰 **Pertanyaan menarik!**
+
+BIAS Pro tidak menyediakan berita atau update informasi terkini. BIAS Pro fokus pada **analisis komunikasi dan perilaku**.
+
+Untuk berita dan info terbaru, silakan kunjungi:
+👉 **[Newsmaker.id](https://newsmaker.id)** — Portal berita terpercaya.
+
+Kalau kamu mau belajar **cara menyampaikan berita dengan efektif** atau **teknik jurnalistik dalam komunikasi**, itu bisa saya bantu! 😊
+
+---
+**Powered by BIAS™ – Behavioral Intelligence**
+*Designed by NM23 Ai | Supported by Newsmaker.id Labs*`;
+  }
+
+  if (isDesignRequest) {
+    return `🎨 **Request yang keren!**
+
+Sayangnya, BIAS Pro tidak bisa membuat desain grafis (flyer, poster, banner, logo). BIAS Pro fokus pada **analisis komunikasi dan perilaku**.
+
+Untuk desain grafis, coba gunakan tools ini:
+• **Canva** (canva.com) — Gratis, mudah, banyak template
+• **Adobe Express** — Profesional dan intuitif
+
+Tapi kalau kamu mau saya bantu **menulis teks/copy untuk flyer atau poster** yang persuasif dan menarik, itu bisa banget! Tinggal bilang aja kontennya tentang apa. 😊
+
+---
+**Powered by BIAS™ – Behavioral Intelligence**
+*Designed by NM23 Ai | Supported by Newsmaker.id Labs*`;
+  }
+
+  if (isDataSearch) {
+    return `🔍 **Noted!**
+
+BIAS Pro bukan mesin pencari data atau search engine. BIAS Pro fokus pada **analisis komunikasi dan perilaku**.
+
+Untuk mencari data dan informasi:
+• **Google** — Pencarian umum
+• **Google Scholar** — Data akademis & riset
+• 👉 **[NM23 AI](https://nm23ai.replit.app)** — Kalau butuh AI assistant untuk riset
+
+Tapi kalau kamu mau saya bantu **cara menyajikan data** agar lebih meyakinkan dalam presentasi, atau **teknik storytelling dengan data**, itu bidang saya! 😊
+
+---
+**Powered by BIAS™ – Behavioral Intelligence**
+*Designed by NM23 Ai | Supported by Newsmaker.id Labs*`;
+  }
+
+  return null;
+}
 
 export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
   const sessionId = request.sessionId || 'anonymous';
@@ -412,6 +574,16 @@ export async function hybridChat(request: ChatRequest): Promise<ChatResponse> {
   const rawUserMessage = messageHasContext 
     ? request.message.split('\n\n[CONTEXT:')[0].split('\n\nKONTEKS ANALISIS')[0].trim()
     : request.message;
+  
+  // STEP 0: Topic boundary detection — redirect out-of-scope questions
+  const outOfScopeResponse = detectOutOfScopeTopic(rawUserMessage);
+  if (outOfScopeResponse) {
+    console.log(`🚧 Out-of-scope topic detected — redirecting user`);
+    return {
+      response: outOfScopeResponse,
+      source: 'local',
+    };
+  }
   
   // Detect personal/specific questions that need AI, not generic KB answers
   // These are questions with personal details (times, numbers, schedules, "saya/aku/gue")
