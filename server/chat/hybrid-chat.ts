@@ -445,6 +445,12 @@ function detectOutOfScopeTopic(message: string): string | null {
     'signal trading', 'robot trading', 'expert advisor',
     'futures', 'berjangka', 'equityworld', 'rifan financindo',
     'monex', 'valbury', 'best profit', 'topgrowth',
+    'stock price', 'stock market', 'stock exchange',
+    'investment portfolio', 'mutual fund', 'bond yield',
+    'technical analysis', 'fundamental analysis',
+    'day trading', 'swing trading', 'scalping',
+    'etf', 'nasdaq', 'dow jones', 's&p 500', 'nikkei',
+    'exchange rate', 'currency pair', 'interest rate',
   ];
 
   const newsKeywords = [
@@ -452,6 +458,9 @@ function detectOutOfScopeTopic(message: string): string | null {
     'update berita', 'breaking news', 'headline', 'berita terkini',
     'apa yang terjadi', 'peristiwa hari ini', 'berita politik',
     'berita ekonomi', 'berita olahraga', 'berita dunia',
+    'latest news', 'today\'s news', 'current events', 'what happened',
+    'news update', 'top stories', 'news about',
+    'world news', 'political news', 'sports news',
   ];
 
   const designKeywords = [
@@ -461,12 +470,20 @@ function detectOutOfScopeTopic(message: string): string | null {
     'buatkan logo', 'buat logo', 'bikin logo', 'desain logo',
     'buatkan brosur', 'buat brosur', 'bikin brosur', 'desain brosur',
     'design grafis', 'desain grafis',
+    'create a flyer', 'make a flyer', 'design a flyer',
+    'create a poster', 'make a poster', 'design a poster',
+    'create a banner', 'make a banner', 'design a banner',
+    'create a logo', 'make a logo', 'design a logo',
+    'create a brochure', 'make a brochure', 'design a brochure',
+    'graphic design',
   ];
 
   const dataSearchKeywords = [
     'carikan data', 'cari data', 'tolong cari', 'cari kan',
     'cari informasi tentang', 'cari artikel', 'googling',
     'search data', 'find data', 'cari statistik',
+    'look up data', 'search for information', 'find articles',
+    'find statistics', 'research about', 'google this',
   ];
 
   const communicationIntentKeywords = [
@@ -478,8 +495,12 @@ function detectOutOfScopeTopic(message: string): string | null {
     'teknik persuasi', 'cara nego', 'negosiasi', 'objection handling',
     'public speaking', 'pidato', 'storytelling', 'cara cerita',
     'cara menulis', 'copywriting', 'redaksi', 'kalimat',
-    'hook', 'opening', 'cara buka', 'ice breaking',
+    'hook konten', 'hook video', 'hook pembuka', 'opening', 'cara buka', 'ice breaking',
     'cara minta', 'cara ajak', 'cara undang', 'cara sapaan',
+    'presentation', 'how to explain', 'how to communicate',
+    'how to convince', 'how to persuade', 'how to present',
+    'how to pitch', 'how to negotiate', 'how to reply',
+    'how to respond', 'how to write', 'how to say',
   ];
   const hasCommunicationIntent = communicationIntentKeywords.some(kw => msgLower.includes(kw));
 
@@ -518,7 +539,7 @@ Kalau kamu mau belajar **cara menyampaikan berita dengan efektif** atau **teknik
 *Designed by NM23 Ai | Supported by Newsmaker.id Labs*`;
   }
 
-  if (isDesignRequest) {
+  if (isDesignRequest && !hasCommunicationIntent) {
     return `🎨 **Request yang keren!**
 
 Sayangnya, BIAS Pro tidak bisa membuat desain grafis (flyer, poster, banner, logo). BIAS Pro fokus pada **analisis komunikasi dan perilaku**.
@@ -534,7 +555,7 @@ Tapi kalau kamu mau saya bantu **menulis teks/copy untuk flyer atau poster** yan
 *Designed by NM23 Ai | Supported by Newsmaker.id Labs*`;
   }
 
-  if (isDataSearch) {
+  if (isDataSearch && !hasCommunicationIntent) {
     return `🔍 **Noted!**
 
 BIAS Pro bukan mesin pencari data atau search engine. BIAS Pro fokus pada **analisis komunikasi dan perilaku**.
